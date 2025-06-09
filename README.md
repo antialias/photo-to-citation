@@ -4,8 +4,6 @@ Photo To Citation is an experimental app that helps residents of Oak Park, IL re
 
 ## Tech Stack
 
-The project uses a modern React stack while giving you full control over deployment. It can be self‑hosted using Docker or other custom infrastructure.
-
 - ✅ **Next.js 14** (App Router with React Server Components)
 - 🎨 **Tailwind CSS + shadcn/ui + Radix UI**
 - 🧠 **Drizzle ORM with PostgreSQL**
@@ -16,14 +14,26 @@ The project uses a modern React stack while giving you full control over deploym
 
 This stack is designed for performance, type safety, and complete control over hosting and infrastructure.
 
+## Getting Started
+
+Install dependencies and start the development server:
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the app.
+
 ## Folder Structure
 
 ```text
-/app               # route handlers and React Server Components
-  /components
+src/app           # route handlers and React Server Components
+  components/
     ClientComponent.tsx
     ServerComponent.tsx
-/lib               # shared utilities such as database access
+src/lib           # shared utilities such as database access
   db.ts
 ```
 
+This repository contains only a basic scaffold; contributions are welcome.
