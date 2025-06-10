@@ -1,8 +1,36 @@
 "use client";
+import { mergeAnalysis } from "@/lib/analysisHelpers";
 import type { Case } from "@/lib/caseStore";
+import type { ViolationReport } from "@/lib/openai";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import MapPreview from "../../components/MapPreview";
+
+function computeDiff(
+  base: ViolationReport,
+  updated: ViolationReport,
+): Partial<ViolationReport> | null {
+  const result: Partial<ViolationReport> = {};
+  if (updated.violationType !== base.violationType)
+    result.violationType = updated.violationType;
+  if (updated.details !== base.details) result.details = updated.details;
+  if (updated.location !== base.location) result.location = updated.location;
+  const vehicle: Partial<ViolationReport["vehicle"]> = {};
+  if (updated.vehicle.make !== base.vehicle.make)
+    vehicle.make = updated.vehicle.make;
+  if (updated.vehicle.model !== base.vehicle.model)
+    vehicle.model = updated.vehicle.model;
+  if (updated.vehicle.type !== base.vehicle.type)
+    vehicle.type = updated.vehicle.type;
+  if (updated.vehicle.color !== base.vehicle.color)
+    vehicle.color = updated.vehicle.color;
+  if (updated.vehicle.licensePlateState !== base.vehicle.licensePlateState)
+    vehicle.licensePlateState = updated.vehicle.licensePlateState;
+  if (updated.vehicle.licensePlateNumber !== base.vehicle.licensePlateNumber)
+    vehicle.licensePlateNumber = updated.vehicle.licensePlateNumber;
+  if (Object.keys(vehicle).length) result.vehicle = vehicle;
+  return Object.keys(result).length ? result : null;
+}
 
 export default function ClientCasePage({
   initialCase,
@@ -13,6 +41,15 @@ export default function ClientCasePage({
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
+  const finalAnalysis = mergeAnalysis(
+    caseData?.analysis ?? null,
+    caseData?.overrides ?? null,
+  );
+  const [form, setForm] = useState<ViolationReport | null>(finalAnalysis);
+
+  useEffect(() => {
+    setForm(finalAnalysis);
+  }, [finalAnalysis]);
 
   useEffect(() => {
     if (!caseData) {
@@ -74,10 +111,75 @@ export default function ClientCasePage({
           Intersection: {caseData.intersection}
         </p>
       ) : null}
-      {caseData.analysis ? (
-        <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
-          {JSON.stringify(caseData.analysis, null, 2)}
-        </pre>
+      {form ? (
+        <form
+          className="bg-gray-100 p-4 rounded flex flex-col gap-2 text-sm"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!caseData?.analysis) return;
+            const diff = computeDiff(caseData.analysis, form);
+            await fetch(`/api/cases/${caseId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ overrides: diff }),
+            });
+            const res = await fetch(`/api/cases/${caseId}`);
+            if (res.ok) setCaseData((await res.json()) as Case);
+          }}
+        >
+          <label className="flex gap-2 items-center">
+            <span className="w-40">License Plate #</span>
+            <input
+              className="border px-2 py-1 flex-1"
+              value={form.vehicle.licensePlateNumber || ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  vehicle: {
+                    ...form.vehicle,
+                    licensePlateNumber: e.target.value,
+                  },
+                })
+              }
+            />
+          </label>
+          <label className="flex gap-2 items-center">
+            <span className="w-40">Vehicle Model</span>
+            <input
+              className="border px-2 py-1 flex-1"
+              value={form.vehicle.model || ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  vehicle: { ...form.vehicle, model: e.target.value },
+                })
+              }
+            />
+          </label>
+          <div className="flex gap-2 mt-2">
+            <button
+              type="submit"
+              className="px-4 py-1 bg-blue-600 text-white rounded"
+            >
+              Save Overrides
+            </button>
+            <button
+              type="button"
+              className="px-4 py-1 bg-gray-300 rounded"
+              onClick={async () => {
+                await fetch(`/api/cases/${caseId}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ overrides: null }),
+                });
+                const res = await fetch(`/api/cases/${caseId}`);
+                if (res.ok) setCaseData((await res.json()) as Case);
+              }}
+            >
+              Clear Overrides
+            </button>
+          </div>
+        </form>
       ) : (
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}

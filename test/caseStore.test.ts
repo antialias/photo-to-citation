@@ -27,6 +27,7 @@ describe("caseStore", () => {
     expect(c.gps).toEqual({ lat: 10, lon: 20 });
     expect(c.streetAddress).toBeNull();
     expect(c.intersection).toBeNull();
+    expect(c.overrides).toBeNull();
     expect(getCase(c.id)).toEqual(c);
     expect(getCases()).toHaveLength(1);
     const updated = updateCase(c.id, {
