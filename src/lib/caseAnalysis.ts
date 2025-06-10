@@ -23,7 +23,10 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       return `data:${mime};base64,${buffer.toString("base64")}`;
     });
     const result = await analyzeViolation(dataUrls);
-    updateCase(caseData.id, { analysis: result });
+    updateCase(caseData.id, {
+      analysis: result,
+      representativeImageIndex: result.representativeImageIndex ?? 0,
+    });
   } catch (err) {
     console.error("Failed to analyze case", caseData.id, err);
   }

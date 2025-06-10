@@ -20,6 +20,9 @@ export default function ClientCasePage({
   const [model, setModel] = useState<string>(
     initialCase?.analysis?.vehicle?.model || "",
   );
+  const [selectedIdx, setSelectedIdx] = useState<number>(
+    initialCase?.representativeImageIndex ?? 0,
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -43,6 +46,7 @@ export default function ClientCasePage({
     if (caseData) {
       setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
       setModel(caseData.analysis?.vehicle?.model || "");
+      setSelectedIdx(caseData.representativeImageIndex ?? 0);
     }
   }, [caseData]);
 
@@ -109,9 +113,29 @@ export default function ClientCasePage({
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
       <div className="flex flex-col gap-2">
-        {caseData.photos.map((p) => (
-          <Image key={p} src={p} alt="uploaded" width={600} height={400} />
-        ))}
+        <Image
+          src={caseData.photos[selectedIdx]}
+          alt="uploaded"
+          width={600}
+          height={400}
+        />
+        {caseData.photos.length > 1 ? (
+          <div className="flex gap-2 overflow-x-auto">
+            {caseData.photos.map((p, idx) => (
+              <Image
+                key={p}
+                src={p}
+                alt="thumbnail"
+                width={100}
+                height={75}
+                onClick={() => setSelectedIdx(idx)}
+                className={`cursor-pointer${
+                  selectedIdx === idx ? " ring-2 ring-blue-500" : ""
+                }`}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
       <p className="text-sm text-gray-500">
         Created {new Date(caseData.createdAt).toLocaleString()}

@@ -14,7 +14,19 @@ export default function CasesPage() {
         {cases.map((c) => (
           <li key={c.id} className="border p-2">
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
-              <Image src={c.photos[0]} alt="" width={80} height={60} />
+              <div className="relative">
+                <Image
+                  src={c.photos[c.representativeImageIndex ?? 0] || c.photos[0]}
+                  alt=""
+                  width={80}
+                  height={60}
+                />
+                {c.photos.length > 1 ? (
+                  <span className="absolute top-0 right-0 bg-black text-white text-xs px-1 rounded">
+                    {c.photos.length}
+                  </span>
+                ) : null}
+              </div>
               {c.gps ? (
                 <MapPreview
                   lat={c.gps.lat}

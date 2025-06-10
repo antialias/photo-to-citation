@@ -27,6 +27,7 @@ export const violationReportSchema = z.object({
   violationType: z.string(),
   details: z.string(),
   location: z.string().optional(),
+  representativeImageIndex: z.number().int().optional(),
   vehicle: z
     .object({
       make: z.string().optional(),
@@ -50,6 +51,7 @@ export async function analyzeViolation(
       violationType: { type: "string" },
       details: { type: "string" },
       location: { type: "string" },
+      representativeImageIndex: { type: "number" },
       vehicle: {
         type: "object",
         properties: {
@@ -76,7 +78,7 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and respond with JSON matching this schema: ${JSON.stringify(
+          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and respond with JSON matching this schema. Select the single photo that best represents the violation and report its 0-based index in the field \\"representativeImageIndex\\": ${JSON.stringify(
             schema,
           )}`,
         },
