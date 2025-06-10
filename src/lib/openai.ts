@@ -4,6 +4,20 @@ import { z } from "zod";
 
 dotenv.config();
 
+function logBadResponse(
+  attempt: number,
+  response: string,
+  error: unknown,
+): void {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    attempt: attempt + 1,
+    error: String(error),
+    response,
+  };
+  console.warn(JSON.stringify(entry));
+}
+
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
   dangerouslyAllowBrowser: true,
@@ -84,6 +98,7 @@ export async function analyzeViolation(
       const parsed = JSON.parse(text);
       return violationReportSchema.parse(parsed);
     } catch (err) {
+      logBadResponse(attempt, text, err);
       if (attempt === 2) throw err;
       messages.push({ role: "assistant", content: text });
       messages.push({
