@@ -45,6 +45,9 @@ triggers OpenAI analysis in the background. The resulting JSON is persisted
 alongside the case record once the analysis completes, so uploads are never
 blocked waiting for OpenAI.
 
+If the uploaded image contains GPS EXIF data, the latitude and longitude are
+extracted and saved with the case information.
+
 ## Folder Structure
 
 ```text
