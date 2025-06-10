@@ -1,6 +1,7 @@
 import { getCases } from "@/lib/caseStore";
 import Image from "next/image";
 import Link from "next/link";
+import MapPreview from "../components/MapPreview";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,14 @@ export default function CasesPage() {
           <li key={c.id} className="border p-2">
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
               <Image src={c.photo} alt="" width={80} height={60} />
+              {c.gps ? (
+                <MapPreview
+                  lat={c.gps.lat}
+                  lon={c.gps.lon}
+                  width={80}
+                  height={60}
+                />
+              ) : null}
               <span>
                 Case {c.id}
                 {c.analysis ? "" : " (processing...)"}
