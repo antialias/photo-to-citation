@@ -21,7 +21,11 @@ export default function ClientCasePage({
     initialCase?.analysis?.vehicle?.model || "",
   );
   const [selectedIdx, setSelectedIdx] = useState<number>(
-    initialCase?.representativeImageIndex ?? 0,
+    initialCase
+      ? initialCase.photos.findIndex(
+          (p) => p === initialCase.representativeImage,
+        )
+      : 0,
   );
   const router = useRouter();
 
@@ -46,7 +50,9 @@ export default function ClientCasePage({
     if (caseData) {
       setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
       setModel(caseData.analysis?.vehicle?.model || "");
-      setSelectedIdx(caseData.representativeImageIndex ?? 0);
+      setSelectedIdx(
+        caseData.photos.findIndex((p) => p === caseData.representativeImage),
+      );
     }
   }, [caseData]);
 

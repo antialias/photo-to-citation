@@ -27,7 +27,7 @@ export const violationReportSchema = z.object({
   violationType: z.string(),
   details: z.string(),
   location: z.string().optional(),
-  representativeImageIndex: z.number().int().optional(),
+  representativeImage: z.string().optional(),
   vehicle: z
     .object({
       make: z.string().optional(),
@@ -43,7 +43,7 @@ export const violationReportSchema = z.object({
 export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
-  imageUrls: string | string[],
+  images: Array<{ id: string; url: string }>,
 ): Promise<ViolationReport> {
   const schema = {
     type: "object",
@@ -51,7 +51,7 @@ export async function analyzeViolation(
       violationType: { type: "string" },
       details: { type: "string" },
       location: { type: "string" },
-      representativeImageIndex: { type: "number" },
+      representativeImage: { type: "string" },
       vehicle: {
         type: "object",
         properties: {
@@ -66,7 +66,7 @@ export async function analyzeViolation(
     },
   };
 
-  const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+  const ids = images.map((img) => img.id).join(", ");
   const baseMessages = [
     {
       role: "system",
@@ -78,11 +78,12 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and respond with JSON matching this schema. Select the single photo that best represents the violation and report its 0-based index in the field \\"representativeImageIndex\\": ${JSON.stringify(
-            schema,
-          )}`,
+          text: `Analyze the following photo${images.length > 1 ? "s" : ""}. The photos correspond to these identifiers in order: ${ids}. Respond with JSON matching this schema. Select the identifier of the photo that best represents the violation and provide it in the field \"representativeImage\": ${JSON.stringify(schema)}`,
         },
-        ...urls.map((u) => ({ type: "image_url", image_url: { url: u } })),
+        ...images.map((img) => ({
+          type: "image_url",
+          image_url: { url: img.url },
+        })),
       ],
     },
   ];

@@ -16,7 +16,7 @@ export default function CasesPage() {
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
               <div className="relative">
                 <Image
-                  src={c.photos[c.representativeImageIndex ?? 0] || c.photos[0]}
+                  src={c.representativeImage || c.photos[0]}
                   alt=""
                   width={80}
                   height={60}

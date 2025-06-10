@@ -7,7 +7,7 @@ export interface Case {
   id: string;
   photos: string[];
   createdAt: string;
-  representativeImageIndex?: number;
+  representativeImage?: string;
   gps?: {
     lat: number;
     lon: number;
@@ -33,7 +33,8 @@ function loadCases(): Case[] {
     return raw.map((c) => ({
       ...c,
       photos: c.photos ?? (c.photo ? [c.photo] : []),
-      representativeImageIndex: c.representativeImageIndex ?? 0,
+      representativeImage:
+        c.representativeImage ?? c.photos?.[0] ?? c.photo ?? null,
     }));
   } catch {
     return [];
@@ -81,7 +82,7 @@ export function createCase(
     id: id ?? Date.now().toString(),
     photos: [photo],
     createdAt: new Date().toISOString(),
-    representativeImageIndex: 0,
+    representativeImage: photo,
     gps,
     streetAddress: null,
     intersection: null,
