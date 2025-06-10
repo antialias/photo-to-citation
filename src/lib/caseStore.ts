@@ -25,7 +25,13 @@ function loadCases(): Case[] {
     return [];
   }
   try {
-    return JSON.parse(fs.readFileSync(dataFile, "utf8")) as Case[];
+    const raw = JSON.parse(fs.readFileSync(dataFile, "utf8")) as Array<
+      Case & { photo?: string }
+    >;
+    return raw.map((c) => ({
+      ...c,
+      photos: c.photos ?? (c.photo ? [c.photo] : []),
+    }));
   } catch {
     return [];
   }
