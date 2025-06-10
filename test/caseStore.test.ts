@@ -56,4 +56,15 @@ describe("caseStore", () => {
     const cleared = getCase(c.id);
     expect(cleared?.analysis?.vehicle?.model).toBeUndefined();
   });
+
+  it("computes the representative photo", () => {
+    const { createCase, addCasePhoto, getCase, getRepresentativePhoto } =
+      caseStore;
+    const c = createCase("/b.jpg");
+    addCasePhoto(c.id, "/a.jpg");
+    const updated = getCase(c.id);
+    expect(updated).toBeDefined();
+    const rep = getRepresentativePhoto(updated as NonNullable<typeof updated>);
+    expect(rep).toBe("/a.jpg");
+  });
 });
