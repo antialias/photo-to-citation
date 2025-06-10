@@ -1,4 +1,4 @@
-import { getCases } from "@/lib/caseStore";
+import { getCases } from "../../lib/caseStore";
 import ClientCasesPage from "./ClientCasesPage";
 
 export const dynamic = "force-dynamic";

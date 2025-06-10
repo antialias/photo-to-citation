@@ -1,8 +1,8 @@
 "use client";
-import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { Case } from "../../lib/caseStore";
 import MapPreview from "../components/MapPreview";
 
 export default function ClientCasesPage({
