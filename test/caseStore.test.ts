@@ -1,0 +1,30 @@
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
+
+let dataDir: string
+let caseStore: typeof import('../src/lib/caseStore')
+
+beforeEach(async () => {
+  dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cases-'))
+  process.env.CASE_STORE_FILE = path.join(dataDir, 'cases.json')
+  vi.resetModules()
+  caseStore = await import('../src/lib/caseStore')
+})
+
+afterEach(() => {
+  fs.rmSync(dataDir, { recursive: true, force: true })
+  vi.resetModules()
+  delete process.env.CASE_STORE_FILE
+})
+
+describe('caseStore', () => {
+  it('creates and retrieves a case', () => {
+    const { createCase, getCase, getCases } = caseStore
+    const c = createCase('/foo.jpg')
+    expect(c.photo).toBe('/foo.jpg')
+    expect(getCase(c.id)).toEqual(c)
+    expect(getCases()).toHaveLength(1)
+  })
+})
