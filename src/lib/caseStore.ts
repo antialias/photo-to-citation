@@ -89,19 +89,3 @@ export function updateCaseOverrides(
   saveCases(cases);
   return cases[idx];
 }
-
-export function mergeAnalysis(
-  base: ViolationReport | null | undefined,
-  overrides: Partial<ViolationReport> | null | undefined,
-): ViolationReport | null {
-  if (!base) return null;
-  if (!overrides) return base;
-  return {
-    ...base,
-    ...overrides,
-    vehicle: {
-      ...base.vehicle,
-      ...(overrides.vehicle ?? {}),
-    },
-  };
-}

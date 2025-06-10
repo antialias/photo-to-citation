@@ -1,6 +1,6 @@
 "use client";
+import { mergeAnalysis } from "@/lib/analysisHelpers";
 import type { Case } from "@/lib/caseStore";
-import { mergeAnalysis } from "@/lib/caseStore";
 import type { ViolationReport } from "@/lib/openai";
 import Image from "next/image";
 import { useEffect, useState } from "react";
