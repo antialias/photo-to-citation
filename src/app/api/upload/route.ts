@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
-import { createCase } from "@/lib/caseStore";
+import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
 import ExifParser from "exif-parser";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -38,6 +38,19 @@ export async function POST(req: NextRequest) {
   const ext = path.extname(file.name || "jpg") || ".jpg";
   const filename = `${crypto.randomUUID()}${ext}`;
   fs.writeFileSync(path.join(uploadDir, filename), buffer);
+  const existing = clientId ? getCase(clientId) : null;
+  if (existing) {
+    const updated = addCasePhoto(existing.id, `/uploads/${filename}`);
+    if (!updated) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    if (!updated.gps && gps) {
+      updateCase(updated.id, { gps });
+      fetchCaseLocationInBackground({ ...updated, gps });
+    }
+    analyzeCaseInBackground(updated);
+    return NextResponse.json({ caseId: updated.id });
+  }
   const newCase = createCase(
     `/uploads/${filename}`,
     gps,

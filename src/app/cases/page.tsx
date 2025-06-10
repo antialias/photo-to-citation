@@ -14,7 +14,7 @@ export default function CasesPage() {
         {cases.map((c) => (
           <li key={c.id} className="border p-2">
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
-              <Image src={c.photo} alt="" width={80} height={60} />
+              <Image src={c.photos[0]} alt="" width={80} height={60} />
               {c.gps ? (
                 <MapPreview
                   lat={c.gps.lat}

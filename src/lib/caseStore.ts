@@ -5,7 +5,7 @@ import type { ViolationReport } from "./openai";
 
 export interface Case {
   id: string;
-  photo: string;
+  photos: string[];
   createdAt: string;
   gps?: {
     lat: number;
@@ -52,7 +52,7 @@ export function createCase(
   const cases = loadCases();
   const newCase: Case = {
     id: id ?? Date.now().toString(),
-    photo,
+    photos: [photo],
     createdAt: new Date().toISOString(),
     gps,
     streetAddress: null,
@@ -72,6 +72,15 @@ export function updateCase(
   const idx = cases.findIndex((c) => c.id === id);
   if (idx === -1) return undefined;
   cases[idx] = { ...cases[idx], ...updates };
+  saveCases(cases);
+  return cases[idx];
+}
+
+export function addCasePhoto(id: string, photo: string): Case | undefined {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  cases[idx].photos.push(photo);
   saveCases(cases);
   return cases[idx];
 }

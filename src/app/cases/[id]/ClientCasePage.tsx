@@ -1,6 +1,7 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import MapPreview from "../../components/MapPreview";
 
@@ -13,6 +14,7 @@ export default function ClientCasePage({
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!caseData) {
@@ -31,6 +33,21 @@ export default function ClientCasePage({
     }
   }, [caseData, caseId]);
 
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("photo", file);
+    formData.append("caseId", caseId);
+    await fetch("/api/upload", { method: "POST", body: formData });
+    const res = await fetch(`/api/cases/${caseId}`);
+    if (res.ok) {
+      const data = (await res.json()) as Case;
+      setCaseData(data);
+    }
+    router.refresh();
+  }
+
   if (!caseData) {
     return (
       <div className="p-8 flex flex-col gap-4">
@@ -47,7 +64,11 @@ export default function ClientCasePage({
   return (
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
-      <Image src={caseData.photo} alt="uploaded" width={600} height={400} />
+      <div className="flex flex-col gap-2">
+        {caseData.photos.map((p) => (
+          <Image key={p} src={p} alt="uploaded" width={600} height={400} />
+        ))}
+      </div>
       <p className="text-sm text-gray-500">
         Created {new Date(caseData.createdAt).toLocaleString()}
       </p>
@@ -81,6 +102,7 @@ export default function ClientCasePage({
       ) : (
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}
+      <input type="file" accept="image/*" onChange={handleUpload} />
     </div>
   );
 }
