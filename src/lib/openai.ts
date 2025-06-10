@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import OpenAI from "openai";
+import { z } from "zod";
 
 dotenv.config();
 
@@ -8,19 +9,23 @@ export const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
-export interface ViolationReport {
-  violationType: string;
-  details: string;
-  location?: string;
-  vehicle: {
-    make?: string;
-    model?: string;
-    type?: string;
-    color?: string;
-    licensePlateState?: string;
-    licensePlateNumber?: string;
-  };
-}
+export const violationReportSchema = z.object({
+  violationType: z.string(),
+  details: z.string(),
+  location: z.string().optional(),
+  vehicle: z
+    .object({
+      make: z.string().optional(),
+      model: z.string().optional(),
+      type: z.string().optional(),
+      color: z.string().optional(),
+      licensePlateState: z.string().optional(),
+      licensePlateNumber: z.string().optional(),
+    })
+    .default({}),
+});
+
+export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
   imageUrls: string | string[],
@@ -46,31 +51,46 @@ export async function analyzeViolation(
   };
 
   const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+  const baseMessages = [
+    {
+      role: "system",
+      content:
+        "You identify vehicle violations and reply in JSON strictly following the provided schema.",
+    },
+    {
+      role: "user",
+      content: [
+        {
+          type: "text",
+          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and respond with JSON matching this schema: ${JSON.stringify(
+            schema,
+          )}`,
+        },
+        ...urls.map((u) => ({ type: "image_url", image_url: { url: u } })),
+      ],
+    },
+  ];
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You identify vehicle violations and reply in JSON strictly following the provided schema.",
-      },
-      {
+  const messages = [...baseMessages];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      max_tokens: 300,
+      response_format: { type: "json_object" },
+    });
+    const text = response.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(text);
+      return violationReportSchema.parse(parsed);
+    } catch (err) {
+      if (attempt === 2) throw err;
+      messages.push({ role: "assistant", content: text });
+      messages.push({
         role: "user",
-        content: [
-          {
-            type: "text",
-            text: `Analyze the photo${urls.length > 1 ? "s" : ""} and respond with JSON matching this schema: ${JSON.stringify(
-              schema,
-            )}`,
-          },
-          ...urls.map((u) => ({ type: "image_url", image_url: { url: u } })),
-        ],
-      },
-    ],
-    max_tokens: 300,
-    response_format: { type: "json_object" },
-  });
-  const text = response.choices[0]?.message?.content ?? "{}";
-  return JSON.parse(text);
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  throw new Error("Failed to analyze violation");
 }
