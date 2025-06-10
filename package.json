@@ -9,7 +9,7 @@
     "lint": "biome check .",
     "format": "biome format . --write",
     "test": "vitest run",
-    "reanalyze": "ts-node scripts/updateMissingAnalysis.ts"
+    "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
