@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "biome check .",
+    "format": "biome format . --write",
     "test": "vitest run"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "jsdom": "^26.1.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.3",
+    "@biomejs/biome": "^1.9.4"
   }
 }
