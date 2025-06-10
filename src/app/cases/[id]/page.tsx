@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation'
 export const dynamic = 'force-dynamic'
 
 export default async function CasePage({ params }: { params: { id: string } }) {
-  const c = getCase(params.id)
+  const { id } = await params
+  const c = getCase(id)
   if (!c) return notFound()
   return (
     <div className="p-8 flex flex-col gap-4">
