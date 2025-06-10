@@ -1,20 +1,24 @@
-import Image from 'next/image'
-import { getCase } from '@/lib/caseStore'
-import { notFound } from 'next/navigation'
+import { getCase } from "@/lib/caseStore";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default async function CasePage({ params }: { params: { id: string } }) {
-  const { id } = await params
-  const c = getCase(id)
-  if (!c) return notFound()
+  const { id } = await params;
+  const c = getCase(id);
+  if (!c) return notFound();
   return (
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {c.id}</h1>
       <Image src={c.photo} alt="uploaded" width={600} height={400} />
-      <p className="text-sm text-gray-500">Created {new Date(c.createdAt).toLocaleString()}</p>
+      <p className="text-sm text-gray-500">
+        Created {new Date(c.createdAt).toLocaleString()}
+      </p>
       {c.gps ? (
-        <p className="text-sm text-gray-500">GPS: {c.gps.lat}, {c.gps.lon}</p>
+        <p className="text-sm text-gray-500">
+          GPS: {c.gps.lat}, {c.gps.lon}
+        </p>
       ) : null}
       {c.streetAddress ? (
         <p className="text-sm text-gray-500">Address: {c.streetAddress}</p>
@@ -30,5 +34,5 @@ export default async function CasePage({ params }: { params: { id: string } }) {
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}
     </div>
-  )
+  );
 }

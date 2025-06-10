@@ -24,6 +24,13 @@ npm install
 npm run dev
 ```
 
+Use [`Biome`](https://biomejs.dev/) for consistent formatting and linting:
+
+```bash
+npm run lint
+npm run format
+```
+
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 ## OpenAI Integration

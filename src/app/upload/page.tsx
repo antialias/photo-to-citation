@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null)
-  const router = useRouter()
+  const [file, setFile] = useState<File | null>(null);
+  const router = useRouter();
 
   return (
     <form
       className="flex flex-col gap-4 p-8"
       onSubmit={async (e) => {
-        e.preventDefault()
-        if (!file) return
-        const formData = new FormData()
-        formData.append('photo', file)
-        const res = await fetch('/api/upload', {
-          method: 'POST',
+        e.preventDefault();
+        if (!file) return;
+        const formData = new FormData();
+        formData.append("photo", file);
+        const res = await fetch("/api/upload", {
+          method: "POST",
           body: formData,
-        })
+        });
         if (res.ok) {
-          const data = await res.json()
-          router.push(`/cases/${data.caseId}`)
+          const data = await res.json();
+          router.push(`/cases/${data.caseId}`);
         }
       }}
     >
@@ -37,5 +37,5 @@ export default function UploadPage() {
         Upload Photo
       </button>
     </form>
-  )
+  );
 }

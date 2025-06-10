@@ -1,11 +1,11 @@
-import React from "react"
-import { render, screen } from '@testing-library/react'
-import ClientComponent from '../ClientComponent'
-import { describe, it, expect } from 'vitest'
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it } from "vitest";
+import ClientComponent from "../ClientComponent";
 
-describe('ClientComponent', () => {
-  it('renders text', () => {
-    render(<ClientComponent />)
-    expect(screen.getByText('Client Component')).toBeInTheDocument()
-  })
-})
+describe("ClientComponent", () => {
+  it("renders text", () => {
+    render(<ClientComponent />);
+    expect(screen.getByText("Client Component")).toBeInTheDocument();
+  });
+});

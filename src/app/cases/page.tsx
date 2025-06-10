@@ -1,11 +1,11 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { getCases } from '@/lib/caseStore'
+import { getCases } from "@/lib/caseStore";
+import Image from "next/image";
+import Link from "next/link";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default function CasesPage() {
-  const cases = getCases()
+  const cases = getCases();
   return (
     <div className="p-8">
       <h1 className="text-xl font-bold mb-4">Cases</h1>
@@ -16,12 +16,12 @@ export default function CasesPage() {
               <Image src={c.photo} alt="" width={80} height={60} />
               <span>
                 Case {c.id}
-                {c.analysis ? '' : ' (processing...)'}
+                {c.analysis ? "" : " (processing...)"}
               </span>
             </Link>
           </li>
         ))}
       </ul>
     </div>
-  )
+  );
 }
