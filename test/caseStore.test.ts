@@ -22,8 +22,9 @@ afterEach(() => {
 describe('caseStore', () => {
   it('creates and retrieves a case', () => {
     const { createCase, getCase, getCases, updateCase } = caseStore
-    const c = createCase('/foo.jpg')
+    const c = createCase('/foo.jpg', { lat: 10, lon: 20 })
     expect(c.photo).toBe('/foo.jpg')
+    expect(c.gps).toEqual({ lat: 10, lon: 20 })
     expect(getCase(c.id)).toEqual(c)
     expect(getCases()).toHaveLength(1)
     const updated = updateCase(c.id, { analysis: { violationType: 'foo', details: 'bar', vehicle: {} } })
