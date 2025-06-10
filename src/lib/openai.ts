@@ -37,12 +37,19 @@ export const violationReportSchema = z.object({
       licensePlateNumber: z.string().optional(),
     })
     .default({}),
+  images: z
+    .record(
+      z.object({
+        representationScore: z.number().min(0).max(1),
+      }),
+    )
+    .default({}),
 });
 
 export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
-  imageUrls: string | string[],
+  images: Array<{ url: string; filename: string }>,
 ): Promise<ViolationReport> {
   const schema = {
     type: "object",
@@ -61,10 +68,20 @@ export async function analyzeViolation(
           licensePlateNumber: { type: "string" },
         },
       },
+      images: {
+        type: "object",
+        additionalProperties: {
+          type: "object",
+          properties: {
+            representationScore: { type: "number" },
+          },
+        },
+      },
     },
   };
 
-  const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+  const urls = images.map((i) => i.url);
+  const names = images.map((i) => i.filename);
   const baseMessages = [
     {
       role: "system",
@@ -76,7 +93,7 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and respond with JSON matching this schema: ${JSON.stringify(
+          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Use these filenames as keys: ${names.join(", ")}. Respond with JSON matching this schema: ${JSON.stringify(
             schema,
           )}`,
         },
