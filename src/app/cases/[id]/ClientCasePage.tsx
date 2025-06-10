@@ -22,22 +22,28 @@ export default function ClientCasePage({
   );
   const router = useRouter();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run once per id
   useEffect(() => {
     if (!caseData) {
       const stored = sessionStorage.getItem(`preview-${caseId}`);
       if (stored) setPreview(stored);
-      const interval = setInterval(async () => {
-        const res = await fetch(`/api/cases/${caseId}`);
-        if (res.ok) {
-          const data = (await res.json()) as Case;
-          setCaseData(data);
-          sessionStorage.removeItem(`preview-${caseId}`);
-          clearInterval(interval);
-        }
-      }, 1000);
-      return () => clearInterval(interval);
     }
-  }, [caseData, caseId]);
+    fetch(`/api/cases/${caseId}`).then(async (res) => {
+      if (res.ok) {
+        const data = (await res.json()) as Case;
+        setCaseData(data);
+      }
+    });
+    const es = new EventSource("/api/cases/stream");
+    es.onmessage = (e) => {
+      const data = JSON.parse(e.data) as Case;
+      if (data.id === caseId) {
+        setCaseData(data);
+        sessionStorage.removeItem(`preview-${caseId}`);
+      }
+    };
+    return () => es.close();
+  }, [caseId]);
 
   useEffect(() => {
     if (caseData) {
