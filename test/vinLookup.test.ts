@@ -20,8 +20,8 @@ afterEach(() => {
 describe("vinLookup", () => {
   it("parses vin from html", async () => {
     const { parseVinFromHtml } = await import("../src/lib/vinLookup");
-    const html = "<div>VIN: 1HGCM82633A004352</div>";
-    expect(parseVinFromHtml(html)).toBe("1HGCM82633A004352");
+    const html = "<div><span id='v'>VIN: 1HGCM82633A004352</span></div>";
+    expect(parseVinFromHtml(html, "#v")).toBe("1HGCM82633A004352");
   });
 
   it("fetches vin from website", async () => {
@@ -34,8 +34,10 @@ describe("vinLookup", () => {
     const globalAny: any = global;
     const originalFetch = globalAny.fetch;
     globalAny.fetch = fetchMock;
-    const { lookupVin } = await import("../src/lib/vinLookup");
-    const vin = await lookupVin("ABC123", "IL");
+    const { lookupVin, defaultVinSources } = await import(
+      "../src/lib/vinLookup"
+    );
+    const vin = await lookupVin("ABC123", "IL", defaultVinSources);
     expect(fetchMock).toHaveBeenCalled();
     expect(vin).toBe("1HGCM82633A004352");
     globalAny.fetch = originalFetch;
@@ -68,6 +70,28 @@ describe("vinLookup", () => {
     await fetchCaseVin(current);
     const final = getCase(c.id);
     expect(final?.vin).toBe("1HGCM82633A004352");
+    globalAny.fetch = originalFetch;
+  });
+
+  it("falls back to the next source", async () => {
+    const html1 = "no vin here";
+    const html2 = "<div>VIN 1HGCM82633A004352</div>";
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, text: () => Promise.resolve(html1) })
+      .mockResolvedValueOnce({ ok: true, text: () => Promise.resolve(html2) });
+    // biome-ignore lint/suspicious/noExplicitAny: test mock
+    const globalAny: any = global;
+    const originalFetch = globalAny.fetch;
+    globalAny.fetch = fetchMock;
+    const { lookupVin } = await import("../src/lib/vinLookup");
+    const sources = [
+      { buildUrl: () => "http://a", selector: "#foo" },
+      { buildUrl: () => "http://b" },
+    ];
+    const vin = await lookupVin("A", "B", sources);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(vin).toBe("1HGCM82633A004352");
     globalAny.fetch = originalFetch;
   });
 });
