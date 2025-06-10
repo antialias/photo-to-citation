@@ -119,6 +119,19 @@ export function addCasePhoto(id: string, photo: string): Case | undefined {
   return cases[idx];
 }
 
+export function removeCasePhoto(id: string, photo: string): Case | undefined {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  const photoIdx = cases[idx].photos.indexOf(photo);
+  if (photoIdx === -1) return undefined;
+  cases[idx].photos.splice(photoIdx, 1);
+  cases[idx].analysisStatus = "pending";
+  saveCases(cases);
+  caseEvents.emit("update", cases[idx]);
+  return cases[idx];
+}
+
 export function setCaseAnalysisOverrides(
   id: string,
   overrides: Partial<ViolationReport> | null,

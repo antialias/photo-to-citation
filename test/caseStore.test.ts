@@ -75,4 +75,15 @@ describe("caseStore", () => {
     const rep = getRepresentativePhoto(updated as NonNullable<typeof updated>);
     expect(rep).toBe("/a.jpg");
   });
+
+  it("removes a photo and marks analysis pending", () => {
+    const { createCase, addCasePhoto, removeCasePhoto, getCase } = caseStore;
+    const c = createCase("/foo.jpg");
+    addCasePhoto(c.id, "/bar.jpg");
+    const updated = removeCasePhoto(c.id, "/foo.jpg");
+    expect(updated?.photos).toEqual(["/bar.jpg"]);
+    expect(updated?.analysisStatus).toBe("pending");
+    const stored = getCase(c.id);
+    expect(stored?.photos).toEqual(["/bar.jpg"]);
+  });
 });

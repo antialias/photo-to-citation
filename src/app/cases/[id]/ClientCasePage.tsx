@@ -104,6 +104,20 @@ export default function ClientCasePage({
     }
   }
 
+  async function removePhoto(photo: string) {
+    await fetch(`/api/cases/${caseId}/photos`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo }),
+    });
+    const res = await fetch(`/api/cases/${caseId}`);
+    if (res.ok) {
+      const data = (await res.json()) as Case;
+      setCaseData(data);
+    }
+    router.refresh();
+  }
+
   if (!caseData) {
     return (
       <div className="p-8 flex flex-col gap-4">
@@ -125,18 +139,26 @@ export default function ClientCasePage({
       ) : null}
       <div className="flex gap-2 flex-wrap">
         {caseData.photos.map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setSelectedPhoto(p)}
-            className={
-              selectedPhoto === p
-                ? "ring-2 ring-blue-500"
-                : "ring-1 ring-transparent"
-            }
-          >
-            <Image src={p} alt="" width={80} height={60} />
-          </button>
+          <div key={p} className="relative">
+            <button
+              type="button"
+              onClick={() => setSelectedPhoto(p)}
+              className={
+                selectedPhoto === p
+                  ? "ring-2 ring-blue-500"
+                  : "ring-1 ring-transparent"
+              }
+            >
+              <Image src={p} alt="" width={80} height={60} />
+            </button>
+            <button
+              type="button"
+              onClick={() => removePhoto(p)}
+              className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+            >
+              ×
+            </button>
+          </div>
         ))}
       </div>
       <p className="text-sm text-gray-500">
