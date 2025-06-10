@@ -45,13 +45,14 @@ export type ViolationReport = z.infer<typeof violationReportSchema>;
 export async function analyzeViolation(
   images: Array<{ id: string; url: string }>,
 ): Promise<ViolationReport> {
+  const idList = images.map((img) => img.id);
   const schema = {
     type: "object",
     properties: {
       violationType: { type: "string" },
       details: { type: "string" },
       location: { type: "string" },
-      representativeImage: { type: "string" },
+      representativeImage: { type: "string", enum: idList },
       vehicle: {
         type: "object",
         properties: {
@@ -66,7 +67,7 @@ export async function analyzeViolation(
     },
   };
 
-  const ids = images.map((img) => img.id).join(", ");
+  const ids = idList.join(", ");
   const baseMessages = [
     {
       role: "system",
@@ -78,7 +79,7 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the following photo${images.length > 1 ? "s" : ""}. The photos correspond to these identifiers in order: ${ids}. Respond with JSON matching this schema. Select the identifier of the photo that best represents the violation and provide it in the field \"representativeImage\": ${JSON.stringify(schema)}`,
+          text: `Analyze the following photo${images.length > 1 ? "s" : ""}. The photos correspond to these identifiers in order: ${ids}. Respond with JSON matching this schema. The representativeImage field must be one of these identifiers and should match the photo that best represents the violation: ${JSON.stringify(schema)}`,
         },
         ...images.map((img) => ({
           type: "image_url",

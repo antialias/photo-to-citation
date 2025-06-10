@@ -24,9 +24,14 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       return { id: p, url };
     });
     const result = await analyzeViolation(images);
+    const rep =
+      result.representativeImage &&
+      caseData.photos.includes(result.representativeImage)
+        ? result.representativeImage
+        : caseData.photos[0];
     updateCase(caseData.id, {
       analysis: result,
-      representativeImage: result.representativeImage ?? caseData.photos[0],
+      representativeImage: rep,
     });
   } catch (err) {
     console.error("Failed to analyze case", caseData.id, err);

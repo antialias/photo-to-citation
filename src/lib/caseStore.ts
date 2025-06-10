@@ -30,12 +30,14 @@ function loadCases(): Case[] {
     const raw = JSON.parse(fs.readFileSync(dataFile, "utf8")) as Array<
       Case & { photo?: string }
     >;
-    return raw.map((c) => ({
-      ...c,
-      photos: c.photos ?? (c.photo ? [c.photo] : []),
-      representativeImage:
-        c.representativeImage ?? c.photos?.[0] ?? c.photo ?? null,
-    }));
+    return raw.map((c) => {
+      const photos = c.photos ?? (c.photo ? [c.photo] : []);
+      let rep = c.representativeImage ?? photos[0] ?? null;
+      if (rep && !photos.includes(rep)) {
+        rep = photos[0] ?? null;
+      }
+      return { ...c, photos, representativeImage: rep };
+    });
   } catch {
     return [];
   }

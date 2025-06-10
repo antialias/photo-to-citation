@@ -20,13 +20,13 @@ export default function ClientCasePage({
   const [model, setModel] = useState<string>(
     initialCase?.analysis?.vehicle?.model || "",
   );
-  const [selectedIdx, setSelectedIdx] = useState<number>(
-    initialCase
-      ? initialCase.photos.findIndex(
-          (p) => p === initialCase.representativeImage,
-        )
-      : 0,
-  );
+  const [selectedIdx, setSelectedIdx] = useState<number>(() => {
+    if (!initialCase) return 0;
+    const idx = initialCase.photos.findIndex(
+      (p) => p === initialCase.representativeImage,
+    );
+    return idx >= 0 ? idx : 0;
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -50,9 +50,10 @@ export default function ClientCasePage({
     if (caseData) {
       setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
       setModel(caseData.analysis?.vehicle?.model || "");
-      setSelectedIdx(
-        caseData.photos.findIndex((p) => p === caseData.representativeImage),
+      const idx = caseData.photos.findIndex(
+        (p) => p === caseData.representativeImage,
       );
+      setSelectedIdx(idx >= 0 ? idx : 0);
     }
   }, [caseData]);
 
