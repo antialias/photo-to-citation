@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCase } from '@/lib/caseStore'
 import { analyzeCaseInBackground } from '@/lib/caseAnalysis'
+import { fetchCaseLocationInBackground } from '@/lib/caseLocation'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
@@ -38,5 +39,6 @@ export async function POST(req: NextRequest) {
   fs.writeFileSync(path.join(uploadDir, filename), buffer)
   const newCase = createCase(`/uploads/${filename}`, gps)
   analyzeCaseInBackground(newCase)
+  fetchCaseLocationInBackground(newCase)
   return NextResponse.json({ caseId: newCase.id })
 }
