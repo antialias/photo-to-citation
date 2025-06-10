@@ -1,8 +1,29 @@
+import fs from "node:fs";
+import path from "node:path";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import { z } from "zod";
 
 dotenv.config();
+
+const logFile = process.env.LLM_RESPONSE_LOG
+  ? path.resolve(process.env.LLM_RESPONSE_LOG)
+  : path.join(process.cwd(), "logs", "llm-retries.log");
+
+function logBadResponse(
+  attempt: number,
+  response: string,
+  error: unknown,
+): void {
+  fs.mkdirSync(path.dirname(logFile), { recursive: true });
+  const entry = {
+    timestamp: new Date().toISOString(),
+    attempt: attempt + 1,
+    error: String(error),
+    response,
+  };
+  fs.appendFileSync(logFile, `${JSON.stringify(entry)}\n`);
+}
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
@@ -84,6 +105,7 @@ export async function analyzeViolation(
       const parsed = JSON.parse(text);
       return violationReportSchema.parse(parsed);
     } catch (err) {
+      logBadResponse(attempt, text, err);
       if (attempt === 2) throw err;
       messages.push({ role: "assistant", content: text });
       messages.push({
