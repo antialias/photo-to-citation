@@ -47,12 +47,16 @@ export default function ClientCasePage({
   }, [caseData]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("photo", file);
-    formData.append("caseId", caseId);
-    await fetch("/api/upload", { method: "POST", body: formData });
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await Promise.all(
+      Array.from(files).map((file) => {
+        const formData = new FormData();
+        formData.append("photo", file);
+        formData.append("caseId", caseId);
+        return fetch("/api/upload", { method: "POST", body: formData });
+      }),
+    );
     const res = await fetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
@@ -185,7 +189,7 @@ export default function ClientCasePage({
           </div>
         </form>
       ) : null}
-      <input type="file" accept="image/*" onChange={handleUpload} />
+      <input type="file" accept="image/*" multiple onChange={handleUpload} />
     </div>
   );
 }
