@@ -25,10 +25,10 @@ describe("vinLookup", () => {
   });
 
   it("fetches vin from website", async () => {
-    const html = "<span>VIN 1HGCM82633A004352</span>";
+    const json = JSON.stringify({ vins: ["1HGCM82633A004352"] });
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      text: () => Promise.resolve(html),
+      text: () => Promise.resolve(json),
     });
     // biome-ignore lint/suspicious/noExplicitAny: test mock
     const globalAny: any = global;
@@ -39,6 +39,8 @@ describe("vinLookup", () => {
     );
     const vin = await lookupVin("ABC123", "IL", defaultVinSources);
     expect(fetchMock).toHaveBeenCalled();
+    const callArgs = fetchMock.mock.calls[0];
+    expect(callArgs[1]?.method).toBe("POST");
     expect(vin).toBe("1HGCM82633A004352");
     globalAny.fetch = originalFetch;
   });
@@ -48,10 +50,10 @@ describe("vinLookup", () => {
     const { createCase, updateCase, getCase } = caseStore;
     const vinLookup = await import("../src/lib/vinLookup");
     const { fetchCaseVin } = vinLookup;
-    const html = "<p>VIN 1HGCM82633A004352</p>";
+    const json = JSON.stringify({ vins: ["1HGCM82633A004352"] });
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      text: () => Promise.resolve(html),
+      text: () => Promise.resolve(json),
     });
     // biome-ignore lint/suspicious/noExplicitAny: test mock
     const globalAny: any = global;
@@ -70,6 +72,8 @@ describe("vinLookup", () => {
     await fetchCaseVin(current);
     const final = getCase(c.id);
     expect(final?.vin).toBe("1HGCM82633A004352");
+    const callArgs = fetchMock.mock.calls[0];
+    expect(callArgs[1]?.method).toBe("POST");
     globalAny.fetch = originalFetch;
   });
 
