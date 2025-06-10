@@ -1,10 +1,13 @@
 import fs from 'fs'
 import path from 'path'
 
+import { ViolationReport } from './openai'
+
 export interface Case {
   id: string
   photo: string
   createdAt: string
+  analysis?: ViolationReport | null
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -41,8 +44,18 @@ export function createCase(photo: string): Case {
     id: Date.now().toString(),
     photo,
     createdAt: new Date().toISOString(),
+    analysis: null,
   }
   cases.push(newCase)
   saveCases(cases)
   return newCase
+}
+
+export function updateCase(id: string, updates: Partial<Case>): Case | undefined {
+  const cases = loadCases()
+  const idx = cases.findIndex((c) => c.id === id)
+  if (idx === -1) return undefined
+  cases[idx] = { ...cases[idx], ...updates }
+  saveCases(cases)
+  return cases[idx]
 }

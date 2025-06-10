@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCase } from '@/lib/caseStore'
+import { analyzeCaseInBackground } from '@/lib/caseAnalysis'
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
   const form = await req.formData()
@@ -17,5 +19,6 @@ export async function POST(req: NextRequest) {
   const filename = `${crypto.randomUUID()}${ext}`
   fs.writeFileSync(path.join(uploadDir, filename), buffer)
   const newCase = createCase(`/uploads/${filename}`)
+  analyzeCaseInBackground(newCase)
   return NextResponse.json({ caseId: newCase.id })
 }
