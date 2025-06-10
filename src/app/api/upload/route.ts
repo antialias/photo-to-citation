@@ -10,6 +10,7 @@ import ExifParser from 'exif-parser'
 export async function POST(req: NextRequest) {
   const form = await req.formData()
   const file = form.get('photo') as File | null
+  const clientId = form.get('caseId') as string | null
   if (!file) {
     return NextResponse.json({ error: 'No file' }, { status: 400 })
   }
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
   const ext = path.extname(file.name || 'jpg') || '.jpg'
   const filename = `${crypto.randomUUID()}${ext}`
   fs.writeFileSync(path.join(uploadDir, filename), buffer)
-  const newCase = createCase(`/uploads/${filename}`, gps)
+  const newCase = createCase(`/uploads/${filename}`, gps, clientId || undefined)
   analyzeCaseInBackground(newCase)
   fetchCaseLocationInBackground(newCase)
   return NextResponse.json({ caseId: newCase.id })

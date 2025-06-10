@@ -32,4 +32,11 @@ describe('caseStore', () => {
     const updated = updateCase(c.id, { analysis: { violationType: 'foo', details: 'bar', vehicle: {} } })
     expect(updated?.analysis?.violationType).toBe('foo')
   })
+
+  it('allows providing a custom id', () => {
+    const { createCase, getCase } = caseStore
+    const c = createCase('/bar.jpg', null, 'custom-id')
+    expect(c.id).toBe('custom-id')
+    expect(getCase('custom-id')).toEqual(c)
+  })
 })

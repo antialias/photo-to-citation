@@ -44,10 +44,14 @@ export function getCase(id: string): Case | undefined {
   return loadCases().find((c) => c.id === id)
 }
 
-export function createCase(photo: string, gps: Case['gps'] = null): Case {
+export function createCase(
+  photo: string,
+  gps: Case['gps'] = null,
+  id?: string
+): Case {
   const cases = loadCases()
   const newCase: Case = {
-    id: Date.now().toString(),
+    id: id ?? Date.now().toString(),
     photo,
     createdAt: new Date().toISOString(),
     gps,
