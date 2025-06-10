@@ -14,6 +14,7 @@ export interface Case {
   streetAddress?: string | null;
   intersection?: string | null;
   analysis?: ViolationReport | null;
+  overrides?: Partial<ViolationReport> | null;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -58,6 +59,7 @@ export function createCase(
     streetAddress: null,
     intersection: null,
     analysis: null,
+    overrides: null,
   };
   cases.push(newCase);
   saveCases(cases);
@@ -74,4 +76,32 @@ export function updateCase(
   cases[idx] = { ...cases[idx], ...updates };
   saveCases(cases);
   return cases[idx];
+}
+
+export function updateCaseOverrides(
+  id: string,
+  overrides: Partial<ViolationReport> | null,
+): Case | undefined {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  cases[idx].overrides = overrides;
+  saveCases(cases);
+  return cases[idx];
+}
+
+export function mergeAnalysis(
+  base: ViolationReport | null | undefined,
+  overrides: Partial<ViolationReport> | null | undefined,
+): ViolationReport | null {
+  if (!base) return null;
+  if (!overrides) return base;
+  return {
+    ...base,
+    ...overrides,
+    vehicle: {
+      ...base.vehicle,
+      ...(overrides.vehicle ?? {}),
+    },
+  };
 }
