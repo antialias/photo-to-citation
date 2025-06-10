@@ -11,6 +11,7 @@ Photo To Citation is an experimental app that helps residents of Oak Park, IL re
 - 🔐 **Lucia or NextAuth.js** for authentication
 - ⚡ **Framer Motion** for animations
 - 🧪 **Zod** for schema validation
+- 🖼️ **react-icons** for iconography
 
 This stack is designed for performance, type safety, and complete control over hosting and infrastructure.
 
