@@ -4,8 +4,10 @@ import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function CasePage({ params }: any) {
-  const c = getCase(params.id)
+export default async function CasePage({ params }: any) {
+  // Await params for compatibility with async dynamic routes
+  const { id } = await Promise.resolve(params)
+  const c = getCase(id)
   if (!c) return notFound()
   return (
     <div className="p-8 flex flex-col gap-4">
