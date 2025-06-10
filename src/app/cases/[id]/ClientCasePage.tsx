@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
+import AnalysisInfo from "../../components/AnalysisInfo";
 import MapPreview from "../../components/MapPreview";
 
 export default function ClientCasePage({
@@ -165,9 +166,9 @@ export default function ClientCasePage({
         </p>
       ) : null}
       {caseData.analysis ? (
-        <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
-          {JSON.stringify(caseData.analysis, null, 2)}
-        </pre>
+        <div className="bg-gray-100 p-4 rounded">
+          <AnalysisInfo analysis={caseData.analysis} />
+        </div>
       ) : (
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}

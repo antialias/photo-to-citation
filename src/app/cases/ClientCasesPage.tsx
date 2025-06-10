@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Case } from "../../lib/caseStore";
+import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
 
 export default function ClientCasesPage({
@@ -34,7 +35,7 @@ export default function ClientCasesPage({
       <ul className="grid gap-4">
         {cases.map((c) => (
           <li key={c.id} className="border p-2">
-            <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
+            <Link href={`/cases/${c.id}`} className="flex items-start gap-4">
               <div className="relative">
                 <Image
                   src={getRepresentativePhoto(c)}
@@ -54,10 +55,14 @@ export default function ClientCasesPage({
                   height={60}
                 />
               ) : null}
-              <span>
-                Case {c.id}
-                {c.analysis ? "" : " (processing...)"}
-              </span>
+              <div className="flex flex-col text-sm gap-1">
+                <span className="font-semibold">Case {c.id}</span>
+                {c.analysis ? (
+                  <AnalysisInfo analysis={c.analysis} />
+                ) : (
+                  <span className="text-gray-500">Processing...</span>
+                )}
+              </div>
             </Link>
           </li>
         ))}
