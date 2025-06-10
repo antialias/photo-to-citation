@@ -1,5 +1,6 @@
 import { Case, updateCase } from './caseStore'
 import { reverseGeocode, intersectionLookup } from './geocode'
+import { runJob } from './jobScheduler'
 
 export async function fetchCaseLocation(caseData: Case): Promise<void> {
   if (!caseData.gps) return
@@ -15,5 +16,5 @@ export async function fetchCaseLocation(caseData: Case): Promise<void> {
 }
 
 export function fetchCaseLocationInBackground(caseData: Case): void {
-  fetchCaseLocation(caseData).catch((err) => console.error(err))
+  runJob('fetchCaseLocation', caseData)
 }

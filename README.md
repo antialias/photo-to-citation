@@ -41,7 +41,9 @@ includes the violation type, location clues, and vehicle details such as make,
 model, color and license plate information.
 
 When a user uploads a photo, the API stores the case immediately and then
-triggers OpenAI analysis in the background. The resulting JSON is persisted
+triggers OpenAI analysis in the background. These asynchronous tasks are
+managed by [Bree](https://github.com/breejs/bree), which spawns worker threads
+to handle image analysis and reverse geocoding. The resulting JSON is persisted
 alongside the case record once the analysis completes, so uploads are never
 blocked waiting for OpenAI.
 
