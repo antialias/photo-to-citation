@@ -62,6 +62,9 @@ reverse geocode lookup for each case in the background. The resulting street
 address and closest intersection are stored with the case once the lookup
 completes.
 
+To show map previews in the UI, set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` to the
+same value so the Google Static Maps API can be used on the client.
+
 ## Folder Structure
 
 ```text

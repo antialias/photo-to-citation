@@ -1,7 +1,8 @@
 "use client";
+import type { Case } from "@/lib/caseStore";
+import { getStaticMapUrl } from "@/lib/maps";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import type { Case } from "@/lib/caseStore";
 
 export default function ClientCasePage({
   initialCase,
@@ -47,6 +48,14 @@ export default function ClientCasePage({
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
       <Image src={caseData.photo} alt="uploaded" width={600} height={400} />
+      {caseData.gps ? (
+        <Image
+          src={getStaticMapUrl(caseData.gps, { width: 600, height: 400 })}
+          alt="map"
+          width={600}
+          height={400}
+        />
+      ) : null}
       <p className="text-sm text-gray-500">
         Created {new Date(caseData.createdAt).toLocaleString()}
       </p>

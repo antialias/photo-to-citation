@@ -1,4 +1,5 @@
 import { getCases } from "@/lib/caseStore";
+import { getStaticMapUrl } from "@/lib/maps";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,6 +15,14 @@ export default function CasesPage() {
           <li key={c.id} className="border p-2">
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
               <Image src={c.photo} alt="" width={80} height={60} />
+              {c.gps ? (
+                <Image
+                  src={getStaticMapUrl(c.gps, { width: 80, height: 60 })}
+                  alt="map"
+                  width={80}
+                  height={60}
+                />
+              ) : null}
               <span>
                 Case {c.id}
                 {c.analysis ? "" : " (processing...)"}
