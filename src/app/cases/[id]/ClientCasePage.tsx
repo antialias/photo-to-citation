@@ -1,34 +1,34 @@
-'use client'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import type { Case } from '@/lib/caseStore'
+"use client";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import type { Case } from "@/lib/caseStore";
 
 export default function ClientCasePage({
   initialCase,
   caseId,
 }: {
-  initialCase: Case | null
-  caseId: string
+  initialCase: Case | null;
+  caseId: string;
 }) {
-  const [caseData, setCaseData] = useState<Case | null>(initialCase)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [caseData, setCaseData] = useState<Case | null>(initialCase);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!caseData) {
-      const stored = sessionStorage.getItem(`preview-${caseId}`)
-      if (stored) setPreview(stored)
+      const stored = sessionStorage.getItem(`preview-${caseId}`);
+      if (stored) setPreview(stored);
       const interval = setInterval(async () => {
-        const res = await fetch(`/api/cases/${caseId}`)
+        const res = await fetch(`/api/cases/${caseId}`);
         if (res.ok) {
-          const data = (await res.json()) as Case
-          setCaseData(data)
-          sessionStorage.removeItem(`preview-${caseId}`)
-          clearInterval(interval)
+          const data = (await res.json()) as Case;
+          setCaseData(data);
+          sessionStorage.removeItem(`preview-${caseId}`);
+          clearInterval(interval);
         }
-      }, 1000)
-      return () => clearInterval(interval)
+      }, 1000);
+      return () => clearInterval(interval);
     }
-  }, [caseData, caseId])
+  }, [caseData, caseId]);
 
   if (!caseData) {
     return (
@@ -40,7 +40,7 @@ export default function ClientCasePage({
         ) : null}
         <p className="text-sm text-gray-500">Uploading photo...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -51,13 +51,19 @@ export default function ClientCasePage({
         Created {new Date(caseData.createdAt).toLocaleString()}
       </p>
       {caseData.gps ? (
-        <p className="text-sm text-gray-500">GPS: {caseData.gps.lat}, {caseData.gps.lon}</p>
+        <p className="text-sm text-gray-500">
+          GPS: {caseData.gps.lat}, {caseData.gps.lon}
+        </p>
       ) : null}
       {caseData.streetAddress ? (
-        <p className="text-sm text-gray-500">Address: {caseData.streetAddress}</p>
+        <p className="text-sm text-gray-500">
+          Address: {caseData.streetAddress}
+        </p>
       ) : null}
       {caseData.intersection ? (
-        <p className="text-sm text-gray-500">Intersection: {caseData.intersection}</p>
+        <p className="text-sm text-gray-500">
+          Intersection: {caseData.intersection}
+        </p>
       ) : null}
       {caseData.analysis ? (
         <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
@@ -67,5 +73,5 @@ export default function ClientCasePage({
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}
     </div>
-  )
+  );
 }

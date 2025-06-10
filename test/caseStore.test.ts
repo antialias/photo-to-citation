@@ -19,24 +19,26 @@ afterEach(() => {
   process.env.CASE_STORE_FILE = undefined;
 });
 
-describe('caseStore', () => {
-  it('creates and retrieves a case', () => {
-    const { createCase, getCase, getCases, updateCase } = caseStore
-    const c = createCase('/foo.jpg', { lat: 10, lon: 20 })
-    expect(c.photo).toBe('/foo.jpg')
-    expect(c.gps).toEqual({ lat: 10, lon: 20 })
-    expect(c.streetAddress).toBeNull()
-    expect(c.intersection).toBeNull()
-    expect(getCase(c.id)).toEqual(c)
-    expect(getCases()).toHaveLength(1)
-    const updated = updateCase(c.id, { analysis: { violationType: 'foo', details: 'bar', vehicle: {} } })
-    expect(updated?.analysis?.violationType).toBe('foo')
-  })
+describe("caseStore", () => {
+  it("creates and retrieves a case", () => {
+    const { createCase, getCase, getCases, updateCase } = caseStore;
+    const c = createCase("/foo.jpg", { lat: 10, lon: 20 });
+    expect(c.photo).toBe("/foo.jpg");
+    expect(c.gps).toEqual({ lat: 10, lon: 20 });
+    expect(c.streetAddress).toBeNull();
+    expect(c.intersection).toBeNull();
+    expect(getCase(c.id)).toEqual(c);
+    expect(getCases()).toHaveLength(1);
+    const updated = updateCase(c.id, {
+      analysis: { violationType: "foo", details: "bar", vehicle: {} },
+    });
+    expect(updated?.analysis?.violationType).toBe("foo");
+  });
 
-  it('allows providing a custom id', () => {
-    const { createCase, getCase } = caseStore
-    const c = createCase('/bar.jpg', null, 'custom-id')
-    expect(c.id).toBe('custom-id')
-    expect(getCase('custom-id')).toEqual(c)
-  })
-})
+  it("allows providing a custom id", () => {
+    const { createCase, getCase } = caseStore;
+    const c = createCase("/bar.jpg", null, "custom-id");
+    expect(c.id).toBe("custom-id");
+    expect(getCase("custom-id")).toEqual(c);
+  });
+});

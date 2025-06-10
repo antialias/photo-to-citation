@@ -46,10 +46,10 @@ export function getCase(id: string): Case | undefined {
 
 export function createCase(
   photo: string,
-  gps: Case['gps'] = null,
-  id?: string
+  gps: Case["gps"] = null,
+  id?: string,
 ): Case {
-  const cases = loadCases()
+  const cases = loadCases();
   const newCase: Case = {
     id: id ?? Date.now().toString(),
     photo,
