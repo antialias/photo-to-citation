@@ -18,10 +18,6 @@ export interface Case {
   analysisOverrides?: Partial<ViolationReport> | null;
 }
 
-export function getRepresentativePhoto(caseData: Pick<Case, "photos">): string {
-  return [...caseData.photos].sort()[0];
-}
-
 const dataFile = process.env.CASE_STORE_FILE
   ? path.resolve(process.env.CASE_STORE_FILE)
   : path.join(process.cwd(), "data", "cases.json");

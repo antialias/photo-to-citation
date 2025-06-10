@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getRepresentativePhoto } from "../src/lib/caseUtils";
 
 let dataDir: string;
 let caseStore: typeof import("../src/lib/caseStore");
@@ -58,8 +59,7 @@ describe("caseStore", () => {
   });
 
   it("computes the representative photo", () => {
-    const { createCase, addCasePhoto, getCase, getRepresentativePhoto } =
-      caseStore;
+    const { createCase, addCasePhoto, getCase } = caseStore;
     const c = createCase("/b.jpg");
     addCasePhoto(c.id, "/a.jpg");
     const updated = getCase(c.id);

@@ -1,6 +1,6 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
-import { getRepresentativePhoto } from "@/lib/caseStore";
+import { getRepresentativePhoto } from "@/lib/caseUtils";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
