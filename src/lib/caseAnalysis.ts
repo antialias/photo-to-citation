@@ -1,5 +1,6 @@
 import { analyzeViolation } from './openai'
 import { Case, updateCase } from './caseStore'
+import { bree } from './bree'
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
@@ -11,5 +12,11 @@ export async function analyzeCase(caseData: Case): Promise<void> {
 }
 
 export function analyzeCaseInBackground(caseData: Case): void {
-  analyzeCase(caseData).catch((err) => console.error(err))
+  const name = `analyze-${caseData.id}`
+  bree.add({
+    name,
+    path: 'analyzeCase',
+    worker: { workerData: caseData },
+  })
+  bree.start(name).catch((err) => console.error(err))
 }
