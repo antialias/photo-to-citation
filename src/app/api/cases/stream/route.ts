@@ -3,22 +3,40 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     start(controller) {
+      function send(chunk: string) {
+        try {
+          controller.enqueue(encoder.encode(chunk));
+        } catch {
+          cleanup();
+        }
+      }
+
       function onUpdate(data: unknown) {
         const payload = `data: ${JSON.stringify(data)}\n\n`;
-        controller.enqueue(encoder.encode(payload));
+        send(payload);
       }
-      caseEvents.on("update", onUpdate);
-      const keepAlive = setInterval(() => {
-        controller.enqueue(encoder.encode(":\n\n"));
-      }, 15000);
-      controller.oncancel = () => {
+
+      function cleanup() {
         clearInterval(keepAlive);
         caseEvents.off("update", onUpdate);
-      };
+      }
+
+      caseEvents.on("update", onUpdate);
+
+      const keepAlive = setInterval(() => {
+        send(":\n\n");
+      }, 15000);
+
+      req.signal.addEventListener("abort", () => {
+        cleanup();
+        controller.close();
+      });
+
+      controller.oncancel = cleanup;
     },
   });
 
