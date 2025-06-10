@@ -26,6 +26,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+## OpenAI Integration
+
+Create a `.env` file in the project root and add your API key:
+
+```bash
+OPENAI_API_KEY=your-key
+```
+
+The helper in `src/lib/openai.ts` uses this key to analyze uploaded violation
+photos with OpenAI's vision model.
+
 ## Folder Structure
 
 ```text
