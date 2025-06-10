@@ -1,28 +1,21 @@
-import fs from "node:fs";
-import path from "node:path";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import { z } from "zod";
 
 dotenv.config();
 
-const logFile = process.env.LLM_RESPONSE_LOG
-  ? path.resolve(process.env.LLM_RESPONSE_LOG)
-  : path.join(process.cwd(), "logs", "llm-retries.log");
-
 function logBadResponse(
   attempt: number,
   response: string,
   error: unknown,
 ): void {
-  fs.mkdirSync(path.dirname(logFile), { recursive: true });
   const entry = {
     timestamp: new Date().toISOString(),
     attempt: attempt + 1,
     error: String(error),
     response,
   };
-  fs.appendFileSync(logFile, `${JSON.stringify(entry)}\n`);
+  console.warn(JSON.stringify(entry));
 }
 
 export const openai = new OpenAI({
