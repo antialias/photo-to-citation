@@ -1,4 +1,5 @@
 "use client";
+import { getRepresentativePhoto } from "@/lib/caseUtils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,6 +15,9 @@ export default function ClientCasePage({
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(
+    initialCase ? getRepresentativePhoto(initialCase) : null,
+  );
   const [plate, setPlate] = useState<string>(
     initialCase?.analysis?.vehicle?.licensePlateNumber || "",
   );
@@ -49,6 +53,7 @@ export default function ClientCasePage({
     if (caseData) {
       setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
       setModel(caseData.analysis?.vehicle?.model || "");
+      setSelectedPhoto(getRepresentativePhoto(caseData));
     }
   }, [caseData]);
 
@@ -114,9 +119,23 @@ export default function ClientCasePage({
   return (
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
-      <div className="flex flex-col gap-2">
+      {selectedPhoto ? (
+        <Image src={selectedPhoto} alt="uploaded" width={600} height={400} />
+      ) : null}
+      <div className="flex gap-2 flex-wrap">
         {caseData.photos.map((p) => (
-          <Image key={p} src={p} alt="uploaded" width={600} height={400} />
+          <button
+            key={p}
+            type="button"
+            onClick={() => setSelectedPhoto(p)}
+            className={
+              selectedPhoto === p
+                ? "ring-2 ring-blue-500"
+                : "ring-1 ring-transparent"
+            }
+          >
+            <Image src={p} alt="" width={80} height={60} />
+          </button>
         ))}
       </div>
       <p className="text-sm text-gray-500">

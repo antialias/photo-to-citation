@@ -1,4 +1,5 @@
 "use client";
+import { getRepresentativePhoto } from "@/lib/caseUtils";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -34,7 +35,17 @@ export default function ClientCasesPage({
         {cases.map((c) => (
           <li key={c.id} className="border p-2">
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
-              <Image src={c.photos[0]} alt="" width={80} height={60} />
+              <div className="relative">
+                <Image
+                  src={getRepresentativePhoto(c)}
+                  alt=""
+                  width={80}
+                  height={60}
+                />
+                <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
+                  {c.photos.length}
+                </span>
+              </div>
               {c.gps ? (
                 <MapPreview
                   lat={c.gps.lat}
