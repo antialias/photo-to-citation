@@ -1,4 +1,4 @@
-import { analyzeCase } from '../lib/caseAnalysis'
+import { analyzeCase } from '../lib/caseAnalysis.ts'
 import { parentPort, workerData } from 'worker_threads'
 
 (async () => {
