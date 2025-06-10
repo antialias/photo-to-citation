@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { caseEvents } from "./caseEvents";
 
 import type { ViolationReport } from "./openai";
 
@@ -67,6 +68,7 @@ export function createCase(
   };
   cases.push(newCase);
   saveCases(cases);
+  caseEvents.emit("update", newCase);
   return newCase;
 }
 
@@ -79,6 +81,7 @@ export function updateCase(
   if (idx === -1) return undefined;
   cases[idx] = { ...cases[idx], ...updates };
   saveCases(cases);
+  caseEvents.emit("update", cases[idx]);
   return cases[idx];
 }
 
@@ -88,5 +91,6 @@ export function addCasePhoto(id: string, photo: string): Case | undefined {
   if (idx === -1) return undefined;
   cases[idx].photos.push(photo);
   saveCases(cases);
+  caseEvents.emit("update", cases[idx]);
   return cases[idx];
 }
