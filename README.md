@@ -48,6 +48,11 @@ blocked waiting for OpenAI.
 If the uploaded image contains GPS EXIF data, the latitude and longitude are
 extracted and saved with the case information.
 
+If a `GOOGLE_MAPS_API_KEY` is provided in `.env`, the app also performs a
+reverse geocode lookup for each case in the background. The resulting street
+address and closest intersection are stored with the case once the lookup
+completes.
+
 ## Folder Structure
 
 ```text

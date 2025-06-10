@@ -11,6 +11,8 @@ export interface Case {
     lat: number
     lon: number
   } | null
+  streetAddress?: string | null
+  intersection?: string | null
   analysis?: ViolationReport | null
 }
 
@@ -49,6 +51,8 @@ export function createCase(photo: string, gps: Case['gps'] = null): Case {
     photo,
     createdAt: new Date().toISOString(),
     gps,
+    streetAddress: null,
+    intersection: null,
     analysis: null,
   }
   cases.push(newCase)
