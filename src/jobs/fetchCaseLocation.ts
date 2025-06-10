@@ -1,4 +1,4 @@
-import { fetchCaseLocation } from '../lib/caseLocation'
+import { fetchCaseLocation } from '../lib/caseLocation.ts'
 import { parentPort, workerData } from 'worker_threads'
 
 (async () => {

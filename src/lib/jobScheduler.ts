@@ -17,7 +17,7 @@ export function runJob(name: string, data: unknown): void {
 
   const worker = new Worker(file, {
     workerData: data,
-    execArgv: ['-r', 'ts-node/register'],
+    execArgv: ['--loader', 'ts-node/esm'],
   })
   worker.on('error', (err) => {
     console.error(`${name} worker failed`, err)
