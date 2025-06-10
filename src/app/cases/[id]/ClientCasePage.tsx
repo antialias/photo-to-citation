@@ -1,7 +1,7 @@
 "use client";
+import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import type { Case } from "@/lib/caseStore";
 
 export default function ClientCasePage({
   initialCase,
