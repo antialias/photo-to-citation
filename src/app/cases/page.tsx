@@ -14,7 +14,10 @@ export default function CasesPage() {
           <li key={c.id} className="border p-2">
             <Link href={`/cases/${c.id}`} className="flex items-center gap-4">
               <Image src={c.photo} alt="" width={80} height={60} />
-              <span>Case {c.id}</span>
+              <span>
+                Case {c.id}
+                {c.analysis ? '' : ' (processing...)'}
+              </span>
             </Link>
           </li>
         ))}

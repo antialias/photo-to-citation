@@ -12,6 +12,13 @@ export default function CasePage({ params }: any) {
       <h1 className="text-xl font-semibold">Case {c.id}</h1>
       <Image src={c.photo} alt="uploaded" width={600} height={400} />
       <p className="text-sm text-gray-500">Created {new Date(c.createdAt).toLocaleString()}</p>
+      {c.analysis ? (
+        <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
+          {JSON.stringify(c.analysis, null, 2)}
+        </pre>
+      ) : (
+        <p className="text-sm text-gray-500">Analyzing photo...</p>
+      )}
     </div>
   )
 }
