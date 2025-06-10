@@ -3,7 +3,7 @@ import type { ViolationReport } from "@/lib/openai";
 export default function AnalysisInfo({
   analysis,
 }: { analysis: ViolationReport }) {
-  const { violationType, details, location, vehicle } = analysis;
+  const { violationType, details, location, vehicle = {} } = analysis;
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p>
