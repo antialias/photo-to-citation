@@ -6,7 +6,7 @@ import { analyzeViolation } from "./openai";
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
-    const dataUrls = caseData.photos.map((p) => {
+    const images = caseData.photos.map((p) => {
       const filePath = path.join(
         process.cwd(),
         "public",
@@ -20,9 +20,12 @@ export async function analyzeCase(caseData: Case): Promise<void> {
           : ext === ".webp"
             ? "image/webp"
             : "image/jpeg";
-      return `data:${mime};base64,${buffer.toString("base64")}`;
+      return {
+        filename: path.basename(p),
+        url: `data:${mime};base64,${buffer.toString("base64")}`,
+      };
     });
-    const result = await analyzeViolation(dataUrls);
+    const result = await analyzeViolation(images);
     updateCase(caseData.id, { analysis: result });
   } catch (err) {
     console.error("Failed to analyze case", caseData.id, err);

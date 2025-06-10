@@ -33,7 +33,15 @@ describe("caseStore", () => {
     expect(getCases()).toHaveLength(1);
     addCasePhoto(c.id, "/bar.jpg");
     const updated = updateCase(c.id, {
-      analysis: { violationType: "foo", details: "bar", vehicle: {} },
+      analysis: {
+        violationType: "foo",
+        details: "bar",
+        vehicle: {},
+        images: {
+          "foo.jpg": { representationScore: 0.6 },
+          "bar.jpg": { representationScore: 0.5 },
+        },
+      },
     });
     expect(updated?.photos).toEqual(["/foo.jpg", "/bar.jpg"]);
     expect(updated?.analysis?.violationType).toBe("foo");
