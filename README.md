@@ -35,7 +35,10 @@ OPENAI_API_KEY=your-key
 ```
 
 The helper in `src/lib/openai.ts` uses this key to analyze uploaded violation
-photos with OpenAI's vision model.
+photos with OpenAI's vision model. It sends the image to the model and requests
+a JSON response describing the violation. The JSON follows a schema that
+includes the violation type, location clues, and vehicle details such as make,
+model, color and license plate information.
 
 ## Folder Structure
 
