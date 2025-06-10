@@ -14,6 +14,7 @@ export interface Case {
   } | null;
   streetAddress?: string | null;
   intersection?: string | null;
+  vin?: string | null;
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
 }
@@ -83,6 +84,7 @@ export function createCase(
     gps,
     streetAddress: null,
     intersection: null,
+    vin: null,
     analysis: null,
     analysisOverrides: null,
   };
