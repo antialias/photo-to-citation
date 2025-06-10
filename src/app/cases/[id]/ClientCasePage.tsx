@@ -2,6 +2,7 @@
 import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import MapPreview from "../../components/MapPreview";
 
 export default function ClientCasePage({
   initialCase,
@@ -51,9 +52,17 @@ export default function ClientCasePage({
         Created {new Date(caseData.createdAt).toLocaleString()}
       </p>
       {caseData.gps ? (
-        <p className="text-sm text-gray-500">
-          GPS: {caseData.gps.lat}, {caseData.gps.lon}
-        </p>
+        <>
+          <p className="text-sm text-gray-500">
+            GPS: {caseData.gps.lat}, {caseData.gps.lon}
+          </p>
+          <MapPreview
+            lat={caseData.gps.lat}
+            lon={caseData.gps.lon}
+            width={600}
+            height={300}
+          />
+        </>
       ) : null}
       {caseData.streetAddress ? (
         <p className="text-sm text-gray-500">
