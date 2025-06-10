@@ -1,5 +1,6 @@
 import { analyzeViolation } from './openai'
 import { Case, updateCase } from './caseStore'
+import { runJob } from './jobScheduler'
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
@@ -11,5 +12,5 @@ export async function analyzeCase(caseData: Case): Promise<void> {
 }
 
 export function analyzeCaseInBackground(caseData: Case): void {
-  analyzeCase(caseData).catch((err) => console.error(err))
+  runJob('analyzeCase', caseData)
 }
