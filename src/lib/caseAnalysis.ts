@@ -6,21 +6,23 @@ import { analyzeViolation } from "./openai";
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      caseData.photo.replace(/^\/+/, ""),
-    );
-    const buffer = fs.readFileSync(filePath);
-    const ext = path.extname(filePath).toLowerCase();
-    const mime =
-      ext === ".png"
-        ? "image/png"
-        : ext === ".webp"
-          ? "image/webp"
-          : "image/jpeg";
-    const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-    const result = await analyzeViolation(dataUrl);
+    const dataUrls = caseData.photos.map((p) => {
+      const filePath = path.join(
+        process.cwd(),
+        "public",
+        p.replace(/^\/+/, ""),
+      );
+      const buffer = fs.readFileSync(filePath);
+      const ext = path.extname(filePath).toLowerCase();
+      const mime =
+        ext === ".png"
+          ? "image/png"
+          : ext === ".webp"
+            ? "image/webp"
+            : "image/jpeg";
+      return `data:${mime};base64,${buffer.toString("base64")}`;
+    });
+    const result = await analyzeViolation(dataUrls);
     updateCase(caseData.id, { analysis: result });
   } catch (err) {
     console.error("Failed to analyze case", caseData.id, err);

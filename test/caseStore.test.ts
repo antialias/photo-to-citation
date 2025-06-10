@@ -21,17 +21,20 @@ afterEach(() => {
 
 describe("caseStore", () => {
   it("creates and retrieves a case", () => {
-    const { createCase, getCase, getCases, updateCase } = caseStore;
+    const { createCase, getCase, getCases, updateCase, addCasePhoto } =
+      caseStore;
     const c = createCase("/foo.jpg", { lat: 10, lon: 20 });
-    expect(c.photo).toBe("/foo.jpg");
+    expect(c.photos).toEqual(["/foo.jpg"]);
     expect(c.gps).toEqual({ lat: 10, lon: 20 });
     expect(c.streetAddress).toBeNull();
     expect(c.intersection).toBeNull();
     expect(getCase(c.id)).toEqual(c);
     expect(getCases()).toHaveLength(1);
+    addCasePhoto(c.id, "/bar.jpg");
     const updated = updateCase(c.id, {
       analysis: { violationType: "foo", details: "bar", vehicle: {} },
     });
+    expect(updated?.photos).toEqual(["/foo.jpg", "/bar.jpg"]);
     expect(updated?.analysis?.violationType).toBe("foo");
   });
 
@@ -40,5 +43,6 @@ describe("caseStore", () => {
     const c = createCase("/bar.jpg", null, "custom-id");
     expect(c.id).toBe("custom-id");
     expect(getCase("custom-id")).toEqual(c);
+    expect(c.photos).toEqual(["/bar.jpg"]);
   });
 });
