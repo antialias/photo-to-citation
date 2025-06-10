@@ -45,4 +45,15 @@ describe("caseStore", () => {
     expect(getCase("custom-id")).toEqual(c);
     expect(c.photos).toEqual(["/bar.jpg"]);
   });
+
+  it("applies analysis overrides", () => {
+    const { createCase, setCaseAnalysisOverrides, getCase } = caseStore;
+    const c = createCase("/baz.jpg");
+    setCaseAnalysisOverrides(c.id, { vehicle: { model: "Tesla" } });
+    const updated = getCase(c.id);
+    expect(updated?.analysis?.vehicle?.model).toBe("Tesla");
+    setCaseAnalysisOverrides(c.id, null);
+    const cleared = getCase(c.id);
+    expect(cleared?.analysis?.vehicle?.model).toBeUndefined();
+  });
 });

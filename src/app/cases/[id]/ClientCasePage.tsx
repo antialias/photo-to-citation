@@ -14,6 +14,12 @@ export default function ClientCasePage({
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
+  const [plate, setPlate] = useState<string>(
+    initialCase?.analysis?.vehicle?.licensePlateNumber || "",
+  );
+  const [model, setModel] = useState<string>(
+    initialCase?.analysis?.vehicle?.model || "",
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -33,6 +39,13 @@ export default function ClientCasePage({
     }
   }, [caseData, caseId]);
 
+  useEffect(() => {
+    if (caseData) {
+      setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
+      setModel(caseData.analysis?.vehicle?.model || "");
+    }
+  }, [caseData]);
+
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -46,6 +59,33 @@ export default function ClientCasePage({
       setCaseData(data);
     }
     router.refresh();
+  }
+
+  async function saveOverrides() {
+    await fetch(`/api/cases/${caseId}/override`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicle: {
+          licensePlateNumber: plate || undefined,
+          model: model || undefined,
+        },
+      }),
+    });
+    const res = await fetch(`/api/cases/${caseId}`);
+    if (res.ok) {
+      const data = (await res.json()) as Case;
+      setCaseData(data);
+    }
+  }
+
+  async function clearOverrides() {
+    await fetch(`/api/cases/${caseId}/override`, { method: "DELETE" });
+    const res = await fetch(`/api/cases/${caseId}`);
+    if (res.ok) {
+      const data = (await res.json()) as Case;
+      setCaseData(data);
+    }
   }
 
   if (!caseData) {
@@ -102,6 +142,49 @@ export default function ClientCasePage({
       ) : (
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}
+      {caseData.analysis ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            saveOverrides();
+          }}
+          className="flex flex-col gap-2"
+        >
+          <label className="flex flex-col">
+            License Plate
+            <input
+              type="text"
+              value={plate}
+              onChange={(e) => setPlate(e.target.value)}
+              className="border p-1"
+            />
+          </label>
+          <label className="flex flex-col">
+            Vehicle Model
+            <input
+              type="text"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              className="border p-1"
+            />
+          </label>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-2 py-1 rounded"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={clearOverrides}
+              className="bg-gray-200 px-2 py-1 rounded"
+            >
+              Clear Overrides
+            </button>
+          </div>
+        </form>
+      ) : null}
       <input type="file" accept="image/*" onChange={handleUpload} />
     </div>
   );

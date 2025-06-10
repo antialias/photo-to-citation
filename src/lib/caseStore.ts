@@ -14,6 +14,7 @@ export interface Case {
   streetAddress?: string | null;
   intersection?: string | null;
   analysis?: ViolationReport | null;
+  analysisOverrides?: Partial<ViolationReport> | null;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -42,12 +43,30 @@ function saveCases(cases: Case[]) {
   fs.writeFileSync(dataFile, JSON.stringify(cases, null, 2));
 }
 
+function applyOverrides(caseData: Case): Case {
+  if (!caseData.analysisOverrides) {
+    return caseData;
+  }
+  const base = caseData.analysis ?? ({} as ViolationReport);
+  const overrides = caseData.analysisOverrides;
+  const layered: ViolationReport = {
+    ...base,
+    ...overrides,
+    vehicle: {
+      ...(base.vehicle ?? {}),
+      ...(overrides.vehicle ?? {}),
+    },
+  };
+  return { ...caseData, analysis: layered };
+}
+
 export function getCases(): Case[] {
-  return loadCases();
+  return loadCases().map(applyOverrides);
 }
 
 export function getCase(id: string): Case | undefined {
-  return loadCases().find((c) => c.id === id);
+  const c = loadCases().find((caseItem) => caseItem.id === id);
+  return c ? applyOverrides(c) : undefined;
 }
 
 export function createCase(
@@ -64,6 +83,7 @@ export function createCase(
     streetAddress: null,
     intersection: null,
     analysis: null,
+    analysisOverrides: null,
   };
   cases.push(newCase);
   saveCases(cases);
@@ -89,4 +109,11 @@ export function addCasePhoto(id: string, photo: string): Case | undefined {
   cases[idx].photos.push(photo);
   saveCases(cases);
   return cases[idx];
+}
+
+export function setCaseAnalysisOverrides(
+  id: string,
+  overrides: Partial<ViolationReport> | null,
+): Case | undefined {
+  return updateCase(id, { analysisOverrides: overrides });
 }
