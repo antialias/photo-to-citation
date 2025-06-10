@@ -8,7 +8,7 @@ export default function NavBar() {
       </Link>
       <div className="flex gap-6 text-sm">
         <Link href="/upload" className="hover:text-gray-300">
-          Upload
+          New Case from Image
         </Link>
         <Link href="/cases" className="hover:text-gray-300">
           Cases
