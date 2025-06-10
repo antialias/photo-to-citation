@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format . --write",
-    "test": "vitest run"
+    "test": "vitest run",
+    "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts"
   },
   "dependencies": {
     "dotenv": "^16.5.0",

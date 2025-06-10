@@ -9,7 +9,7 @@ const emitter: EventEmitter = globalStore.caseEvents ?? new EventEmitter();
 
 if (parentPort) {
   emitter.on("update", (data) => {
-    parentPort.postMessage({ event: "update", data });
+    parentPort?.postMessage({ event: "update", data });
   });
 }
 

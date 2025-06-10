@@ -56,6 +56,15 @@ to handle image analysis and reverse geocoding. The resulting JSON is persisted
 alongside the case record once the analysis completes, so uploads are never
 blocked waiting for OpenAI.
 
+If a case ends up without analysis or the last attempt failed with a retryable
+error code, you can trigger a new pass with:
+
+```bash
+npm run reanalyze
+```
+This command scans stored cases and reprocesses any that meet the retry
+criteria.
+
 If the uploaded image contains GPS EXIF data, the latitude and longitude are
 extracted and saved with the case information.
 

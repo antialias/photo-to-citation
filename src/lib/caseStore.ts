@@ -17,6 +17,7 @@ export interface Case {
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
   analysisStatus: "pending" | "complete";
+  analysisStatusCode?: number | null;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -88,6 +89,7 @@ export function createCase(
     analysis: null,
     analysisOverrides: null,
     analysisStatus: "pending",
+    analysisStatusCode: null,
   };
   cases.push(newCase);
   saveCases(cases);

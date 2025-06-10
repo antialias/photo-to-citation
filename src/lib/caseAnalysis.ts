@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { APIError } from "openai/error";
 import { type Case, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import { analyzeViolation } from "./openai";
@@ -26,8 +27,10 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       };
     });
     const result = await analyzeViolation(images);
-    updateCase(caseData.id, { analysis: result, analysisStatus: "complete" });
+    updateCase(caseData.id, { analysis: result, analysisStatus: "complete", analysisStatusCode: 200 });
   } catch (err) {
+    const status = err instanceof APIError ? err.status : 500;
+    updateCase(caseData.id, { analysisStatusCode: status });
     console.error("Failed to analyze case", caseData.id, err);
   }
 }
