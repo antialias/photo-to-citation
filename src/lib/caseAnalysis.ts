@@ -26,7 +26,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       };
     });
     const result = await analyzeViolation(images);
-    updateCase(caseData.id, { analysis: result });
+    updateCase(caseData.id, { analysis: result, analysisStatus: "complete" });
   } catch (err) {
     console.error("Failed to analyze case", caseData.id, err);
   }

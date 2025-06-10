@@ -16,6 +16,7 @@ export interface Case {
   intersection?: string | null;
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
+  analysisStatus: "pending" | "complete";
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -33,6 +34,7 @@ function loadCases(): Case[] {
     return raw.map((c) => ({
       ...c,
       photos: c.photos ?? (c.photo ? [c.photo] : []),
+      analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
     }));
   } catch {
     return [];
@@ -85,6 +87,7 @@ export function createCase(
     intersection: null,
     analysis: null,
     analysisOverrides: null,
+    analysisStatus: "pending",
   };
   cases.push(newCase);
   saveCases(cases);
@@ -110,6 +113,7 @@ export function addCasePhoto(id: string, photo: string): Case | undefined {
   const idx = cases.findIndex((c) => c.id === id);
   if (idx === -1) return undefined;
   cases[idx].photos.push(photo);
+  cases[idx].analysisStatus = "pending";
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
   return cases[idx];
