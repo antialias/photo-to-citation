@@ -70,9 +70,11 @@ export async function lookupVin(
         const body = src.buildBody(plate, state);
         init.body = typeof body === "string" ? body : JSON.stringify(body);
       }
+      console.log("VIN lookup request", { url, options: init });
       const res = await fetch(url, init);
-      if (!res.ok) continue;
       const text = await res.text();
+      console.log("VIN lookup response", { status: res.status, body: text });
+      if (!res.ok) continue;
       const vin = src.parse
         ? src.parse(text)
         : parseVinFromHtml(text, src.selector);
@@ -93,7 +95,12 @@ export async function fetchCaseVin(
   if (!plate || !state) return;
   try {
     const vin = await lookupVin(plate, state, sources);
-    if (vin) updateCase(caseData.id, { vin });
+    if (vin) {
+      console.log("VIN fetch successful", vin);
+      updateCase(caseData.id, { vin });
+    } else {
+      console.log("VIN fetch unsuccessful");
+    }
   } catch (err) {
     console.error("Failed to fetch VIN", err);
   }

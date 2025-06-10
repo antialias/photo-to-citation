@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { type Case, updateCase } from "./caseStore";
+import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import { analyzeViolation } from "./openai";
+import { fetchCaseVinInBackground } from "./vinLookup";
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
@@ -27,6 +28,8 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     });
     const result = await analyzeViolation(images);
     updateCase(caseData.id, { analysis: result });
+    const updated = getCase(caseData.id);
+    if (updated) fetchCaseVinInBackground(updated);
   } catch (err) {
     console.error("Failed to analyze case", caseData.id, err);
   }

@@ -45,6 +45,38 @@ describe("vinLookup", () => {
     globalAny.fetch = originalFetch;
   });
 
+  it("logs request and response", async () => {
+    const json = JSON.stringify({ vins: ["1HGCM82633A004352"] });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(json),
+    });
+    // biome-ignore lint/suspicious/noExplicitAny: test mock
+    const globalAny: any = global;
+    const originalFetch = globalAny.fetch;
+    globalAny.fetch = fetchMock;
+    const logSpy = vi.spyOn(console, "log");
+    const { fetchCaseVin } = await import("../src/lib/vinLookup");
+    const caseStore = await import("../src/lib/caseStore");
+    const c = caseStore.createCase("/x.jpg");
+    caseStore.updateCase(c.id, {
+      analysis: {
+        violationType: "",
+        details: "",
+        vehicle: { licensePlateNumber: "ABC123", licensePlateState: "IL" },
+        images: {},
+      },
+    });
+    const current = caseStore.getCase(c.id);
+    await fetchCaseVin(current as caseStore.Case);
+    expect(logSpy).toHaveBeenCalledWith(
+      "VIN fetch successful",
+      "1HGCM82633A004352",
+    );
+    globalAny.fetch = originalFetch;
+    logSpy.mockRestore();
+  });
+
   it("updates a case with the fetched vin", async () => {
     const caseStore = await import("../src/lib/caseStore");
     const { createCase, updateCase, getCase } = caseStore;

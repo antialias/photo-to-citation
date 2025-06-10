@@ -25,6 +25,7 @@ export default function ClientCasePage({
   const [model, setModel] = useState<string>(
     initialCase?.analysis?.vehicle?.model || "",
   );
+  const [vin, setVin] = useState<string>(initialCase?.vin || "");
   const router = useRouter();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: run once per id
@@ -54,6 +55,7 @@ export default function ClientCasePage({
     if (caseData) {
       setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
       setModel(caseData.analysis?.vehicle?.model || "");
+      setVin(caseData.vin || "");
       setSelectedPhoto(getRepresentativePhoto(caseData));
     }
   }, [caseData]);
@@ -88,6 +90,11 @@ export default function ClientCasePage({
         },
       }),
     });
+    await fetch(`/api/cases/${caseId}/vin`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vin: vin || null }),
+    });
     const res = await fetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
@@ -97,6 +104,7 @@ export default function ClientCasePage({
 
   async function clearOverrides() {
     await fetch(`/api/cases/${caseId}/override`, { method: "DELETE" });
+    await fetch(`/api/cases/${caseId}/vin`, { method: "DELETE" });
     const res = await fetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
@@ -165,6 +173,9 @@ export default function ClientCasePage({
           Intersection: {caseData.intersection}
         </p>
       ) : null}
+      {caseData.vin ? (
+        <p className="text-sm text-gray-500">VIN: {caseData.vin}</p>
+      ) : null}
       {caseData.analysis ? (
         <div className="bg-gray-100 p-4 rounded">
           <AnalysisInfo analysis={caseData.analysis} />
@@ -195,6 +206,15 @@ export default function ClientCasePage({
               type="text"
               value={model}
               onChange={(e) => setModel(e.target.value)}
+              className="border p-1"
+            />
+          </label>
+          <label className="flex flex-col">
+            VIN
+            <input
+              type="text"
+              value={vin}
+              onChange={(e) => setVin(e.target.value)}
               className="border p-1"
             />
           </label>
