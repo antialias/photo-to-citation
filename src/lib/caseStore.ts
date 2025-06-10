@@ -16,6 +16,7 @@ export interface Case {
   intersection?: string | null;
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
+  analysisStatusCode?: number | null;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -85,6 +86,7 @@ export function createCase(
     intersection: null,
     analysis: null,
     analysisOverrides: null,
+    analysisStatusCode: null,
   };
   cases.push(newCase);
   saveCases(cases);
