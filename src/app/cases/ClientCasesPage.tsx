@@ -1,9 +1,9 @@
 "use client";
-import { getRepresentativePhoto } from "@/lib/caseUtils";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Case } from "../../lib/caseStore";
+import { getRepresentativePhoto } from "../../lib/caseUtils";
 import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
 
@@ -58,9 +58,16 @@ export default function ClientCasesPage({
               <div className="flex flex-col text-sm gap-1">
                 <span className="font-semibold">Case {c.id}</span>
                 {c.analysis ? (
-                  <AnalysisInfo analysis={c.analysis} />
+                  <>
+                    <AnalysisInfo analysis={c.analysis} />
+                    {c.analysisStatus === "pending" ? (
+                      <span className="text-gray-500">
+                        Updating analysis...
+                      </span>
+                    ) : null}
+                  </>
                 ) : (
-                  <span className="text-gray-500">Processing...</span>
+                  <span className="text-gray-500">Analyzing photo...</span>
                 )}
               </div>
             </Link>
