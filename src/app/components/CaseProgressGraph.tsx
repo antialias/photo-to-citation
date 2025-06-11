@@ -7,9 +7,9 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
-  { id: "analysisPending", label: "Analysis Pending" },
+  { id: "analysisPending", label: "Analysis Requested" },
   { id: "analysis", label: "Analysis Complete" },
-  { id: "reanalysis", label: "Re-analysis Pending" },
+  { id: "reanalysis", label: "Re-analysis Requested" },
   { id: "violation", label: "Violation Identified" },
   { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
@@ -52,7 +52,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       vin: violation && Boolean(caseData.vin),
       ownreq: false,
       own: false,
-      notify: violation,
+      notify: Boolean(caseData.sentEmails && caseData.sentEmails.length > 0),
       confirm: false,
       sent: false,
       received: false,
