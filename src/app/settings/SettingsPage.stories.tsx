@@ -14,8 +14,10 @@ function mockFetch() {
     { id: "carfax", enabled: true, failureCount: 0 },
     { id: "dmv", enabled: false, failureCount: 2 },
   ];
-  // biome-ignore lint/suspicious/noExplicitAny: mock fetch
-  (global as any).fetch = async (url: string, options?: any) => {
+  (global as Record<string, unknown>).fetch = async (
+    url: string,
+    options?: RequestInit,
+  ) => {
     if (options && options.method === "PUT") return new Response(null);
     return new Response(JSON.stringify(statuses));
   };

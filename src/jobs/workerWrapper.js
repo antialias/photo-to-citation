@@ -1,4 +1,5 @@
-const { workerData, parentPort } = require("node:worker_threads");
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { workerData } = require("node:worker_threads");
 require("ts-node").register({
   transpileOnly: true,
   compilerOptions: { module: "commonjs" },
