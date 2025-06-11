@@ -1,46 +1,14 @@
-import { randomUUID } from "node:crypto";
 import { JSDOM } from "jsdom";
-import { type Case, updateCase } from "./caseStore";
+import type { Case } from "./caseStore";
+import { updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
-
-export interface VinSource {
-  buildUrl: (plate: string, state: string) => string;
-  method?: string;
-  headers?: Record<string, string>;
-  buildBody?: (plate: string, state: string) => unknown;
-  selector?: string;
-  parse?: (text: string) => string | null;
-}
-
-export function parseVinFromEdmunds(text: string): string | null {
-  try {
-    const data = JSON.parse(text) as { vins?: string[] };
-    return data.vins?.[0] ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export const defaultVinSources: VinSource[] = [
-  {
-    buildUrl: () =>
-      "https://www.edmunds.com/api/partner-offers/vins/search-by-plate",
-    method: "POST",
-    headers: {
-      accept: "*/*",
-      "content-type": "application/json",
-      origin: "https://www.edmunds.com",
-      referer: "https://www.edmunds.com/appraisal/",
-    },
-    buildBody: (plate, state) => ({
-      plateNumber: plate,
-      plateState: state,
-      quotebackId: randomUUID(),
-      createdDateUtc: new Date().toISOString(),
-    }),
-    parse: parseVinFromEdmunds,
-  },
-];
+import {
+  type VinSource,
+  defaultVinSources,
+  getVinSourceStatuses,
+  recordVinSourceFailure,
+  recordVinSourceSuccess,
+} from "./vinSources";
 
 export function parseVinFromHtml(
   html: string,
@@ -59,8 +27,14 @@ export function parseVinFromHtml(
 export async function lookupVin(
   plate: string,
   state: string,
-  sources: VinSource[] = defaultVinSources,
 ): Promise<string | null> {
+  const statuses = getVinSourceStatuses();
+  const enabled = statuses
+    .filter((s) => s.enabled)
+    .sort((a, b) => a.failureCount - b.failureCount);
+  const sources = enabled
+    .map((s) => defaultVinSources.find((src) => src.id === s.id))
+    .filter((s): s is VinSource => Boolean(s));
   for (const src of sources) {
     try {
       const url = src.buildUrl(plate, state);
@@ -74,27 +48,32 @@ export async function lookupVin(
       const res = await fetch(url, init);
       const text = await res.text();
       console.log("VIN lookup response", { status: res.status, body: text });
-      if (!res.ok) continue;
+      if (!res.ok) {
+        recordVinSourceFailure(src.id);
+        continue;
+      }
       const vin = src.parse
         ? src.parse(text)
         : parseVinFromHtml(text, src.selector);
-      if (vin) return vin;
+      if (vin) {
+        recordVinSourceSuccess(src.id);
+        return vin;
+      }
+      recordVinSourceFailure(src.id);
     } catch (err) {
+      recordVinSourceFailure(src.id);
       console.error("VIN lookup failed", err);
     }
   }
   return null;
 }
 
-export async function fetchCaseVin(
-  caseData: Case,
-  sources: VinSource[] = defaultVinSources,
-): Promise<void> {
+export async function fetchCaseVin(caseData: Case): Promise<void> {
   const plate = caseData.analysis?.vehicle?.licensePlateNumber;
   const state = caseData.analysis?.vehicle?.licensePlateState;
   if (!plate || !state) return;
   try {
-    const vin = await lookupVin(plate, state, sources);
+    const vin = await lookupVin(plate, state);
     if (vin) {
       console.log("VIN fetch successful", vin);
       updateCase(caseData.id, { vin });

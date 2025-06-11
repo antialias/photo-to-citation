@@ -13,6 +13,9 @@ export default function NavBar() {
         <Link href="/cases" className="hover:text-gray-300">
           Cases
         </Link>
+        <Link href="/settings" className="hover:text-gray-300">
+          Settings
+        </Link>
       </div>
     </nav>
   );

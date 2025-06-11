@@ -5,9 +5,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let dataDir: string;
 
-beforeEach(() => {
+beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.json");
+  process.env.VIN_SOURCE_FILE = path.join(dataDir, "vinSources.json");
+  const { defaultVinSources } = await import("../src/lib/vinSources");
+  const statuses = defaultVinSources.map((s) => ({
+    id: s.id,
+    enabled: true,
+    failureCount: 0,
+  }));
+  fs.writeFileSync(process.env.VIN_SOURCE_FILE, JSON.stringify(statuses));
   vi.resetModules();
 });
 
@@ -15,6 +23,7 @@ afterEach(() => {
   fs.rmSync(dataDir, { recursive: true, force: true });
   vi.resetModules();
   process.env.CASE_STORE_FILE = undefined;
+  process.env.VIN_SOURCE_FILE = undefined;
 });
 
 describe("vinLookup", () => {
@@ -34,10 +43,8 @@ describe("vinLookup", () => {
     const globalAny: any = global;
     const originalFetch = globalAny.fetch;
     globalAny.fetch = fetchMock;
-    const { lookupVin, defaultVinSources } = await import(
-      "../src/lib/vinLookup"
-    );
-    const vin = await lookupVin("ABC123", "IL", defaultVinSources);
+    const { lookupVin } = await import("../src/lib/vinLookup");
+    const vin = await lookupVin("ABC123", "IL");
     expect(fetchMock).toHaveBeenCalled();
     const callArgs = fetchMock.mock.calls[0];
     expect(callArgs[1]?.method).toBe("POST");
@@ -111,7 +118,7 @@ describe("vinLookup", () => {
 
   it("falls back to the next source", async () => {
     const html1 = "no vin here";
-    const html2 = "<div>VIN 1HGCM82633A004352</div>";
+    const html2 = "<div id='vin'>1HGCM82633A004352</div>";
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce({ ok: true, text: () => Promise.resolve(html1) })
@@ -121,11 +128,7 @@ describe("vinLookup", () => {
     const originalFetch = globalAny.fetch;
     globalAny.fetch = fetchMock;
     const { lookupVin } = await import("../src/lib/vinLookup");
-    const sources = [
-      { buildUrl: () => "http://a", selector: "#foo" },
-      { buildUrl: () => "http://b" },
-    ];
-    const vin = await lookupVin("A", "B", sources);
+    const vin = await lookupVin("A", "B");
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(vin).toBe("1HGCM82633A004352");
     globalAny.fetch = originalFetch;
