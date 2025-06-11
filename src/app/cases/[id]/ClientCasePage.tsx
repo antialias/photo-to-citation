@@ -241,6 +241,12 @@ export default function ClientCasePage({
         </form>
       ) : null}
       <input type="file" accept="image/*" multiple onChange={handleUpload} />
+      <a
+        href={`/cases/${caseId}/draft`}
+        className="bg-green-600 text-white px-2 py-1 rounded w-max"
+      >
+        Draft Email
+      </a>
     </div>
   );
 }
