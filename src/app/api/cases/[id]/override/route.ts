@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const overrides = (await req.json()) as Record<string, unknown>;
@@ -18,7 +18,7 @@ export async function PUT(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const updated = setCaseAnalysisOverrides(id, null);
