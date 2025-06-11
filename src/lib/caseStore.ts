@@ -22,6 +22,14 @@ export interface Case {
   analysisOverrides?: Partial<ViolationReport> | null;
   analysisStatus: "pending" | "complete";
   analysisStatusCode?: number | null;
+  sentEmails?: SentEmail[];
+}
+
+export interface SentEmail {
+  subject: string;
+  body: string;
+  attachments: string[];
+  sentAt: string;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -41,6 +49,7 @@ function loadCases(): Case[] {
       photos: c.photos ?? (c.photo ? [c.photo] : []),
       photoTimes: c.photoTimes ?? {},
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
+      sentEmails: c.sentEmails ?? [],
     }));
   } catch {
     return [];
@@ -103,6 +112,7 @@ export function createCase(
     analysisOverrides: null,
     analysisStatus: "pending",
     analysisStatusCode: null,
+    sentEmails: [],
   };
   cases.push(newCase);
   saveCases(cases);
@@ -181,4 +191,15 @@ export function setCaseVinOverride(
   vin: string | null,
 ): Case | undefined {
   return updateCase(id, { vinOverride: vin });
+}
+
+export function addCaseEmail(id: string, email: SentEmail): Case | undefined {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  const list = cases[idx].sentEmails ?? [];
+  cases[idx].sentEmails = [...list, email];
+  saveCases(cases);
+  caseEvents.emit("update", cases[idx]);
+  return cases[idx];
 }

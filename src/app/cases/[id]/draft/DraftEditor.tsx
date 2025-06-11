@@ -8,18 +8,25 @@ export default function DraftEditor({
   initialDraft,
   attachments,
   module,
+  caseId,
 }: {
   initialDraft: EmailDraft;
   attachments: string[];
   module: ReportModule;
+  caseId: string;
 }) {
   const [subject, setSubject] = useState(initialDraft.subject);
   const [body, setBody] = useState(initialDraft.body);
 
-  function sendEmail() {
+  async function sendEmail() {
     const mailto = `mailto:${module.authorityEmail}?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
+    await fetch(`/api/cases/${caseId}/report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject, body, attachments }),
+    });
     window.location.href = mailto;
   }
 

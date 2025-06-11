@@ -14,6 +14,11 @@ export default async function DraftPage({
   const module = reportModules["oak-park"];
   const email = await draftEmail(c, module);
   return (
-    <DraftEditor initialDraft={email} attachments={c.photos} module={module} />
+    <DraftEditor
+      caseId={id}
+      initialDraft={email}
+      attachments={c.photos}
+      module={module}
+    />
   );
 }
