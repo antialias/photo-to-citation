@@ -36,8 +36,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, [noviolation]);
 
   const status = useMemo(() => {
-    const analysisPending = caseData.analysisStatus === "pending" && !caseData.analysis;
-    const reanalysisPending = caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
+    const analysisPending =
+      caseData.analysisStatus === "pending" && !caseData.analysis;
+    const reanalysisPending =
+      caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
     return {
       uploaded: true,
       analysisPending,
