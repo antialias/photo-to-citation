@@ -149,7 +149,29 @@ export default function ClientCasePage({
       <CaseToolbar caseId={caseId} />
       {selectedPhoto ? (
         <>
-          <Image src={selectedPhoto} alt="uploaded" width={600} height={400} />
+          <div className="w-[600px] h-[400px] relative">
+            <Image
+              src={selectedPhoto}
+              alt="uploaded"
+              fill
+              className="object-contain"
+            />
+            {caseData.analysis ? (
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 space-y-1 text-sm">
+                <ImageHighlights
+                  analysis={caseData.analysis}
+                  photo={selectedPhoto}
+                />
+                {caseData.analysisStatus === "pending" ? (
+                  <p>Updating analysis...</p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+                Analyzing photo...
+              </div>
+            )}
+          </div>
           {(() => {
             const t = caseData.photoTimes[selectedPhoto];
             return t ? (
@@ -158,12 +180,6 @@ export default function ClientCasePage({
               </p>
             ) : null;
           })()}
-          {caseData.analysis ? (
-            <ImageHighlights
-              analysis={caseData.analysis}
-              photo={selectedPhoto}
-            />
-          ) : null}
         </>
       ) : null}
       <div className="flex gap-2 flex-wrap">
@@ -178,7 +194,9 @@ export default function ClientCasePage({
                   : "ring-1 ring-transparent"
               }
             >
-              <Image src={p} alt="" width={80} height={60} />
+              <div className="relative w-[80px] h-[60px]">
+                <Image src={p} alt="" fill className="object-cover" />
+              </div>
               {(() => {
                 const t = caseData.photoTimes[p];
                 return t ? (

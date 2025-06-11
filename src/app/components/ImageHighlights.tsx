@@ -12,7 +12,7 @@ export default function ImageHighlights({
   const info = analysis.images?.[name];
   if (!info) return null;
   return (
-    <div className="bg-gray-50 p-2 rounded text-sm flex flex-col gap-1">
+    <div className="flex flex-col gap-1 text-sm">
       <span>
         <span className="font-semibold">Image score:</span>{" "}
         {info.representationScore.toFixed(2)}
