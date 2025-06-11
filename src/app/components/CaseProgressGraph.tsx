@@ -8,6 +8,7 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 const steps = [
   { id: "uploaded", label: "Photographs Uploaded" },
   { id: "analysis", label: "Analysis Complete" },
+  { id: "violation", label: "Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
   { id: "vin", label: "VIN Verified" },
   { id: "ownreq", label: "Ownership Info Requested" },
@@ -19,31 +20,56 @@ const steps = [
 ] as const;
 
 export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
-  const progress = useMemo(() => {
-    let idx = 0;
-    if (caseData.analysisStatus === "complete") idx = 1;
-    if (caseData.analysis?.vehicle?.licensePlateNumber) idx = 2;
-    if (caseData.vin) idx = 3;
-    return idx;
+  const status = useMemo(() => {
+    const analysisDone = caseData.analysisStatus === "complete";
+    const violation = analysisDone && Boolean(caseData.analysis?.violationType);
+    return {
+      uploaded: true,
+      analysis: analysisDone,
+      violation,
+      plate: Boolean(caseData.analysis?.vehicle?.licensePlateNumber),
+      vin: Boolean(caseData.vin),
+      ownreq: false,
+      own: false,
+      notify: violation,
+      confirm: false,
+      sent: false,
+      received: false,
+    } as Record<string, boolean>;
   }, [caseData]);
+
+  const firstPending = steps.findIndex((s) => !status[s.id]);
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
-    const edges = steps
-      .map((s, i) => {
-        if (i === steps.length - 1) return "";
-        return `${steps[i].id}-->${steps[i + 1].id}`;
-      })
+    const edgesList: Array<[string, string, boolean]> = [
+      ["uploaded", "analysis", true],
+      ["analysis", "violation", true],
+      ["violation", "plate", true],
+      ["plate", "vin", true],
+      ["plate", "ownreq", true],
+      ["vin", "ownreq", false],
+      ["ownreq", "own", true],
+      ["violation", "notify", true],
+      ["notify", "confirm", true],
+      ["confirm", "sent", true],
+      ["sent", "received", true],
+    ];
+    const edges = edgesList
+      .map(([a, b, hard]) => `${a}${hard ? "-->" : "-.->"}${b}`)
       .join("\n");
     const classAssignments = steps
       .map((s, i) => {
-        const cls =
-          i < progress ? "completed" : i === progress ? "current" : "pending";
+        const cls = status[s.id]
+          ? "completed"
+          : i === firstPending
+            ? "current"
+            : "pending";
         return `class ${s.id} ${cls}`;
       })
       .join("\n");
     return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:#D1FAE5,stroke:#047857;\nclassDef current fill:#FEF3C7,stroke:#92400E;\nclassDef pending fill:#F3F4F6,stroke:#6B7280;\n${classAssignments}`;
-  }, [progress]);
+  }, [status, firstPending]);
 
   return (
     <div className="max-w-full overflow-x-auto">
