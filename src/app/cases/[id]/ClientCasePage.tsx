@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
 import { getRepresentativePhoto } from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
+import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
 
 export default function ClientCasePage({
@@ -147,6 +148,12 @@ export default function ClientCasePage({
               </p>
             ) : null;
           })()}
+          {caseData.analysis ? (
+            <ImageHighlights
+              analysis={caseData.analysis}
+              photo={selectedPhoto}
+            />
+          ) : null}
         </>
       ) : null}
       <div className="flex gap-2 flex-wrap">
