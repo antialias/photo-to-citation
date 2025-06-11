@@ -300,6 +300,23 @@ export default function ClientCasePage({
           </div>
         </form>
       ) : null}
+      {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
+        <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
+          <h2 className="font-semibold">Email Log</h2>
+          <ul className="flex flex-col gap-1 text-sm">
+            {caseData.sentEmails.map((mail) => (
+              <li key={mail.sentAt} className="flex flex-col">
+                <span>
+                  {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
+                </span>
+                <span className="text-gray-500 whitespace-pre-wrap">
+                  {mail.body}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }
