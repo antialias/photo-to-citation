@@ -23,6 +23,7 @@ export interface Case {
   analysisStatus: "pending" | "complete";
   analysisStatusCode?: number | null;
   sentEmails?: SentEmail[];
+  ownershipRequests?: OwnershipRequest[];
 }
 
 export interface SentEmail {
@@ -30,6 +31,12 @@ export interface SentEmail {
   body: string;
   attachments: string[];
   sentAt: string;
+}
+
+export interface OwnershipRequest {
+  moduleId: string;
+  requestedAt: string;
+  checkNumber?: string | null;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -50,6 +57,7 @@ function loadCases(): Case[] {
       photoTimes: c.photoTimes ?? {},
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
       sentEmails: c.sentEmails ?? [],
+      ownershipRequests: c.ownershipRequests ?? [],
     }));
   } catch {
     return [];
@@ -113,6 +121,7 @@ export function createCase(
     analysisStatus: "pending",
     analysisStatusCode: null,
     sentEmails: [],
+    ownershipRequests: [],
   };
   cases.push(newCase);
   saveCases(cases);
@@ -199,6 +208,20 @@ export function addCaseEmail(id: string, email: SentEmail): Case | undefined {
   if (idx === -1) return undefined;
   const list = cases[idx].sentEmails ?? [];
   cases[idx].sentEmails = [...list, email];
+  saveCases(cases);
+  caseEvents.emit("update", cases[idx]);
+  return cases[idx];
+}
+
+export function addOwnershipRequest(
+  id: string,
+  request: OwnershipRequest,
+): Case | undefined {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  const list = cases[idx].ownershipRequests ?? [];
+  cases[idx].ownershipRequests = [...list, request];
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
   return cases[idx];

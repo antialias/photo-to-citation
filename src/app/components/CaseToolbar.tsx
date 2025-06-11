@@ -15,6 +15,12 @@ export default function CaseToolbar({ caseId }: { caseId: string }) {
           >
             Draft Email to Authorities
           </Link>
+          <Link
+            href={`/cases/${caseId}/ownership`}
+            className="block px-4 py-2 hover:bg-gray-100"
+          >
+            Request Ownership Info
+          </Link>
         </div>
       </details>
     </div>
