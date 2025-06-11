@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { caseEvents } from "./caseEvents";
+import { fetchCaseVinInBackground } from "./vinLookup";
 
 import type { ViolationReport } from "./openai";
 
@@ -15,6 +16,8 @@ export interface Case {
   } | null;
   streetAddress?: string | null;
   intersection?: string | null;
+  vin?: string | null;
+  vinOverride?: string | null;
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
   analysisStatus: "pending" | "complete";
@@ -50,20 +53,24 @@ function saveCases(cases: Case[]) {
 }
 
 function applyOverrides(caseData: Case): Case {
-  if (!caseData.analysisOverrides) {
-    return caseData;
+  let layeredCase = caseData;
+  if (caseData.analysisOverrides) {
+    const base = caseData.analysis ?? ({} as ViolationReport);
+    const overrides = caseData.analysisOverrides;
+    const layered: ViolationReport = {
+      ...base,
+      ...overrides,
+      vehicle: {
+        ...(base.vehicle ?? {}),
+        ...(overrides.vehicle ?? {}),
+      },
+    };
+    layeredCase = { ...layeredCase, analysis: layered };
   }
-  const base = caseData.analysis ?? ({} as ViolationReport);
-  const overrides = caseData.analysisOverrides;
-  const layered: ViolationReport = {
-    ...base,
-    ...overrides,
-    vehicle: {
-      ...(base.vehicle ?? {}),
-      ...(overrides.vehicle ?? {}),
-    },
-  };
-  return { ...caseData, analysis: layered };
+  if (layeredCase.vinOverride) {
+    layeredCase = { ...layeredCase, vin: layeredCase.vinOverride };
+  }
+  return layeredCase;
 }
 
 export function getCases(): Case[] {
@@ -90,6 +97,8 @@ export function createCase(
     gps,
     streetAddress: null,
     intersection: null,
+    vin: null,
+    vinOverride: null,
     analysis: null,
     analysisOverrides: null,
     analysisStatus: "pending",
@@ -148,5 +157,28 @@ export function setCaseAnalysisOverrides(
   id: string,
   overrides: Partial<ViolationReport> | null,
 ): Case | undefined {
-  return updateCase(id, { analysisOverrides: overrides });
+  const before = getCase(id);
+  const updated = updateCase(id, { analysisOverrides: overrides });
+  if (updated) {
+    const after = getCase(id);
+    const beforePlate = before?.analysis?.vehicle?.licensePlateNumber ?? null;
+    const beforeState = before?.analysis?.vehicle?.licensePlateState ?? null;
+    const afterPlate = after?.analysis?.vehicle?.licensePlateNumber ?? null;
+    const afterState = after?.analysis?.vehicle?.licensePlateState ?? null;
+    if (
+      afterPlate &&
+      afterState &&
+      (afterPlate !== beforePlate || afterState !== beforeState)
+    ) {
+      fetchCaseVinInBackground(after as Case);
+    }
+  }
+  return updated;
+}
+
+export function setCaseVinOverride(
+  id: string,
+  vin: string | null,
+): Case | undefined {
+  return updateCase(id, { vinOverride: vin });
 }
