@@ -7,11 +7,11 @@ export const dynamic = "force-dynamic";
 export default function CasesLayout({
   children,
   params,
-  searchParams,
+  searchParams = {},
 }: {
   children: ReactNode;
   params: { id?: string };
-  searchParams: { ids?: string };
+  searchParams?: { ids?: string };
 }) {
   const cases = getCases();
   const selectedIds = searchParams.ids
