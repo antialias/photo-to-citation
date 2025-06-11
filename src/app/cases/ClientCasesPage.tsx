@@ -9,8 +9,10 @@ import MapPreview from "../components/MapPreview";
 
 export default function ClientCasesPage({
   initialCases,
+  selectedId,
 }: {
   initialCases: Case[];
+  selectedId?: string;
 }) {
   const [cases, setCases] = useState(initialCases);
 
@@ -34,7 +36,10 @@ export default function ClientCasesPage({
       <h1 className="text-xl font-bold mb-4">Cases</h1>
       <ul className="grid gap-4">
         {cases.map((c) => (
-          <li key={c.id} className="border p-2">
+          <li
+            key={c.id}
+            className={`border p-2 ${selectedId === c.id ? "bg-gray-100" : ""}`}
+          >
             <Link href={`/cases/${c.id}`} className="flex items-start gap-4">
               <div className="relative">
                 <Image
