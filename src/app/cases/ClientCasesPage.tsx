@@ -44,7 +44,7 @@ export default function ClientCasesPage({
               <div className="relative">
                 <Image
                   src={getRepresentativePhoto(c)}
-                  alt=""
+                  alt="case thumbnail"
                   width={80}
                   height={60}
                 />
@@ -58,6 +58,7 @@ export default function ClientCasesPage({
                   lon={c.gps.lon}
                   width={80}
                   height={60}
+                  className="w-20 aspect-[4/3]"
                 />
               ) : null}
               <div className="flex flex-col text-sm gap-1">

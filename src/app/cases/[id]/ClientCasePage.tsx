@@ -188,7 +188,7 @@ export default function ClientCasePage({
         <>
           {selectedPhoto ? (
             <>
-              <div className="w-[600px] h-[400px] relative">
+              <div className="relative w-full aspect-[3/2] md:max-w-2xl">
                 <Image
                   src={selectedPhoto}
                   alt="uploaded"
@@ -233,8 +233,13 @@ export default function ClientCasePage({
                       : "ring-1 ring-transparent"
                   }
                 >
-                  <div className="relative w-[80px] h-[60px]">
-                    <Image src={p} alt="" fill className="object-cover" />
+                  <div className="relative w-20 aspect-[4/3]">
+                    <Image
+                      src={p}
+                      alt="case photo"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   {(() => {
                     const t = caseData.photoTimes[p];
@@ -254,7 +259,7 @@ export default function ClientCasePage({
                 </button>
               </div>
             ))}
-            <label className="flex items-center justify-center border rounded w-[80px] h-[60px] text-sm text-gray-500 cursor-pointer">
+            <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 cursor-pointer">
               + add image
               <input
                 ref={fileInputRef}
@@ -279,6 +284,7 @@ export default function ClientCasePage({
                 lon={caseData.gps.lon}
                 width={600}
                 height={300}
+                className="w-full aspect-[2/1] md:max-w-xl"
               />
             </>
           ) : null}
