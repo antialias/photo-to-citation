@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
 import { getRepresentativePhoto } from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
+import CaseToolbar from "../../components/CaseToolbar";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
 
@@ -145,6 +146,7 @@ export default function ClientCasePage({
   return (
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+      <CaseToolbar caseId={caseId} />
       {selectedPhoto ? (
         <>
           <Image src={selectedPhoto} alt="uploaded" width={600} height={400} />
@@ -298,12 +300,6 @@ export default function ClientCasePage({
           </div>
         </form>
       ) : null}
-      <a
-        href={`/cases/${caseId}/draft`}
-        className="bg-green-600 text-white px-2 py-1 rounded w-max"
-      >
-        Draft Email
-      </a>
     </div>
   );
 }
