@@ -1,4 +1,4 @@
-import { getCase } from "@/lib/caseStore";
+import { deleteCase, getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -11,4 +11,16 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   return NextResponse.json(c);
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } },
+) {
+  const { id } = await params;
+  const ok = deleteCase(id);
+  if (!ok) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true });
 }

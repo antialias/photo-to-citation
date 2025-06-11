@@ -226,3 +226,13 @@ export function addOwnershipRequest(
   caseEvents.emit("update", cases[idx]);
   return cases[idx];
 }
+
+export function deleteCase(id: string): boolean {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return false;
+  const [removed] = cases.splice(idx, 1);
+  saveCases(cases);
+  caseEvents.emit("update", { id: removed.id, deleted: true });
+  return true;
+}
