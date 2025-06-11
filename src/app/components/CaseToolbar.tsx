@@ -23,10 +23,16 @@ export default function CaseToolbar({
         </summary>
         <div className="absolute right-0 mt-1 bg-white border rounded shadow">
           <Link
-            href={`/cases/${caseId}/draft`}
+            href={`/cases/${caseId}/compose`}
             className="block px-4 py-2 hover:bg-gray-100"
           >
             Draft Email to Authorities
+          </Link>
+          <Link
+            href={`/cases/${caseId}/draft`}
+            className="block px-4 py-2 hover:bg-gray-100"
+          >
+            Open Full Screen Draft
           </Link>
           <Link
             href={`/cases/${caseId}/ownership`}

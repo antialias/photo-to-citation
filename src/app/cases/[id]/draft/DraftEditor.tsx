@@ -2,7 +2,7 @@
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function DraftEditor({
   initialDraft,
@@ -10,13 +10,20 @@ export default function DraftEditor({
   module,
   caseId,
 }: {
-  initialDraft: EmailDraft;
+  initialDraft?: EmailDraft;
   attachments: string[];
   module: ReportModule;
   caseId: string;
 }) {
-  const [subject, setSubject] = useState(initialDraft.subject);
-  const [body, setBody] = useState(initialDraft.body);
+  const [subject, setSubject] = useState(initialDraft?.subject || "");
+  const [body, setBody] = useState(initialDraft?.body || "");
+
+  useEffect(() => {
+    if (initialDraft) {
+      setSubject(initialDraft.subject);
+      setBody(initialDraft.body);
+    }
+  }, [initialDraft]);
 
   async function sendEmail() {
     const res = await fetch(`/api/cases/${caseId}/report`, {
@@ -29,6 +36,12 @@ export default function DraftEditor({
     } else {
       alert("Failed to send email");
     }
+  }
+
+  if (!initialDraft) {
+    return (
+      <div className="p-8">Drafting email based on case information...</div>
+    );
   }
 
   return (
