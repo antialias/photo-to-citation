@@ -73,6 +73,25 @@ reverse geocode lookup for each case in the background. The resulting street
 address and closest intersection are stored with the case once the lookup
 completes.
 
+## Email Sending
+
+To enable sending reports directly from the app, configure SMTP credentials in
+your `.env` file:
+
+```bash
+SMTP_HOST=localhost
+SMTP_PORT=587
+SMTP_USER=username
+SMTP_PASS=password
+SMTP_FROM=from@example.com
+# Send all mail to this address instead of the real authority
+MOCK_EMAIL_TO=test@example.com
+```
+
+If `MOCK_EMAIL_TO` is set, all outgoing email will be directed there instead of
+the authority's address. Omit the variable in production to send to the real
+recipient.
+
 ## Folder Structure
 
 ```text
