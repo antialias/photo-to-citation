@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Case } from "../../lib/caseStore";
 import { getRepresentativePhoto } from "../../lib/caseUtils";
@@ -9,13 +9,18 @@ import MapPreview from "../components/MapPreview";
 
 export default function ClientCasesPage({
   initialCases,
-  selectedIds,
 }: {
   initialCases: Case[];
-  selectedIds: string[];
 }) {
   const [cases, setCases] = useState(initialCases);
   const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const searchParams = useSearchParams();
+  const selectedIds = searchParams.get("ids")
+    ? searchParams.get("ids")?.split(",").filter(Boolean)
+    : params.id
+      ? [params.id]
+      : [];
 
   useEffect(() => {
     const es = new EventSource("/api/cases/stream");
