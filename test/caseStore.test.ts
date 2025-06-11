@@ -106,4 +106,18 @@ describe("caseStore", () => {
     const stored = getCase(c.id);
     expect(stored?.photos).toEqual(["/bar.jpg"]);
   });
+
+  it("deletes a case", () => {
+    const { createCase, deleteCase, getCase, getCases } = caseStore;
+    const c = createCase(
+      "/foo.jpg",
+      null,
+      undefined,
+      "2020-01-09T00:00:00.000Z",
+    );
+    const ok = deleteCase(c.id);
+    expect(ok).toBe(true);
+    expect(getCase(c.id)).toBeUndefined();
+    expect(getCases()).toHaveLength(0);
+  });
 });

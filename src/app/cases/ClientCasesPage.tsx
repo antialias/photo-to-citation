@@ -19,8 +19,11 @@ export default function ClientCasesPage({
   useEffect(() => {
     const es = new EventSource("/api/cases/stream");
     es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case;
+      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       setCases((prev) => {
+        if (data.deleted) {
+          return prev.filter((c) => c.id !== data.id);
+        }
         const idx = prev.findIndex((c) => c.id === data.id);
         if (idx === -1) return [...prev, data];
         const copy = [...prev];

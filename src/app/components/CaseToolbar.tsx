@@ -34,6 +34,22 @@ export default function CaseToolbar({
           >
             Request Ownership Info
           </Link>
+          <button
+            type="button"
+            onClick={async () => {
+              const code = Math.random().toString(36).slice(2, 6);
+              const input = prompt(
+                `Type '${code}' to confirm deleting this case.`,
+              );
+              if (input === code) {
+                await fetch(`/api/cases/${caseId}`, { method: "DELETE" });
+                window.location.href = "/cases";
+              }
+            }}
+            className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+          >
+            Delete Case
+          </button>
         </div>
       </details>
     </div>
