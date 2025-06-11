@@ -41,7 +41,11 @@ export default function ClientCasesPage({
         {cases.map((c) => (
           <li
             key={c.id}
-            className={`border p-2 ${selectedId === c.id ? "bg-gray-100" : ""}`}
+            className={`border p-2 ${
+              selectedId === c.id
+                ? "bg-gray-100 ring-2 ring-blue-500"
+                : "ring-1 ring-transparent"
+            }`}
           >
             <Link href={`/cases/${c.id}`} className="flex items-start gap-4">
               <div className="relative">

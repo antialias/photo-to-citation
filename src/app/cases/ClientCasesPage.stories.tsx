@@ -54,3 +54,13 @@ export const MultipleCases: Story = {
     return <ClientCasesPage initialCases={cases} />;
   },
 };
+
+export const SelectedCase: Story = {
+  render: () => {
+    const cases: Case[] = [
+      { id: "1", ...caseBase },
+      { id: "2", ...caseBase },
+    ];
+    return <ClientCasesPage initialCases={cases} selectedId="2" />;
+  },
+};
