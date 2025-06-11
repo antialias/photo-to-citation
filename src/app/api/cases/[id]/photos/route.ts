@@ -7,7 +7,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const { id } = params;
+  const { id } = await params;
   const { photo } = (await req.json()) as { photo: string };
   const updated = removeCasePhoto(id, photo);
   if (!updated) {
