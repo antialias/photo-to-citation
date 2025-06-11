@@ -8,6 +8,7 @@ import AnalysisInfo from "../../components/AnalysisInfo";
 import CaseLayout from "../../components/CaseLayout";
 import CaseProgressGraph from "../../components/CaseProgressGraph";
 import CaseToolbar from "../../components/CaseToolbar";
+import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
 
@@ -26,8 +27,8 @@ export default function ClientCasePage({
   const [plate, setPlate] = useState<string>(
     initialCase?.analysis?.vehicle?.licensePlateNumber || "",
   );
-  const [model, setModel] = useState<string>(
-    initialCase?.analysis?.vehicle?.model || "",
+  const [plateState, setPlateState] = useState<string>(
+    initialCase?.analysis?.vehicle?.licensePlateState || "",
   );
   const [vin, setVin] = useState<string>(initialCase?.vin || "");
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function ClientCasePage({
   useEffect(() => {
     if (caseData) {
       setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
-      setModel(caseData.analysis?.vehicle?.model || "");
+      setPlateState(caseData.analysis?.vehicle?.licensePlateState || "");
       setVin(caseData.vin || "");
       setSelectedPhoto(getRepresentativePhoto(caseData));
     }
@@ -85,22 +86,7 @@ export default function ClientCasePage({
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  async function saveOverrides() {
-    await fetch(`/api/cases/${caseId}/override`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        vehicle: {
-          licensePlateNumber: plate || undefined,
-          model: model || undefined,
-        },
-      }),
-    });
-    await fetch(`/api/cases/${caseId}/vin`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vin: vin || null }),
-    });
+  async function refreshCase() {
     const res = await fetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
@@ -108,14 +94,54 @@ export default function ClientCasePage({
     }
   }
 
-  async function clearOverrides() {
-    await fetch(`/api/cases/${caseId}/override`, { method: "DELETE" });
+  async function updateVehicle(plateNum: string, plateSt: string) {
+    await fetch(`/api/cases/${caseId}/override`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicle: {
+          licensePlateNumber: plateNum || undefined,
+          licensePlateState: plateSt || undefined,
+        },
+      }),
+    });
+    await refreshCase();
+  }
+
+  async function updatePlateNumber(value: string) {
+    setPlate(value);
+    await updateVehicle(value, plateState);
+  }
+
+  async function updatePlateStateFn(value: string) {
+    setPlateState(value);
+    await updateVehicle(plate, value);
+  }
+
+  async function clearPlateNumber() {
+    setPlate("");
+    await updateVehicle("", plateState);
+  }
+
+  async function clearPlateState() {
+    setPlateState("");
+    await updateVehicle(plate, "");
+  }
+
+  async function updateVinFn(value: string) {
+    setVin(value);
+    await fetch(`/api/cases/${caseId}/vin`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vin: value || null }),
+    });
+    await refreshCase();
+  }
+
+  async function clearVin() {
+    setVin("");
     await fetch(`/api/cases/${caseId}/vin`, { method: "DELETE" });
-    const res = await fetch(`/api/cases/${caseId}`);
-    if (res.ok) {
-      const data = (await res.json()) as Case;
-      setCaseData(data);
-    }
+    await refreshCase();
   }
 
   async function removePhoto(photo: string) {
@@ -266,15 +292,27 @@ export default function ClientCasePage({
               Intersection: {caseData.intersection}
             </p>
           ) : null}
-          {caseData.vin ? (
-            <p className="text-sm text-gray-500">VIN: {caseData.vin}</p>
-          ) : null}
+          <p className="text-sm text-gray-500">
+            VIN:{" "}
+            <EditableText
+              value={vin}
+              onSubmit={updateVinFn}
+              onClear={clearVin}
+              placeholder="VIN"
+            />
+          </p>
         </>
       }
     >
       {caseData.analysis ? (
         <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
-          <AnalysisInfo analysis={caseData.analysis} />
+          <AnalysisInfo
+            analysis={caseData.analysis}
+            onPlateChange={updatePlateNumber}
+            onStateChange={updatePlateStateFn}
+            onClearPlate={clearPlateNumber}
+            onClearState={clearPlateState}
+          />
           {caseData.analysisStatus === "pending" ? (
             <p className="text-sm text-gray-500">Updating analysis...</p>
           ) : null}
@@ -282,58 +320,6 @@ export default function ClientCasePage({
       ) : (
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}
-      {caseData.analysis ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            saveOverrides();
-          }}
-          className="flex flex-col gap-2"
-        >
-          <label className="flex flex-col">
-            License Plate
-            <input
-              type="text"
-              value={plate}
-              onChange={(e) => setPlate(e.target.value)}
-              className="border p-1"
-            />
-          </label>
-          <label className="flex flex-col">
-            Vehicle Model
-            <input
-              type="text"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              className="border p-1"
-            />
-          </label>
-          <label className="flex flex-col">
-            VIN
-            <input
-              type="text"
-              value={vin}
-              onChange={(e) => setVin(e.target.value)}
-              className="border p-1"
-            />
-          </label>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-2 py-1 rounded"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={clearOverrides}
-              className="bg-gray-200 px-2 py-1 rounded"
-            >
-              Clear Overrides
-            </button>
-          </div>
-        </form>
-      ) : null}
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
           <h2 className="font-semibold">Email Log</h2>
