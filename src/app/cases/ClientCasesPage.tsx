@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Case } from "../../lib/caseStore";
 import { getRepresentativePhoto } from "../../lib/caseUtils";
@@ -9,12 +9,13 @@ import MapPreview from "../components/MapPreview";
 
 export default function ClientCasesPage({
   initialCases,
-  selectedId,
+  selectedIds,
 }: {
   initialCases: Case[];
-  selectedId?: string;
+  selectedIds: string[];
 }) {
   const [cases, setCases] = useState(initialCases);
+  const router = useRouter();
 
   useEffect(() => {
     const es = new EventSource("/api/cases/stream");
@@ -42,12 +43,23 @@ export default function ClientCasesPage({
           <li
             key={c.id}
             className={`border p-2 ${
-              selectedId === c.id
+              selectedIds.includes(c.id)
                 ? "bg-gray-100 ring-2 ring-blue-500"
                 : "ring-1 ring-transparent"
             }`}
           >
-            <Link href={`/cases/${c.id}`} className="flex items-start gap-4">
+            <button
+              type="button"
+              onClick={(e) => {
+                if (e.shiftKey) {
+                  const ids = Array.from(new Set([...selectedIds, c.id]));
+                  router.push(`/cases?ids=${ids.join(",")}`);
+                } else {
+                  router.push(`/cases/${c.id}`);
+                }
+              }}
+              className="flex items-start gap-4 w-full text-left"
+            >
               <div className="relative">
                 <Image
                   src={getRepresentativePhoto(c)}
@@ -83,7 +95,7 @@ export default function ClientCasesPage({
                   <span className="text-gray-500">Analyzing photo...</span>
                 )}
               </div>
-            </Link>
+            </button>
           </li>
         ))}
       </ul>
