@@ -79,8 +79,8 @@ export async function lookupVin(
         ? src.parse(text)
         : parseVinFromHtml(text, src.selector);
       if (vin) return vin;
-    } catch {
-      /* ignore and try next source */
+    } catch (err) {
+      console.error("VIN lookup failed", err);
     }
   }
   return null;
