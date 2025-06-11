@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
 import { getRepresentativePhoto } from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
+import CaseProgressGraph from "../../components/CaseProgressGraph";
 import CaseToolbar from "../../components/CaseToolbar";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
@@ -147,6 +148,7 @@ export default function ClientCasePage({
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
       <CaseToolbar caseId={caseId} />
+      <CaseProgressGraph caseData={caseData} />
       {selectedPhoto ? (
         <>
           <div className="w-[600px] h-[400px] relative">
