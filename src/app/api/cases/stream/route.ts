@@ -36,7 +36,10 @@ export async function GET(req: Request) {
         controller.close();
       });
 
-      controller.oncancel = cleanup;
+      const ctrl = controller as ReadableStreamDefaultController<Uint8Array> & {
+        oncancel?: () => void;
+      };
+      ctrl.oncancel = cleanup;
     },
   });
 

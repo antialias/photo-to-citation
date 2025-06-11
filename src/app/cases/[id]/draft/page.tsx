@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function DraftPage({
   params,
-}: { params: { id: string } }) {
+}: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const c = getCase(id);
   if (!c) return <div className="p-8">Case not found</div>;
