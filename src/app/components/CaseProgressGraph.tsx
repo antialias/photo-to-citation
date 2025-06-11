@@ -73,7 +73,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   return (
     <div className="max-w-full overflow-x-auto">
-      <Mermaid chart={chart} />
+      <Mermaid chart={chart} key={chart} />
     </div>
   );
 }
