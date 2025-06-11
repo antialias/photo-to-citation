@@ -5,10 +5,11 @@ import { useMemo } from "react";
 
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
-const steps = [
+const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
   { id: "analysis", label: "Analysis Complete" },
   { id: "violation", label: "Violation Identified" },
+  { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
   { id: "vin", label: "VIN Verified" },
   { id: "ownreq", label: "Ownership Info Requested" },
@@ -20,15 +21,27 @@ const steps = [
 ] as const;
 
 export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
+  const analysisDone = caseData.analysisStatus === "complete";
+  const violation = analysisDone && Boolean(caseData.analysis?.violationType);
+  const noviolation = analysisDone && !violation;
+
+  const steps = useMemo(() => {
+    return noviolation
+      ? allSteps.filter((s) =>
+          ["uploaded", "analysis", "noviol"].includes(s.id),
+        )
+      : allSteps.filter((s) => s.id !== "noviol");
+  }, [noviolation]);
+
   const status = useMemo(() => {
-    const analysisDone = caseData.analysisStatus === "complete";
-    const violation = analysisDone && Boolean(caseData.analysis?.violationType);
     return {
       uploaded: true,
       analysis: analysisDone,
       violation,
-      plate: Boolean(caseData.analysis?.vehicle?.licensePlateNumber),
-      vin: Boolean(caseData.vin),
+      noviol: noviolation,
+      plate:
+        violation && Boolean(caseData.analysis?.vehicle?.licensePlateNumber),
+      vin: violation && Boolean(caseData.vin),
       ownreq: false,
       own: false,
       notify: violation,
@@ -36,25 +49,30 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       sent: false,
       received: false,
     } as Record<string, boolean>;
-  }, [caseData]);
+  }, [analysisDone, violation, noviolation, caseData]);
 
   const firstPending = steps.findIndex((s) => !status[s.id]);
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
-    const edgesList: Array<[string, string, boolean]> = [
-      ["uploaded", "analysis", true],
-      ["analysis", "violation", true],
-      ["violation", "plate", true],
-      ["plate", "vin", true],
-      ["plate", "ownreq", true],
-      ["vin", "ownreq", false],
-      ["ownreq", "own", true],
-      ["violation", "notify", true],
-      ["notify", "confirm", true],
-      ["confirm", "sent", true],
-      ["sent", "received", true],
-    ];
+    const edgesList: Array<[string, string, boolean]> = noviolation
+      ? [
+          ["uploaded", "analysis", true],
+          ["analysis", "noviol", true],
+        ]
+      : [
+          ["uploaded", "analysis", true],
+          ["analysis", "violation", true],
+          ["violation", "plate", true],
+          ["plate", "vin", true],
+          ["plate", "ownreq", true],
+          ["vin", "ownreq", false],
+          ["ownreq", "own", true],
+          ["violation", "notify", true],
+          ["notify", "confirm", true],
+          ["confirm", "sent", true],
+          ["sent", "received", true],
+        ];
     const edges = edgesList
       .map(([a, b, hard]) => `${a}${hard ? "-->" : "-.->"}${b}`)
       .join("\n");
@@ -69,7 +87,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       })
       .join("\n");
     return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:#D1FAE5,stroke:#047857;\nclassDef current fill:#FEF3C7,stroke:#92400E;\nclassDef pending fill:#F3F4F6,stroke:#6B7280;\n${classAssignments}`;
-  }, [status, firstPending]);
+  }, [status, firstPending, noviolation, steps]);
 
   return (
     <div className="max-w-full overflow-x-auto">

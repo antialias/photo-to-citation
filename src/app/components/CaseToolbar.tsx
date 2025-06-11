@@ -1,7 +1,20 @@
 "use client";
 import Link from "next/link";
 
-export default function CaseToolbar({ caseId }: { caseId: string }) {
+export default function CaseToolbar({
+  caseId,
+  disabled = false,
+}: {
+  caseId: string;
+  disabled?: boolean;
+}) {
+  if (disabled) {
+    return (
+      <div className="bg-gray-100 px-8 py-2 flex justify-end text-gray-500">
+        No actions available
+      </div>
+    );
+  }
   return (
     <div className="bg-gray-100 px-8 py-2 flex justify-end">
       <details className="relative">
