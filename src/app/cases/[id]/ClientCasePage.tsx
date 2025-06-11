@@ -34,12 +34,10 @@ export default function ClientCasePage({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: run once per id
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!caseData) {
-      const stored = sessionStorage.getItem(`preview-${caseId}`);
-      if (stored) setPreview(stored);
-    }
+    const stored = sessionStorage.getItem(`preview-${caseId}`);
+    if (stored) setPreview(stored);
     fetch(`/api/cases/${caseId}`).then(async (res) => {
       if (res.ok) {
         const data = (await res.json()) as Case;

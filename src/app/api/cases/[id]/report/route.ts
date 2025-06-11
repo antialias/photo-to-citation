@@ -11,9 +11,13 @@ export async function GET(
   const { id } = await params;
   const c = getCase(id);
   if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const module = reportModules["oak-park"];
-  const email = await draftEmail(c, module);
-  return NextResponse.json({ email, attachments: c.photos, module });
+  const reportModule = reportModules["oak-park"];
+  const email = await draftEmail(c, reportModule);
+  return NextResponse.json({
+    email,
+    attachments: c.photos,
+    module: reportModule,
+  });
 }
 
 export async function POST(
@@ -30,10 +34,10 @@ export async function POST(
   if (!c) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  const module = reportModules["oak-park"];
+  const reportModule = reportModules["oak-park"];
   try {
     await sendEmail({
-      to: module.authorityEmail,
+      to: reportModule.authorityEmail,
       subject,
       body,
       attachments,

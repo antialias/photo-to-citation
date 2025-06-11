@@ -7,12 +7,11 @@ describe("Home page", () => {
   beforeAll(() => {
     // jsdom does not implement EventSource
     class FakeEventSource {
-      // biome-ignore lint/suspicious/noExplicitAny: test mock
-      onmessage: any;
+      onmessage!: (event: MessageEvent) => void;
       close() {}
     }
-    // biome-ignore lint/suspicious/noExplicitAny: test mock
-    (global as any).EventSource = FakeEventSource;
+    (global as Record<string, unknown>).EventSource =
+      FakeEventSource as unknown as typeof EventSource;
   });
 
   it("shows the cases list", () => {

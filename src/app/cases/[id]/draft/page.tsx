@@ -11,14 +11,14 @@ export default async function DraftPage({
   const { id } = await params;
   const c = getCase(id);
   if (!c) return <div className="p-8">Case not found</div>;
-  const module = reportModules["oak-park"];
-  const email = await draftEmail(c, module);
+  const reportModule = reportModules["oak-park"];
+  const email = await draftEmail(c, reportModule);
   return (
     <DraftEditor
       caseId={id}
       initialDraft={email}
       attachments={c.photos}
-      module={module}
+      module={reportModule}
     />
   );
 }
