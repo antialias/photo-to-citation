@@ -4,7 +4,7 @@ import path from "node:path";
 import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
 import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
-import { extractGps } from "@/lib/exif";
+import { extractGps, extractTimestamp } from "@/lib/exif";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(bytes);
 
   const gps = extractGps(buffer);
+  const takenAt = extractTimestamp(buffer);
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   fs.mkdirSync(uploadDir, { recursive: true });
   const ext = path.extname(file.name || "jpg") || ".jpg";
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
   fs.writeFileSync(path.join(uploadDir, filename), buffer);
   const existing = clientId ? getCase(clientId) : null;
   if (existing) {
-    const updated = addCasePhoto(existing.id, `/uploads/${filename}`);
+    const updated = addCasePhoto(existing.id, `/uploads/${filename}`, takenAt);
     if (!updated) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -40,6 +41,7 @@ export async function POST(req: NextRequest) {
     `/uploads/${filename}`,
     gps,
     clientId || undefined,
+    takenAt,
   );
   analyzeCaseInBackground(newCase);
   fetchCaseLocationInBackground(newCase);

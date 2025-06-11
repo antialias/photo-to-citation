@@ -24,14 +24,19 @@ describe("caseStore", () => {
   it("creates and retrieves a case", () => {
     const { createCase, getCase, getCases, updateCase, addCasePhoto } =
       caseStore;
-    const c = createCase("/foo.jpg", { lat: 10, lon: 20 });
+    const c = createCase(
+      "/foo.jpg",
+      { lat: 10, lon: 20 },
+      undefined,
+      "2020-01-01T00:00:00.000Z",
+    );
     expect(c.photos).toEqual(["/foo.jpg"]);
     expect(c.gps).toEqual({ lat: 10, lon: 20 });
     expect(c.streetAddress).toBeNull();
     expect(c.intersection).toBeNull();
     expect(getCase(c.id)).toEqual(c);
     expect(getCases()).toHaveLength(1);
-    addCasePhoto(c.id, "/bar.jpg");
+    addCasePhoto(c.id, "/bar.jpg", "2020-01-02T00:00:00.000Z");
     const updated = updateCase(c.id, {
       analysis: {
         violationType: "foo",
@@ -49,7 +54,12 @@ describe("caseStore", () => {
 
   it("allows providing a custom id", () => {
     const { createCase, getCase } = caseStore;
-    const c = createCase("/bar.jpg", null, "custom-id");
+    const c = createCase(
+      "/bar.jpg",
+      null,
+      "custom-id",
+      "2020-01-03T00:00:00.000Z",
+    );
     expect(c.id).toBe("custom-id");
     expect(getCase("custom-id")).toEqual(c);
     expect(c.photos).toEqual(["/bar.jpg"]);
@@ -57,7 +67,12 @@ describe("caseStore", () => {
 
   it("applies analysis overrides", () => {
     const { createCase, setCaseAnalysisOverrides, getCase } = caseStore;
-    const c = createCase("/baz.jpg");
+    const c = createCase(
+      "/baz.jpg",
+      null,
+      undefined,
+      "2020-01-04T00:00:00.000Z",
+    );
     setCaseAnalysisOverrides(c.id, { vehicle: { model: "Tesla" } });
     const updated = getCase(c.id);
     expect(updated?.analysis?.vehicle?.model).toBe("Tesla");
@@ -68,8 +83,8 @@ describe("caseStore", () => {
 
   it("computes the representative photo", () => {
     const { createCase, addCasePhoto, getCase } = caseStore;
-    const c = createCase("/b.jpg");
-    addCasePhoto(c.id, "/a.jpg");
+    const c = createCase("/b.jpg", null, undefined, "2020-01-05T00:00:00.000Z");
+    addCasePhoto(c.id, "/a.jpg", "2020-01-06T00:00:00.000Z");
     const updated = getCase(c.id);
     expect(updated).toBeDefined();
     const rep = getRepresentativePhoto(updated as NonNullable<typeof updated>);
@@ -78,8 +93,13 @@ describe("caseStore", () => {
 
   it("removes a photo and marks analysis pending", () => {
     const { createCase, addCasePhoto, removeCasePhoto, getCase } = caseStore;
-    const c = createCase("/foo.jpg");
-    addCasePhoto(c.id, "/bar.jpg");
+    const c = createCase(
+      "/foo.jpg",
+      null,
+      undefined,
+      "2020-01-07T00:00:00.000Z",
+    );
+    addCasePhoto(c.id, "/bar.jpg", "2020-01-08T00:00:00.000Z");
     const updated = removeCasePhoto(c.id, "/foo.jpg");
     expect(updated?.photos).toEqual(["/bar.jpg"]);
     expect(updated?.analysisStatus).toBe("pending");

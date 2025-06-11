@@ -18,3 +18,19 @@ export function extractGps(buffer: Buffer): Gps | null {
   }
   return null;
 }
+
+export function extractTimestamp(buffer: Buffer): string | null {
+  try {
+    const result = ExifParser.create(buffer).parse();
+    const ts =
+      (result.tags.DateTimeOriginal as number | undefined) ||
+      (result.tags.CreateDate as number | undefined) ||
+      (result.tags.ModifyDate as number | undefined);
+    if (typeof ts === "number") {
+      return new Date(ts * 1000).toISOString();
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
