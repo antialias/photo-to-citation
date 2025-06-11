@@ -4,6 +4,20 @@ import type { Case } from "./caseStore";
 import { openai } from "./openai";
 import type { ReportModule } from "./reportModules";
 
+function logBadResponse(
+  attempt: number,
+  response: string,
+  error: unknown,
+): void {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    attempt: attempt + 1,
+    error: String(error),
+    response,
+  };
+  console.warn(JSON.stringify(entry));
+}
+
 export const emailDraftSchema = z.object({
   subject: z.string(),
   body: z.string(),
@@ -51,20 +65,35 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     schema,
   )}`;
 
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content: "You create email drafts for municipal authorities.",
-      },
-      { role: "user", content: prompt },
-    ],
-    max_tokens: 300,
-    response_format: { type: "json_object" },
-  });
+  const baseMessages = [
+    {
+      role: "system",
+      content: "You create email drafts for municipal authorities.",
+    },
+    { role: "user", content: prompt },
+  ];
 
-  const text = res.choices[0]?.message?.content ?? "{}";
-  const parsed = JSON.parse(text);
-  return emailDraftSchema.parse(parsed);
+  const messages = [...baseMessages];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      max_tokens: 300,
+      response_format: { type: "json_object" },
+    });
+    const text = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(text);
+      return emailDraftSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) return { subject: "", body: "" };
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  return { subject: "", body: "" };
 }
