@@ -157,7 +157,7 @@ export default function ClientCasePage({
               className="object-contain"
             />
             {caseData.analysis ? (
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 space-y-1 text-sm">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
                 <ImageHighlights
                   analysis={caseData.analysis}
                   photo={selectedPhoto}
@@ -167,7 +167,7 @@ export default function ClientCasePage({
                 ) : null}
               </div>
             ) : (
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
                 Analyzing photo...
               </div>
             )}
@@ -200,7 +200,7 @@ export default function ClientCasePage({
               {(() => {
                 const t = caseData.photoTimes[p];
                 return t ? (
-                  <span className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs rounded px-1">
+                  <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
                     {new Date(t).toLocaleDateString()}
                   </span>
                 ) : null;
