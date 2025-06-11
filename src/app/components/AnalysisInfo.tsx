@@ -1,4 +1,5 @@
 import type { ViolationReport } from "@/lib/openai";
+import { US_STATES } from "@/lib/usStates";
 import EditableText from "./EditableText";
 
 export default function AnalysisInfo({
@@ -40,6 +41,7 @@ export default function AnalysisInfo({
                 onSubmit={onStateChange}
                 onClear={onClearState}
                 placeholder="state"
+                options={US_STATES}
               />
             ) : vehicle.licensePlateState ? (
               <span>{vehicle.licensePlateState}</span>
