@@ -145,12 +145,16 @@ export default function ClientCasePage({
     );
   }
 
+  const violationIdentified =
+    caseData.analysisStatus === "complete" &&
+    Boolean(caseData.analysis?.violationType);
+
   return (
     <CaseLayout
       header={
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
-          <CaseToolbar caseId={caseId} />
+          <CaseToolbar caseId={caseId} disabled={!violationIdentified} />
         </div>
       }
       left={<CaseProgressGraph caseData={caseData} />}
