@@ -51,6 +51,6 @@ export const MultipleCases: Story = {
         ],
       },
     ];
-    return <ClientCasesPage initialCases={cases} />;
+    return <ClientCasesPage initialCases={cases} selectedIds={[]} />;
   },
 };
