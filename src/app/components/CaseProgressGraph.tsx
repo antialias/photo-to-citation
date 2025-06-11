@@ -7,7 +7,9 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const steps = [
   { id: "uploaded", label: "Photographs Uploaded" },
+  { id: "analysisPending", label: "Analysis Pending" },
   { id: "analysis", label: "Analysis Complete" },
+  { id: "reanalysis", label: "Re-analysis Pending" },
   { id: "violation", label: "Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
   { id: "vin", label: "VIN Verified" },
@@ -22,10 +24,14 @@ const steps = [
 export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   const status = useMemo(() => {
     const analysisDone = caseData.analysisStatus === "complete";
+    const analysisPending = caseData.analysisStatus === "pending" && !caseData.analysis;
+    const reanalysisPending = caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
     const violation = analysisDone && Boolean(caseData.analysis?.violationType);
     return {
       uploaded: true,
+      analysisPending,
       analysis: analysisDone,
+      reanalysis: reanalysisPending,
       violation,
       plate: Boolean(caseData.analysis?.vehicle?.licensePlateNumber),
       vin: Boolean(caseData.vin),
@@ -43,7 +49,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
     const edgesList: Array<[string, string, boolean]> = [
-      ["uploaded", "analysis", true],
+      ["uploaded", "analysisPending", true],
+      ["analysisPending", "analysis", true],
+      ["analysis", "reanalysis", false],
+      ["reanalysis", "analysis", true],
       ["analysis", "violation", true],
       ["violation", "plate", true],
       ["plate", "vin", true],
