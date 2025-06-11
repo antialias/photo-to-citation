@@ -7,7 +7,9 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
+  { id: "analysisPending", label: "Analysis Pending" },
   { id: "analysis", label: "Analysis Complete" },
+  { id: "reanalysis", label: "Re-analysis Pending" },
   { id: "violation", label: "Violation Identified" },
   { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
@@ -34,9 +36,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, [noviolation]);
 
   const status = useMemo(() => {
+    const analysisPending = caseData.analysisStatus === "pending" && !caseData.analysis;
+    const reanalysisPending = caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
     return {
       uploaded: true,
+      analysisPending,
       analysis: analysisDone,
+      reanalysis: reanalysisPending,
       violation,
       noviol: noviolation,
       plate:
@@ -58,11 +64,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const edgesList: Array<[string, string, boolean]> = noviolation
       ? [
           ["uploaded", "analysis", true],
+          ["analysisPending", "analysis", true],
           ["analysis", "noviol", true],
         ]
       : [
           ["uploaded", "analysis", true],
+          ["analysisPending", "analysis", true],
           ["analysis", "violation", true],
+          ["reanalysis", "analysis", true],
           ["violation", "plate", true],
           ["plate", "vin", true],
           ["plate", "ownreq", true],
