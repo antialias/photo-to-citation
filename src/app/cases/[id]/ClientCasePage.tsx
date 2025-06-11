@@ -154,6 +154,21 @@ export default function ClientCasePage({
               fill
               className="object-contain"
             />
+            {caseData.analysis ? (
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 space-y-1 text-sm">
+                <ImageHighlights
+                  analysis={caseData.analysis}
+                  photo={selectedPhoto}
+                />
+                {caseData.analysisStatus === "pending" ? (
+                  <p>Updating analysis...</p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+                Analyzing photo...
+              </div>
+            )}
           </div>
           {(() => {
             const t = caseData.photoTimes[selectedPhoto];
@@ -163,12 +178,6 @@ export default function ClientCasePage({
               </p>
             ) : null;
           })()}
-          {caseData.analysis ? (
-            <ImageHighlights
-              analysis={caseData.analysis}
-              photo={selectedPhoto}
-            />
-          ) : null}
         </>
       ) : null}
       <div className="flex gap-2 flex-wrap">
