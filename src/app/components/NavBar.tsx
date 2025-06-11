@@ -20,7 +20,7 @@ export default function NavBar() {
         ref={inputRef}
         onChange={(e) => uploadCase(e.target.files)}
       />
-      <div className="flex gap-6 text-sm">
+      <div className="flex gap-4 sm:gap-6 md:gap-8 text-sm">
         <button
           type="button"
           className="hover:text-gray-300"

@@ -58,7 +58,13 @@ export default function DraftEditor({
       </label>
       <div className="flex gap-2 flex-wrap">
         {attachments.map((p) => (
-          <Image key={p} src={p} alt="" width={120} height={90} />
+          <Image
+            key={p}
+            src={p}
+            alt="email attachment"
+            width={120}
+            height={90}
+          />
         ))}
       </div>
       <button
