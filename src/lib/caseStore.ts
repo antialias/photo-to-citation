@@ -7,6 +7,7 @@ import type { ViolationReport } from "./openai";
 export interface Case {
   id: string;
   photos: string[];
+  photoTimes: Record<string, string | null>;
   createdAt: string;
   gps?: {
     lat: number;
@@ -35,6 +36,7 @@ function loadCases(): Case[] {
     return raw.map((c) => ({
       ...c,
       photos: c.photos ?? (c.photo ? [c.photo] : []),
+      photoTimes: c.photoTimes ?? {},
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
     }));
   } catch {
@@ -77,11 +79,13 @@ export function createCase(
   photo: string,
   gps: Case["gps"] = null,
   id?: string,
+  takenAt?: string | null,
 ): Case {
   const cases = loadCases();
   const newCase: Case = {
     id: id ?? Date.now().toString(),
     photos: [photo],
+    photoTimes: { [photo]: takenAt ?? null },
     createdAt: new Date().toISOString(),
     gps,
     streetAddress: null,
@@ -110,11 +114,16 @@ export function updateCase(
   return cases[idx];
 }
 
-export function addCasePhoto(id: string, photo: string): Case | undefined {
+export function addCasePhoto(
+  id: string,
+  photo: string,
+  takenAt?: string | null,
+): Case | undefined {
   const cases = loadCases();
   const idx = cases.findIndex((c) => c.id === id);
   if (idx === -1) return undefined;
   cases[idx].photos.push(photo);
+  cases[idx].photoTimes[photo] = takenAt ?? null;
   cases[idx].analysisStatus = "pending";
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
@@ -128,6 +137,7 @@ export function removeCasePhoto(id: string, photo: string): Case | undefined {
   const photoIdx = cases[idx].photos.indexOf(photo);
   if (photoIdx === -1) return undefined;
   cases[idx].photos.splice(photoIdx, 1);
+  delete cases[idx].photoTimes[photo];
   cases[idx].analysisStatus = "pending";
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
