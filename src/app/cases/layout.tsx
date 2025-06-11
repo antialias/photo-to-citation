@@ -13,7 +13,7 @@ export default function CasesLayout({
 }) {
   const cases = getCases();
   return (
-    <div className="grid grid-cols-[20%_80%] h-full">
+    <div className="grid grid-cols-[20%_80%] h-[calc(100vh-4rem)]">
       <div className="border-r overflow-y-auto">
         <ClientCasesPage initialCases={cases} selectedId={params.id} />
       </div>
