@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build && npm prune --production
 
 # Runtime image
-FROM node:20-bookworm-slim AS runner
+FROM node:20-bookworm AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
