@@ -51,7 +51,7 @@ export const MultipleCases: Story = {
         ],
       },
     ];
-    return <ClientCasesPage initialCases={cases} selectedIds={[]} />;
+    return <ClientCasesPage initialCases={cases} />;
   },
 };
 
@@ -61,6 +61,6 @@ export const SelectedCase: Story = {
       { id: "1", ...caseBase },
       { id: "2", ...caseBase },
     ];
-    return <ClientCasesPage initialCases={cases} selectedId="2" />;
+    return <ClientCasesPage initialCases={cases} />;
   },
 };
