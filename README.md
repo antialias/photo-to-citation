@@ -76,3 +76,42 @@ src/lib           # shared utilities such as database access
 ```
 
 This repository contains only a basic scaffold; contributions are welcome.
+
+## VIN Lookup Modules
+
+VINs are fetched asynchronously from external websites. Each lookup source is
+defined in `src/lib/vinSources.ts` using a `VinSource` object. A module
+specifies how to construct the request and how to extract the VIN from the
+response.
+
+```ts
+export interface VinSource {
+  id: string;
+  label: string;
+  buildUrl: (plate: string, state: string) => string;
+  method?: string;
+  headers?: Record<string, string>;
+  buildBody?: (plate: string, state: string) => unknown;
+  selector?: string;
+  parse?: (text: string) => string | null;
+}
+```
+
+`defaultVinSources` holds the built‑in modules. When a VIN lookup occurs, the
+app loads the module status list from `data/vinSources.json` (overridden via the
+`VIN_SOURCE_FILE` env var). Each status record stores whether the module is
+enabled and how many times it has failed consecutively.
+
+Successful lookups reset the failure count. Failures increment the count; after
+more than three consecutive failures the module is automatically disabled. The
+settings page (`/settings`) shows each module's failure count and allows
+manually enabling or disabling modules.
+
+### Adding a New Module
+
+1. Add an entry to `defaultVinSources` describing how to call the service and
+   where to find the VIN.
+2. Run the app once (or create the `data/vinSources.json` file) to generate a
+   status entry for the new module.
+3. Visit `/settings` to verify the module appears and enable or disable it as
+   desired.
