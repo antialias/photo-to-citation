@@ -27,7 +27,11 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       };
     });
     const result = await analyzeViolation(images);
-    updateCase(caseData.id, { analysis: result, analysisStatus: "complete", analysisStatusCode: 200 });
+    updateCase(caseData.id, {
+      analysis: result,
+      analysisStatus: "complete",
+      analysisStatusCode: 200,
+    });
   } catch (err) {
     const status = err instanceof APIError ? err.status : 500;
     updateCase(caseData.id, { analysisStatusCode: status });

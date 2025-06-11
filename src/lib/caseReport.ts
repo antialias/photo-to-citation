@@ -1,3 +1,4 @@
+import path from "node:path";
 import { z } from "zod";
 import type { Case } from "./caseStore";
 import { openai } from "./openai";
@@ -16,6 +17,19 @@ export async function draftEmail(
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
+  let time = caseData.createdAt;
+  if (analysis?.images) {
+    const best = Object.entries(analysis.images).sort(
+      (a, b) => b[1].representationScore - a[1].representationScore,
+    )[0];
+    if (best) {
+      const file = caseData.photos.find((p) => path.basename(p) === best[0]);
+      if (file) {
+        const t = caseData.photoTimes[file];
+        if (t) time = t;
+      }
+    }
+  }
   const location =
     caseData.streetAddress ||
     caseData.intersection ||
@@ -32,7 +46,7 @@ Include these details if available:
 - Description: ${analysis?.details || ""}
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
-- Time: ${new Date(caseData.createdAt).toLocaleString()}
+ - Time: ${new Date(time).toLocaleString()}
 Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
