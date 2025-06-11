@@ -7,7 +7,8 @@ export async function GET(
   _req: Request,
   { params }: { params: { id: string } },
 ) {
-  const c = getCase(params.id);
+  const { id } = await params;
+  const c = getCase(id);
   if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const module = reportModules["oak-park"];
   const email = await draftEmail(c, module);
