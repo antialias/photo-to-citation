@@ -19,23 +19,24 @@ export default function DraftEditor({
   const [body, setBody] = useState(initialDraft.body);
 
   async function sendEmail() {
-    const mailto = `mailto:${module.authorityEmail}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
-    await fetch(`/api/cases/${caseId}/report`, {
+    const res = await fetch(`/api/cases/${caseId}/report`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subject, body, attachments }),
     });
-    window.location.href = mailto;
+    if (res.ok) {
+      alert("Email sent");
+    } else {
+      alert("Failed to send email");
+    }
   }
 
   return (
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Email Draft</h1>
       <p>
-        To: {module.authorityName} ({module.authorityEmail}) - attach the photos
-        shown below before sending.
+        To: {module.authorityName} ({module.authorityEmail}) - the photos shown
+        below will be attached automatically.
       </p>
       <label className="flex flex-col">
         Subject
