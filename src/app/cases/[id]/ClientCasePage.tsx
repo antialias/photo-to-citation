@@ -147,7 +147,14 @@ export default function ClientCasePage({
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
       {selectedPhoto ? (
         <>
-          <Image src={selectedPhoto} alt="uploaded" width={600} height={400} />
+          <div className="w-[600px] h-[400px] relative">
+            <Image
+              src={selectedPhoto}
+              alt="uploaded"
+              fill
+              className="object-contain"
+            />
+          </div>
           {(() => {
             const t = caseData.photoTimes[selectedPhoto];
             return t ? (
@@ -176,7 +183,9 @@ export default function ClientCasePage({
                   : "ring-1 ring-transparent"
               }
             >
-              <Image src={p} alt="" width={80} height={60} />
+              <div className="relative w-[80px] h-[60px]">
+                <Image src={p} alt="" fill className="object-cover" />
+              </div>
               {(() => {
                 const t = caseData.photoTimes[p];
                 return t ? (
