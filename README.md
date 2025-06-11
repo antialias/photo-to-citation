@@ -143,3 +143,13 @@ manually enabling or disabling modules.
    status entry for the new module.
 3. Visit `/settings` to verify the module appears and enable or disable it as
    desired.
+
+## Docker
+
+To run the app in containers, install Docker and Docker Compose then build the stack:
+
+```bash
+docker compose up -d
+```
+
+Traefik will serve the application at `https://730op.synology.me/photo-citation` using the labels defined in `docker-compose.yml`.
