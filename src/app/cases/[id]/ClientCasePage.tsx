@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
 import { getRepresentativePhoto } from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
+import CaseLayout from "../../components/CaseLayout";
 import CaseProgressGraph from "../../components/CaseProgressGraph";
 import CaseToolbar from "../../components/CaseToolbar";
 import ImageHighlights from "../../components/ImageHighlights";
@@ -145,119 +146,128 @@ export default function ClientCasePage({
   }
 
   return (
-    <div className="p-8 flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
-      <CaseToolbar caseId={caseId} />
-      <CaseProgressGraph caseData={caseData} />
-      {selectedPhoto ? (
+    <CaseLayout
+      header={
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+          <CaseToolbar caseId={caseId} />
+        </div>
+      }
+      left={<CaseProgressGraph caseData={caseData} />}
+      right={
         <>
-          <div className="w-[600px] h-[400px] relative">
-            <Image
-              src={selectedPhoto}
-              alt="uploaded"
-              fill
-              className="object-contain"
-            />
-            {caseData.analysis ? (
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
-                <ImageHighlights
-                  analysis={caseData.analysis}
-                  photo={selectedPhoto}
+          {selectedPhoto ? (
+            <>
+              <div className="w-[600px] h-[400px] relative">
+                <Image
+                  src={selectedPhoto}
+                  alt="uploaded"
+                  fill
+                  className="object-contain"
                 />
-                {caseData.analysisStatus === "pending" ? (
-                  <p>Updating analysis...</p>
-                ) : null}
-              </div>
-            ) : (
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                Analyzing photo...
-              </div>
-            )}
-          </div>
-          {(() => {
-            const t = caseData.photoTimes[selectedPhoto];
-            return t ? (
-              <p className="text-sm text-gray-500">
-                Taken {new Date(t).toLocaleString()}
-              </p>
-            ) : null;
-          })()}
-        </>
-      ) : null}
-      <div className="flex gap-2 flex-wrap">
-        {caseData.photos.map((p) => (
-          <div key={p} className="relative">
-            <button
-              type="button"
-              onClick={() => setSelectedPhoto(p)}
-              className={
-                selectedPhoto === p
-                  ? "ring-2 ring-blue-500"
-                  : "ring-1 ring-transparent"
-              }
-            >
-              <div className="relative w-[80px] h-[60px]">
-                <Image src={p} alt="" fill className="object-cover" />
+                {caseData.analysis ? (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
+                    <ImageHighlights
+                      analysis={caseData.analysis}
+                      photo={selectedPhoto}
+                    />
+                    {caseData.analysisStatus === "pending" ? (
+                      <p>Updating analysis...</p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
+                    Analyzing photo...
+                  </div>
+                )}
               </div>
               {(() => {
-                const t = caseData.photoTimes[p];
+                const t = caseData.photoTimes[selectedPhoto];
                 return t ? (
-                  <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                    {new Date(t).toLocaleDateString()}
-                  </span>
+                  <p className="text-sm text-gray-500">
+                    Taken {new Date(t).toLocaleString()}
+                  </p>
                 ) : null;
               })()}
-            </button>
-            <button
-              type="button"
-              onClick={() => removePhoto(p)}
-              className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-            >
-              ×
-            </button>
+            </>
+          ) : null}
+          <div className="flex gap-2 flex-wrap">
+            {caseData.photos.map((p) => (
+              <div key={p} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhoto(p)}
+                  className={
+                    selectedPhoto === p
+                      ? "ring-2 ring-blue-500"
+                      : "ring-1 ring-transparent"
+                  }
+                >
+                  <div className="relative w-[80px] h-[60px]">
+                    <Image src={p} alt="" fill className="object-cover" />
+                  </div>
+                  {(() => {
+                    const t = caseData.photoTimes[p];
+                    return t ? (
+                      <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
+                        {new Date(t).toLocaleDateString()}
+                      </span>
+                    ) : null;
+                  })()}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removePhoto(p)}
+                  className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            <label className="flex items-center justify-center border rounded w-[80px] h-[60px] text-sm text-gray-500 cursor-pointer">
+              + add image
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleUpload}
+                className="hidden"
+              />
+            </label>
           </div>
-        ))}
-        <label className="flex items-center justify-center border rounded w-[80px] h-[60px] text-sm text-gray-500 cursor-pointer">
-          + add image
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleUpload}
-            className="hidden"
-          />
-        </label>
-      </div>
-      <p className="text-sm text-gray-500">
-        Created {new Date(caseData.createdAt).toLocaleString()}
-      </p>
-      {caseData.gps ? (
-        <>
           <p className="text-sm text-gray-500">
-            GPS: {caseData.gps.lat}, {caseData.gps.lon}
+            Created {new Date(caseData.createdAt).toLocaleString()}
           </p>
-          <MapPreview
-            lat={caseData.gps.lat}
-            lon={caseData.gps.lon}
-            width={600}
-            height={300}
-          />
+          {caseData.gps ? (
+            <>
+              <p className="text-sm text-gray-500">
+                GPS: {caseData.gps.lat}, {caseData.gps.lon}
+              </p>
+              <MapPreview
+                lat={caseData.gps.lat}
+                lon={caseData.gps.lon}
+                width={600}
+                height={300}
+              />
+            </>
+          ) : null}
+          {caseData.streetAddress ? (
+            <p className="text-sm text-gray-500">
+              Address: {caseData.streetAddress}
+            </p>
+          ) : null}
+          {caseData.intersection ? (
+            <p className="text-sm text-gray-500">
+              Intersection: {caseData.intersection}
+            </p>
+          ) : null}
+          {caseData.vin ? (
+            <p className="text-sm text-gray-500">VIN: {caseData.vin}</p>
+          ) : null}
         </>
-      ) : null}
-      {caseData.streetAddress ? (
-        <p className="text-sm text-gray-500">
-          Address: {caseData.streetAddress}
-        </p>
-      ) : null}
-      {caseData.intersection ? (
-        <p className="text-sm text-gray-500">
-          Intersection: {caseData.intersection}
-        </p>
-      ) : null}
-      {caseData.vin ? (
-        <p className="text-sm text-gray-500">VIN: {caseData.vin}</p>
-      ) : null}
+      }
+    >
       {caseData.analysis ? (
         <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
           <AnalysisInfo analysis={caseData.analysis} />
@@ -337,6 +347,6 @@ export default function ClientCasePage({
           </ul>
         </div>
       ) : null}
-    </div>
+    </CaseLayout>
   );
 }
