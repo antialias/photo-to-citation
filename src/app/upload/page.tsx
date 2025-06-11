@@ -1,9 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 export default function UploadPage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fileInputRef.current?.click();
+  }, []);
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -27,7 +33,13 @@ export default function UploadPage() {
 
   return (
     <div className="p-8">
-      <input type="file" accept="image/*" multiple onChange={handleChange} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleChange}
+      />
     </div>
   );
 }
