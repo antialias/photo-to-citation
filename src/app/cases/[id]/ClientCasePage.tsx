@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
 import { getRepresentativePhoto } from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
@@ -26,6 +26,7 @@ export default function ClientCasePage({
     initialCase?.analysis?.vehicle?.model || "",
   );
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: run once per id
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function ClientCasePage({
       setCaseData(data);
     }
     router.refresh();
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   async function saveOverrides() {
@@ -135,7 +137,17 @@ export default function ClientCasePage({
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
       {selectedPhoto ? (
-        <Image src={selectedPhoto} alt="uploaded" width={600} height={400} />
+        <>
+          <Image src={selectedPhoto} alt="uploaded" width={600} height={400} />
+          {(() => {
+            const t = caseData.photoTimes[selectedPhoto];
+            return t ? (
+              <p className="text-sm text-gray-500">
+                Taken {new Date(t).toLocaleString()}
+              </p>
+            ) : null;
+          })()}
+        </>
       ) : null}
       <div className="flex gap-2 flex-wrap">
         {caseData.photos.map((p) => (
@@ -150,6 +162,14 @@ export default function ClientCasePage({
               }
             >
               <Image src={p} alt="" width={80} height={60} />
+              {(() => {
+                const t = caseData.photoTimes[p];
+                return t ? (
+                  <span className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs rounded px-1">
+                    {new Date(t).toLocaleDateString()}
+                  </span>
+                ) : null;
+              })()}
             </button>
             <button
               type="button"
@@ -160,6 +180,17 @@ export default function ClientCasePage({
             </button>
           </div>
         ))}
+        <label className="flex items-center justify-center border rounded w-[80px] h-[60px] text-sm text-gray-500 cursor-pointer">
+          + add image
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleUpload}
+            className="hidden"
+          />
+        </label>
       </div>
       <p className="text-sm text-gray-500">
         Created {new Date(caseData.createdAt).toLocaleString()}
@@ -240,7 +271,6 @@ export default function ClientCasePage({
           </div>
         </form>
       ) : null}
-      <input type="file" accept="image/*" multiple onChange={handleUpload} />
       <a
         href={`/cases/${caseId}/draft`}
         className="bg-green-600 text-white px-2 py-1 rounded w-max"
