@@ -1,7 +1,7 @@
 import path from "node:path";
 import { z } from "zod";
 import "./zod-setup";
-import type { Case } from "./caseStore";
+import type { Case, SentEmail } from "./caseStore";
 import { openai } from "./openai";
 import type { ReportModule } from "./reportModules";
 
@@ -108,9 +108,10 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
 
 export async function draftFollowUp(
   caseData: Case,
-  mod: ReportModule,
+  recipient: string,
+  historyEmails: SentEmail[] = caseData.sentEmails ?? [],
 ): Promise<EmailDraft> {
-  const history = (caseData.sentEmails ?? []).map((m) => ({
+  const history = historyEmails.map((m) => ({
     role: "assistant",
     content: `Subject: ${m.subject}\n\n${m.body}`,
   }));
@@ -126,7 +127,7 @@ export async function draftFollowUp(
     type: "object",
     properties: { subject: { type: "string" }, body: { type: "string" } },
   };
-  const prompt = `Write a brief follow-up email to ${mod.authorityName} about the previous report.
+  const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
 - Description: ${analysis?.details || ""}

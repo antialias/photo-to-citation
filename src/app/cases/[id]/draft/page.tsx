@@ -19,6 +19,7 @@ export default async function DraftPage({
       initialDraft={email}
       attachments={c.photos}
       module={reportModule}
+      action="report"
     />
   );
 }

@@ -8,20 +8,24 @@ interface DraftData {
   email: EmailDraft;
   attachments: string[];
   module: ReportModule;
+  to: string;
 }
 
 export default function FollowUpModal({
   caseId,
+  replyTo,
   onClose,
 }: {
   caseId: string;
+  replyTo?: string;
   onClose: () => void;
 }) {
   const [data, setData] = useState<DraftData | null>(null);
 
   useEffect(() => {
     let canceled = false;
-    fetch(`/api/cases/${caseId}/followup`)
+    const url = `/api/cases/${caseId}/followup${replyTo ? `?replyTo=${encodeURIComponent(replyTo)}` : ""}`;
+    fetch(url)
       .then((res) => res.json())
       .then((d) => {
         if (!canceled) setData(d as DraftData);
@@ -29,7 +33,7 @@ export default function FollowUpModal({
     return () => {
       canceled = true;
     };
-  }, [caseId]);
+  }, [caseId, replyTo]);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -40,6 +44,9 @@ export default function FollowUpModal({
             initialDraft={data.email}
             attachments={data.attachments}
             module={data.module}
+            action="followup"
+            replyTo={replyTo}
+            to={data.to}
           />
         ) : (
           <div className="p-8">Drafting email based on case information...</div>

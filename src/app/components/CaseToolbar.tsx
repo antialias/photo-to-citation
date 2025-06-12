@@ -29,12 +29,6 @@ export default function CaseToolbar({
             Draft Email to Authorities
           </Link>
           <Link
-            href={`/cases/${caseId}/followup`}
-            className="block px-4 py-2 hover:bg-gray-100"
-          >
-            Follow Up with Authorities
-          </Link>
-          <Link
             href={`/cases/${caseId}/ownership`}
             className="block px-4 py-2 hover:bg-gray-100"
           >

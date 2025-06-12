@@ -45,6 +45,7 @@ export default function DraftModal({
             initialDraft={data.email}
             attachments={data.attachments}
             module={data.module}
+            action="report"
           />
         ) : (
           <div className="p-8">Drafting email based on case information...</div>

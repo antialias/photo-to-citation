@@ -366,15 +366,34 @@ export default function ClientCasePage({
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
           <h2 className="font-semibold">Email Log</h2>
-          <ul className="flex flex-col gap-1 text-sm">
+          <ul className="flex flex-col gap-2 text-sm">
             {caseData.sentEmails.map((mail) => (
-              <li key={mail.sentAt} className="flex flex-col">
+              <li
+                key={mail.sentAt}
+                id={`email-${mail.sentAt}`}
+                className="flex flex-col gap-1"
+              >
                 <span>
                   {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
                 </span>
+                <span className="text-gray-500">To: {mail.to}</span>
                 <span className="text-gray-500 whitespace-pre-wrap">
                   {mail.body}
                 </span>
+                {mail.replyTo ? (
+                  <a
+                    href={`#email-${mail.replyTo}`}
+                    className="text-blue-500 underline self-start"
+                  >
+                    In reply to previous email
+                  </a>
+                ) : null}
+                <a
+                  href={`/cases/${caseId}/followup?replyTo=${encodeURIComponent(mail.sentAt)}`}
+                  className="self-start text-blue-500 underline"
+                >
+                  Follow Up
+                </a>
               </li>
             ))}
           </ul>
