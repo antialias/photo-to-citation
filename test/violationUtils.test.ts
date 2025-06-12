@@ -2,18 +2,26 @@ import { describe, expect, it } from "vitest";
 import { hasViolation } from "../src/lib/caseUtils";
 
 describe("hasViolation", () => {
-  it("returns false for empty type", () => {
-    expect(hasViolation({ violationType: "" })).toBe(false);
+  it("detects violation from image flags", () => {
+    expect(
+      hasViolation({
+        violationType: "",
+        images: { a: { representationScore: 1, violation: true } },
+      }),
+    ).toBe(true);
   });
 
-  it("returns false for no violation phrases", () => {
-    expect(hasViolation({ violationType: "none" })).toBe(false);
-    expect(hasViolation({ violationType: "no violation detected" })).toBe(
-      false,
-    );
+  it("detects absence when all flags false", () => {
+    expect(
+      hasViolation({
+        violationType: "",
+        images: { a: { representationScore: 1, violation: false } },
+      }),
+    ).toBe(false);
   });
 
-  it("returns true for a real violation", () => {
+  it("falls back to violationType when flags missing", () => {
     expect(hasViolation({ violationType: "parking" })).toBe(true);
+    expect(hasViolation({ violationType: "" })).toBe(false);
   });
 });
