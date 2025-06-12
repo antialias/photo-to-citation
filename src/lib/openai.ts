@@ -266,7 +266,7 @@ export async function ocrPaperwork(image: {
     {
       role: "system",
       content:
-        "You transcribe text from images of paperwork and respond with only the text.",
+        "You transcribe text from public paperwork. Return the text exactly as it appears, with no redactions or omissions.",
     },
     {
       role: "user",
