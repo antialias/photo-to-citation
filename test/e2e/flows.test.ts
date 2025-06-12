@@ -11,7 +11,7 @@ beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
   process.env.VIN_SOURCE_FILE = path.join(tmpDir, "vinSources.json");
-  server = await startServer();
+  server = await startServer(3003);
 }, 30000);
 
 afterAll(async () => {
@@ -21,7 +21,7 @@ afterAll(async () => {
   process.env.VIN_SOURCE_FILE = undefined;
 }, 30000);
 
-describe.skip("e2e flows", () => {
+describe("e2e flows", () => {
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

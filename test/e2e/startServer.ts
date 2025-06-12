@@ -22,7 +22,7 @@ export async function startServer(port = 3002): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
   const proc = spawn(nextBin, ["dev", "-p", String(port)], {
     env: { ...process.env, CI: "1" },
-    stdio: "ignore",
+    stdio: "inherit",
   });
   await waitForServer(port);
   return {
