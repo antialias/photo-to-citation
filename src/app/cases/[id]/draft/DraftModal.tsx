@@ -1,6 +1,7 @@
 "use client";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
+import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import DraftEditor from "./DraftEditor";
 
@@ -33,40 +34,45 @@ export default function DraftModal({
   }, [caseId]);
 
   return (
-    <div
-      className={`fixed inset-0 bg-black/50 flex p-4 z-50 ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
-    >
-      <div
-        className={`bg-white rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
-      >
-        {data ? (
-          <DraftEditor
-            caseId={caseId}
-            initialDraft={data.email}
-            attachments={data.attachments}
-            module={data.module}
-            action="report"
-          />
-        ) : (
-          <div className="p-8">Drafting email based on case information...</div>
-        )}
-        <div className="flex justify-between p-4">
-          <button
-            type="button"
-            onClick={() => setFullScreen(!fullScreen)}
-            className="bg-gray-200 px-2 py-1 rounded"
+    <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+        <Dialog.Content
+          className={`fixed inset-0 flex p-4 z-50 ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
+        >
+          <div
+            className={`bg-white rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
           >
-            {fullScreen ? "Exit Full Screen" : "Full Screen"}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="bg-gray-200 px-2 py-1 rounded"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+            {data ? (
+              <DraftEditor
+                caseId={caseId}
+                initialDraft={data.email}
+                attachments={data.attachments}
+                module={data.module}
+                action="report"
+              />
+            ) : (
+              <div className="p-8">
+                Drafting email based on case information...
+              </div>
+            )}
+            <div className="flex justify-between p-4">
+              <button
+                type="button"
+                onClick={() => setFullScreen(!fullScreen)}
+                className="bg-gray-200 px-2 py-1 rounded"
+              >
+                {fullScreen ? "Exit Full Screen" : "Full Screen"}
+              </button>
+              <Dialog.Close asChild>
+                <button type="button" className="bg-gray-200 px-2 py-1 rounded">
+                  Close
+                </button>
+              </Dialog.Close>
+            </div>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
