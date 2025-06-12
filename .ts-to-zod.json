@@ -1,8 +1,0 @@
-{
-  "includes": ["src/lib/**/*.ts"],
-  "excludes": ["src/generated/**", "**/__tests__/**"],
-  "output": "src/generated/zod",
-  "useUnionTypes": true,
-  "prettier": true,
-  "jsDoc": "extended"
-}

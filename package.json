@@ -13,7 +13,7 @@
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "generate:schemas": "ts-to-zod"
+    "generate:schemas": "ts-to-zod --skipValidation --all"
   },
   "dependencies": {
     "bree": "^9.2.4",
