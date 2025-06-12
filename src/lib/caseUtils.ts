@@ -1,7 +1,21 @@
+import path from "node:path";
 import type { Case } from "./caseStore";
 import type { ViolationReport } from "./openai";
 
-export function getRepresentativePhoto(caseData: Pick<Case, "photos">): string {
+export function getRepresentativePhoto(
+  caseData: Pick<Case, "photos" | "analysis">,
+): string {
+  if (caseData.analysis?.images) {
+    const entries = Object.entries(caseData.analysis.images).sort(
+      (a, b) => b[1].representationScore - a[1].representationScore,
+    );
+    const best = entries[0];
+    if (best) {
+      const name = best[0];
+      const file = caseData.photos.find((p) => path.basename(p) === name);
+      if (file) return file;
+    }
+  }
   return [...caseData.photos].sort()[0];
 }
 
