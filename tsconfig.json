@@ -20,8 +20,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+      "react-mermaid2": ["./types/react-mermaid2"]
+    },
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
   "ts-node": {
     "compilerOptions": {
@@ -36,7 +38,7 @@
     ".next/types/**/*.ts",
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx",
-    "react-mermaid2.d.ts"
+    "types/**/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }
