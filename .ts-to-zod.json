@@ -3,5 +3,6 @@
   "excludes": ["src/generated/**", "**/__tests__/**"],
   "output": "src/generated/zod",
   "useUnionTypes": true,
-  "prettier": true
+  "prettier": true,
+  "jsDoc": "extended"
 }
