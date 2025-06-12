@@ -1,5 +1,6 @@
 import path from "node:path";
 import { z } from "zod";
+import "./zod-setup";
 import type { Case } from "./caseStore";
 import { openai } from "./openai";
 import type { ReportModule } from "./reportModules";

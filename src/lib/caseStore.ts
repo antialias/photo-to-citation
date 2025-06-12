@@ -9,6 +9,7 @@ export interface Case {
   id: string;
   photos: string[];
   photoTimes: Record<string, string | null>;
+  /** @zod.date */
   createdAt: string;
   gps?: {
     lat: number;
@@ -20,6 +21,7 @@ export interface Case {
   vinOverride?: string | null;
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
+  /** @zod.enum(["pending", "complete"]) */
   analysisStatus: "pending" | "complete";
   analysisStatusCode?: number | null;
   sentEmails?: SentEmail[];
@@ -30,11 +32,13 @@ export interface SentEmail {
   subject: string;
   body: string;
   attachments: string[];
+  /** @zod.date */
   sentAt: string;
 }
 
 export interface OwnershipRequest {
   moduleId: string;
+  /** @zod.date */
   requestedAt: string;
   checkNumber?: string | null;
 }

@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import { z } from "zod";
+import "./zod-setup";
 
 dotenv.config();
 
