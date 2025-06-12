@@ -4,14 +4,14 @@ import { type TestServer, startServer } from "./startServer";
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startServer();
+  server = await startServer(3002);
 }, 30000);
 
 afterAll(async () => {
   await server.close();
 }, 30000);
 
-describe.skip("end-to-end", () => {
+describe("end-to-end", () => {
   it("serves the homepage", async () => {
     const res = await fetch(`${server.url}/`);
     expect(res.status).toBe(200);
