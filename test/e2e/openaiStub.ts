@@ -49,7 +49,7 @@ export async function startOpenAIStub(
   await new Promise((resolve) => server.listen(0, resolve));
   const { port } = server.address() as AddressInfo;
   return {
-    url: `http://localhost:${port}`,
+    url: `http://127.0.0.1:${port}`,
     requests,
     close: () => new Promise((resolve) => server.close(() => resolve())),
   };

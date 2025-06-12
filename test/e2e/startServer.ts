@@ -18,10 +18,13 @@ function waitForServer(port: number): Promise<void> {
   });
 }
 
-export async function startServer(port = 3002): Promise<TestServer> {
+export async function startServer(
+  port = 3002,
+  env: NodeJS.ProcessEnv = {},
+): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
   const proc = spawn(nextBin, ["dev", "-p", String(port)], {
-    env: { ...process.env, CI: "1" },
+    env: { ...process.env, ...env, CI: "1" },
     stdio: "inherit",
   });
   await waitForServer(port);
