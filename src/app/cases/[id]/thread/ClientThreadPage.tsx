@@ -28,6 +28,7 @@ export default function ClientThreadPage({
   startId: string;
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
+  const [viewImage, setViewImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -124,9 +125,10 @@ export default function ClientThreadPage({
               <Image
                 src={img.url}
                 alt="scan"
-                width={300}
-                height={200}
-                className="object-contain"
+                width={150}
+                height={100}
+                className="object-contain cursor-pointer"
+                onClick={() => setViewImage(img.url)}
               />
               {img.ocrText ? (
                 <pre className="whitespace-pre-wrap text-sm bg-gray-100 p-2 rounded">
@@ -144,6 +146,29 @@ export default function ClientThreadPage({
           </li>
         ))}
       </ul>
+      {viewImage ? (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded shadow max-w-3xl w-full">
+            <div className="relative w-full h-[80vh]">
+              <Image
+                src={viewImage}
+                alt="scan full size"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <div className="flex justify-end p-2">
+              <button
+                type="button"
+                onClick={() => setViewImage(null)}
+                className="bg-gray-200 px-2 py-1 rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
