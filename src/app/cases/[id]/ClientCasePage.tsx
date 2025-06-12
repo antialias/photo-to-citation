@@ -3,7 +3,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
-import { getRepresentativePhoto, hasViolation } from "../../../lib/caseUtils";
+import {
+  getCasePlateNumber,
+  getCasePlateState,
+  getCaseVin,
+  getRepresentativePhoto,
+  hasViolation,
+} from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
 import CaseLayout from "../../components/CaseLayout";
 import CaseProgressGraph from "../../components/CaseProgressGraph";
@@ -25,12 +31,14 @@ export default function ClientCasePage({
     initialCase ? getRepresentativePhoto(initialCase) : null,
   );
   const [plate, setPlate] = useState<string>(
-    initialCase?.analysis?.vehicle?.licensePlateNumber || "",
+    initialCase ? getCasePlateNumber(initialCase) || "" : "",
   );
   const [plateState, setPlateState] = useState<string>(
-    initialCase?.analysis?.vehicle?.licensePlateState || "",
+    initialCase ? getCasePlateState(initialCase) || "" : "",
   );
-  const [vin, setVin] = useState<string>(initialCase?.vin || "");
+  const [vin, setVin] = useState<string>(
+    initialCase ? getCaseVin(initialCase) || "" : "",
+  );
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -57,9 +65,9 @@ export default function ClientCasePage({
 
   useEffect(() => {
     if (caseData) {
-      setPlate(caseData.analysis?.vehicle?.licensePlateNumber || "");
-      setPlateState(caseData.analysis?.vehicle?.licensePlateState || "");
-      setVin(caseData.vin || "");
+      setPlate(getCasePlateNumber(caseData) || "");
+      setPlateState(getCasePlateState(caseData) || "");
+      setVin(getCaseVin(caseData) || "");
       setSelectedPhoto(getRepresentativePhoto(caseData));
     }
   }, [caseData]);

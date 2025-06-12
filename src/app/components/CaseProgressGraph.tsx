@@ -1,6 +1,12 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
-import { hasViolation } from "@/lib/caseUtils";
+import {
+  getCaseOwnerContact,
+  getCasePlateNumber,
+  getCasePlateState,
+  getCaseVin,
+  hasViolation,
+} from "@/lib/caseUtils";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 
@@ -49,10 +55,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       violation,
       noviol: noviolation,
       plate:
-        violation && Boolean(caseData.analysis?.vehicle?.licensePlateNumber),
-      vin: violation && Boolean(caseData.vin),
-      ownreq: false,
-      own: false,
+        violation &&
+        Boolean(getCasePlateNumber(caseData) || getCasePlateState(caseData)),
+      vin: violation && Boolean(getCaseVin(caseData)),
+      ownreq: Boolean(
+        caseData.ownershipRequests && caseData.ownershipRequests.length > 0,
+      ),
+      own: Boolean(getCaseOwnerContact(caseData)),
       notify: Boolean(caseData.sentEmails && caseData.sentEmails.length > 0),
       confirm: false,
       sent: false,
