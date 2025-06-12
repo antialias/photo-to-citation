@@ -1,6 +1,7 @@
 export interface ReportModule {
   id: string;
   authorityName: string;
+  /** @zod.email */
   authorityEmail: string;
 }
 
