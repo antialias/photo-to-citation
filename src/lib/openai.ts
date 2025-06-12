@@ -33,7 +33,10 @@ export const violationReportSchema = z.object({
       model: z.string().optional(),
       type: z.string().optional(),
       color: z.string().optional(),
-      licensePlateState: z.string().optional(),
+      licensePlateState: z
+        .string()
+        .regex(/^[A-Z]{2}$/)
+        .optional(),
       licensePlateNumber: z.string().optional(),
     })
     .default({}),
@@ -65,7 +68,7 @@ export async function analyzeViolation(
           model: { type: "string" },
           type: { type: "string" },
           color: { type: "string" },
-          licensePlateState: { type: "string" },
+          licensePlateState: { type: "string", pattern: "^[A-Z]{2}$" },
           licensePlateNumber: { type: "string" },
         },
       },
@@ -88,7 +91,7 @@ export async function analyzeViolation(
     {
       role: "system",
       content:
-        "You identify vehicle violations and reply in JSON strictly following the provided schema.",
+        "You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters.",
     },
     {
       role: "user",
