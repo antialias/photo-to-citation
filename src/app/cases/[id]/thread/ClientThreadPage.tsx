@@ -83,7 +83,12 @@ export default function ClientThreadPage({
   return (
     <div className="p-8 flex flex-col gap-4">
       <div className="sticky top-0 bg-white z-10 flex justify-between items-center border-b pb-2">
-        <h1 className="text-xl font-semibold">Thread</h1>
+        <div className="flex items-center gap-2">
+          <Link href={`/cases/${caseId}`} className="text-blue-500 underline">
+            Back to Case
+          </Link>
+          <h1 className="text-xl font-semibold">Thread</h1>
+        </div>
         <div className="flex gap-2 items-center">
           <label className="bg-gray-200 px-2 py-1 rounded cursor-pointer">
             Upload Scan
