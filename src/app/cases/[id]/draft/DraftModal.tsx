@@ -18,6 +18,7 @@ export default function DraftModal({
   onClose: () => void;
 }) {
   const [data, setData] = useState<DraftData | null>(null);
+  const [fullScreen, setFullScreen] = useState(false);
 
   useEffect(() => {
     let canceled = false;
@@ -32,8 +33,12 @@ export default function DraftModal({
   }, [caseId]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded shadow max-w-xl w-full">
+    <div
+      className={`fixed inset-0 bg-black/50 flex p-4 z-50 ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
+    >
+      <div
+        className={`bg-white rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
+      >
         {data ? (
           <DraftEditor
             caseId={caseId}
@@ -44,7 +49,14 @@ export default function DraftModal({
         ) : (
           <div className="p-8">Drafting email based on case information...</div>
         )}
-        <div className="flex justify-end p-4">
+        <div className="flex justify-between p-4">
+          <button
+            type="button"
+            onClick={() => setFullScreen(!fullScreen)}
+            className="bg-gray-200 px-2 py-1 rounded"
+          >
+            {fullScreen ? "Exit Full Screen" : "Full Screen"}
+          </button>
           <button
             type="button"
             onClick={onClose}
