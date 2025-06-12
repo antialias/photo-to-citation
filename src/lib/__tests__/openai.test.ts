@@ -1,6 +1,6 @@
 import type { ChatCompletion } from "openai/resources/chat/completions";
 import { describe, expect, it, vi } from "vitest";
-import { ocrPaperwork, openai } from "../openai";
+import { extractPaperworkInfo, ocrPaperwork, openai } from "../openai";
 
 describe("openai client", () => {
   it("exports a client instance", () => {
