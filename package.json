@@ -16,6 +16,7 @@
     "generate:schemas": "ts-to-zod --skipValidation --all"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.14",
     "bree": "^9.2.4",
     "dotenv": "^16.5.0",
     "exif-parser": "^0.1.12",
