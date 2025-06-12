@@ -97,3 +97,66 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
   }
   return { subject: "", body: "" };
 }
+
+export async function draftFollowUp(
+  caseData: Case,
+  mod: ReportModule,
+): Promise<EmailDraft> {
+  const history = (caseData.sentEmails ?? []).map((m) => ({
+    role: "assistant",
+    content: `Subject: ${m.subject}\n\n${m.body}`,
+  }));
+  const analysis = caseData.analysis;
+  const vehicle = analysis?.vehicle ?? {};
+  const location =
+    caseData.streetAddress ||
+    caseData.intersection ||
+    (caseData.gps
+      ? `${caseData.gps.lat}, ${caseData.gps.lon}`
+      : "unknown location");
+  const schema = {
+    type: "object",
+    properties: { subject: { type: "string" }, body: { type: "string" } },
+  };
+  const prompt = `Write a brief follow-up email to ${mod.authorityName} about the previous report.
+Include these details if available:
+- Violation: ${analysis?.violationType || ""}
+- Description: ${analysis?.details || ""}
+- Location: ${location}
+- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
+Mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
+    schema,
+  )}`;
+  const baseMessages = [
+    {
+      role: "system",
+      content: "You create email drafts for municipal authorities.",
+    },
+    ...history,
+    { role: "user", content: prompt },
+  ];
+
+  const messages = [...baseMessages];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      max_tokens: 300,
+      response_format: { type: "json_object" },
+    });
+    const text = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(text);
+      return emailDraftSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) return { subject: "", body: "" };
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  return { subject: "", body: "" };
+}
