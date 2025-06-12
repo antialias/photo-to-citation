@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
 import {
+  getCaseOwnerContact,
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
@@ -185,6 +186,36 @@ export default function ClientCasePage({
     caseData.analysisOverrides?.vehicle?.licensePlateNumber !== undefined;
   const plateStateOverridden =
     caseData.analysisOverrides?.vehicle?.licensePlateState !== undefined;
+  const ownerContact = getCaseOwnerContact(caseData);
+
+  const analysisBlock = caseData.analysis ? (
+    <>
+      <AnalysisInfo
+        analysis={caseData.analysis}
+        onPlateChange={updatePlateNumber}
+        onStateChange={updatePlateStateFn}
+        onClearPlate={plateNumberOverridden ? clearPlateNumber : undefined}
+        onClearState={plateStateOverridden ? clearPlateState : undefined}
+      />
+      {caseData.analysisStatus === "pending" ? (
+        <p className="text-sm text-gray-500">Updating analysis...</p>
+      ) : null}
+    </>
+  ) : caseData.analysisError ? (
+    <p className="text-sm text-red-600">
+      {caseData.analysisError === "truncated"
+        ? "Analysis failed because the AI response was cut off. Please try again."
+        : caseData.analysisError === "parse"
+          ? "Analysis failed due to invalid JSON from the AI. Please try again."
+          : "Analysis failed because the AI response did not match the expected format. Please retry."}
+    </p>
+  ) : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400 ? (
+    <p className="text-sm text-red-600">
+      Analysis failed. Please try again later.
+    </p>
+  ) : (
+    <p className="text-sm text-gray-500">Analyzing photo...</p>
+  );
 
   return (
     <CaseLayout
@@ -197,6 +228,54 @@ export default function ClientCasePage({
       left={<CaseProgressGraph caseData={caseData} />}
       right={
         <>
+          <div className="order-first bg-gray-100 p-4 rounded flex flex-col gap-2 text-sm">
+            {analysisBlock}
+            {ownerContact ? (
+              <p>
+                <span className="font-semibold">Owner:</span> {ownerContact}
+              </p>
+            ) : null}
+            <p>
+              <span className="font-semibold">Created:</span>{" "}
+              {new Date(caseData.createdAt).toLocaleString()}
+            </p>
+            {caseData.streetAddress ? (
+              <p>
+                <span className="font-semibold">Address:</span>{" "}
+                {caseData.streetAddress}
+              </p>
+            ) : null}
+            {caseData.intersection ? (
+              <p>
+                <span className="font-semibold">Intersection:</span>{" "}
+                {caseData.intersection}
+              </p>
+            ) : null}
+            {caseData.gps ? (
+              <>
+                <p>
+                  <span className="font-semibold">GPS:</span> {caseData.gps.lat}
+                  , {caseData.gps.lon}
+                </p>
+                <MapPreview
+                  lat={caseData.gps.lat}
+                  lon={caseData.gps.lon}
+                  width={600}
+                  height={300}
+                  className="w-full aspect-[2/1] md:max-w-xl"
+                />
+              </>
+            ) : null}
+            <p>
+              <span className="font-semibold">VIN:</span>{" "}
+              <EditableText
+                value={vin}
+                onSubmit={updateVinFn}
+                onClear={vinOverridden ? clearVin : undefined}
+                placeholder="VIN"
+              />
+            </p>
+          </div>
           {selectedPhoto ? (
             <>
               <div className="relative w-full aspect-[3/2] md:max-w-2xl">
@@ -282,73 +361,9 @@ export default function ClientCasePage({
               />
             </label>
           </div>
-          <p className="text-sm text-gray-500">
-            Created {new Date(caseData.createdAt).toLocaleString()}
-          </p>
-          {caseData.gps ? (
-            <>
-              <p className="text-sm text-gray-500">
-                GPS: {caseData.gps.lat}, {caseData.gps.lon}
-              </p>
-              <MapPreview
-                lat={caseData.gps.lat}
-                lon={caseData.gps.lon}
-                width={600}
-                height={300}
-                className="w-full aspect-[2/1] md:max-w-xl"
-              />
-            </>
-          ) : null}
-          {caseData.streetAddress ? (
-            <p className="text-sm text-gray-500">
-              Address: {caseData.streetAddress}
-            </p>
-          ) : null}
-          {caseData.intersection ? (
-            <p className="text-sm text-gray-500">
-              Intersection: {caseData.intersection}
-            </p>
-          ) : null}
-          <p className="text-sm text-gray-500">
-            VIN:{" "}
-            <EditableText
-              value={vin}
-              onSubmit={updateVinFn}
-              onClear={vinOverridden ? clearVin : undefined}
-              placeholder="VIN"
-            />
-          </p>
         </>
       }
     >
-      {caseData.analysis ? (
-        <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
-          <AnalysisInfo
-            analysis={caseData.analysis}
-            onPlateChange={updatePlateNumber}
-            onStateChange={updatePlateStateFn}
-            onClearPlate={plateNumberOverridden ? clearPlateNumber : undefined}
-            onClearState={plateStateOverridden ? clearPlateState : undefined}
-          />
-          {caseData.analysisStatus === "pending" ? (
-            <p className="text-sm text-gray-500">Updating analysis...</p>
-          ) : null}
-        </div>
-      ) : caseData.analysisError ? (
-        <p className="text-sm text-red-600">
-          {caseData.analysisError === "truncated"
-            ? "Analysis failed because the AI response was cut off. Please try again."
-            : caseData.analysisError === "parse"
-              ? "Analysis failed due to invalid JSON from the AI. Please try again."
-              : "Analysis failed because the AI response did not match the expected format. Please retry."}
-        </p>
-      ) : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400 ? (
-        <p className="text-sm text-red-600">
-          Analysis failed. Please try again later.
-        </p>
-      ) : (
-        <p className="text-sm text-gray-500">Analyzing photo...</p>
-      )}
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
           <h2 className="font-semibold">Email Log</h2>
