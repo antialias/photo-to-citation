@@ -1,5 +1,11 @@
 import type { Case } from "@/lib/caseStore";
-import { hasViolation } from "@/lib/caseUtils";
+import {
+  getCaseOwnerContact,
+  getCasePlateNumber,
+  getCasePlateState,
+  getCaseVin,
+  hasViolation,
+} from "@/lib/caseUtils";
 
 export default function CaseSummary({ cases }: { cases: Case[] }) {
   if (cases.length === 0) return null;
@@ -11,9 +17,10 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
   const violation = allEqual((c) =>
     hasViolation(c.analysis) ? c.analysis?.violationType : undefined,
   );
-  const plateNum = allEqual((c) => c.analysis?.vehicle?.licensePlateNumber);
-  const plateState = allEqual((c) => c.analysis?.vehicle?.licensePlateState);
-  const vin = allEqual((c) => c.vin);
+  const plateNum = allEqual((c) => getCasePlateNumber(c));
+  const plateState = allEqual((c) => getCasePlateState(c));
+  const vin = allEqual((c) => getCaseVin(c));
+  const contact = allEqual((c) => getCaseOwnerContact(c));
 
   return (
     <div className="p-8 flex flex-col gap-2">
@@ -27,6 +34,7 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
         </p>
       ) : null}
       {vin ? <p>VIN: {vin}</p> : null}
+      {contact ? <p>Owner Contact: {contact}</p> : null}
     </div>
   );
 }

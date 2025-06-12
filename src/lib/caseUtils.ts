@@ -15,3 +15,52 @@ export function hasViolation(report?: ViolationReport | null): boolean {
   }
   return Boolean(report.violationType?.trim());
 }
+
+export function getCaseVin(caseData: Case): string | null {
+  if (caseData.vin) return caseData.vin;
+  const imgs = caseData.analysis?.images
+    ? Object.values(caseData.analysis.images)
+    : [];
+  for (const info of imgs) {
+    const vin = info.paperworkInfo?.vehicle?.vin;
+    if (vin) return vin;
+  }
+  return null;
+}
+
+export function getCasePlateNumber(caseData: Case): string | null {
+  const direct = caseData.analysis?.vehicle?.licensePlateNumber;
+  if (direct) return direct;
+  const imgs = caseData.analysis?.images
+    ? Object.values(caseData.analysis.images)
+    : [];
+  for (const info of imgs) {
+    const plate = info.paperworkInfo?.vehicle?.licensePlateNumber;
+    if (plate) return plate;
+  }
+  return null;
+}
+
+export function getCasePlateState(caseData: Case): string | null {
+  const direct = caseData.analysis?.vehicle?.licensePlateState;
+  if (direct) return direct;
+  const imgs = caseData.analysis?.images
+    ? Object.values(caseData.analysis.images)
+    : [];
+  for (const info of imgs) {
+    const state = info.paperworkInfo?.vehicle?.licensePlateState;
+    if (state) return state;
+  }
+  return null;
+}
+
+export function getCaseOwnerContact(caseData: Case): string | null {
+  const imgs = caseData.analysis?.images
+    ? Object.values(caseData.analysis.images)
+    : [];
+  for (const info of imgs) {
+    const contact = info.paperworkInfo?.contact;
+    if (contact) return contact;
+  }
+  return null;
+}
