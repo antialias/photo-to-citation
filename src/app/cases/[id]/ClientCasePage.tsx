@@ -221,7 +221,11 @@ export default function ClientCasePage({
       header={
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
-          <CaseToolbar caseId={caseId} disabled={!violationIdentified} />
+          <CaseToolbar
+            caseId={caseId}
+            disabled={!violationIdentified}
+            hasOwner={Boolean(ownerContact)}
+          />
         </div>
       }
       left={<CaseProgressGraph caseData={caseData} />}
