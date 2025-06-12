@@ -24,6 +24,7 @@ export interface Case {
   /** @zod.enum(["pending", "complete"]) */
   analysisStatus: "pending" | "complete";
   analysisStatusCode?: number | null;
+  analysisError?: "truncated" | "parse" | "schema" | null;
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
 }
@@ -124,6 +125,7 @@ export function createCase(
     analysisOverrides: null,
     analysisStatus: "pending",
     analysisStatusCode: null,
+    analysisError: null,
     sentEmails: [],
     ownershipRequests: [],
   };

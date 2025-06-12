@@ -65,6 +65,11 @@ npm run reanalyze
 This command scans stored cases and reprocesses any that meet the retry
 criteria.
 
+If analysis fails, the case page shows a red error message explaining why.
+Common issues include the AI response being cut off, invalid JSON, or not
+matching the expected schema. In most cases you can simply retry the analysis.
+If the problem persists, contact the project maintainers for help.
+
 If the uploaded image contains GPS EXIF data, the latitude and longitude are
 extracted and saved with the case information.
 
