@@ -7,11 +7,15 @@ describe("openai client", () => {
     expect(openai).toBeDefined();
   });
 
-  it("ocrPaperwork returns text", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValueOnce({
-      choices: [{ message: { content: "hello" } }],
-    } as unknown as ChatCompletion);
-    const text = await ocrPaperwork({ url: "data:image/png;base64,foo" });
-    expect(text).toBe("hello");
+  it("ocrPaperwork returns text and info", async () => {
+    vi.spyOn(openai.chat.completions, "create")
+      .mockResolvedValueOnce({
+        choices: [{ message: { content: "hello" } }],
+      } as unknown as ChatCompletion)
+      .mockResolvedValueOnce({
+        choices: [{ message: { content: "{}" } }],
+      } as unknown as ChatCompletion);
+    const result = await ocrPaperwork({ url: "data:image/png;base64,foo" });
+    expect(result).toEqual({ text: "hello", info: { vehicle: {} } });
   });
 });

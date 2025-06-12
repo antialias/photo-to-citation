@@ -32,6 +32,28 @@ export const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
+const licensePlateStateSchema = z.string().regex(/^[A-Z]{2}$/);
+const licensePlateNumberSchema = z.string();
+
+export const paperworkInfoSchema = z.object({
+  contact: z.string().optional(),
+  vehicle: z
+    .object({
+      vin: z.string().optional(),
+      registrationStatus: z.string().optional(),
+      licensePlateState: licensePlateStateSchema.optional(),
+      licensePlateNumber: licensePlateNumberSchema.optional(),
+    })
+    .default({}),
+});
+
+export type PaperworkInfo = z.infer<typeof paperworkInfoSchema>;
+
+export interface PaperworkAnalysis {
+  text: string;
+  info: PaperworkInfo | null;
+}
+
 export const violationReportSchema = z.object({
   violationType: z.string(),
   details: z.string(),
@@ -57,6 +79,7 @@ export const violationReportSchema = z.object({
         violation: z.boolean().optional(),
         paperwork: z.boolean().optional(),
         paperworkText: z.string().optional(),
+        paperworkInfo: paperworkInfoSchema.optional(),
       }),
     )
     .default({}),
@@ -94,6 +117,7 @@ export async function analyzeViolation(
             violation: { type: "boolean" },
             paperwork: { type: "boolean" },
             paperworkText: { type: "string" },
+            paperworkInfo: { type: "object" },
           },
         },
       },
@@ -174,7 +198,68 @@ export async function analyzeViolation(
   throw new AnalysisError("schema");
 }
 
-export async function ocrPaperwork(image: { url: string }): Promise<string> {
+export async function extractPaperworkInfo(
+  text: string,
+): Promise<PaperworkInfo> {
+  const schema = {
+    type: "object",
+    properties: {
+      contact: { type: "string" },
+      vehicle: {
+        type: "object",
+        properties: {
+          vin: { type: "string" },
+          registrationStatus: { type: "string" },
+          licensePlateState: { type: "string" },
+          licensePlateNumber: { type: "string" },
+        },
+      },
+    },
+  };
+
+  const baseMessages = [
+    {
+      role: "system",
+      content:
+        "You extract structured vehicle information from text and reply in JSON strictly following the provided schema.",
+    },
+    {
+      role: "user",
+      content: `Analyze the following text and extract the registered owner contact information, VIN, vehicle registration status and any license plate details. Respond with JSON matching this schema: ${JSON.stringify(
+        schema,
+      )}`,
+    },
+    { role: "user", content: text },
+  ];
+
+  const messages = [...baseMessages];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      max_tokens: 400,
+      response_format: { type: "json_object" },
+    });
+    const output = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(output);
+      return paperworkInfoSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, output, err);
+      if (attempt === 2) return {} as PaperworkInfo;
+      messages.push({ role: "assistant", content: output });
+      messages.push({
+        role: "user",
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  return {} as PaperworkInfo;
+}
+
+export async function ocrPaperwork(image: {
+  url: string;
+}): Promise<PaperworkAnalysis> {
   const baseMessages = [
     {
       role: "system",
@@ -198,7 +283,10 @@ export async function ocrPaperwork(image: { url: string }): Promise<string> {
       max_tokens: 800,
     });
     const text = res.choices[0]?.message?.content ?? "";
-    if (text.trim()) return text.trim();
+    if (text.trim()) {
+      const info = await extractPaperworkInfo(text.trim());
+      return { text: text.trim(), info };
+    }
     logBadResponse(attempt, text, new Error("Empty OCR result"));
     if (attempt < 2) {
       messages.push({ role: "assistant", content: text });
@@ -208,5 +296,5 @@ export async function ocrPaperwork(image: { url: string }): Promise<string> {
       });
     }
   }
-  return "";
+  return { text: "", info: null };
 }

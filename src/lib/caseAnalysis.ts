@@ -35,7 +35,11 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       for (const [name, info] of Object.entries(result.images)) {
         if (info.paperwork && !info.paperworkText) {
           const url = imageMap[name];
-          if (url) info.paperworkText = await ocrPaperwork({ url });
+          if (url) {
+            const ocr = await ocrPaperwork({ url });
+            info.paperworkText = ocr.text;
+            if (ocr.info) info.paperworkInfo = ocr.info;
+          }
         }
       }
     }
