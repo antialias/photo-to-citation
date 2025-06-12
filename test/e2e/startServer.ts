@@ -20,8 +20,20 @@ function waitForServer(port: number): Promise<void> {
 
 export async function startServer(port = 3002): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
-  const proc = spawn(nextBin, ["dev", "-p", String(port)], {
-    env: { ...process.env, CI: "1" },
+
+  await new Promise<void>((resolve, reject) => {
+    const build = spawn(nextBin, ["build", "--no-lint"], {
+      env: { ...process.env, CI: "1", NEXT_DISABLE_ESLINT: "1" },
+      stdio: "inherit",
+    });
+    build.on("exit", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`build failed: ${code}`));
+    });
+  });
+
+  const proc = spawn(nextBin, ["start", "-p", String(port)], {
+    env: { ...process.env, CI: "1", NEXT_DISABLE_ESLINT: "1" },
     stdio: "inherit",
   });
   await waitForServer(port);
