@@ -10,6 +10,7 @@ import CaseProgressGraph from "../../components/CaseProgressGraph";
 import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
+import ManualAnalysisModal from "../../components/ManualAnalysisModal";
 import MapPreview from "../../components/MapPreview";
 
 export default function ClientCasePage({
@@ -31,6 +32,7 @@ export default function ClientCasePage({
     initialCase?.analysis?.vehicle?.licensePlateState || "",
   );
   const [vin, setVin] = useState<string>(initialCase?.vin || "");
+  const [showManual, setShowManual] = useState(false);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -90,6 +92,11 @@ export default function ClientCasePage({
       const data = (await res.json()) as Case;
       setCaseData(data);
     }
+  }
+
+  async function retryAnalysis() {
+    await fetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" });
+    await refreshCase();
   }
 
   async function updateVehicle(plateNum: string, plateSt: string) {
@@ -171,6 +178,11 @@ export default function ClientCasePage({
 
   const violationIdentified =
     caseData.analysisStatus === "complete" && hasViolation(caseData.analysis);
+  const analysisFailed =
+    caseData.analysisStatus === "pending" &&
+    caseData.analysisStatusCode !== null &&
+    caseData.analysisStatusCode !== undefined &&
+    caseData.analysisStatusCode >= 400;
 
   return (
     <CaseLayout
@@ -320,9 +332,44 @@ export default function ClientCasePage({
             <p className="text-sm text-gray-500">Updating analysis...</p>
           ) : null}
         </div>
+      ) : analysisFailed ? (
+        <div className="bg-red-100 p-4 rounded flex flex-col gap-2">
+          <p>
+            Automatic analysis failed (status code {caseData.analysisStatusCode}
+            ) .
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={retryAnalysis}
+              className="bg-blue-500 text-white px-2 py-1 rounded"
+            >
+              Retry Analysis
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowManual(true)}
+              className="bg-gray-500 text-white px-2 py-1 rounded"
+            >
+              Enter Manually
+            </button>
+          </div>
+          <p className="text-sm text-gray-500">
+            You can also delete an image and retry.
+          </p>
+        </div>
       ) : (
         <p className="text-sm text-gray-500">Analyzing photo...</p>
       )}
+      {showManual ? (
+        <ManualAnalysisModal
+          caseId={caseId}
+          onClose={() => {
+            setShowManual(false);
+            refreshCase();
+          }}
+        />
+      ) : null}
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
           <h2 className="font-semibold">Email Log</h2>
