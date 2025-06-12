@@ -48,6 +48,7 @@ afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
+  fs.rmSync(".next", { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
   process.env.VIN_SOURCE_FILE = undefined;
   process.env.OPENAI_BASE_URL = undefined;
