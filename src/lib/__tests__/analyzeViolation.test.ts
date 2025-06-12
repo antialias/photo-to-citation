@@ -1,6 +1,6 @@
 import type { ChatCompletion } from "openai/resources/chat/completions";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AnalysisError, analyzeViolation, openai } from "../openai";
+import { analyzeViolation, openai } from "../openai";
 
 const imgs = [{ url: "data:image/png;base64,AA", filename: "foo.png" }];
 
