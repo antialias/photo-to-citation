@@ -7,27 +7,43 @@ export interface OpenAIStub {
   close: () => Promise<void>;
 }
 
+export type StubResponse =
+  | string
+  | Record<string, unknown>
+  | ((req: { url: string | undefined; body: unknown; count: number }) =>
+      | string
+      | Record<string, unknown>);
+
 export async function startOpenAIStub(
-  response: Record<string, string>,
+  responses: StubResponse | StubResponse[],
 ): Promise<OpenAIStub> {
   const requests: Array<{ url: string | undefined; body: unknown }> = [];
+  const list = Array.isArray(responses) ? [...responses] : [responses];
+  let count = 0;
   const server = http.createServer((req, res) => {
     let body = "";
     req.on("data", (c) => {
       body += c;
     });
     req.on("end", () => {
+      let parsed: unknown;
       try {
-        requests.push({ url: req.url, body: JSON.parse(body) });
+        parsed = JSON.parse(body);
+        requests.push({ url: req.url, body: parsed });
       } catch {
+        parsed = body;
         requests.push({ url: req.url, body });
       }
+      const handler =
+        list.length > 1 ? (list.shift() as StubResponse) : list[0];
+      const value =
+        typeof handler === "function"
+          ? handler({ url: req.url, body: parsed, count: count++ })
+          : handler;
+      const content =
+        typeof value === "string" ? value : JSON.stringify(value ?? {});
       res.setHeader("Content-Type", "application/json");
-      res.end(
-        JSON.stringify({
-          choices: [{ message: { content: JSON.stringify(response) } }],
-        }),
-      );
+      res.end(JSON.stringify({ choices: [{ message: { content } }] }));
     });
   });
   await new Promise((resolve) => server.listen(0, resolve));

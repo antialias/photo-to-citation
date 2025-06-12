@@ -13,6 +13,8 @@ afterAll(async () => {
 
 describe("case events", () => {
   it("streams updates", async () => {
+    // warm up the server to ensure the route is compiled
+    await fetch(`${server.url}/`);
     const res = await fetch(`${server.url}/api/cases/stream`);
     expect(res.status).toBe(200);
     const reader = res.body?.getReader();
