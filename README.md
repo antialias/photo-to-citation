@@ -52,9 +52,9 @@ such as make, model, color and license plate information.
 `ocrPaperwork` uses the same client to transcribe paperwork images. After
 generating the raw text, the helper sends it back to the LLM with a JSON schema
 requesting contact information for the registered owner, VIN, registration
-status and any license plate details. The extraction schema mirrors fields from
-the image analysis so the resulting `PaperworkInfo` object fits alongside the
-violation report data.
+status, license plate details and any calls to action. The extraction schema
+mirrors fields from the image analysis so the resulting `PaperworkInfo` object
+fits alongside the violation report data.
 
 When a user uploads a photo, the API stores the case immediately and then
 triggers OpenAI analysis in the background. These asynchronous tasks are

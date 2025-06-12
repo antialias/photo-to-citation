@@ -45,6 +45,7 @@ export const paperworkInfoSchema = z.object({
       licensePlateNumber: licensePlateNumberSchema.optional(),
     })
     .default({}),
+  callsToAction: z.array(z.string()).optional(),
 });
 
 export type PaperworkInfo = z.infer<typeof paperworkInfoSchema>;
@@ -214,6 +215,7 @@ export async function extractPaperworkInfo(
           licensePlateNumber: { type: "string" },
         },
       },
+      callsToAction: { type: "array", items: { type: "string" } },
     },
   };
 
@@ -225,7 +227,7 @@ export async function extractPaperworkInfo(
     },
     {
       role: "user",
-      content: `Analyze the following text and extract the registered owner contact information, VIN, vehicle registration status and any license plate details. Respond with JSON matching this schema: ${JSON.stringify(
+      content: `Analyze the following text and extract the registered owner contact information, VIN, vehicle registration status, license plate details and any calls to action. Respond with JSON matching this schema: ${JSON.stringify(
         schema,
       )}`,
     },
