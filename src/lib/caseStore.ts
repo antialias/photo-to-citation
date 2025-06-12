@@ -24,6 +24,7 @@ export interface Case {
   /** @zod.enum(["pending", "complete"]) */
   analysisStatus: "pending" | "complete";
   analysisStatusCode?: number | null;
+  /** @zod.enum(["truncated", "parse", "schema"]).nullable() */
   analysisError?: "truncated" | "parse" | "schema" | null;
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
@@ -31,12 +32,14 @@ export interface Case {
 }
 
 export interface SentEmail {
+  /** @zod.email */
   to: string;
   subject: string;
   body: string;
   attachments: string[];
   /** @zod.date */
   sentAt: string;
+  /** @zod.email */
   replyTo?: string | null;
 }
 
