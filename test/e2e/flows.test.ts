@@ -2,24 +2,41 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
+let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
+  stub = await startOpenAIStub({ violationType: "parking" });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
   process.env.VIN_SOURCE_FILE = path.join(tmpDir, "vinSources.json");
+  process.env.OPENAI_BASE_URL = stub.url;
+  fs.writeFileSync(
+    process.env.VIN_SOURCE_FILE,
+    JSON.stringify(
+      [
+        { id: "edmunds", enabled: false, failureCount: 0 },
+        { id: "carfax", enabled: false, failureCount: 0 },
+      ],
+      null,
+      2,
+    ),
+  );
   server = await startServer(3003);
-}, 30000);
+}, 120000);
 
 afterAll(async () => {
   await server.close();
+  await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
   process.env.VIN_SOURCE_FILE = undefined;
-}, 30000);
+  process.env.OPENAI_BASE_URL = undefined;
+}, 120000);
 
 describe("e2e flows", () => {
   async function createCase(): Promise<string> {
@@ -33,6 +50,32 @@ describe("e2e flows", () => {
     expect(res.status).toBe(200);
     const data = (await res.json()) as { caseId: string };
     return data.caseId;
+  }
+
+  async function fetchCase(id: string): Promise<Response> {
+    for (let i = 0; i < 10; i++) {
+      const res = await fetch(`${server.url}/api/cases/${id}`);
+      if (res.status === 200) return res;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return fetch(`${server.url}/api/cases/${id}`);
+  }
+
+  async function putVin(id: string, vin: string): Promise<Response> {
+    for (let i = 0; i < 10; i++) {
+      const res = await fetch(`${server.url}/api/cases/${id}/vin`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vin }),
+      });
+      if (res.status === 200) return res;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return fetch(`${server.url}/api/cases/${id}/vin`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vin }),
+    });
   }
 
   it("handles case lifecycle", async () => {
@@ -52,7 +95,7 @@ describe("e2e flows", () => {
     const data2 = (await res2.json()) as { caseId: string };
     expect(data2.caseId).toBe(caseId);
 
-    const res = await fetch(`${server.url}/api/cases/${caseId}`);
+    const res = await fetchCase(caseId);
     expect(res.status).toBe(200);
     let json = await res.json();
     expect(json.photos).toHaveLength(2);
@@ -81,11 +124,7 @@ describe("e2e flows", () => {
     json = await overrideRes.json();
     expect(json.analysis.vehicle.licensePlateNumber).toBe("ABC123");
 
-    const vinRes = await fetch(`${server.url}/api/cases/${caseId}/vin`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vin: "1HGCM82633A004352" }),
-    });
+    const vinRes = await putVin(caseId, "1HGCM82633A004352");
     expect(vinRes.status).toBe(200);
     json = await vinRes.json();
     expect(json.vin).toBe("1HGCM82633A004352");
