@@ -168,3 +168,69 @@ Mention that photos are attached again. Respond with JSON matching this schema: 
   }
   return { subject: "", body: "" };
 }
+export async function draftOwnerNotification(
+  caseData: Case,
+  authorities: string[],
+): Promise<EmailDraft> {
+  const analysis = caseData.analysis;
+  const vehicle = analysis?.vehicle ?? {};
+  let time = caseData.createdAt;
+  if (analysis?.images) {
+    const best = Object.entries(analysis.images).sort(
+      (a, b) => b[1].representationScore - a[1].representationScore,
+    )[0];
+    if (best) {
+      const file = caseData.photos.find((p) => path.basename(p) === best[0]);
+      if (file) {
+        const t = caseData.photoTimes[file];
+        if (t) time = t;
+      }
+    }
+  }
+  const location =
+    caseData.streetAddress ||
+    caseData.intersection ||
+    (caseData.gps
+      ? `${caseData.gps.lat}, ${caseData.gps.lon}`
+      : "unknown location");
+  const schema = {
+    type: "object",
+    properties: { subject: { type: "string" }, body: { type: "string" } },
+  };
+  const authorityList =
+    authorities.length > 0 ? authorities.join(", ") : "no authorities";
+  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. Mention that the following authorities have been contacted: ${authorityList}. Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toLocaleString()}\nMention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+    schema,
+  )}`;
+  const baseMessages = [
+    {
+      role: "system",
+      content:
+        "You create anonymous notification emails for vehicle owners about violations.",
+    },
+    { role: "user", content: prompt },
+  ];
+  const messages = [...baseMessages];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      max_tokens: 800,
+      response_format: { type: "json_object" },
+    });
+    const text = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(text);
+      return emailDraftSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) return { subject: "", body: "" };
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  return { subject: "", body: "" };
+}

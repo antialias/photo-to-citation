@@ -40,6 +40,12 @@ export default function CaseToolbar({
           >
             Request Ownership Info
           </Link>
+          <Link
+            href={`/cases/${caseId}/notify-owner`}
+            className="block px-4 py-2 hover:bg-gray-100"
+          >
+            Notify Registered Owner
+          </Link>
           <button
             type="button"
             onClick={async () => {
