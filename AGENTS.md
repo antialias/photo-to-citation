@@ -14,6 +14,9 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - Terminate statements with semicolons.
 - Import Node.js builtin modules using the `node:` protocol (e.g. `import fs from "node:fs";`).
 
+## Next.js Dynamic APIs
+- Type `params` and `searchParams` as `Promise` objects and `await` them before using their properties.
+
 ## Commit Messages
 - Use short commit summaries starting with a type such as `feat:`, `fix:`, or `chore:` followed by a concise description.
 

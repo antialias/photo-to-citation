@@ -4,16 +4,15 @@ import type { Case } from "../../lib/caseStore";
 import { getCase } from "../../lib/caseStore";
 import CaseSummary from "../components/CaseSummary";
 
-export default function CasesPage({
-  searchParams = {},
+export default async function CasesPage({
+  searchParams,
 }: {
-  searchParams?: { ids?: string };
+  searchParams?: Promise<{ ids?: string }>;
 }) {
-  const ids = searchParams.ids
-    ? searchParams.ids.split(",").filter(Boolean)
-    : [];
-  if (ids.length > 1) {
-    const cases = ids.map((id) => getCase(id)).filter(Boolean) as Case[];
+  const { ids } = (await searchParams) ?? {};
+  const parsed = ids ? ids.split(",").filter(Boolean) : [];
+  if (parsed.length > 1) {
+    const cases = parsed.map((id) => getCase(id)).filter(Boolean) as Case[];
     return <CaseSummary cases={cases} />;
   }
   return (
