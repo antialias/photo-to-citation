@@ -43,8 +43,8 @@ describe("caseStore", () => {
         details: "bar",
         vehicle: {},
         images: {
-          "foo.jpg": { representationScore: 0.6 },
-          "bar.jpg": { representationScore: 0.5 },
+          "foo.jpg": { representationScore: 0.6, violation: true },
+          "bar.jpg": { representationScore: 0.5, violation: true },
         },
       },
     });

@@ -1,4 +1,5 @@
 import type { Case } from "@/lib/caseStore";
+import { hasViolation } from "@/lib/caseUtils";
 
 export default function CaseSummary({ cases }: { cases: Case[] }) {
   if (cases.length === 0) return null;
@@ -7,7 +8,9 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
     const value = getter(first);
     return cases.every((c) => getter(c) === value) ? value : undefined;
   }
-  const violation = allEqual((c) => c.analysis?.violationType);
+  const violation = allEqual((c) =>
+    hasViolation(c.analysis) ? c.analysis?.violationType : undefined,
+  );
   const plateNum = allEqual((c) => c.analysis?.vehicle?.licensePlateNumber);
   const plateState = allEqual((c) => c.analysis?.vehicle?.licensePlateState);
   const vin = allEqual((c) => c.vin);

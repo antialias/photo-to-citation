@@ -17,7 +17,7 @@ const baseCase: Case = {
     violationType: "test",
     details: "details",
     vehicle: {},
-    images: { "foo.jpg": { representationScore: 1 } },
+    images: { "foo.jpg": { representationScore: 1, violation: true } },
   },
   analysisOverrides: null,
   analysisStatus: "complete",
