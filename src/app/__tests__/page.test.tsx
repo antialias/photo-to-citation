@@ -14,8 +14,9 @@ describe("Home page", () => {
       FakeEventSource as unknown as typeof EventSource;
   });
 
-  it.skip("shows the cases list", () => {
-    render(<Home />);
+  it("shows the cases list", async () => {
+    const element = await Home({ searchParams: Promise.resolve({}) });
+    render(element);
     expect(screen.getByText("Cases")).toBeInTheDocument();
   });
 });
