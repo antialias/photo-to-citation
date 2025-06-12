@@ -15,8 +15,7 @@ describe("Home page", () => {
   });
 
   it("shows the cases list", async () => {
-    const element = await Home({ searchParams: Promise.resolve({}) });
-    render(element);
+    render(await Home({ searchParams: Promise.resolve({}) }));
     expect(screen.getByText("Cases")).toBeInTheDocument();
   });
 });
