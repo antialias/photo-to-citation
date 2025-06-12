@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
-import { getRepresentativePhoto } from "../../../lib/caseUtils";
+import { getRepresentativePhoto, hasViolation } from "../../../lib/caseUtils";
 import AnalysisInfo from "../../components/AnalysisInfo";
 import CaseLayout from "../../components/CaseLayout";
 import CaseProgressGraph from "../../components/CaseProgressGraph";
@@ -170,8 +170,7 @@ export default function ClientCasePage({
   }
 
   const violationIdentified =
-    caseData.analysisStatus === "complete" &&
-    Boolean(caseData.analysis?.violationType);
+    caseData.analysisStatus === "complete" && hasViolation(caseData.analysis);
 
   return (
     <CaseLayout

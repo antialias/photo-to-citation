@@ -1,5 +1,6 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
+import { hasViolation } from "@/lib/caseUtils";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 
@@ -24,7 +25,7 @@ const allSteps = [
 
 export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   const analysisDone = caseData.analysisStatus === "complete";
-  const violation = analysisDone && Boolean(caseData.analysis?.violationType);
+  const violation = analysisDone && hasViolation(caseData.analysis);
   const noviolation = analysisDone && !violation;
 
   const steps = useMemo(() => {
