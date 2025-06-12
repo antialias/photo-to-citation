@@ -13,5 +13,9 @@ export default defineConfig({
     testTimeout: 30000,
     hookTimeout: 30000,
     threads: false,
+    maxConcurrency: 1,
+    isolate: false,
+    sequence: { concurrent: false },
+    fileParallelism: false,
   },
 });

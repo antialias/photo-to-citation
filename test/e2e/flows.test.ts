@@ -10,13 +10,20 @@ let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({ violationType: "parking" });
+  stub = await startOpenAIStub({
+    violationType: "parking",
+    details: "car parked illegally",
+    vehicle: {},
+    images: {},
+  });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
-  process.env.VIN_SOURCE_FILE = path.join(tmpDir, "vinSources.json");
-  process.env.OPENAI_BASE_URL = stub.url;
+  const env = {
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+    VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
+    OPENAI_BASE_URL: stub.url,
+  };
   fs.writeFileSync(
-    process.env.VIN_SOURCE_FILE,
+    env.VIN_SOURCE_FILE,
     JSON.stringify(
       [
         { id: "edmunds", enabled: false, failureCount: 0 },
@@ -26,16 +33,13 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3003);
+  server = await startServer(3003, env);
 }, 120000);
 
 afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  process.env.CASE_STORE_FILE = undefined;
-  process.env.VIN_SOURCE_FILE = undefined;
-  process.env.OPENAI_BASE_URL = undefined;
 }, 120000);
 
 describe("e2e flows", () => {

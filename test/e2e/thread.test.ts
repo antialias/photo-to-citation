@@ -9,14 +9,13 @@ let tmpDir: string;
 
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
-  server = await startServer(3006);
+  const env = { CASE_STORE_FILE: path.join(tmpDir, "cases.json") };
+  server = await startServer(3006, env);
 }, 120000);
 
 afterAll(async () => {
   await server.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  process.env.CASE_STORE_FILE = undefined;
 }, 120000);
 
 describe("thread page", () => {
