@@ -1,22 +1,43 @@
 import { draftFollowUp } from "@/lib/caseReport";
+import type { Case, SentEmail } from "@/lib/caseStore";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
 import { sendEmail } from "@/lib/email";
 import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
 
+function getThread(c: Case, startId?: string | null): SentEmail[] {
+  let current = startId
+    ? c.sentEmails?.find((m) => m.sentAt === startId)
+    : c.sentEmails?.at(-1);
+  const chain: SentEmail[] = [];
+  while (current) {
+    chain.unshift(current);
+    current = current.replyTo
+      ? c.sentEmails?.find((m) => m.sentAt === current.replyTo)
+      : undefined;
+  }
+  return chain;
+}
+
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const url = new URL(req.url);
+  const replyTo = url.searchParams.get("replyTo");
   const c = getCase(id);
   if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const reportModule = reportModules["oak-park"];
-  const email = await draftFollowUp(c, reportModule);
+  const thread = getThread(c, replyTo);
+  const recipient = thread.at(-1)?.to || reportModule.authorityName;
+  const email = await draftFollowUp(c, recipient, thread);
   return NextResponse.json({
     email,
     attachments: c.photos,
     module: reportModule,
+    to: recipient,
+    replyTo,
   });
 }
 
@@ -25,19 +46,23 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { subject, body, attachments } = (await req.json()) as {
+  const { subject, body, attachments, replyTo } = (await req.json()) as {
     subject: string;
     body: string;
     attachments: string[];
+    replyTo?: string | null;
   };
   const c = getCase(id);
   if (!c) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   const reportModule = reportModules["oak-park"];
+  const target =
+    c.sentEmails?.find((e) => e.sentAt === replyTo)?.to ||
+    reportModule.authorityEmail;
   try {
     await sendEmail({
-      to: reportModule.authorityEmail,
+      to: target,
       subject,
       body,
       attachments,
@@ -50,10 +75,12 @@ export async function POST(
     );
   }
   const updated = addCaseEmail(id, {
+    to: target,
     subject,
     body,
     attachments,
     sentAt: new Date().toISOString(),
+    replyTo: replyTo ?? null,
   });
   return NextResponse.json(updated);
 }

@@ -30,11 +30,13 @@ export interface Case {
 }
 
 export interface SentEmail {
+  to: string;
   subject: string;
   body: string;
   attachments: string[];
   /** @zod.date */
   sentAt: string;
+  replyTo?: string | null;
 }
 
 export interface OwnershipRequest {
@@ -61,7 +63,17 @@ function loadCases(): Case[] {
       photos: c.photos ?? (c.photo ? [c.photo] : []),
       photoTimes: c.photoTimes ?? {},
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
-      sentEmails: c.sentEmails ?? [],
+      sentEmails: (c.sentEmails ?? []).map((m: unknown) => {
+        const mail = m as Partial<SentEmail> & { [key: string]: unknown };
+        return {
+          to: mail.to ?? "",
+          subject: mail.subject as string,
+          body: mail.body as string,
+          attachments: mail.attachments ?? [],
+          sentAt: mail.sentAt as string,
+          replyTo: mail.replyTo ?? null,
+        };
+      }),
       ownershipRequests: c.ownershipRequests ?? [],
     }));
   } catch {

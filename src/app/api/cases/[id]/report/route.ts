@@ -35,9 +35,10 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   const reportModule = reportModules["oak-park"];
+  const to = reportModule.authorityEmail;
   try {
     await sendEmail({
-      to: reportModule.authorityEmail,
+      to,
       subject,
       body,
       attachments,
@@ -50,10 +51,12 @@ export async function POST(
     );
   }
   const updated = addCaseEmail(id, {
+    to,
     subject,
     body,
     attachments,
     sentAt: new Date().toISOString(),
+    replyTo: null,
   });
   return NextResponse.json(updated);
 }

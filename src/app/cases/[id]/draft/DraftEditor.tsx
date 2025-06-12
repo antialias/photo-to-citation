@@ -9,11 +9,17 @@ export default function DraftEditor({
   attachments,
   module,
   caseId,
+  action = "report",
+  replyTo,
+  to,
 }: {
   initialDraft?: EmailDraft;
   attachments: string[];
   module: ReportModule;
   caseId: string;
+  action?: "report" | "followup";
+  replyTo?: string;
+  to?: string;
 }) {
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
@@ -26,10 +32,15 @@ export default function DraftEditor({
   }, [initialDraft]);
 
   async function sendEmail() {
-    const res = await fetch(`/api/cases/${caseId}/report`, {
+    const res = await fetch(`/api/cases/${caseId}/${action}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, body, attachments }),
+      body: JSON.stringify({
+        subject,
+        body,
+        attachments,
+        ...(replyTo ? { replyTo } : {}),
+      }),
     });
     if (res.ok) {
       alert("Email sent");
@@ -48,8 +59,8 @@ export default function DraftEditor({
     <div className="p-8 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Email Draft</h1>
       <p>
-        To: {module.authorityName} ({module.authorityEmail}) - the photos shown
-        below will be attached automatically.
+        To: {to || `${module.authorityName} (${module.authorityEmail})`} - the
+        photos shown below will be attached automatically.
       </p>
       <label className="flex flex-col">
         Subject
