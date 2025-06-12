@@ -389,10 +389,10 @@ export default function ClientCasePage({
                   </a>
                 ) : null}
                 <a
-                  href={`/cases/${caseId}/followup?replyTo=${encodeURIComponent(mail.sentAt)}`}
+                  href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
                   className="self-start text-blue-500 underline"
                 >
-                  Follow Up
+                  View Thread
                 </a>
               </li>
             ))}

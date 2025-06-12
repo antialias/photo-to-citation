@@ -27,6 +27,7 @@ export interface Case {
   analysisError?: "truncated" | "parse" | "schema" | null;
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
+  threadImages?: ThreadImage[];
 }
 
 export interface SentEmail {
@@ -44,6 +45,16 @@ export interface OwnershipRequest {
   /** @zod.date */
   requestedAt: string;
   checkNumber?: string | null;
+}
+
+export interface ThreadImage {
+  id: string;
+  threadParent?: string | null;
+  url: string;
+  /** @zod.date */
+  uploadedAt: string;
+  ocrText?: string | null;
+  ocrInfo?: import("./openai").PaperworkInfo | null;
 }
 
 const dataFile = process.env.CASE_STORE_FILE
@@ -75,6 +86,7 @@ function loadCases(): Case[] {
         };
       }),
       ownershipRequests: c.ownershipRequests ?? [],
+      threadImages: c.threadImages ?? [],
     }));
   } catch {
     return [];
@@ -140,6 +152,7 @@ export function createCase(
     analysisError: null,
     sentEmails: [],
     ownershipRequests: [],
+    threadImages: [],
   };
   cases.push(newCase);
   saveCases(cases);
@@ -226,6 +239,20 @@ export function addCaseEmail(id: string, email: SentEmail): Case | undefined {
   if (idx === -1) return undefined;
   const list = cases[idx].sentEmails ?? [];
   cases[idx].sentEmails = [...list, email];
+  saveCases(cases);
+  caseEvents.emit("update", cases[idx]);
+  return cases[idx];
+}
+
+export function addCaseThreadImage(
+  id: string,
+  image: ThreadImage,
+): Case | undefined {
+  const cases = loadCases();
+  const idx = cases.findIndex((c) => c.id === id);
+  if (idx === -1) return undefined;
+  const list = cases[idx].threadImages ?? [];
+  cases[idx].threadImages = [...list, image];
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
   return cases[idx];
