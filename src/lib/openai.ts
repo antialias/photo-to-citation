@@ -113,7 +113,7 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Indicate with a boolean if each photo depicts a violation. If an image is paperwork such as a letter or form, set a paperwork flag and transcribe all text from it. Also provide a short description of the evidence each image adds. Use these filenames as keys: ${names.join(", ")}. Respond with JSON matching this schema: ${JSON.stringify(
+          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Indicate with a boolean if each photo depicts a violation. If an image is paperwork such as a letter or form, set a paperwork flag and omit the text. Also provide a short description of the evidence each image adds. Use these filenames as keys: ${names.join(", ")}. Respond with JSON matching this schema: ${JSON.stringify(
             schema,
           )}`,
         },
@@ -172,4 +172,41 @@ export async function analyzeViolation(
     }
   }
   throw new AnalysisError("schema");
+}
+
+export async function ocrPaperwork(image: { url: string }): Promise<string> {
+  const baseMessages = [
+    {
+      role: "system",
+      content:
+        "You transcribe text from images of paperwork and respond with only the text.",
+    },
+    {
+      role: "user",
+      content: [
+        { type: "text", text: "Transcribe all text from this image." },
+        { type: "image_url", image_url: { url: image.url } },
+      ],
+    },
+  ];
+
+  const messages = [...baseMessages];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      max_tokens: 800,
+    });
+    const text = res.choices[0]?.message?.content ?? "";
+    if (text.trim()) return text.trim();
+    logBadResponse(attempt, text, new Error("Empty OCR result"));
+    if (attempt < 2) {
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: "Please reply with just the text.",
+      });
+    }
+  }
+  return "";
 }
