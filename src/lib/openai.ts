@@ -5,6 +5,14 @@ import "./zod-setup";
 
 dotenv.config();
 
+export class AnalysisError extends Error {
+  kind: "truncated" | "parse" | "schema";
+  constructor(kind: "truncated" | "parse" | "schema") {
+    super(kind);
+    this.kind = kind;
+  }
+}
+
 function logBadResponse(
   attempt: number,
   response: string,
@@ -122,19 +130,46 @@ export async function analyzeViolation(
       max_tokens: 800,
       response_format: { type: "json_object" },
     });
+    const finish = response.choices[0]?.finish_reason;
     const text = response.choices[0]?.message?.content ?? "{}";
-    try {
-      const parsed = JSON.parse(text);
-      return violationReportSchema.parse(parsed);
-    } catch (err) {
-      logBadResponse(attempt, text, err);
-      if (attempt === 2) throw err;
+
+    if (finish === "length") {
+      logBadResponse(attempt, text, "truncated");
+      if (attempt === 2) throw new AnalysisError("truncated");
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
-        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+        content:
+          "Your previous reply was cut off. Please resend the complete JSON only.",
+      });
+      continue;
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) throw new AnalysisError("parse");
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The previous response was not valid JSON: ${err}. Please reply with valid JSON only.`,
+      });
+      continue;
+    }
+
+    try {
+      return violationReportSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) throw new AnalysisError("schema");
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
       });
     }
   }
-  throw new Error("Failed to analyze violation");
+  throw new AnalysisError("schema");
 }

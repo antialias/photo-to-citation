@@ -3,7 +3,7 @@ import path from "node:path";
 import { APIError } from "openai/error";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
-import { analyzeViolation } from "./openai";
+import { AnalysisError, analyzeViolation } from "./openai";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 export async function analyzeCase(caseData: Case): Promise<void> {
@@ -32,12 +32,23 @@ export async function analyzeCase(caseData: Case): Promise<void> {
       analysis: result,
       analysisStatus: "complete",
       analysisStatusCode: 200,
+      analysisError: null,
     });
     const updated = getCase(caseData.id);
     if (updated) fetchCaseVinInBackground(updated);
   } catch (err) {
-    const status = err instanceof APIError ? err.status : 500;
-    updateCase(caseData.id, { analysisStatusCode: status });
+    if (err instanceof AnalysisError) {
+      updateCase(caseData.id, {
+        analysisStatusCode: 400,
+        analysisError: err.kind,
+      });
+    } else {
+      const status = err instanceof APIError ? err.status : 500;
+      updateCase(caseData.id, {
+        analysisStatusCode: status,
+        analysisError: null,
+      });
+    }
     console.error("Failed to analyze case", caseData.id, err);
   }
 }
