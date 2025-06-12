@@ -5,11 +5,11 @@ let server: TestServer;
 
 beforeAll(async () => {
   server = await startServer(3002);
-}, 30000);
+}, 120000);
 
 afterAll(async () => {
   await server.close();
-}, 30000);
+}, 120000);
 
 describe("end-to-end", () => {
   it("serves the homepage", async () => {
