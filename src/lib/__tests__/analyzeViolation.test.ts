@@ -9,6 +9,11 @@ afterEach(() => {
 });
 
 describe("analyzeViolation", () => {
+  it("rejects when no images are provided", async () => {
+    await expect(analyzeViolation([])).rejects.toMatchObject({
+      kind: "images",
+    });
+  });
   it("classifies cut off responses", async () => {
     vi.spyOn(openai.chat.completions, "create").mockResolvedValue({
       choices: [{ message: { content: "{" }, finish_reason: "length" }],

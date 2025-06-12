@@ -2,16 +2,27 @@
 import { z } from "zod";
 
 export const sentEmailSchema = z.object({
+  to: z.string(),
   subject: z.string(),
   body: z.string(),
   attachments: z.array(z.string()),
   sentAt: z.string(),
+  replyTo: z.string().optional().nullable(),
 });
 
 export const ownershipRequestSchema = z.object({
   moduleId: z.string(),
   requestedAt: z.string(),
   checkNumber: z.string().optional().nullable(),
+});
+
+export const threadImageSchema = z.object({
+  id: z.string(),
+  threadParent: z.string().optional().nullable(),
+  url: z.string(),
+  uploadedAt: z.string(),
+  ocrText: z.string().optional().nullable(),
+  ocrInfo: z.any().optional().nullable(),
 });
 
 const violationReportSchema = z.any();
@@ -37,9 +48,15 @@ export const caseSchema = z.object({
   analysisStatus: z.union([z.literal("pending"), z.literal("complete")]),
   analysisStatusCode: z.number().optional().nullable(),
   analysisError: z
-    .union([z.literal("truncated"), z.literal("parse"), z.literal("schema")])
+    .union([
+      z.literal("truncated"),
+      z.literal("parse"),
+      z.literal("schema"),
+      z.literal("images"),
+    ])
     .optional()
     .nullable(),
   sentEmails: z.array(sentEmailSchema).optional(),
   ownershipRequests: z.array(ownershipRequestSchema).optional(),
+  threadImages: z.array(threadImageSchema).optional(),
 });
