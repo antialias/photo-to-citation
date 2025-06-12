@@ -12,7 +12,8 @@
     "e2e": "vitest run -c vitest.e2e.config.ts",
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "generate:schemas": "ts-to-zod"
   },
   "dependencies": {
     "bree": "^9.2.4",
@@ -31,8 +32,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@anatine/zod-openapi": "^2.2.8",
     "@biomejs/biome": "^1.9.4",
     "@eslint/eslintrc": "^3",
+    "@openapitools/openapi-generator-cli": "^2.20.2",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
     "@storybook/nextjs": "^8.6.14",
@@ -40,6 +43,8 @@
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
+    "@ts-rest/core": "^3.52.1",
+    "@ts-rest/open-api": "^3.52.1",
     "@types/lodash": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -50,6 +55,7 @@
     "eslint-config-next": "15.3.3",
     "jsdom": "^26.1.0",
     "tailwindcss": "^4",
+    "ts-to-zod": "^3.15.0",
     "typescript": "^5",
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "^3.2.3"

@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 dotenv.config();
 
 export interface EmailOptions {
+  /** @zod.email */
   to: string;
   subject: string;
   body: string;
