@@ -3,7 +3,7 @@ import path from "node:path";
 import { APIError } from "openai/error";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
-import { analyzeViolation } from "./openai";
+import { analyzeViolation, ocrPaperwork } from "./openai";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 export async function analyzeCase(caseData: Case): Promise<void> {
@@ -27,7 +27,18 @@ export async function analyzeCase(caseData: Case): Promise<void> {
         url: `data:${mime};base64,${buffer.toString("base64")}`,
       };
     });
+    const imageMap: Record<string, string> = Object.fromEntries(
+      images.map((i) => [i.filename, i.url]),
+    );
     const result = await analyzeViolation(images);
+    if (result.images) {
+      for (const [name, info] of Object.entries(result.images)) {
+        if (info.paperwork && !info.paperworkText) {
+          const url = imageMap[name];
+          if (url) info.paperworkText = await ocrPaperwork({ url });
+        }
+      }
+    }
     updateCase(caseData.id, {
       analysis: result,
       analysisStatus: "complete",
