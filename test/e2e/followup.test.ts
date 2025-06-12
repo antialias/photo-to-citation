@@ -10,7 +10,10 @@ let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({ subject: "s", body: "b" });
+  stub = await startOpenAIStub([
+    { violationType: "parking", details: "desc" },
+    { subject: "s", body: "b" },
+  ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
   process.env.VIN_SOURCE_FILE = path.join(tmpDir, "vinSources.json");
