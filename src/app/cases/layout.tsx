@@ -6,10 +6,8 @@ export const dynamic = "force-dynamic";
 
 export default function CasesLayout({
   children,
-  params,
 }: {
   children: ReactNode;
-  params: { id?: string };
 }) {
   const cases = getCases();
   return (

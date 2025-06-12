@@ -43,7 +43,6 @@ export default function ClientCasePage({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
     if (stored) setPreview(stored);
