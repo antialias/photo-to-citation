@@ -25,7 +25,7 @@ export interface Case {
   analysisStatus: "pending" | "complete";
   analysisStatusCode?: number | null;
   /** @zod.enum(["truncated", "parse", "schema"]).nullable() */
-  analysisError?: "truncated" | "parse" | "schema" | null;
+  analysisError?: "truncated" | "parse" | "schema" | "images" | null;
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
   threadImages?: ThreadImage[];

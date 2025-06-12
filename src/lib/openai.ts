@@ -6,8 +6,8 @@ import "./zod-setup";
 dotenv.config();
 
 export class AnalysisError extends Error {
-  kind: "truncated" | "parse" | "schema";
-  constructor(kind: "truncated" | "parse" | "schema") {
+  kind: "truncated" | "parse" | "schema" | "images";
+  constructor(kind: "truncated" | "parse" | "schema" | "images") {
     super(kind);
     this.kind = kind;
   }
@@ -92,6 +92,9 @@ export type ViolationReport = z.infer<typeof violationReportSchema>;
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
 ): Promise<ViolationReport> {
+  if (images.length === 0) {
+    throw new AnalysisError("images");
+  }
   const schema = {
     type: "object",
     properties: {

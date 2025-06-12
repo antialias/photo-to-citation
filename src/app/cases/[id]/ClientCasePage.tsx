@@ -206,7 +206,9 @@ export default function ClientCasePage({
         ? "Analysis failed because the AI response was cut off. Please try again."
         : caseData.analysisError === "parse"
           ? "Analysis failed due to invalid JSON from the AI. Please try again."
-          : "Analysis failed because the AI response did not match the expected format. Please retry."}
+          : caseData.analysisError === "images"
+            ? "Analysis failed because no images were provided."
+            : "Analysis failed because the AI response did not match the expected format. Please retry."}
     </p>
   ) : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400 ? (
     <p className="text-sm text-red-600">
