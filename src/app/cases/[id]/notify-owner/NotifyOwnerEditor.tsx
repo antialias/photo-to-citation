@@ -16,6 +16,7 @@ export default function NotifyOwnerEditor({
 }) {
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (initialDraft) {
@@ -25,15 +26,20 @@ export default function NotifyOwnerEditor({
   }, [initialDraft]);
 
   async function sendEmail() {
-    const res = await fetch(`/api/cases/${caseId}/notify-owner`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, body, attachments }),
-    });
-    if (res.ok) {
-      alert("Email sent");
-    } else {
-      alert("Failed to send email");
+    setSending(true);
+    try {
+      const res = await fetch(`/api/cases/${caseId}/notify-owner`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body, attachments }),
+      });
+      if (res.ok) {
+        alert("Email sent");
+      } else {
+        alert("Failed to send email");
+      }
+    } finally {
+      setSending(false);
     }
   }
 
@@ -82,9 +88,10 @@ export default function NotifyOwnerEditor({
       <button
         type="button"
         onClick={sendEmail}
-        className="bg-blue-500 text-white px-2 py-1 rounded"
+        disabled={sending}
+        className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
-        Send Email
+        {sending ? "Sending..." : "Send Email"}
       </button>
     </div>
   );
