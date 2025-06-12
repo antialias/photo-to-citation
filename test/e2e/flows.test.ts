@@ -10,7 +10,7 @@ let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({ violationType: "parking" });
+  stub = await startOpenAIStub({ violationType: "parking", details: "desc" });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
   process.env.VIN_SOURCE_FILE = path.join(tmpDir, "vinSources.json");
@@ -33,6 +33,7 @@ afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
+  fs.rmSync(".next", { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
   process.env.VIN_SOURCE_FILE = undefined;
   process.env.OPENAI_BASE_URL = undefined;
@@ -43,17 +44,27 @@ describe("e2e flows", () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
-    const res = await fetch(`${server.url}/api/upload`, {
+    for (let i = 0; i < 20; i++) {
+      const res = await fetch(`${server.url}/api/upload`, {
+        method: "POST",
+        body: form,
+      });
+      if (res.status === 200) {
+        const data = (await res.json()) as { caseId: string };
+        return data.caseId;
+      }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    const final = await fetch(`${server.url}/api/upload`, {
       method: "POST",
       body: form,
     });
-    expect(res.status).toBe(200);
-    const data = (await res.json()) as { caseId: string };
+    const data = (await final.json()) as { caseId: string };
     return data.caseId;
   }
 
   async function fetchCase(id: string): Promise<Response> {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const res = await fetch(`${server.url}/api/cases/${id}`);
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));

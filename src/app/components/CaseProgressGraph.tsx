@@ -10,7 +10,9 @@ import {
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 
-const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
+const Mermaid = dynamic<{ chart: string }>(() => import("react-mermaid2"), {
+  ssr: false,
+});
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },

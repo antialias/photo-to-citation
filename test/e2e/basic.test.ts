@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type TestServer, startServer } from "./startServer";
 
@@ -9,6 +10,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+  fs.rmSync(".next", { recursive: true, force: true });
 }, 120000);
 
 describe("end-to-end", () => {

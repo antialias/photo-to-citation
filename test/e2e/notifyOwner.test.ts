@@ -10,16 +10,28 @@ let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
-  stub = await startOpenAIStub([
-    { violationType: "parking", details: "desc" },
-    { subject: "s", body: "b" },
-  ]);
+  const analysis = {
+    violationType: "parking",
+    details: "desc",
+    images: {
+      "a.jpg": {
+        representationScore: 1,
+        violation: true,
+        paperwork: true,
+        paperworkText: "text",
+        paperworkInfo: { contact: "owner@example.com", vehicle: {} },
+      },
+    },
+  };
+  stub = await startOpenAIStub([analysis, { subject: "s", body: "b" }]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
-  process.env.VIN_SOURCE_FILE = path.join(tmpDir, "vinSources.json");
+  const caseFile = path.join(tmpDir, "cases.json");
+  const vinFile = path.join(tmpDir, "vinSources.json");
+  process.env.CASE_STORE_FILE = caseFile;
+  process.env.VIN_SOURCE_FILE = vinFile;
   process.env.OPENAI_BASE_URL = stub.url;
   fs.writeFileSync(
-    process.env.VIN_SOURCE_FILE,
+    vinFile,
     JSON.stringify(
       [
         { id: "edmunds", enabled: false, failureCount: 0 },
@@ -29,7 +41,7 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3005);
+  server = await startServer(3006);
 }, 120000);
 
 afterAll(async () => {
@@ -42,7 +54,7 @@ afterAll(async () => {
   process.env.OPENAI_BASE_URL = undefined;
 }, 120000);
 
-describe("follow up", () => {
+describe("owner notification", () => {
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
@@ -66,39 +78,23 @@ describe("follow up", () => {
     return data.caseId;
   }
 
-  async function fetchFollowup(id: string): Promise<Response> {
+  async function fetchNotification(id: string): Promise<Response> {
     for (let i = 0; i < 20; i++) {
-      const res = await fetch(`${server.url}/api/cases/${id}/followup`);
+      const res = await fetch(`${server.url}/api/cases/${id}/notify-owner`);
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));
     }
-    return fetch(`${server.url}/api/cases/${id}/followup`);
+    return fetch(`${server.url}/api/cases/${id}/notify-owner`);
   }
 
-  it("passes prior emails to openai", async () => {
+  it("drafts owner email when contact exists", async () => {
     const id = await createCase();
-    const caseFile = path.join(tmpDir, "cases.json");
-    const list = JSON.parse(fs.readFileSync(caseFile, "utf8")) as Array<
-      Record<string, unknown>
-    >;
-    const c = list.find((n) => n.id === id);
-    c.sentEmails = [
-      {
-        subject: "orig",
-        body: "first message",
-        attachments: [],
-        sentAt: new Date().toISOString(),
-      },
-    ];
-    fs.writeFileSync(caseFile, JSON.stringify(list, null, 2));
-
-    const res = await fetchFollowup(id);
+    const res = await fetchNotification(id);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.email.subject).toBe("s");
-    const request = stub.requests.at(-1) as {
-      body: { messages: Array<{ content: string }> };
-    };
-    expect(request.body.messages[1].content).toContain("first message");
+    expect(data.contact).toBe("owner@example.com");
+    expect(Array.isArray(data.attachments)).toBe(true);
+    expect(stub.requests.length).toBeGreaterThanOrEqual(2);
   }, 30000);
 });
