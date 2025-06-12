@@ -43,9 +43,10 @@ export async function POST(
   if (!contact) {
     return NextResponse.json({ error: "No owner contact" }, { status: 400 });
   }
+  const to = contact;
   try {
     await sendEmail({
-      to: contact,
+      to,
       subject,
       body,
       attachments,
@@ -58,10 +59,12 @@ export async function POST(
     );
   }
   const updated = addCaseEmail(id, {
+    to,
     subject,
     body,
     attachments,
     sentAt: new Date().toISOString(),
+    replyTo: null,
   });
   return NextResponse.json(updated);
 }

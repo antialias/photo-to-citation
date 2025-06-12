@@ -108,7 +108,7 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
 
 export async function draftFollowUp(
   caseData: Case,
-  mod: ReportModule,
+  recipient: string,
 ): Promise<EmailDraft> {
   const history = (caseData.sentEmails ?? []).map((m) => ({
     role: "assistant",
@@ -126,7 +126,7 @@ export async function draftFollowUp(
     type: "object",
     properties: { subject: { type: "string" }, body: { type: "string" } },
   };
-  const prompt = `Write a brief follow-up email to ${mod.authorityName} about the previous report.
+  const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
 - Description: ${analysis?.details || ""}
