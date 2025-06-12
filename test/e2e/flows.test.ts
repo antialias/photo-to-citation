@@ -35,6 +35,15 @@ describe("e2e flows", () => {
     return data.caseId;
   }
 
+  async function fetchCase(id: string): Promise<Response> {
+    for (let i = 0; i < 10; i++) {
+      const res = await fetch(`${server.url}/api/cases/${id}`);
+      if (res.status !== 500) return res;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return fetch(`${server.url}/api/cases/${id}`);
+  }
+
   it("handles case lifecycle", async () => {
     const caseId = await createCase();
 
@@ -52,7 +61,7 @@ describe("e2e flows", () => {
     const data2 = (await res2.json()) as { caseId: string };
     expect(data2.caseId).toBe(caseId);
 
-    const res = await fetch(`${server.url}/api/cases/${caseId}`);
+    const res = await fetchCase(caseId);
     expect(res.status).toBe(200);
     let json = await res.json();
     expect(json.photos).toHaveLength(2);

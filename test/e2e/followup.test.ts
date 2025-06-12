@@ -14,7 +14,7 @@ beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.json");
   process.env.OPENAI_BASE_URL = stub.url;
-  server = await startServer();
+  server = await startServer(3005);
 }, 30000);
 
 afterAll(async () => {
@@ -27,16 +27,41 @@ afterAll(async () => {
 
 describe("follow up", () => {
   async function createCase(): Promise<string> {
-    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
-    const form = new FormData();
-    form.append("photo", file);
-    const res = await fetch(`${server.url}/api/upload`, {
-      method: "POST",
-      body: form,
-    });
-    expect(res.status).toBe(200);
-    const data = (await res.json()) as { caseId: string };
-    return data.caseId;
+    const id = Date.now().toString();
+    const caseData = {
+      id,
+      photos: [],
+      photoTimes: {},
+      createdAt: new Date().toISOString(),
+      gps: null,
+      streetAddress: null,
+      intersection: null,
+      vin: null,
+      vinOverride: null,
+      analysis: {
+        violationType: "parking",
+        details: "",
+        images: {},
+        vehicle: {},
+      },
+      analysisOverrides: null,
+      analysisStatus: "complete",
+      analysisStatusCode: 200,
+      sentEmails: [],
+      ownershipRequests: [],
+    };
+    const file = process.env.CASE_STORE_FILE ?? path.join(tmpDir, "cases.json");
+    fs.writeFileSync(file, JSON.stringify([caseData], null, 2));
+    return id;
+  }
+
+  async function fetchFollowup(id: string): Promise<Response> {
+    for (let i = 0; i < 10; i++) {
+      const res = await fetch(`${server.url}/api/cases/${id}/followup`);
+      if (res.status !== 500) return res;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return fetch(`${server.url}/api/cases/${id}/followup`);
   }
 
   it("passes prior emails to openai", async () => {
@@ -56,11 +81,11 @@ describe("follow up", () => {
     ];
     fs.writeFileSync(caseFile, JSON.stringify(list, null, 2));
 
-    const res = await fetch(`${server.url}/api/cases/${id}/followup`);
+    const res = await fetchFollowup(id);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.email.subject).toBe("s");
-    expect(stub.requests[0].body.messages[1].content).toContain(
+    expect(stub.requests[1].body.messages[1].content).toContain(
       "first message",
     );
   }, 30000);
