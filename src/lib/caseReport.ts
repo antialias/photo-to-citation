@@ -86,7 +86,7 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     const res = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
-      max_tokens: 300,
+      max_tokens: 800,
       response_format: { type: "json_object" },
     });
     const text = res.choices[0]?.message?.content ?? "{}";
@@ -149,7 +149,7 @@ Mention that photos are attached again. Respond with JSON matching this schema: 
     const res = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
-      max_tokens: 300,
+      max_tokens: 800,
       response_format: { type: "json_object" },
     });
     const text = res.choices[0]?.message?.content ?? "{}";
