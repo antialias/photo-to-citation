@@ -4,5 +4,5 @@ import { z } from "zod";
 export const reportModuleSchema = z.object({
   id: z.string(),
   authorityName: z.string(),
-  authorityEmail: z.string().email(),
+  authorityEmail: z.string(),
 });

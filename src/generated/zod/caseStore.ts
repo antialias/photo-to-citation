@@ -5,12 +5,12 @@ export const sentEmailSchema = z.object({
   subject: z.string(),
   body: z.string(),
   attachments: z.array(z.string()),
-  sentAt: z.coerce.date(),
+  sentAt: z.string(),
 });
 
 export const ownershipRequestSchema = z.object({
   moduleId: z.string(),
-  requestedAt: z.coerce.date(),
+  requestedAt: z.string(),
   checkNumber: z.string().optional().nullable(),
 });
 
@@ -20,7 +20,7 @@ export const caseSchema = z.object({
   id: z.string(),
   photos: z.array(z.string()),
   photoTimes: z.record(z.string().nullable()),
-  createdAt: z.coerce.date(),
+  createdAt: z.string(),
   gps: z
     .object({
       lat: z.number(),

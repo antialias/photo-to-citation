@@ -2,7 +2,7 @@
 import { z } from "zod";
 
 export const emailOptionsSchema = z.object({
-  to: z.string().email(),
+  to: z.string(),
   subject: z.string(),
   body: z.string(),
   attachments: z.array(z.string()).optional(),
