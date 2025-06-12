@@ -133,7 +133,7 @@ Include these details if available:
 - Description: ${analysis?.details || ""}
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
-Mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
+Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages = [
