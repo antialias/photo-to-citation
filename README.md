@@ -33,6 +33,16 @@ npm run format
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+## Generating Zod Schemas
+
+When interfaces in `src/lib` change, update the runtime schemas with:
+
+```bash
+npm run generate:schemas
+```
+
+The command uses `ts-to-zod` with `ts-to-zod.config.js` to write schemas under `src/generated/zod`.
+
 ## OpenAI Integration
 
 Create a `.env` file in the project root and add your API key:

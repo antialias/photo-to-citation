@@ -36,10 +36,6 @@ export const caseSchema = z.object({
   analysisOverrides: violationReportSchema.partial().optional().nullable(),
   analysisStatus: z.union([z.literal("pending"), z.literal("complete")]),
   analysisStatusCode: z.number().optional().nullable(),
-  analysisError: z
-    .union([z.literal("truncated"), z.literal("parse"), z.literal("schema")])
-    .optional()
-    .nullable(),
   sentEmails: z.array(sentEmailSchema).optional(),
   ownershipRequests: z.array(ownershipRequestSchema).optional(),
 });
