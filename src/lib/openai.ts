@@ -47,6 +47,8 @@ export const violationReportSchema = z.object({
         representationScore: z.number().min(0).max(1),
         highlights: z.string().optional(),
         violation: z.boolean().optional(),
+        paperwork: z.boolean().optional(),
+        paperworkText: z.string().optional(),
       }),
     )
     .default({}),
@@ -82,6 +84,8 @@ export async function analyzeViolation(
             representationScore: { type: "number" },
             highlights: { type: "string" },
             violation: { type: "boolean" },
+            paperwork: { type: "boolean" },
+            paperworkText: { type: "string" },
           },
         },
       },
@@ -101,7 +105,7 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Indicate with a boolean if each photo depicts a violation. Also provide a short description of the evidence each image adds. Use these filenames as keys: ${names.join(", ")}. Respond with JSON matching this schema: ${JSON.stringify(
+          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Indicate with a boolean if each photo depicts a violation. If an image is paperwork such as a letter or form, set a paperwork flag and transcribe all text from it. Also provide a short description of the evidence each image adds. Use these filenames as keys: ${names.join(", ")}. Respond with JSON matching this schema: ${JSON.stringify(
             schema,
           )}`,
         },

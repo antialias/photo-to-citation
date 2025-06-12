@@ -55,6 +55,12 @@ export async function draftEmail(
     type: "object",
     properties: { subject: { type: "string" }, body: { type: "string" } },
   };
+  const paperworkTexts = analysis?.images
+    ? Object.values(analysis.images)
+        .filter((i) => i.paperwork && i.paperworkText)
+        .map((i) => i.paperworkText)
+        .join("\n\n")
+    : "";
   const prompt = `Draft a short, professional email to ${mod.authorityName} reporting a vehicle violation.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
@@ -62,6 +68,7 @@ Include these details if available:
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
  - Time: ${new Date(time).toLocaleString()}
+${paperworkTexts ? `Attached paperwork:\n${paperworkTexts}` : ""}
 Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
