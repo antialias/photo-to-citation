@@ -24,6 +24,16 @@ export default function CaseToolbar({
           Actions
         </summary>
         <div className="absolute right-0 mt-1 bg-white border rounded shadow">
+          <button
+            type="button"
+            onClick={async () => {
+              await fetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" });
+              window.location.reload();
+            }}
+            className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+          >
+            Re-run Analysis
+          </button>
           <Link
             href={`/cases/${caseId}/compose`}
             className="block px-4 py-2 hover:bg-gray-100"

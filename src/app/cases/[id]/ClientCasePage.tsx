@@ -150,6 +150,11 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
+  async function reanalyzeCase() {
+    await fetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" });
+    await refreshCase();
+  }
+
   async function removePhoto(photo: string) {
     await fetch(`/api/cases/${caseId}/photos`, {
       method: "DELETE",
@@ -235,6 +240,14 @@ export default function ClientCasePage({
         <>
           <div className="order-first bg-gray-100 p-4 rounded flex flex-col gap-2 text-sm">
             {analysisBlock}
+            <button
+              type="button"
+              onClick={reanalyzeCase}
+              disabled={caseData.analysisStatus === "pending"}
+              className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50 self-start"
+            >
+              Re-run Analysis
+            </button>
             {ownerContact ? (
               <p>
                 <span className="font-semibold">Owner:</span> {ownerContact}
