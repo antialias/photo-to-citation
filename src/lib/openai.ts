@@ -119,7 +119,7 @@ export async function analyzeViolation(
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
-      max_tokens: 300,
+      max_tokens: 800,
       response_format: { type: "json_object" },
     });
     const text = response.choices[0]?.message?.content ?? "{}";
