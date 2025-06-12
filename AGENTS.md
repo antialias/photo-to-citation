@@ -17,6 +17,11 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - Terminate statements with semicolons.
 - Import Node.js builtin modules using the `node:` protocol (e.g. `import fs from "node:fs";`).
 
+## Dates and Times
+- Parse and store timestamps in UTC ISO format.
+- Avoid formatting dates on the server. Let the client format and display dates
+  using `toLocaleString` with the browser's locale.
+
 ## Next.js Dynamic APIs
 - Type `params` and `searchParams` as `Promise` objects and `await` them before using their properties.
 
