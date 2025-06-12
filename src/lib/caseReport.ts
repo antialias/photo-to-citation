@@ -67,7 +67,7 @@ Include these details if available:
 - Description: ${analysis?.details || ""}
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
- - Time: ${new Date(time).toLocaleString()}
+ - Time: ${new Date(time).toISOString()}
 ${paperworkTexts ? `Attached paperwork:\n${paperworkTexts}` : ""}
 Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
@@ -207,7 +207,7 @@ export async function draftOwnerNotification(
   };
   const authorityList =
     authorities.length > 0 ? authorities.join(", ") : "no authorities";
-  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. Mention that the following authorities have been contacted: ${authorityList}. Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toLocaleString()}\nMention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. Mention that the following authorities have been contacted: ${authorityList}. Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\nMention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages = [
