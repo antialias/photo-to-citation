@@ -111,6 +111,11 @@ export async function draftFollowUp(
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
 ): Promise<EmailDraft> {
+  console.log(
+    `draftFollowUp recipient=${recipient} history=${historyEmails
+      .map((m) => `${m.sentAt}:${m.subject}`)
+      .join("|")}`,
+  );
   const history = historyEmails.map((m) => ({
     role: "assistant",
     content: `Subject: ${m.subject}\n\n${m.body}`,
@@ -144,6 +149,8 @@ Ask about the current citation status and mention that photos are attached again
     ...history,
     { role: "user", content: prompt },
   ];
+
+  console.log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
 
   const messages = [...baseMessages];
   for (let attempt = 0; attempt < 3; attempt++) {
