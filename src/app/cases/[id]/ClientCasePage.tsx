@@ -172,6 +172,12 @@ export default function ClientCasePage({
   const violationIdentified =
     caseData.analysisStatus === "complete" && hasViolation(caseData.analysis);
 
+  const vinOverridden = caseData.vinOverride !== null;
+  const plateNumberOverridden =
+    caseData.analysisOverrides?.vehicle?.licensePlateNumber !== undefined;
+  const plateStateOverridden =
+    caseData.analysisOverrides?.vehicle?.licensePlateState !== undefined;
+
   return (
     <CaseLayout
       header={
@@ -300,7 +306,7 @@ export default function ClientCasePage({
             <EditableText
               value={vin}
               onSubmit={updateVinFn}
-              onClear={clearVin}
+              onClear={vinOverridden ? clearVin : undefined}
               placeholder="VIN"
             />
           </p>
@@ -313,8 +319,8 @@ export default function ClientCasePage({
             analysis={caseData.analysis}
             onPlateChange={updatePlateNumber}
             onStateChange={updatePlateStateFn}
-            onClearPlate={clearPlateNumber}
-            onClearState={clearPlateState}
+            onClearPlate={plateNumberOverridden ? clearPlateNumber : undefined}
+            onClearState={plateStateOverridden ? clearPlateState : undefined}
           />
           {caseData.analysisStatus === "pending" ? (
             <p className="text-sm text-gray-500">Updating analysis...</p>
