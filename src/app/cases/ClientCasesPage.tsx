@@ -16,8 +16,9 @@ export default function ClientCasesPage({
   const router = useRouter();
   const params = useParams<{ id?: string }>();
   const searchParams = useSearchParams();
-  const selectedIds = searchParams.get("ids")
-    ? searchParams.get("ids")?.split(",").filter(Boolean)
+  const idsParam = searchParams.get("ids");
+  const selectedIds = idsParam
+    ? idsParam.split(",").filter(Boolean)
     : params.id
       ? [params.id]
       : [];
