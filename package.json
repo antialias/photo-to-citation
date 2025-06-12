@@ -16,6 +16,8 @@
     "generate:schemas": "ts-to-zod --skipValidation --all"
   },
   "dependencies": {
+    "@biomejs/cli-linux-x64": "^1.9.4",
+    "@rollup/rollup-linux-x64-gnu": "^4.43.0",
     "bree": "^9.2.4",
     "dotenv": "^16.5.0",
     "exif-parser": "^0.1.12",
