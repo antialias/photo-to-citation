@@ -177,7 +177,11 @@ export function setCaseAnalysisOverrides(
   overrides: Partial<ViolationReport> | null,
 ): Case | undefined {
   const before = getCase(id);
-  const updated = updateCase(id, { analysisOverrides: overrides });
+  const updates: Partial<Case> = { analysisOverrides: overrides };
+  if (overrides && !before?.analysis) {
+    updates.analysisStatus = "complete";
+  }
+  const updated = updateCase(id, updates);
   if (updated) {
     const after = getCase(id);
     const beforePlate = before?.analysis?.vehicle?.licensePlateNumber ?? null;

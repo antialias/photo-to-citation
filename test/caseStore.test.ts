@@ -76,6 +76,7 @@ describe("caseStore", () => {
     setCaseAnalysisOverrides(c.id, { vehicle: { model: "Tesla" } });
     const updated = getCase(c.id);
     expect(updated?.analysis?.vehicle?.model).toBe("Tesla");
+    expect(updated?.analysisStatus).toBe("complete");
     setCaseAnalysisOverrides(c.id, null);
     const cleared = getCase(c.id);
     expect(cleared?.analysis?.vehicle?.model).toBeUndefined();
