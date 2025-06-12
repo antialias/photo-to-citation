@@ -20,3 +20,6 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 ## Commit Messages
 - Use short commit summaries starting with a type such as `feat:`, `fix:`, or `chore:` followed by a concise description.
 
+## Generated Files
+- Files under `src/generated` are created by scripts. **Never** edit them manually.
+
