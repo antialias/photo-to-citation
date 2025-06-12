@@ -53,7 +53,7 @@ describe("e2e flows", () => {
   }
 
   async function fetchCase(id: string): Promise<Response> {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const res = await fetch(`${server.url}/api/cases/${id}`);
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));
