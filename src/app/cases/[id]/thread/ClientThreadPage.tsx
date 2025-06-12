@@ -120,29 +120,29 @@ export default function ClientThreadPage({
           </li>
         ))}
         {images.map((img) => (
-          <li key={img.id} className="border p-2 rounded flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-              <Image
-                src={img.url}
-                alt="scan"
-                width={150}
-                height={100}
-                className="object-contain cursor-pointer"
-                onClick={() => setViewImage(img.url)}
-              />
+          <li key={img.id} className="border p-2 rounded flex gap-2">
+            <Image
+              src={img.url}
+              alt="scan"
+              width={150}
+              height={100}
+              className="object-contain cursor-pointer"
+              onClick={() => setViewImage(img.url)}
+            />
+            <div className="flex flex-col gap-2 flex-1">
+              <button
+                type="button"
+                onClick={() => attachEvidence(img.url)}
+                className="self-start bg-gray-200 px-2 py-1 rounded"
+              >
+                Add as Evidence
+              </button>
               {img.ocrText ? (
                 <pre className="whitespace-pre-wrap text-sm bg-gray-100 p-2 rounded">
                   {img.ocrText}
                 </pre>
               ) : null}
             </div>
-            <button
-              type="button"
-              onClick={() => attachEvidence(img.url)}
-              className="self-start bg-gray-200 px-2 py-1 rounded"
-            >
-              Add as Evidence
-            </button>
           </li>
         ))}
       </ul>
