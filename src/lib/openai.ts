@@ -40,7 +40,10 @@ export const paperworkInfoSchema = z.object({
   contact: z.string().optional(),
   vehicle: z
     .object({
-      vin: z.string().optional(),
+      vin: z
+        .string()
+        .regex(/^[A-HJ-NPR-Z0-9]{17}$/)
+        .optional(),
       registrationStatus: z.string().optional(),
       licensePlateState: licensePlateStateSchema.optional(),
       licensePlateNumber: licensePlateNumberSchema.optional(),
@@ -213,7 +216,7 @@ export async function extractPaperworkInfo(
       vehicle: {
         type: "object",
         properties: {
-          vin: { type: "string" },
+          vin: { type: "string", pattern: "^[A-HJ-NPR-Z0-9]{17}$" },
           registrationStatus: { type: "string" },
           licensePlateState: { type: "string" },
           licensePlateNumber: { type: "string" },
@@ -227,11 +230,11 @@ export async function extractPaperworkInfo(
     {
       role: "system",
       content:
-        "You extract structured vehicle information from text and reply in JSON strictly following the provided schema.",
+        "You extract structured vehicle information from text and reply in JSON strictly following the provided schema. A VIN is a 17-character string of digits and capital letters except I, O, and Q.",
     },
     {
       role: "user",
-      content: `Analyze the following text and extract the registered owner contact information, VIN, vehicle registration status, license plate details and any calls to action. Respond with JSON matching this schema: ${JSON.stringify(
+      content: `Analyze the following text and extract the registered owner contact information, the VIN, vehicle registration status, license plate details and any calls to action. Omit the VIN field if none is present. Respond with JSON matching this schema: ${JSON.stringify(
         schema,
       )}`,
     },
