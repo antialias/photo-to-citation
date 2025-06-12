@@ -23,6 +23,7 @@ export default function DraftEditor({
 }) {
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (initialDraft) {
@@ -32,20 +33,25 @@ export default function DraftEditor({
   }, [initialDraft]);
 
   async function sendEmail() {
-    const res = await fetch(`/api/cases/${caseId}/${action}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        subject,
-        body,
-        attachments,
-        ...(replyTo ? { replyTo } : {}),
-      }),
-    });
-    if (res.ok) {
-      alert("Email sent");
-    } else {
-      alert("Failed to send email");
+    setSending(true);
+    try {
+      const res = await fetch(`/api/cases/${caseId}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject,
+          body,
+          attachments,
+          ...(replyTo ? { replyTo } : {}),
+        }),
+      });
+      if (res.ok) {
+        alert("Email sent");
+      } else {
+        alert("Failed to send email");
+      }
+    } finally {
+      setSending(false);
     }
   }
 
@@ -95,9 +101,10 @@ export default function DraftEditor({
       <button
         type="button"
         onClick={sendEmail}
-        className="bg-blue-500 text-white px-2 py-1 rounded"
+        disabled={sending}
+        className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
-        Send Email
+        {sending ? "Sending..." : "Send Email"}
       </button>
     </div>
   );
