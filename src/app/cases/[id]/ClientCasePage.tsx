@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import type { Case } from "../../../lib/caseStore";
+import type { Case, SentEmail } from "../../../lib/caseStore";
 import {
   getCaseOwnerContact,
   getCasePlateNumber,
@@ -19,6 +19,26 @@ import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
+
+function buildThreads(c: Case): SentEmail[] {
+  const mails = c.sentEmails ?? [];
+  const threads = new Map<string, SentEmail>();
+  for (const mail of mails) {
+    let root = mail;
+    while (root.replyTo) {
+      const parent = mails.find((m) => m.sentAt === root.replyTo);
+      if (!parent) break;
+      root = parent;
+    }
+    const current = threads.get(root.sentAt);
+    if (!current || new Date(mail.sentAt) > new Date(current.sentAt)) {
+      threads.set(root.sentAt, mail);
+    }
+  }
+  return Array.from(threads.values()).sort(
+    (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
+  );
+}
 
 export default function ClientCasePage({
   initialCase,
@@ -419,7 +439,7 @@ export default function ClientCasePage({
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
             <h2 className="font-semibold">Email Log</h2>
             <ul className="flex flex-col gap-2 text-sm">
-              {caseData.sentEmails.map((mail) => (
+              {buildThreads(caseData).map((mail) => (
                 <li
                   key={mail.sentAt}
                   id={`email-${mail.sentAt}`}
@@ -434,14 +454,6 @@ export default function ClientCasePage({
                   <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
                     {mail.body}
                   </span>
-                  {mail.replyTo ? (
-                    <a
-                      href={`#email-${mail.replyTo}`}
-                      className="text-blue-500 underline self-start"
-                    >
-                      In reply to previous email
-                    </a>
-                  ) : null}
                   <a
                     href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
                     className="self-start text-blue-500 underline"
