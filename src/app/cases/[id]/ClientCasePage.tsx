@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Case } from "../../../lib/caseStore";
@@ -233,7 +234,12 @@ export default function ClientCasePage({
     <CaseLayout
       header={
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+          <div className="flex items-center gap-2">
+            <Link href="/cases" className="text-blue-500 underline md:hidden">
+              Back to Cases
+            </Link>
+            <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+          </div>
           <CaseToolbar
             caseId={caseId}
             disabled={!violationIdentified}
