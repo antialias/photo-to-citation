@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
+import twilio from "twilio";
 import {
   type MailingAddress,
   sendSnailMail as providerSendSnailMail,
@@ -40,7 +41,19 @@ export async function sendWhatsapp(to: string, message: string): Promise<void> {
 }
 
 export async function makeRobocall(to: string, message: string): Promise<void> {
-  console.log(`makeRobocall to=${to} message=${message}`);
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (!sid || !token || !from) {
+    console.warn("Twilio not configured");
+    return;
+  }
+  const client = twilio(sid, token);
+  await client.calls.create({
+    to,
+    from,
+    twiml: `<Response><Say>${message}</Say></Response>`,
+  });
 }
 
 export async function sendSnailMail(options: {
