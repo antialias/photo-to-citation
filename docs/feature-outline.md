@@ -81,6 +81,7 @@ fills the screen with two overlays:
 - **Take Picture** immediately snaps a photo and starts a new case.
 
 A small "Cases" link leads to the full case list if needed.
+Desktop users can access this page from the "Point & Shoot" link in the header.
 
 ## 4. Automatic Analysis
 

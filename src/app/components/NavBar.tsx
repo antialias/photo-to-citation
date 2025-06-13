@@ -43,6 +43,12 @@ export default function NavBar() {
           New Case from Image
         </button>
         <Link
+          href="/point"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          Point &amp; Shoot
+        </Link>
+        <Link
           href="/cases"
           className="hover:text-gray-600 dark:hover:text-gray-300"
         >

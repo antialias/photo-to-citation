@@ -18,6 +18,7 @@ export default function PointAndShootPage() {
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          await videoRef.current.play().catch(() => {});
         }
       } catch (err) {
         console.error("Could not access camera", err);
@@ -58,6 +59,7 @@ export default function PointAndShootPage() {
       <video
         ref={videoRef}
         autoPlay
+        muted
         playsInline
         className="w-full h-full object-cover"
       >
