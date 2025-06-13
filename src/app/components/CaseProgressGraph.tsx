@@ -8,7 +8,7 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
@@ -71,6 +71,15 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   const firstPending = steps.findIndex((s) => !status[s.id]);
 
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDark(mql.matches);
+    const listener = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mql.addEventListener("change", listener);
+    return () => mql.removeEventListener("change", listener);
+  }, []);
+
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
     const edgesList: Array<[string, string, boolean]> = noviolation
@@ -123,13 +132,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       pendingFill: "#1F2937",
       pendingStroke: "#9CA3AF",
     };
-    const isDark =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
     const c = isDark ? dark : light;
-    const edgeStyle = `linkStyle default stroke:${c.pendingStroke},stroke-width:2px;`;
+    const edgeStyle = `linkStyle default fill:none,stroke:${c.pendingStroke},stroke-width:2px;`;
     return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
-  }, [status, firstPending, noviolation, steps]);
+  }, [status, firstPending, noviolation, steps, isDark]);
 
   return (
     <div className="max-w-full overflow-x-auto">
