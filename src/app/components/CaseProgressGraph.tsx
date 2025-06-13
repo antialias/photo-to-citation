@@ -143,11 +143,34 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const notifyLink = firstEmail
       ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
       : null;
+    const clean = (t: string) => t.replace(/"/g, "'");
+    const uploadedAt = caseData.photoTimes[caseData.photos[0]] ?? null;
+    const uploadedTip = uploadedAt
+      ? `Photo taken ${new Date(uploadedAt).toLocaleString()}`
+      : "View uploaded photo";
+    const plateTipParts = [] as string[];
+    const plateNum = getCasePlateNumber(caseData);
+    const plateState = getCasePlateState(caseData);
+    if (plateNum) plateTipParts.push(`Plate: ${plateNum}`);
+    if (plateState) plateTipParts.push(`State: ${plateState}`);
+    if (platePhoto) plateTipParts.push("View plate photo");
+    const plateTip = plateTipParts.join(" \u2013 ");
+    const ownerContact = getCaseOwnerContact(caseData);
+    const ownerTip = ownerContact
+      ? `Owner info: ${ownerContact.slice(0, 40)}${
+          ownerContact.length > 40 ? "…" : ""
+        }`
+      : "View paperwork";
+    const notifyTip = firstEmail
+      ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
+      : "View notification email";
     const links = [
-      caseData.photos[0] ? `click uploaded "${caseData.photos[0]}"` : null,
-      platePhoto ? `click plate "${platePhoto}"` : null,
-      ownerLink ? `click own "${ownerLink}"` : null,
-      notifyLink ? `click notify "${notifyLink}"` : null,
+      caseData.photos[0]
+        ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
+        : null,
+      platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
+      ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
+      notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
     ]
       .filter(Boolean)
       .join("\n");
