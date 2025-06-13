@@ -278,3 +278,15 @@ The compose file sets `platform: \"linux/amd64\"` so builds use an architecture
 with prebuilt Node.js binaries.
 
 Traefik will serve the application at `https://730op.synology.me/photo-citation` using the labels defined in `docker-compose.yml`.
+
+## Marketing Website
+
+This repo includes a simple [Eleventy](https://www.11ty.dev/) setup under the `website` directory for the marketing site. Pages are written in Markdown and compiled to static HTML.
+
+Build the site with:
+
+```bash
+npm run website
+```
+
+The output is written to `website/dist`.
