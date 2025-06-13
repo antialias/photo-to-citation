@@ -4,15 +4,16 @@ import ClientCasesPage from "./ClientCasesPage";
 
 export const dynamic = "force-dynamic";
 
-export default function CasesLayout({
+export default async function CasesLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { id?: string };
+  params: Promise<{ id?: string }>;
 }) {
+  const { id } = await params;
   const cases = getCases();
-  const hasCase = Boolean(params.id);
+  const hasCase = Boolean(id);
   return (
     <div className="md:grid md:grid-cols-[20%_80%] h-[calc(100vh-4rem)]">
       <div
