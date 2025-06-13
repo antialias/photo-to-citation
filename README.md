@@ -167,6 +167,43 @@ manually enabling or disabling modules.
 3. Visit `/settings` to verify the module appears and enable or disable it as
    desired.
 
+## Citation Status Modules
+
+Citation status modules query a county court system to track the progress of a
+citation. They live in `src/lib/citationStatusModules.ts` and share this
+interface:
+
+```ts
+export interface CitationStatusModule {
+  id: string;
+  lookupCitationStatus: (
+    state: string,
+    county: string,
+    citation: string,
+  ) => Promise<{
+    citation: string;
+    status: string;
+    updatedAt: string;
+  } | null>;
+}
+
+export const citationStatusModules: Record<string, CitationStatusModule> = {
+  mock: {
+    id: "mock",
+    async lookupCitationStatus(state, county, citation) {
+      return {
+        citation,
+        status: `Citation ${citation} for ${county} County, ${state} is pending`,
+        updatedAt: new Date().toISOString(),
+      };
+    },
+  },
+};
+```
+
+Add new modules to this record and run `npm run generate:schemas` to update the
+runtime schema.
+
 ## Docker
 
 To run the app in containers, install Docker and Docker Compose then build the stack:
