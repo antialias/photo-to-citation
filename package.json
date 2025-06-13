@@ -29,6 +29,7 @@
     "next": "15.3.3",
     "nodemailer": "^7.0.3",
     "openai": "^5.2.0",
+    "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^4.12.0",

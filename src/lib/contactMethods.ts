@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import {
   type MailingAddress,
   sendSnailMail as providerSendSnailMail,
@@ -59,8 +60,23 @@ export async function sendSnailMail(options: {
   const from = parseAddress(returnAddr);
   const dir = path.join(process.cwd(), "data", "snailmail_tmp");
   fs.mkdirSync(dir, { recursive: true });
-  const filePath = path.join(dir, `${crypto.randomUUID()}.txt`);
-  fs.writeFileSync(filePath, `${options.subject}\n\n${options.body}`);
+  const filePath = path.join(dir, `${crypto.randomUUID()}.pdf`);
+  const pdf = await PDFDocument.create();
+  let page = pdf.addPage();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const { height } = page.getSize();
+  const fontSize = 12;
+  let y = height - 50;
+  const lines = `${options.subject}\n\n${options.body}`.split(/\n/);
+  for (const line of lines) {
+    if (y < 50) {
+      page = pdf.addPage();
+      y = height - 50;
+    }
+    page.drawText(line, { x: 50, y, size: fontSize, font });
+    y -= fontSize * 1.2;
+  }
+  fs.writeFileSync(filePath, await pdf.save());
   await providerSendSnailMail(provider, {
     to,
     from,
