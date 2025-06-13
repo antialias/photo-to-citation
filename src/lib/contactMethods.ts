@@ -4,6 +4,33 @@ export interface OwnerContactInfo {
   address?: string;
 }
 
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import dotenv from "dotenv";
+import {
+  type MailingAddress,
+  sendSnailMail as providerSendSnailMail,
+} from "./snailMail";
+
+dotenv.config();
+
+function parseAddress(text: string): MailingAddress {
+  const lines = text.trim().split(/\n+/);
+  let name: string | undefined;
+  if (lines.length > 3) {
+    name = lines.shift();
+  }
+  const address1 = lines.shift() || "";
+  const possibleCity = lines.pop() || "";
+  const address2 = lines.length > 0 ? lines.shift() : undefined;
+  const m = possibleCity.match(/^(.*),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)/);
+  const city = m ? m[1] : "";
+  const state = m ? m[2] : "";
+  const postalCode = m ? m[3] : "";
+  return { name, address1, address2, city, state, postalCode };
+}
+
 export async function sendSms(to: string, message: string): Promise<void> {
   console.log(`sendSms to=${to} message=${message}`);
 }
@@ -22,5 +49,22 @@ export async function sendSnailMail(options: {
   body: string;
   attachments: string[];
 }): Promise<void> {
-  console.log(`sendSnailMail to=${options.address} subject=${options.subject}`);
+  const provider = process.env.SNAIL_MAIL_PROVIDER || "mock";
+  const returnAddr = process.env.RETURN_ADDRESS;
+  if (!returnAddr) {
+    console.warn("RETURN_ADDRESS not configured");
+    return;
+  }
+  const to = parseAddress(options.address);
+  const from = parseAddress(returnAddr);
+  const dir = path.join(process.cwd(), "data", "snailmail_tmp");
+  fs.mkdirSync(dir, { recursive: true });
+  const filePath = path.join(dir, `${crypto.randomUUID()}.txt`);
+  fs.writeFileSync(filePath, `${options.subject}\n\n${options.body}`);
+  await providerSendSnailMail(provider, {
+    to,
+    from,
+    subject: options.subject,
+    contents: filePath,
+  });
 }

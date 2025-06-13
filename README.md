@@ -126,6 +126,8 @@ DOCSMIT_PASSWORD=secret
 DOCSMIT_SOFTWARE_ID=uuid
 # optional override for testing
 DOCSMIT_BASE_URL=https://secure.tracksmit.com/api/v1
+RETURN_ADDRESS="Your Name\n1 Main St\nCity, ST 12345"
+SNAIL_MAIL_PROVIDER=docsmit
 ```
 
 All sent mail is logged to `data/snailMail.json` or the file specified by
