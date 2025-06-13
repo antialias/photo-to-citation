@@ -12,6 +12,7 @@ interface DraftData {
     phone?: string;
     address?: string;
   };
+  violationAddress?: string | null;
   availableMethods: string[];
 }
 
@@ -48,6 +49,7 @@ export default function NotifyOwnerModal({
                 initialDraft={data.email}
                 attachments={data.attachments}
                 contactInfo={data.contactInfo}
+                violationAddress={data.violationAddress ?? undefined}
                 availableMethods={data.availableMethods}
               />
             ) : (
