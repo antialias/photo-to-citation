@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
 import OpenAI from "openai";
 import { z } from "zod";
 import "./zod-setup";
-
-dotenv.config();
+import { getLlm } from "./llm";
 
 export class AnalysisError extends Error {
   kind: "truncated" | "parse" | "schema" | "images";
@@ -26,12 +24,6 @@ function logBadResponse(
   };
   console.warn(JSON.stringify(entry));
 }
-
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "",
-  baseURL: process.env.OPENAI_BASE_URL,
-  dangerouslyAllowBrowser: true,
-});
 
 const licensePlateStateSchema = z.string().regex(/^[A-Z]{2}$/);
 const licensePlateNumberSchema = z.string();
@@ -155,9 +147,10 @@ export async function analyzeViolation(
   ];
 
   const messages = [...baseMessages];
+  const { client, model } = getLlm("analyze_images");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const response = await client.chat.completions.create({
+      model,
       messages,
       max_tokens: 800,
       response_format: { type: "json_object" },
@@ -242,9 +235,10 @@ export async function extractPaperworkInfo(
   ];
 
   const messages = [...baseMessages];
+  const { client, model } = getLlm("extract_info");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const res = await client.chat.completions.create({
+      model,
       messages,
       max_tokens: 400,
       response_format: { type: "json_object" },
@@ -285,9 +279,10 @@ export async function ocrPaperwork(image: {
   ];
 
   const messages = [...baseMessages];
+  const { client, model } = getLlm("ocr_paperwork");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const res = await client.chat.completions.create({
+      model,
       messages,
       max_tokens: 800,
     });

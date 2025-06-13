@@ -1,14 +1,17 @@
 import type { ChatCompletion } from "openai/resources/chat/completions";
 import { describe, expect, it, vi } from "vitest";
-import { extractPaperworkInfo, ocrPaperwork, openai } from "../openai";
+import { getLlm } from "../llm";
+import { extractPaperworkInfo, ocrPaperwork } from "../openai";
 
 describe("openai client", () => {
-  it("exports a client instance", () => {
-    expect(openai).toBeDefined();
+  it("provides a client instance", () => {
+    const { client } = getLlm("ocr_paperwork");
+    expect(client).toBeDefined();
   });
 
   it("ocrPaperwork returns text and info", async () => {
-    vi.spyOn(openai.chat.completions, "create")
+    const { client } = getLlm("ocr_paperwork");
+    vi.spyOn(client.chat.completions, "create")
       .mockResolvedValueOnce({
         choices: [{ message: { content: "hello" } }],
       } as unknown as ChatCompletion)

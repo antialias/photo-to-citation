@@ -2,7 +2,7 @@ import path from "node:path";
 import { z } from "zod";
 import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
-import { openai } from "./openai";
+import { getLlm } from "./llm";
 import type { ReportModule } from "./reportModules";
 
 function logBadResponse(
@@ -82,9 +82,10 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
   ];
 
   const messages = [...baseMessages];
+  const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const res = await client.chat.completions.create({
+      model,
       messages,
       max_tokens: 800,
       response_format: { type: "json_object" },
@@ -153,9 +154,10 @@ Ask about the current citation status and mention that photos are attached again
   console.log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
 
   const messages = [...baseMessages];
+  const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const res = await client.chat.completions.create({
+      model,
       messages,
       max_tokens: 800,
       response_format: { type: "json_object" },
@@ -219,9 +221,10 @@ export async function draftOwnerNotification(
     { role: "user", content: prompt },
   ];
   const messages = [...baseMessages];
+  const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const res = await client.chat.completions.create({
+      model,
       messages,
       max_tokens: 800,
       response_format: { type: "json_object" },

@@ -1,6 +1,7 @@
 import type { ChatCompletion } from "openai/resources/chat/completions";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { analyzeViolation, openai } from "../openai";
+import { getLlm } from "../llm";
+import { analyzeViolation } from "../openai";
 
 const imgs = [{ url: "data:image/png;base64,AA", filename: "foo.png" }];
 
@@ -15,7 +16,8 @@ describe("analyzeViolation", () => {
     });
   });
   it("classifies cut off responses", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValue({
+    const { client } = getLlm("analyze_images");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValue({
       choices: [{ message: { content: "{" }, finish_reason: "length" }],
     } as unknown as ChatCompletion);
 
@@ -25,7 +27,8 @@ describe("analyzeViolation", () => {
   });
 
   it("classifies parse failures", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValue({
+    const { client } = getLlm("analyze_images");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValue({
       choices: [{ message: { content: "oops" }, finish_reason: "stop" }],
     } as unknown as ChatCompletion);
 
@@ -35,7 +38,8 @@ describe("analyzeViolation", () => {
   });
 
   it("classifies schema mismatches", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValue({
+    const { client } = getLlm("analyze_images");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValue({
       choices: [{ message: { content: "{}" }, finish_reason: "stop" }],
     } as unknown as ChatCompletion);
 

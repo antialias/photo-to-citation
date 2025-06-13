@@ -51,13 +51,17 @@ Copy `.env.example` to `.env` and add your API key:
 OPENAI_API_KEY=your-key
 ```
 
-The helper in `src/lib/openai.ts` uses this key to analyze uploaded violation
-photos with OpenAI's vision model. It sends the image to the model and requests
+The helpers in `src/lib/openai.ts` use this key by default through the
+configuration defined in `src/lib/llm.ts`. They send images to the model and request
 a JSON response describing the violation. The response is validated with Zod to
 ensure it matches the expected schema. If validation fails, the helper retries
 the request, providing the previous response and error to guide the model. The
 JSON schema includes the violation type, location clues, and vehicle details
 such as make, model, color and license plate information.
+
+`src/lib/llm.ts` also allows selecting different providers and models for
+features like drafting emails or OCR. Set environment variables such as
+`LLM_DRAFT_EMAIL_MODEL` or `LLM_OCR_PAPERWORK_PROVIDER` to override the defaults.
 
 `ocrPaperwork` uses the same client to transcribe public paperwork images. It
 returns the full transcription exactly as it appears. After generating this raw
