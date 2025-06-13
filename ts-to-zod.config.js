@@ -48,4 +48,11 @@ module.exports = [
     skipValidation: true,
     jsDoc: "extended",
   },
+  {
+    name: "snailMail",
+    input: "src/lib/snailMail.ts",
+    output: "src/generated/zod/snailMail.ts",
+    skipValidation: true,
+    jsDoc: "extended",
+  },
 ];
