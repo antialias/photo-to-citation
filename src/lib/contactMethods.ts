@@ -7,7 +7,6 @@ export interface OwnerContactInfo {
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-
 import dotenv from "dotenv";
 import twilio from "twilio";
 
