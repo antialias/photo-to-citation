@@ -72,6 +72,16 @@ hold many photos. Upload them all at once or return later to attach new images.
 The analysis process will run on every photo and merge the results into a single
 report.
 
+### 3.4 Mobile Point-and-Shoot
+
+Open `/point` on a phone to launch a streamlined camera page. The camera view
+fills the screen with two overlays:
+
+- **Upload Picture** prompts for one or more images from the device.
+- **Take Picture** immediately snaps a photo and starts a new case.
+
+A small "Cases" link leads to the full case list if needed.
+
 ## 4. Automatic Analysis
 
 Every uploaded photo is processed by a language model workflow that classifies

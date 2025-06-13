@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef } from "react";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
 
 export default function NavBar() {
+  const pathname = usePathname();
   const uploadCase = useNewCaseFromFiles();
   const inputRef = useRef<HTMLInputElement>(null);
+  if (pathname.startsWith("/point")) {
+    return (
+      <nav className="p-2 flex justify-end bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <Link href="/cases" className="text-sm underline">
+          Cases
+        </Link>
+      </nav>
+    );
+  }
   return (
     <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <Link
