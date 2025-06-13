@@ -7,7 +7,12 @@ import NotifyOwnerEditor from "./NotifyOwnerEditor";
 interface DraftData {
   email: EmailDraft;
   attachments: string[];
-  contact: string;
+  contactInfo: {
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  availableMethods: string[];
 }
 
 export default function NotifyOwnerModal({
@@ -42,7 +47,8 @@ export default function NotifyOwnerModal({
                 caseId={caseId}
                 initialDraft={data.email}
                 attachments={data.attachments}
-                contact={data.contact}
+                contactInfo={data.contactInfo}
+                availableMethods={data.availableMethods}
               />
             ) : (
               <div className="p-8">

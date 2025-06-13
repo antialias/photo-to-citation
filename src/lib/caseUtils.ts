@@ -82,3 +82,34 @@ export function getCaseOwnerContact(caseData: Case): string | null {
   }
   return null;
 }
+
+export interface OwnerContactInfo {
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+function parseContactInfo(text: string): OwnerContactInfo {
+  const emailMatch = text.match(
+    /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/,
+  );
+  const phoneMatch = text.match(/\+?\d[\d\s().-]{7,}\d/);
+  const lines = text.trim().split(/\n+/);
+  let address: string | undefined;
+  if (lines.length > 1) {
+    address = text.trim();
+  }
+  return {
+    email: emailMatch ? emailMatch[0] : undefined,
+    phone: phoneMatch ? phoneMatch[0] : undefined,
+    address,
+  };
+}
+
+export function getCaseOwnerContactInfo(
+  caseData: Case,
+): OwnerContactInfo | null {
+  const contact = getCaseOwnerContact(caseData);
+  if (!contact) return null;
+  return parseContactInfo(contact);
+}
