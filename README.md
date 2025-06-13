@@ -121,8 +121,12 @@ recipient.
 
 ## Snail Mail Provider
 
-Snail mail messages are sent through [Docsmit](https://docs.docsmit.com). Set
-these variables in `.env` to enable it:
+Snail mail messages are first converted to a PDF and then handed off to a
+provider. The default provider is `mock`, which performs no action. You can save
+the PDFs locally by using the `file` provider or send them through
+[Docsmit](https://docs.docsmit.com).
+
+Set these variables in `.env` to enable the Docsmit provider:
 
 ```bash
 DOCSMIT_EMAIL=you@example.com
@@ -132,6 +136,8 @@ DOCSMIT_SOFTWARE_ID=uuid
 DOCSMIT_BASE_URL=https://secure.tracksmit.com/api/v1
 RETURN_ADDRESS="Your Name\n1 Main St\nCity, ST 12345"
 SNAIL_MAIL_PROVIDER=docsmit
+# for the file provider
+SNAIL_MAIL_OUT_DIR=data/snailmail_out
 ```
 
 All sent mail is logged to `data/snailMail.json` or the file specified by

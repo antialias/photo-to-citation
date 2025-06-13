@@ -1,4 +1,5 @@
 import docsmitProvider from "./docsmitProvider";
+import fileProvider from "./fileSnailMailProvider";
 import { runJob } from "./jobScheduler";
 import "./zod-setup";
 
@@ -57,6 +58,7 @@ export const snailMailProviders: Record<string, SnailMailProvider> = {
     },
   },
   docsmit: docsmitProvider,
+  file: fileProvider,
 };
 
 export async function sendSnailMail(
