@@ -55,8 +55,9 @@ location details, and the status of any citation requests.
 ### 3.1 Creating a Case
 
 Upload a photo from your phone or drag files onto the web page to start a new
-case. The system reads EXIF data to capture GPS coordinates and prompts you for
-any missing information.
+case. Dragging files onto an existing case tile will append them to that case,
+while dropping on empty space creates a new case. The system reads EXIF data to
+capture GPS coordinates and prompts you for any missing information.
 
 ### 3.2 Viewing and Updating
 
