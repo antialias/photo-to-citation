@@ -45,7 +45,7 @@ The command uses `ts-to-zod` with `ts-to-zod.config.js` to write schemas under `
 
 ## OpenAI Integration
 
-Create a `.env` file in the project root and add your API key:
+Copy `.env.example` to `.env` and add your API key:
 
 ```bash
 OPENAI_API_KEY=your-key
@@ -114,6 +114,22 @@ MOCK_EMAIL_TO=test@example.com
 If `MOCK_EMAIL_TO` is set, all outgoing email will be directed there instead of
 the authority's address. Omit the variable in production to send to the real
 recipient.
+
+## Snail Mail Provider
+
+Snail mail messages are sent through [Docsmit](https://docs.docsmit.com). Set
+these variables in `.env` to enable it:
+
+```bash
+DOCSMIT_EMAIL=you@example.com
+DOCSMIT_PASSWORD=secret
+DOCSMIT_SOFTWARE_ID=uuid
+# optional override for testing
+DOCSMIT_BASE_URL=https://secure.tracksmit.com/api/v1
+```
+
+All sent mail is logged to `data/snailMail.json` or the file specified by
+`SNAIL_MAIL_FILE`. Run `npm run poll:snailmail` to invoke provider polling.
 
 ## Folder Structure
 

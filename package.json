@@ -11,6 +11,7 @@
     "test": "vitest run",
     "e2e": "vitest run -c vitest.e2e.config.ts",
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
+    "poll:snailmail": "ts-node --transpile-only scripts/pollSnailMail.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate:schemas": "ts-to-zod --skipValidation --all"

@@ -14,9 +14,10 @@ const opts = {
 
 describe("sendSnailMail", () => {
   it("uses the specified provider", async () => {
-    const fn = vi.fn();
-    snailMailProviders.mock.send = fn;
-    await sendSnailMail("mock", opts);
+    const fn = vi.fn().mockResolvedValue({ id: "1", status: "queued" });
+    snailMailProviders.mock.send = fn as typeof snailMailProviders.mock.send;
+    const result = await sendSnailMail("mock", opts);
     expect(fn).toHaveBeenCalledWith(opts, undefined);
+    expect(result.id).toBe("1");
   });
 });
