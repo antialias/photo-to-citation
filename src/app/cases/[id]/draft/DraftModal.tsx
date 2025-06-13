@@ -41,7 +41,7 @@ export default function DraftModal({
           className={`fixed inset-0 flex p-4 z-50 ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
         >
           <div
-            className={`bg-white rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
+            className={`bg-white dark:bg-gray-900 rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
           >
             {data ? (
               <DraftEditor
@@ -60,12 +60,15 @@ export default function DraftModal({
               <button
                 type="button"
                 onClick={() => setFullScreen(!fullScreen)}
-                className="bg-gray-200 px-2 py-1 rounded"
+                className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
               >
                 {fullScreen ? "Exit Full Screen" : "Full Screen"}
               </button>
               <Dialog.Close asChild>
-                <button type="button" className="bg-gray-200 px-2 py-1 rounded">
+                <button
+                  type="button"
+                  className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                >
                   Close
                 </button>
               </Dialog.Close>

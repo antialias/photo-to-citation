@@ -41,7 +41,7 @@ export default function NotifyOwnerModal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
         <Dialog.Content className="fixed inset-0 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded shadow max-w-xl w-full">
+          <div className="bg-white dark:bg-gray-900 rounded shadow max-w-xl w-full">
             {data ? (
               <NotifyOwnerEditor
                 caseId={caseId}
@@ -57,7 +57,10 @@ export default function NotifyOwnerModal({
             )}
             <div className="flex justify-end p-4">
               <Dialog.Close asChild>
-                <button type="button" className="bg-gray-200 px-2 py-1 rounded">
+                <button
+                  type="button"
+                  className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                >
                   Close
                 </button>
               </Dialog.Close>

@@ -38,7 +38,9 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
       />
       <div className="p-8 flex flex-col gap-2">
         <h1 className="text-xl font-semibold">Case Summary</h1>
-        <p className="text-sm text-gray-500">{cases.length} cases selected.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {cases.length} cases selected.
+        </p>
         {violation ? <p>Violation: {violation}</p> : null}
         {plateNum || plateState ? (
           <p>
