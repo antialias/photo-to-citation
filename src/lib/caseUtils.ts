@@ -1,4 +1,7 @@
-import path from "node:path";
+function basename(filePath: string): string {
+  const parts = filePath.split(/[\\/]/);
+  return parts[parts.length - 1];
+}
 import type { Case } from "./caseStore";
 import type { ViolationReport } from "./openai";
 
@@ -12,7 +15,7 @@ export function getRepresentativePhoto(
     const best = entries[0];
     if (best) {
       const name = best[0];
-      const file = caseData.photos.find((p) => path.basename(p) === name);
+      const file = caseData.photos.find((p) => basename(p) === name);
       if (file) return file;
     }
   }
