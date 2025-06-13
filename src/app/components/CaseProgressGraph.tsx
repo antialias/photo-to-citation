@@ -116,6 +116,41 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         return `class ${s.id} ${cls}`;
       })
       .join("\n");
+    const platePhoto = (() => {
+      const plate = getCasePlateNumber(caseData);
+      if (!plate || !caseData.analysis?.images)
+        return caseData.photos[0] ?? null;
+      for (const [name, info] of Object.entries(caseData.analysis.images)) {
+        if (
+          info.paperworkInfo?.vehicle?.licensePlateNumber === plate ||
+          info.highlights?.toLowerCase().includes("plate")
+        ) {
+          const file = caseData.photos.find((p) => p.split("/").pop() === name);
+          if (file) return file;
+        }
+      }
+      return caseData.photos[0] ?? null;
+    })();
+    const ownerDoc = (caseData.threadImages ?? []).find(
+      (i) => i.ocrInfo?.contact,
+    );
+    const ownerLink = ownerDoc
+      ? ownerDoc.threadParent
+        ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
+        : ownerDoc.url
+      : null;
+    const firstEmail = caseData.sentEmails?.[0];
+    const notifyLink = firstEmail
+      ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
+      : null;
+    const links = [
+      caseData.photos[0] ? `click uploaded "${caseData.photos[0]}"` : null,
+      platePhoto ? `click plate "${platePhoto}"` : null,
+      ownerLink ? `click own "${ownerLink}"` : null,
+      notifyLink ? `click notify "${notifyLink}"` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
     const light = {
       completedFill: "#D1FAE5",
       completedStroke: "#047857",
@@ -134,8 +169,8 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     };
     const c = isDark ? dark : light;
     const edgeStyle = `linkStyle default fill:none,stroke:${c.pendingStroke},stroke-width:2px;`;
-    return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
-  }, [status, firstPending, noviolation, steps, isDark]);
+    return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
+  }, [status, firstPending, noviolation, steps, isDark, caseData]);
 
   return (
     <div className="max-w-full overflow-x-auto">
