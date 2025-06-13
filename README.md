@@ -131,6 +131,10 @@ DOCSMIT_BASE_URL=https://secure.tracksmit.com/api/v1
 All sent mail is logged to `data/snailMail.json` or the file specified by
 `SNAIL_MAIL_FILE`. Run `npm run poll:snailmail` to invoke provider polling.
 
+Snail mail provider health is stored in `data/snailMailProviders.json` (overridable
+via `SNAIL_MAIL_PROVIDER_FILE`). The active provider and failure counts can be
+viewed on the Settings page.
+
 ## Folder Structure
 
 ```text

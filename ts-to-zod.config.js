@@ -56,6 +56,13 @@ module.exports = [
     jsDoc: "extended",
   },
   {
+    name: "snailMailProviders",
+    input: "src/lib/snailMailProviders.ts",
+    output: "src/generated/zod/snailMailProviders.ts",
+    skipValidation: true,
+    jsDoc: "extended",
+  },
+  {
     name: "citationStatusModules",
     input: "src/lib/citationStatusModules.ts",
     output: "src/generated/zod/citationStatusModules.ts",
