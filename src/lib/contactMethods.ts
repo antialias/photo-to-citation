@@ -102,10 +102,29 @@ export async function sendSnailMail(options: {
   const pdf = await PDFDocument.create();
   let page = pdf.addPage();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const { height } = page.getSize();
+  const { width, height } = page.getSize();
   const fontSize = 12;
   let y = height - 50;
-  const lines = `${options.subject}\n\n${options.body}`.split(/\n/);
+  const maxWidth = width - 100;
+  const wrap = (text: string) => {
+    const words = text.split(/\s+/);
+    let cur = "";
+    const result: string[] = [];
+    for (const word of words) {
+      const next = cur ? `${cur} ${word}` : word;
+      if (font.widthOfTextAtSize(next, fontSize) > maxWidth && cur) {
+        result.push(cur);
+        cur = word;
+      } else {
+        cur = next;
+      }
+    }
+    if (cur) result.push(cur);
+    return result;
+  };
+  const lines = `${options.subject}\n\n${options.body}`
+    .split(/\n/)
+    .flatMap((l) => wrap(l));
   for (const line of lines) {
     if (y < 50) {
       page = pdf.addPage();
