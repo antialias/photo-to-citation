@@ -1,3 +1,4 @@
+import docsmitProvider from "./docsmitProvider";
 import { runJob } from "./jobScheduler";
 import "./zod-setup";
 
@@ -18,6 +19,13 @@ export interface SnailMailOptions {
   contents: string;
 }
 
+export interface SnailMailStatus {
+  id: string;
+  status: string;
+  trackingId?: string;
+  shortfall?: number;
+}
+
 export interface SnailMailProvider {
   id: string;
   label: string;
@@ -26,7 +34,13 @@ export interface SnailMailProvider {
   send: (
     opts: SnailMailOptions,
     config?: Record<string, unknown>,
-  ) => Promise<void>;
+  ) => Promise<SnailMailStatus>;
+  getStatus?: (
+    id: string,
+    config?: Record<string, unknown>,
+  ) => Promise<SnailMailStatus | null>;
+  poll?: (config?: Record<string, unknown>) => Promise<void>;
+  webhooks?: Record<string, (payload: unknown) => Promise<void>>;
 }
 
 export const snailMailProviders: Record<string, SnailMailProvider> = {
@@ -36,18 +50,23 @@ export const snailMailProviders: Record<string, SnailMailProvider> = {
     docs: "A no-op provider used during development.",
     async send(opts) {
       console.log("mock snail mail", opts);
+      return {
+        id: `mock-${Date.now()}`,
+        status: "queued",
+      };
     },
   },
+  docsmit: docsmitProvider,
 };
 
 export async function sendSnailMail(
   providerId: string,
   opts: SnailMailOptions,
   config?: Record<string, unknown>,
-): Promise<void> {
+): Promise<SnailMailStatus> {
   const provider = snailMailProviders[providerId];
   if (!provider) throw new Error(`Unknown provider ${providerId}`);
-  await provider.send(opts, config);
+  return provider.send(opts, config);
 }
 
 export function sendSnailMailInBackground(
@@ -56,4 +75,12 @@ export function sendSnailMailInBackground(
   config?: Record<string, unknown>,
 ): void {
   runJob("sendSnailMail", { providerId, opts, config });
+}
+
+export async function pollAllProviders(): Promise<void> {
+  for (const provider of Object.values(snailMailProviders)) {
+    if (provider.poll) {
+      await provider.poll();
+    }
+  }
 }

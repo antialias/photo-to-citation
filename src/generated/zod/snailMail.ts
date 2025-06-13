@@ -17,6 +17,13 @@ export const snailMailOptionsSchema = z.object({
   contents: z.string(),
 });
 
+export const snailMailStatusSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  trackingId: z.string().optional(),
+  shortfall: z.number().optional(),
+});
+
 export const snailMailProviderSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -24,5 +31,18 @@ export const snailMailProviderSchema = z.object({
   send: z
     .function()
     .args(snailMailOptionsSchema, z.record(z.unknown()).optional())
-    .returns(z.promise(z.void())),
+    .returns(z.promise(snailMailStatusSchema)),
+  getStatus: z
+    .function()
+    .args(z.string(), z.record(z.unknown()).optional())
+    .returns(z.promise(snailMailStatusSchema.nullable()))
+    .optional(),
+  poll: z
+    .function()
+    .args(z.record(z.unknown()).optional())
+    .returns(z.promise(z.void()))
+    .optional(),
+  webhooks: z
+    .record(z.function().args(z.unknown()).returns(z.promise(z.void())))
+    .optional(),
 });
