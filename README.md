@@ -72,11 +72,11 @@ image analysis so the resulting `PaperworkInfo` object fits alongside the
 violation report data.
 
 When a user uploads a photo, the API stores the case immediately and then
-triggers OpenAI analysis in the background. These asynchronous tasks are
+triggers analysis by the configured language model in the background. These asynchronous tasks are
 managed by [Bree](https://github.com/breejs/bree), which spawns worker threads
 to handle image analysis and reverse geocoding. The resulting JSON is persisted
 alongside the case record once the analysis completes, so uploads are never
-blocked waiting for OpenAI.
+blocked waiting for the LLM.
 
 If a case ends up without analysis or the last attempt failed with a retryable
 error code, you can trigger a new pass with:

@@ -9,8 +9,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import dotenv from "dotenv";
-import { PDFDocument, StandardFonts } from "pdf-lib";
 import twilio from "twilio";
+
 import {
   type MailingAddress,
   sendSnailMail as providerSendSnailMail,
@@ -99,6 +99,7 @@ export async function sendSnailMail(options: {
   const dir = path.join(process.cwd(), "data", "snailmail_tmp");
   fs.mkdirSync(dir, { recursive: true });
   const filePath = path.join(dir, `${crypto.randomUUID()}.pdf`);
+  const { PDFDocument, StandardFonts } = await import("pdf-lib");
   const pdf = await PDFDocument.create();
   let page = pdf.addPage();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
