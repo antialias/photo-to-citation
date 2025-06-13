@@ -33,11 +33,35 @@ function parseAddress(text: string): MailingAddress {
 }
 
 export async function sendSms(to: string, message: string): Promise<void> {
-  console.log(`sendSms to=${to} message=${message}`);
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (!sid || !token || !from) {
+    console.warn("Twilio not configured");
+    return;
+  }
+  const client = twilio(sid, token);
+  await client.messages.create({
+    to,
+    from,
+    body: message,
+  });
 }
 
 export async function sendWhatsapp(to: string, message: string): Promise<void> {
-  console.log(`sendWhatsapp to=${to} message=${message}`);
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (!sid || !token || !from) {
+    console.warn("Twilio not configured");
+    return;
+  }
+  const client = twilio(sid, token);
+  await client.messages.create({
+    to: `whatsapp:${to}`,
+    from: `whatsapp:${from}`,
+    body: message,
+  });
 }
 
 export async function makeRobocall(to: string, message: string): Promise<void> {
