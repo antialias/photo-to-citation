@@ -2,7 +2,7 @@ import type { ChatCompletion } from "openai/resources/chat/completions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { draftEmail, draftOwnerNotification } from "../caseReport";
 import type { Case } from "../caseStore";
-import { openai } from "../openai";
+import { getLlm } from "../llm";
 import { reportModules } from "../reportModules";
 
 const baseCase: Case = {
@@ -30,7 +30,8 @@ beforeEach(() => {
 
 describe("draftEmail", () => {
   it("returns parsed email when response is valid", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValueOnce({
+    const { client } = getLlm("draft_email");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [
         { message: { content: JSON.stringify({ subject: "s", body: "b" }) } },
       ],
@@ -41,7 +42,8 @@ describe("draftEmail", () => {
   });
 
   it("retries when response is invalid", async () => {
-    vi.spyOn(openai.chat.completions, "create")
+    const { client } = getLlm("draft_email");
+    vi.spyOn(client.chat.completions, "create")
       .mockResolvedValueOnce({
         choices: [{ message: { content: "{}" } }],
       } as unknown as ChatCompletion)
@@ -58,7 +60,8 @@ describe("draftEmail", () => {
   });
 
   it("returns empty draft after repeated failures", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValue({
+    const { client } = getLlm("draft_email");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValue({
       choices: [{ message: { content: "{}" } }],
     } as unknown as ChatCompletion);
 
@@ -69,7 +72,8 @@ describe("draftEmail", () => {
 
 describe("draftOwnerNotification", () => {
   it("returns parsed email when response is valid", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValueOnce({
+    const { client } = getLlm("draft_email");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [
         { message: { content: JSON.stringify({ subject: "s", body: "b" }) } },
       ],
@@ -82,7 +86,8 @@ describe("draftOwnerNotification", () => {
   });
 
   it("retries when response is invalid", async () => {
-    vi.spyOn(openai.chat.completions, "create")
+    const { client } = getLlm("draft_email");
+    vi.spyOn(client.chat.completions, "create")
       .mockResolvedValueOnce({
         choices: [{ message: { content: "{}" } }],
       } as unknown as ChatCompletion)
@@ -101,7 +106,8 @@ describe("draftOwnerNotification", () => {
   });
 
   it("returns empty draft after repeated failures", async () => {
-    vi.spyOn(openai.chat.completions, "create").mockResolvedValue({
+    const { client } = getLlm("draft_email");
+    vi.spyOn(client.chat.completions, "create").mockResolvedValue({
       choices: [{ message: { content: "{}" } }],
     } as unknown as ChatCompletion);
 
