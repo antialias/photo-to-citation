@@ -131,6 +131,27 @@ DOCSMIT_BASE_URL=https://secure.tracksmit.com/api/v1
 All sent mail is logged to `data/snailMail.json` or the file specified by
 `SNAIL_MAIL_FILE`. Run `npm run poll:snailmail` to invoke provider polling.
 
+## Inbox Scanning
+
+Configure IMAP settings in `.env` to automatically create cases from incoming
+emails. The scanner uses the `IDLE` command to receive updates and stores the
+last processed UID in `data/inbox.json` (or the path in `INBOX_STATE_FILE`).
+
+```bash
+IMAP_HOST=mail.example.com
+IMAP_PORT=993
+IMAP_USER=username
+IMAP_PASS=password
+# disable TLS by setting this to "false"
+IMAP_TLS=true
+INBOX_STATE_FILE=data/inbox.json
+```
+
+Run `npm run scan:inbox` to start listening for new messages. Each email with
+one or more photo attachments becomes a new case. Multiple photos in the same
+email are added to that case before analysis and geocoding run in the
+background.
+
 ## Folder Structure
 
 ```text
