@@ -103,11 +103,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           ["confirm", "sent", true, "citation processing"],
           ["sent", "received", true, "awaiting delivery"],
         ];
+    const activeFromIdx = firstPending > 0 ? firstPending - 1 : -1;
+    const activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
+    const activeTo = firstPending >= 0 ? steps[firstPending].id : null;
     const edges = edgesList
-      .map(
-        ([a, b, hard, label]) =>
-          `${a}${hard ? "-->" : "-.->"}${label ? `|${label}|` : ""}${b}`,
-      )
+      .map(([a, b, hard, label]) => {
+        const show = label && a === activeFrom && b === activeTo;
+        return `${a}${hard ? "-->" : "-.->"}${show ? `|${label}|` : ""}${b}`;
+      })
       .join("\n");
     const classAssignments = steps
       .map((s, i) => {
