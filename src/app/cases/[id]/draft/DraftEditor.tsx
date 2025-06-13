@@ -24,6 +24,7 @@ export default function DraftEditor({
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
+  const [snailMail, setSnailMail] = useState(false);
 
   useEffect(() => {
     if (initialDraft) {
@@ -43,6 +44,7 @@ export default function DraftEditor({
           body,
           attachments,
           ...(replyTo ? { replyTo } : {}),
+          ...(snailMail ? { snailMail: true } : {}),
         }),
       });
       if (res.ok) {
@@ -98,13 +100,23 @@ export default function DraftEditor({
           />
         ))}
       </div>
+      {module.authorityAddress && (
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={snailMail}
+            onChange={(e) => setSnailMail(e.target.checked)}
+          />
+          <span>Send via snail mail to {module.authorityAddress}</span>
+        </label>
+      )}
       <button
         type="button"
         onClick={sendEmail}
         disabled={sending}
         className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
-        {sending ? "Sending..." : "Send Email"}
+        {sending ? "Sending..." : "Send"}
       </button>
     </div>
   );

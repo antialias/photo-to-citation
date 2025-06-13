@@ -1,5 +1,6 @@
 import { draftEmail } from "@/lib/caseReport";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
+import { sendSnailMail } from "@/lib/contactMethods";
 import { sendEmail } from "@/lib/email";
 import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
@@ -25,10 +26,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { subject, body, attachments } = (await req.json()) as {
+  const { subject, body, attachments, snailMail } = (await req.json()) as {
     subject: string;
     body: string;
     attachments: string[];
+    snailMail?: boolean;
   };
   const c = getCase(id);
   if (!c) {
@@ -43,6 +45,14 @@ export async function POST(
       body,
       attachments,
     });
+    if (snailMail && reportModule.authorityAddress) {
+      await sendSnailMail({
+        address: reportModule.authorityAddress,
+        subject,
+        body,
+        attachments,
+      });
+    }
   } catch (err) {
     console.error("Failed to send email", err);
     return NextResponse.json(

@@ -10,12 +10,17 @@ export default function OwnershipEditor({
   module: OwnershipModule;
 }) {
   const [checkNumber, setCheckNumber] = useState("");
+  const [snailMail, setSnailMail] = useState(false);
 
   async function record() {
     await fetch(`/api/cases/${caseId}/ownership-request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ moduleId: module.id, checkNumber }),
+      body: JSON.stringify({
+        moduleId: module.id,
+        checkNumber,
+        ...(snailMail ? { snailMail: true } : {}),
+      }),
     });
     alert("Request recorded");
   }
@@ -37,9 +42,17 @@ export default function OwnershipEditor({
           className="border p-1"
         />
       </label>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={snailMail}
+          onChange={(e) => setSnailMail(e.target.checked)}
+        />
+        <span>Send snail mail automatically</span>
+      </label>
       <button
         type="button"
-        onClick={record}
+        onClick={() => record()}
         className="bg-blue-500 text-white px-2 py-1 rounded"
       >
         Mark as Requested
