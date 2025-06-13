@@ -83,7 +83,7 @@ export default function ClientThreadPage({
 
   return (
     <div className="p-8 flex flex-col gap-4">
-      <div className="sticky top-0 bg-white z-10 flex justify-between items-center border-b pb-2">
+      <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex justify-between items-center border-b pb-2">
         <div className="flex items-center gap-2">
           <Link href={`/cases/${caseId}`} className="text-blue-500 underline">
             Back to Case
@@ -91,7 +91,7 @@ export default function ClientThreadPage({
           <h1 className="text-xl font-semibold">Thread</h1>
         </div>
         <div className="flex gap-2 items-center">
-          <label className="bg-gray-200 px-2 py-1 rounded cursor-pointer">
+          <label className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded cursor-pointer">
             Upload Scan
             <input
               ref={fileRef}
@@ -112,7 +112,7 @@ export default function ClientThreadPage({
       <ul className="flex flex-col gap-4">
         {thread.map((mail) => (
           <li key={mail.sentAt} className="border p-2 rounded">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(mail.sentAt).toLocaleString()} - To: {mail.to}
             </div>
             <div className="font-semibold">{mail.subject}</div>
@@ -133,12 +133,12 @@ export default function ClientThreadPage({
               <button
                 type="button"
                 onClick={() => attachEvidence(img.url)}
-                className="self-start bg-gray-200 px-2 py-1 rounded"
+                className="self-start bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
               >
                 Add as Evidence
               </button>
               {img.ocrText ? (
-                <pre className="whitespace-pre-wrap text-sm bg-gray-100 p-2 rounded">
+                <pre className="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">
                   {img.ocrText}
                 </pre>
               ) : null}
@@ -148,7 +148,7 @@ export default function ClientThreadPage({
       </ul>
       {viewImage ? (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded shadow max-w-3xl w-full">
+          <div className="bg-white dark:bg-gray-900 rounded shadow max-w-3xl w-full">
             <div className="relative w-full h-[80vh]">
               <Image
                 src={viewImage}
@@ -161,7 +161,7 @@ export default function ClientThreadPage({
               <button
                 type="button"
                 onClick={() => setViewImage(null)}
-                className="bg-gray-200 px-2 py-1 rounded"
+                className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
               >
                 Close
               </button>

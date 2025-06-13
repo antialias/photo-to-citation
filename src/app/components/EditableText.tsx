@@ -70,11 +70,19 @@ export default function EditableText({
   return (
     <span className="inline-flex items-center gap-1">
       <span>{value || placeholder}</span>
-      <button type="button" onClick={start} className="text-gray-500">
+      <button
+        type="button"
+        onClick={start}
+        className="text-gray-500 dark:text-gray-400"
+      >
         ✎
       </button>
       {onClear && value ? (
-        <button type="button" onClick={onClear} className="text-gray-500">
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-gray-500 dark:text-gray-400"
+        >
           ×
         </button>
       ) : null}

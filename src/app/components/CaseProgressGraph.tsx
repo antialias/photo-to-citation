@@ -107,7 +107,28 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         return `class ${s.id} ${cls}`;
       })
       .join("\n");
-    return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:#D1FAE5,stroke:#047857;\nclassDef current fill:#FEF3C7,stroke:#92400E;\nclassDef pending fill:#F3F4F6,stroke:#6B7280;\n${classAssignments}`;
+    const light = {
+      completedFill: "#D1FAE5",
+      completedStroke: "#047857",
+      currentFill: "#FEF3C7",
+      currentStroke: "#92400E",
+      pendingFill: "#F3F4F6",
+      pendingStroke: "#6B7280",
+    };
+    const dark = {
+      completedFill: "#064E3B",
+      completedStroke: "#10B981",
+      currentFill: "#78350F",
+      currentStroke: "#FBBF24",
+      pendingFill: "#1F2937",
+      pendingStroke: "#9CA3AF",
+    };
+    const isDark =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const c = isDark ? dark : light;
+    const edgeStyle = `linkStyle default stroke:${c.pendingStroke},stroke-width:2px;`;
+    return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
   }, [status, firstPending, noviolation, steps]);
 
   return (

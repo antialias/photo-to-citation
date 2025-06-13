@@ -8,8 +8,11 @@ export default function NavBar() {
   const uploadCase = useNewCaseFromFiles();
   const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <nav className="bg-gray-900 text-white py-4 px-8 flex items-center justify-between">
-      <Link href="/" className="text-lg font-semibold hover:text-gray-300">
+    <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <Link
+        href="/"
+        className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
+      >
         Photo To Citation
       </Link>
       <input
@@ -23,15 +26,21 @@ export default function NavBar() {
       <div className="flex gap-4 sm:gap-6 md:gap-8 text-sm">
         <button
           type="button"
-          className="hover:text-gray-300"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
           onClick={() => inputRef.current?.click()}
         >
           New Case from Image
         </button>
-        <Link href="/cases" className="hover:text-gray-300">
+        <Link
+          href="/cases"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
+        >
           Cases
         </Link>
-        <Link href="/settings" className="hover:text-gray-300">
+        <Link
+          href="/settings"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
+        >
           Settings
         </Link>
       </div>
