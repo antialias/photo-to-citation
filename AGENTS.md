@@ -11,6 +11,10 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 
 ## Testing
 - Run `npm test` after linting. All tests should pass before you commit.
+- Write end-to-end tests for important flows so the application can be verified
+  as a whole.
+- Re-run the end-to-end tests whenever you modify the codebase to catch
+  regressions early.
 
 ## Code Style
 - Use 2‑space indentation and double quotes for strings.
