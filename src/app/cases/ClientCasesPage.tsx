@@ -6,6 +6,7 @@ import type { Case } from "../../lib/caseStore";
 import { getRepresentativePhoto } from "../../lib/caseUtils";
 import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
+import useNewCaseFromFiles from "../useNewCaseFromFiles";
 
 export default function ClientCasesPage({
   initialCases,
@@ -21,6 +22,19 @@ export default function ClientCasesPage({
     : params.id
       ? [params.id]
       : [];
+  const [dragTarget, setDragTarget] = useState<string | "list" | null>(null);
+  const uploadNewCase = useNewCaseFromFiles();
+
+  async function uploadToCase(id: string, files: FileList) {
+    await Promise.all(
+      Array.from(files).map((file) => {
+        const formData = new FormData();
+        formData.append("photo", file);
+        formData.append("caseId", id);
+        return fetch("/api/upload", { method: "POST", body: formData });
+      }),
+    );
+  }
 
   useEffect(() => {
     const es = new EventSource("/api/cases/stream");
@@ -41,17 +55,49 @@ export default function ClientCasesPage({
   }, []);
 
   return (
-    <div className="p-8">
+    <div
+      className="relative p-8"
+      onDragEnter={(e) => {
+        e.preventDefault();
+        setDragTarget("list");
+      }}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={(e) => {
+        if (e.currentTarget === e.target) setDragTarget(null);
+      }}
+      onDrop={async (e) => {
+        e.preventDefault();
+        if (dragTarget === "list") {
+          await uploadNewCase(e.dataTransfer.files);
+        }
+        setDragTarget(null);
+      }}
+    >
       <h1 className="text-xl font-bold mb-4">Cases</h1>
       <ul className="grid gap-4">
         {cases.map((c) => (
           <li
             key={c.id}
-            className={`border p-2 ${
+            className={`relative border p-2 ${
               selectedIds.includes(c.id)
                 ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                 : "ring-1 ring-transparent"
             }`}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              setDragTarget(c.id);
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={(e) => {
+              if (e.currentTarget === e.target) setDragTarget(null);
+            }}
+            onDrop={async (e) => {
+              e.preventDefault();
+              if (dragTarget === c.id) {
+                await uploadToCase(c.id, e.dataTransfer.files);
+              }
+              setDragTarget(null);
+            }}
           >
             <button
               type="button"
@@ -103,9 +149,19 @@ export default function ClientCasesPage({
                 )}
               </div>
             </button>
+            {dragTarget === c.id ? (
+              <div className="absolute inset-0 bg-blue-500/50 text-white flex items-center justify-center pointer-events-none text-sm">
+                Drop to add to case
+              </div>
+            ) : null}
           </li>
         ))}
       </ul>
+      {dragTarget === "list" ? (
+        <div className="absolute inset-0 bg-blue-500/50 text-white flex items-center justify-center pointer-events-none text-lg">
+          Drop to create case
+        </div>
+      ) : null}
     </div>
   );
 }

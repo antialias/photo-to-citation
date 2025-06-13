@@ -19,6 +19,7 @@ import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
+import useAddFilesToCase from "../../useAddFilesToCase";
 
 export default function ClientCasePage({
   initialCase,
@@ -43,6 +44,7 @@ export default function ClientCasePage({
   );
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const addFiles = useAddFilesToCase(caseId, setCaseData);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
@@ -76,20 +78,7 @@ export default function ClientCasePage({
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    await Promise.all(
-      Array.from(files).map((file) => {
-        const formData = new FormData();
-        formData.append("photo", file);
-        formData.append("caseId", caseId);
-        return fetch("/api/upload", { method: "POST", body: formData });
-      }),
-    );
-    const res = await fetch(`/api/cases/${caseId}`);
-    if (res.ok) {
-      const data = (await res.json()) as Case;
-      setCaseData(data);
-    }
-    router.refresh();
+    await addFiles(files);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -230,208 +219,232 @@ export default function ClientCasePage({
     </p>
   );
 
+  const [dragActive, setDragActive] = useState(false);
+
   return (
-    <CaseLayout
-      header={
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/cases" className="text-blue-500 underline md:hidden">
-              Back to Cases
-            </Link>
-            <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+    <div
+      className="relative"
+      onDragEnter={(e) => {
+        e.preventDefault();
+        setDragActive(true);
+      }}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={(e) => {
+        if (e.currentTarget === e.target) setDragActive(false);
+      }}
+      onDrop={async (e) => {
+        e.preventDefault();
+        setDragActive(false);
+        await addFiles(e.dataTransfer.files);
+      }}
+    >
+      <CaseLayout
+        header={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Link href="/cases" className="text-blue-500 underline md:hidden">
+                Back to Cases
+              </Link>
+              <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+            </div>
+            <CaseToolbar
+              caseId={caseId}
+              disabled={!violationIdentified}
+              hasOwner={Boolean(ownerContact)}
+            />
           </div>
-          <CaseToolbar
-            caseId={caseId}
-            disabled={!violationIdentified}
-            hasOwner={Boolean(ownerContact)}
-          />
-        </div>
-      }
-      left={<CaseProgressGraph caseData={caseData} />}
-      right={
-        <>
-          <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
-            {analysisBlock}
-            <button
-              type="button"
-              onClick={reanalyzeCase}
-              disabled={caseData.analysisStatus === "pending"}
-              className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50 self-start"
-            >
-              Re-run Analysis
-            </button>
-            {ownerContact ? (
-              <p>
-                <span className="font-semibold">Owner:</span> {ownerContact}
-              </p>
-            ) : null}
-            <p>
-              <span className="font-semibold">Created:</span>{" "}
-              {new Date(caseData.createdAt).toLocaleString()}
-            </p>
-            {caseData.streetAddress ? (
-              <p>
-                <span className="font-semibold">Address:</span>{" "}
-                {caseData.streetAddress}
-              </p>
-            ) : null}
-            {caseData.intersection ? (
-              <p>
-                <span className="font-semibold">Intersection:</span>{" "}
-                {caseData.intersection}
-              </p>
-            ) : null}
-            {caseData.gps ? (
-              <>
+        }
+        left={<CaseProgressGraph caseData={caseData} />}
+        right={
+          <>
+            <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
+              {analysisBlock}
+              <button
+                type="button"
+                onClick={reanalyzeCase}
+                disabled={caseData.analysisStatus === "pending"}
+                className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50 self-start"
+              >
+                Re-run Analysis
+              </button>
+              {ownerContact ? (
                 <p>
-                  <span className="font-semibold">GPS:</span> {caseData.gps.lat}
-                  , {caseData.gps.lon}
+                  <span className="font-semibold">Owner:</span> {ownerContact}
                 </p>
-                <MapPreview
-                  lat={caseData.gps.lat}
-                  lon={caseData.gps.lon}
-                  width={600}
-                  height={300}
-                  className="w-full aspect-[2/1] md:max-w-xl"
+              ) : null}
+              <p>
+                <span className="font-semibold">Created:</span>{" "}
+                {new Date(caseData.createdAt).toLocaleString()}
+              </p>
+              {caseData.streetAddress ? (
+                <p>
+                  <span className="font-semibold">Address:</span>{" "}
+                  {caseData.streetAddress}
+                </p>
+              ) : null}
+              {caseData.intersection ? (
+                <p>
+                  <span className="font-semibold">Intersection:</span>{" "}
+                  {caseData.intersection}
+                </p>
+              ) : null}
+              {caseData.gps ? (
+                <>
+                  <p>
+                    <span className="font-semibold">GPS:</span>{" "}
+                    {caseData.gps.lat}, {caseData.gps.lon}
+                  </p>
+                  <MapPreview
+                    lat={caseData.gps.lat}
+                    lon={caseData.gps.lon}
+                    width={600}
+                    height={300}
+                    className="w-full aspect-[2/1] md:max-w-xl"
+                  />
+                </>
+              ) : null}
+              <p>
+                <span className="font-semibold">VIN:</span>{" "}
+                <EditableText
+                  value={vin}
+                  onSubmit={updateVinFn}
+                  onClear={vinOverridden ? clearVin : undefined}
+                  placeholder="VIN"
                 />
+              </p>
+            </div>
+            {selectedPhoto ? (
+              <>
+                <div className="relative w-full aspect-[3/2] md:max-w-2xl">
+                  <Image
+                    src={selectedPhoto}
+                    alt="uploaded"
+                    fill
+                    className="object-contain"
+                  />
+                  {caseData.analysis ? (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
+                      <ImageHighlights
+                        analysis={caseData.analysis}
+                        photo={selectedPhoto}
+                      />
+                      {caseData.analysisStatus === "pending" ? (
+                        <p>Updating analysis...</p>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
+                      Analyzing photo...
+                    </div>
+                  )}
+                </div>
+                {(() => {
+                  const t = caseData.photoTimes[selectedPhoto];
+                  return t ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Taken {new Date(t).toLocaleString()}
+                    </p>
+                  ) : null;
+                })()}
               </>
             ) : null}
-            <p>
-              <span className="font-semibold">VIN:</span>{" "}
-              <EditableText
-                value={vin}
-                onSubmit={updateVinFn}
-                onClear={vinOverridden ? clearVin : undefined}
-                placeholder="VIN"
-              />
-            </p>
-          </div>
-          {selectedPhoto ? (
-            <>
-              <div className="relative w-full aspect-[3/2] md:max-w-2xl">
-                <Image
-                  src={selectedPhoto}
-                  alt="uploaded"
-                  fill
-                  className="object-contain"
-                />
-                {caseData.analysis ? (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
-                    <ImageHighlights
-                      analysis={caseData.analysis}
-                      photo={selectedPhoto}
-                    />
-                    {caseData.analysisStatus === "pending" ? (
-                      <p>Updating analysis...</p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                    Analyzing photo...
-                  </div>
-                )}
-              </div>
-              {(() => {
-                const t = caseData.photoTimes[selectedPhoto];
-                return t ? (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Taken {new Date(t).toLocaleString()}
-                  </p>
-                ) : null;
-              })()}
-            </>
-          ) : null}
-          <div className="flex gap-2 flex-wrap">
-            {caseData.photos.map((p) => (
-              <div key={p} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setSelectedPhoto(p)}
-                  className={
-                    selectedPhoto === p
-                      ? "ring-2 ring-blue-500"
-                      : "ring-1 ring-transparent"
-                  }
-                >
-                  <div className="relative w-20 aspect-[4/3]">
-                    <Image
-                      src={p}
-                      alt="case photo"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  {(() => {
-                    const t = caseData.photoTimes[p];
-                    return t ? (
-                      <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                        {new Date(t).toLocaleDateString()}
-                      </span>
-                    ) : null;
-                  })()}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removePhoto(p)}
-                  className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-            <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
-              + add image
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleUpload}
-                className="hidden"
-              />
-            </label>
-          </div>
-        </>
-      }
-    >
-      {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
-        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-          <h2 className="font-semibold">Email Log</h2>
-          <ul className="flex flex-col gap-2 text-sm">
-            {caseData.sentEmails.map((mail) => (
-              <li
-                key={mail.sentAt}
-                id={`email-${mail.sentAt}`}
-                className="flex flex-col gap-1"
-              >
-                <span>
-                  {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
-                </span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  To: {mail.to}
-                </span>
-                <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
-                  {mail.body}
-                </span>
-                {mail.replyTo ? (
-                  <a
-                    href={`#email-${mail.replyTo}`}
-                    className="text-blue-500 underline self-start"
+            <div className="flex gap-2 flex-wrap">
+              {caseData.photos.map((p) => (
+                <div key={p} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPhoto(p)}
+                    className={
+                      selectedPhoto === p
+                        ? "ring-2 ring-blue-500"
+                        : "ring-1 ring-transparent"
+                    }
                   >
-                    In reply to previous email
-                  </a>
-                ) : null}
-                <a
-                  href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
-                  className="self-start text-blue-500 underline"
+                    <div className="relative w-20 aspect-[4/3]">
+                      <Image
+                        src={p}
+                        alt="case photo"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {(() => {
+                      const t = caseData.photoTimes[p];
+                      return t ? (
+                        <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
+                          {new Date(t).toLocaleDateString()}
+                        </span>
+                      ) : null;
+                    })()}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(p)}
+                    className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
+                + add image
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </>
+        }
+      >
+        {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
+          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
+            <h2 className="font-semibold">Email Log</h2>
+            <ul className="flex flex-col gap-2 text-sm">
+              {caseData.sentEmails.map((mail) => (
+                <li
+                  key={mail.sentAt}
+                  id={`email-${mail.sentAt}`}
+                  className="flex flex-col gap-1"
                 >
-                  View Thread
-                </a>
-              </li>
-            ))}
-          </ul>
+                  <span>
+                    {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400">
+                    To: {mail.to}
+                  </span>
+                  <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
+                    {mail.body}
+                  </span>
+                  {mail.replyTo ? (
+                    <a
+                      href={`#email-${mail.replyTo}`}
+                      className="text-blue-500 underline self-start"
+                    >
+                      In reply to previous email
+                    </a>
+                  ) : null}
+                  <a
+                    href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
+                    className="self-start text-blue-500 underline"
+                  >
+                    View Thread
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </CaseLayout>
+      {dragActive ? (
+        <div className="absolute inset-0 bg-blue-500/50 text-white flex items-center justify-center pointer-events-none text-lg">
+          Drop to add photos
         </div>
       ) : null}
-    </CaseLayout>
+    </div>
   );
 }
