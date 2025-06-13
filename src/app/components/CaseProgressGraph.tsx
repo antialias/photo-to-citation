@@ -82,29 +82,32 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
-    const edgesList: Array<[string, string, boolean]> = noviolation
+    const edgesList: Array<[string, string, boolean, string]> = noviolation
       ? [
-          ["uploaded", "analysis", true],
-          ["analysisPending", "analysis", true],
-          ["analysis", "noviol", true],
+          ["uploaded", "analysis", true, "queued for analysis"],
+          ["analysisPending", "analysis", true, "analyzing"],
+          ["analysis", "noviol", true, "no violation"],
         ]
       : [
-          ["uploaded", "analysis", true],
-          ["analysisPending", "analysis", true],
-          ["analysis", "violation", true],
-          ["reanalysis", "analysis", true],
-          ["violation", "plate", true],
-          ["plate", "vin", true],
-          ["plate", "ownreq", true],
-          ["vin", "ownreq", false],
-          ["ownreq", "own", true],
-          ["violation", "notify", true],
-          ["notify", "confirm", true],
-          ["confirm", "sent", true],
-          ["sent", "received", true],
+          ["uploaded", "analysis", true, "queued for analysis"],
+          ["analysisPending", "analysis", true, "analyzing"],
+          ["analysis", "violation", true, "evaluating"],
+          ["reanalysis", "analysis", true, "reanalyzing"],
+          ["violation", "plate", true, "detecting plate"],
+          ["plate", "vin", true, "decoding VIN"],
+          ["plate", "ownreq", true, "requesting ownership"],
+          ["vin", "ownreq", false, "lookup ownership"],
+          ["ownreq", "own", true, "awaiting ownership info"],
+          ["violation", "notify", true, "notifying authorities"],
+          ["notify", "confirm", true, "awaiting response from authorities"],
+          ["confirm", "sent", true, "citation processing"],
+          ["sent", "received", true, "awaiting delivery"],
         ];
     const edges = edgesList
-      .map(([a, b, hard]) => `${a}${hard ? "-->" : "-.->"}${b}`)
+      .map(
+        ([a, b, hard, label]) =>
+          `${a}${hard ? "-->" : "-.->"}${label ? `|${label}|` : ""}${b}`,
+      )
       .join("\n");
     const classAssignments = steps
       .map((s, i) => {
@@ -139,7 +142,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   return (
     <div className="max-w-full overflow-x-auto">
-      <Mermaid chart={chart} key={chart} />
+      <Mermaid
+        chart={chart}
+        key={chart}
+        config={{ theme: isDark ? "dark" : "default" }}
+      />
     </div>
   );
 }
