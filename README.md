@@ -137,6 +137,19 @@ SNAIL_MAIL_PROVIDER=docsmit
 All sent mail is logged to `data/snailMail.json` or the file specified by
 `SNAIL_MAIL_FILE`. Run `npm run poll:snailmail` to invoke provider polling.
 
+## Twilio Integration
+
+Configure Twilio credentials to enable SMS, WhatsApp, and robocall
+notifications:
+
+```bash
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_FROM_NUMBER=+15551234567
+```
+
+If these variables are not set, phone notifications are skipped.
+
 ## Inbox Scanning
 
 Configure IMAP settings in `.env` to automatically create cases from incoming
