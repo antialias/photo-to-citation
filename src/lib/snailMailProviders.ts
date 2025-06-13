@@ -28,7 +28,9 @@ function loadStatuses(): SnailMailProviderStatus[] {
     return defaults;
   }
   try {
-    return JSON.parse(fs.readFileSync(dataFile, "utf8")) as SnailMailProviderStatus[];
+    return JSON.parse(
+      fs.readFileSync(dataFile, "utf8"),
+    ) as SnailMailProviderStatus[];
   } catch {
     return defaultStatuses();
   }
@@ -43,7 +45,9 @@ export function getSnailMailProviderStatuses(): SnailMailProviderStatus[] {
   return loadStatuses();
 }
 
-export function setActiveSnailMailProvider(id: string): SnailMailProviderStatus | undefined {
+export function setActiveSnailMailProvider(
+  id: string,
+): SnailMailProviderStatus | undefined {
   const list = loadStatuses();
   if (!list.some((p) => p.id === id)) return undefined;
   const updated = list.map((p) => ({ ...p, active: p.id === id }));

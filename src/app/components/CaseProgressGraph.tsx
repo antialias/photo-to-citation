@@ -82,29 +82,109 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
-    const edgesList: Array<[string, string, boolean]> = noviolation
+    interface Edge {
+      from: string;
+      to: string;
+      hard: boolean;
+      label: string;
+    }
+
+    const edgesList: Edge[] = noviolation
       ? [
-          ["uploaded", "analysis", true],
-          ["analysisPending", "analysis", true],
-          ["analysis", "noviol", true],
+          {
+            from: "uploaded",
+            to: "analysis",
+            hard: true,
+            label: "processing upload",
+          },
+          {
+            from: "analysisPending",
+            to: "analysis",
+            hard: true,
+            label: "analyzing",
+          },
+          { from: "analysis", to: "noviol", hard: true, label: "closing case" },
         ]
       : [
-          ["uploaded", "analysis", true],
-          ["analysisPending", "analysis", true],
-          ["analysis", "violation", true],
-          ["reanalysis", "analysis", true],
-          ["violation", "plate", true],
-          ["plate", "vin", true],
-          ["plate", "ownreq", true],
-          ["vin", "ownreq", false],
-          ["ownreq", "own", true],
-          ["violation", "notify", true],
-          ["notify", "confirm", true],
-          ["confirm", "sent", true],
-          ["sent", "received", true],
+          {
+            from: "uploaded",
+            to: "analysis",
+            hard: true,
+            label: "processing upload",
+          },
+          {
+            from: "analysisPending",
+            to: "analysis",
+            hard: true,
+            label: "analyzing",
+          },
+          {
+            from: "analysis",
+            to: "violation",
+            hard: true,
+            label: "violation check",
+          },
+          {
+            from: "reanalysis",
+            to: "analysis",
+            hard: true,
+            label: "reanalyzing",
+          },
+          {
+            from: "violation",
+            to: "plate",
+            hard: true,
+            label: "identifying plate",
+          },
+          { from: "plate", to: "vin", hard: true, label: "verifying vin" },
+          {
+            from: "plate",
+            to: "ownreq",
+            hard: true,
+            label: "requesting ownership",
+          },
+          {
+            from: "vin",
+            to: "ownreq",
+            hard: false,
+            label: "requesting ownership",
+          },
+          {
+            from: "ownreq",
+            to: "own",
+            hard: true,
+            label: "obtaining owner info",
+          },
+          {
+            from: "violation",
+            to: "notify",
+            hard: true,
+            label: "notifying authorities",
+          },
+          {
+            from: "notify",
+            to: "confirm",
+            hard: true,
+            label: "awaiting response from authorities",
+          },
+          {
+            from: "confirm",
+            to: "sent",
+            hard: true,
+            label: "preparing citation",
+          },
+          {
+            from: "sent",
+            to: "received",
+            hard: true,
+            label: "awaiting delivery",
+          },
         ];
     const edges = edgesList
-      .map(([a, b, hard]) => `${a}${hard ? "-->" : "-.->"}${b}`)
+      .map(
+        ({ from, to, hard, label }) =>
+          `${from}${hard ? "-->" : "-.->"}|${label}|${to}`,
+      )
       .join("\n");
     const classAssignments = steps
       .map((s, i) => {
