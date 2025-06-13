@@ -13,6 +13,8 @@ import { addSentMail } from "./snailMailStore";
 
 dotenv.config();
 
+let cachedToken: { token: string; fetchedAt: number } | null = null;
+
 function hashPassword(pw: string): string {
   return crypto.createHash("sha512").update(pw).digest("hex");
 }
@@ -35,6 +37,19 @@ async function getToken(
   if (!res.ok) throw new Error(`Docsmit auth failed ${res.status}`);
   const data = (await res.json()) as { token: string };
   return data.token;
+}
+
+async function ensureToken(
+  base: string,
+  email: string,
+  password: string,
+  software: string,
+): Promise<string> {
+  if (!cachedToken || Date.now() - cachedToken.fetchedAt > 55 * 60 * 1000) {
+    const token = await getToken(base, email, password, software);
+    cachedToken = { token, fetchedAt: Date.now() };
+  }
+  return cachedToken.token;
 }
 
 function toAddress(a: MailingAddress): Record<string, string> {
@@ -65,6 +80,24 @@ async function fetchWithToken(
   return fetch(`${base}${url}`, { ...init, headers });
 }
 
+async function docsmitRequest(
+  base: string,
+  email: string,
+  password: string,
+  software: string,
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  let token = await ensureToken(base, email, password, software);
+  let res = await fetchWithToken(base, token, url, init);
+  if (res.status === 401) {
+    cachedToken = null;
+    token = await ensureToken(base, email, password, software);
+    res = await fetchWithToken(base, token, url, init);
+  }
+  return res;
+}
+
 const provider: SnailMailProvider = {
   id: "docsmit",
   label: "Docsmit",
@@ -77,7 +110,6 @@ const provider: SnailMailProvider = {
     const softwareID = process.env.DOCSMIT_SOFTWARE_ID || "";
     if (!email || !password || !softwareID)
       throw new Error("Docsmit env vars not set");
-    let token = await getToken(base, email, password, softwareID);
     const createBody = {
       title: opts.subject || "",
       physicalParties: [toAddress(opts.to)],
@@ -88,46 +120,46 @@ const provider: SnailMailProvider = {
       rtnState: opts.from.state,
       rtnZip: opts.from.postalCode,
     };
-    let res = await fetchWithToken(base, token, "/messages/new", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(createBody),
-    });
-    if (res.status === 401) {
-      token = await getToken(base, email, password, softwareID);
-      res = await fetchWithToken(base, token, "/messages/new", {
+    let res = await docsmitRequest(
+      base,
+      email,
+      password,
+      softwareID,
+      "/messages/new",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(createBody),
-      });
-    }
+      },
+    );
     const data = (await res.json()) as { messageID: string };
     const messageID = data.messageID;
 
     const form = new FormData();
     const filePath = path.resolve(opts.contents);
     form.append("file", fs.createReadStream(filePath));
-    res = await fetchWithToken(base, token, `/messages/${messageID}/upload`, {
-      method: "POST",
-      body: form as unknown as BodyInit,
-    });
-    if (res.status === 401) {
-      token = await getToken(base, email, password, softwareID);
-      res = await fetchWithToken(base, token, `/messages/${messageID}/upload`, {
+    res = await docsmitRequest(
+      base,
+      email,
+      password,
+      softwareID,
+      `/messages/${messageID}/upload`,
+      {
         method: "POST",
         body: form as unknown as BodyInit,
-      });
-    }
+      },
+    );
 
-    res = await fetchWithToken(base, token, `/messages/${messageID}/send`, {
-      method: "POST",
-    });
-    if (res.status === 401) {
-      token = await getToken(base, email, password, softwareID);
-      res = await fetchWithToken(base, token, `/messages/${messageID}/send`, {
+    res = await docsmitRequest(
+      base,
+      email,
+      password,
+      softwareID,
+      `/messages/${messageID}/send`,
+      {
         method: "POST",
-      });
-    }
+      },
+    );
     let shortfall: number | undefined;
     if (res.status === 402) {
       shortfall = (await res.json()).shortfall as number | undefined;
