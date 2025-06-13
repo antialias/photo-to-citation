@@ -28,12 +28,14 @@ export async function GET(
     email,
     attachments: c.photos,
     contactInfo,
+    violationAddress: c.streetAddress,
     availableMethods: [
       contactInfo.email ? "email" : null,
       contactInfo.phone ? "sms" : null,
       contactInfo.phone ? "whatsapp" : null,
       contactInfo.phone ? "robocall" : null,
       contactInfo.address ? "snailMail" : null,
+      c.streetAddress ? "snailMailLocation" : null,
     ].filter(Boolean),
   });
 }
@@ -81,6 +83,16 @@ export async function POST(
     notifications.push(
       sendSnailMail({
         address: contactInfo.address,
+        subject,
+        body,
+        attachments,
+      }),
+    );
+  }
+  if (methods.includes("snailMailLocation") && c.streetAddress) {
+    notifications.push(
+      sendSnailMail({
+        address: c.streetAddress,
         subject,
         body,
         attachments,

@@ -7,6 +7,7 @@ export default function NotifyOwnerEditor({
   initialDraft,
   attachments,
   contactInfo,
+  violationAddress,
   availableMethods,
   caseId,
 }: {
@@ -17,6 +18,7 @@ export default function NotifyOwnerEditor({
     phone?: string;
     address?: string;
   };
+  violationAddress?: string;
   availableMethods: string[];
   caseId: string;
 }) {
@@ -137,6 +139,22 @@ export default function NotifyOwnerEditor({
               }}
             />
             <span>Snail Mail: {contactInfo.address}</span>
+          </label>
+        )}
+        {violationAddress && (
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={methods.includes("snailMailLocation")}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setMethods([...methods, "snailMailLocation"]);
+                } else {
+                  setMethods(methods.filter((m) => m !== "snailMailLocation"));
+                }
+              }}
+            />
+            <span>Mail to address of violation: {violationAddress}</span>
           </label>
         )}
       </div>
