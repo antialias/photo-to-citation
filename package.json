@@ -12,6 +12,7 @@
     "e2e": "vitest run -c vitest.e2e.config.ts",
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
     "poll:snailmail": "ts-node --transpile-only scripts/pollSnailMail.ts",
+    "scan:inbox": "ts-node --transpile-only scripts/scanInbox.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate:schemas": "ts-to-zod --skipValidation --all"
@@ -21,7 +22,9 @@
     "bree": "^9.2.4",
     "dotenv": "^16.5.0",
     "exif-parser": "^0.1.12",
+    "imapflow": "^1.0.188",
     "lodash": "4.17.21",
+    "mailparser": "^3.7.3",
     "mermaid": "^10.9.3",
     "next": "15.3.3",
     "nodemailer": "^7.0.3",
