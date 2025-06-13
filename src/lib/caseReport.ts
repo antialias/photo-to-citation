@@ -4,6 +4,7 @@ import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
 import { getLlm } from "./llm";
 import type { ReportModule } from "./reportModules";
+import { getViolationCode } from "./violationCodes";
 
 function logBadResponse(
   attempt: number,
@@ -61,6 +62,7 @@ export async function draftEmail(
         .map((i) => i.paperworkText)
         .join("\n\n")
     : "";
+  const code = await getViolationCode(mod.id, analysis?.violationType || "");
   const prompt = `Draft a short, professional email to ${mod.authorityName} reporting a vehicle violation.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
@@ -68,6 +70,7 @@ Include these details if available:
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
  - Time: ${new Date(time).toISOString()}
+${code ? `Applicable code: ${code}` : ""}
 ${paperworkTexts ? `Attached paperwork:\n${paperworkTexts}` : ""}
 Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
@@ -133,12 +136,17 @@ export async function draftFollowUp(
     type: "object",
     properties: { subject: { type: "string" }, body: { type: "string" } },
   };
+  const code = await getViolationCode(
+    "oak-park",
+    analysis?.violationType || "",
+  );
   const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
 - Description: ${analysis?.details || ""}
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
+${code ? `Applicable code: ${code}` : ""}
 Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
@@ -209,7 +217,11 @@ export async function draftOwnerNotification(
   };
   const authorityList =
     authorities.length > 0 ? authorities.join(", ") : "no authorities";
-  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. Mention that the following authorities have been contacted: ${authorityList}. Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\nMention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+  const code = await getViolationCode(
+    "oak-park",
+    analysis?.violationType || "",
+  );
+  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. Mention that the following authorities have been contacted: ${authorityList}. Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages = [

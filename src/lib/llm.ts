@@ -13,7 +13,8 @@ export type LlmFeature =
   | "draft_email"
   | "analyze_images"
   | "ocr_paperwork"
-  | "extract_info";
+  | "extract_info"
+  | "lookup_code";
 
 function loadProviders(): Record<string, LlmProvider> {
   const list = (process.env.LLM_PROVIDERS || "openai").split(/[,\s]+/);

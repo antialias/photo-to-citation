@@ -4,6 +4,7 @@ import { draftEmail, draftOwnerNotification } from "../caseReport";
 import type { Case } from "../caseStore";
 import { getLlm } from "../llm";
 import { reportModules } from "../reportModules";
+import * as violationCodes from "../violationCodes";
 
 const baseCase: Case = {
   id: "1",
@@ -26,6 +27,7 @@ const baseCase: Case = {
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  vi.spyOn(violationCodes, "getViolationCode").mockResolvedValue("1-1-1");
 });
 
 describe("draftEmail", () => {
