@@ -1,4 +1,3 @@
-import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vitest";
 import Home from "../page";
 
@@ -13,8 +12,13 @@ describe("Home page", () => {
       FakeEventSource as unknown as typeof EventSource;
   });
 
-  it("shows the cases list", async () => {
-    render(await Home({ searchParams: Promise.resolve({}) }));
-    expect(screen.getByText("Cases")).toBeInTheDocument();
+  it("redirects to /cases", () => {
+    try {
+      Home();
+    } catch (err) {
+      expect((err as { digest?: string }).digest).toContain("/cases");
+      return;
+    }
+    throw new Error("Expected redirect");
   });
 });
