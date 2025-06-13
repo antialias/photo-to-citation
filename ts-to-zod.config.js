@@ -48,4 +48,11 @@ module.exports = [
     skipValidation: true,
     jsDoc: "extended",
   },
+  {
+    name: "citationStatusModules",
+    input: "src/lib/citationStatusModules.ts",
+    output: "src/generated/zod/citationStatusModules.ts",
+    skipValidation: true,
+    jsDoc: "extended",
+  },
 ];
