@@ -4,6 +4,7 @@ import { caseSchema } from "../generated/zod/caseStore";
 import { emailOptionsSchema } from "../generated/zod/email";
 import { reportModuleSchema } from "../generated/zod/reportModules";
 import { vinSourceStatusSchema } from "../generated/zod/vinSources";
+import { snailMailProviderStatusSchema } from "../generated/zod/snailMailProviders";
 
 const c = initContract();
 
@@ -169,5 +170,26 @@ export const apiContract = c.router({
     }),
     summary: "Update VIN source",
     description: "Enable or disable a VIN lookup source.",
+  }),
+  getSnailMailProviders: c.query({
+    method: "GET",
+    path: "/api/snail-mail-providers",
+    responses: c.responses({
+      200: z.array(snailMailProviderStatusSchema),
+    }),
+    summary: "List snail mail providers",
+    description: "Retrieve snail mail provider status list.",
+  }),
+  updateSnailMailProvider: c.mutation({
+    method: "PUT",
+    path: "/api/snail-mail-providers/:id",
+    pathParams: idParams,
+    body: c.noBody(),
+    responses: c.responses({
+      200: z.array(snailMailProviderStatusSchema),
+      404: errorSchema,
+    }),
+    summary: "Activate snail mail provider",
+    description: "Select which snail mail provider is active.",
   }),
 });
