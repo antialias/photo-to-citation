@@ -49,7 +49,7 @@ export default function ClientCasesPage({
             key={c.id}
             className={`border p-2 ${
               selectedIds.includes(c.id)
-                ? "bg-gray-100 ring-2 ring-blue-500"
+                ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                 : "ring-1 ring-transparent"
             }`}
           >
@@ -91,13 +91,15 @@ export default function ClientCasesPage({
                   <>
                     <AnalysisInfo analysis={c.analysis} />
                     {c.analysisStatus === "pending" ? (
-                      <span className="text-gray-500">
+                      <span className="text-gray-500 dark:text-gray-400">
                         Updating analysis...
                       </span>
                     ) : null}
                   </>
                 ) : (
-                  <span className="text-gray-500">Analyzing photo...</span>
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Analyzing photo...
+                  </span>
                 )}
               </div>
             </button>

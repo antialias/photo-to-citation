@@ -177,7 +177,9 @@ export default function ClientCasePage({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="preview" className="max-w-full" />
         ) : null}
-        <p className="text-sm text-gray-500">Uploading photo...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Uploading photo...
+        </p>
       </div>
     );
   }
@@ -202,7 +204,9 @@ export default function ClientCasePage({
         onClearState={plateStateOverridden ? clearPlateState : undefined}
       />
       {caseData.analysisStatus === "pending" ? (
-        <p className="text-sm text-gray-500">Updating analysis...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Updating analysis...
+        </p>
       ) : null}
     </>
   ) : caseData.analysisError ? (
@@ -220,7 +224,9 @@ export default function ClientCasePage({
       Analysis failed. Please try again later.
     </p>
   ) : (
-    <p className="text-sm text-gray-500">Analyzing photo...</p>
+    <p className="text-sm text-gray-500 dark:text-gray-400">
+      Analyzing photo...
+    </p>
   );
 
   return (
@@ -238,7 +244,7 @@ export default function ClientCasePage({
       left={<CaseProgressGraph caseData={caseData} />}
       right={
         <>
-          <div className="order-first bg-gray-100 p-4 rounded flex flex-col gap-2 text-sm">
+          <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
             {analysisBlock}
             <button
               type="button"
@@ -322,7 +328,7 @@ export default function ClientCasePage({
               {(() => {
                 const t = caseData.photoTimes[selectedPhoto];
                 return t ? (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Taken {new Date(t).toLocaleString()}
                   </p>
                 ) : null;
@@ -367,7 +373,7 @@ export default function ClientCasePage({
                 </button>
               </div>
             ))}
-            <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 cursor-pointer">
+            <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
               + add image
               <input
                 ref={fileInputRef}
@@ -383,7 +389,7 @@ export default function ClientCasePage({
       }
     >
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
-        <div className="bg-gray-100 p-4 rounded flex flex-col gap-2">
+        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
           <h2 className="font-semibold">Email Log</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {caseData.sentEmails.map((mail) => (
@@ -395,8 +401,10 @@ export default function ClientCasePage({
                 <span>
                   {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
                 </span>
-                <span className="text-gray-500">To: {mail.to}</span>
-                <span className="text-gray-500 whitespace-pre-wrap">
+                <span className="text-gray-500 dark:text-gray-400">
+                  To: {mail.to}
+                </span>
+                <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
                   {mail.body}
                 </span>
                 {mail.replyTo ? (

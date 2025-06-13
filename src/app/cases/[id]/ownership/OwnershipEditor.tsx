@@ -25,7 +25,7 @@ export default function OwnershipEditor({
       <h1 className="text-xl font-semibold">Ownership Request</h1>
       <p>State: {module.state}</p>
       <p>Send a check for ${module.fee} to:</p>
-      <pre className="bg-gray-100 p-2 whitespace-pre-wrap">
+      <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
       <label className="flex flex-col">
