@@ -18,6 +18,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run website
+        env:
+          PATH_PREFIX: /photo-to-citation/website/
       - name: Deploy Website to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
