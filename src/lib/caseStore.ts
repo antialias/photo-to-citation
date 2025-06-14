@@ -15,6 +15,8 @@ export interface Case {
   photoGps?: Record<string, { lat: number; lon: number } | null>;
   /** @zod.date */
   createdAt: string;
+  /** @zod.date */
+  updatedAt: string;
   gps?: {
     lat: number;
     lon: number;
@@ -70,6 +72,9 @@ function rowToCase(row: { id: string; data: string }): Case {
     Case,
     "photos" | "photoTimes" | "photoGps"
   >;
+  if (!("updatedAt" in base)) {
+    (base as Partial<Case>).updatedAt = (base as Partial<Case>).createdAt;
+  }
   const photos = orm
     .select()
     .from(casePhotos)
@@ -152,7 +157,13 @@ export function getCases(): Case[] {
     id: string;
     data: string;
   }>;
-  return rows.map(rowToCase).map(applyOverrides);
+  return rows
+    .map(rowToCase)
+    .map(applyOverrides)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 }
 
 export function getCase(id: string): Case | undefined {
@@ -172,6 +183,7 @@ export function createCase(
     photoTimes: { [photo]: takenAt ?? null },
     photoGps: { [photo]: gps },
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     gps,
     streetAddress: null,
     intersection: null,
@@ -198,7 +210,11 @@ export function updateCase(
 ): Case | undefined {
   const current = getCaseRow(id);
   if (!current) return undefined;
-  const updated = { ...current, ...updates };
+  const updated = {
+    ...current,
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
   saveCase(updated);
   caseEvents.emit("update", updated);
   return updated;
@@ -217,6 +233,7 @@ export function addCasePhoto(
   if (!current.photoGps) current.photoGps = {};
   current.photoGps[photo] = gps;
   current.analysisStatus = "pending";
+  current.updatedAt = new Date().toISOString();
   saveCase(current);
   caseEvents.emit("update", current);
   return current;
@@ -231,6 +248,7 @@ export function removeCasePhoto(id: string, photo: string): Case | undefined {
   delete current.photoTimes[photo];
   if (current.photoGps) delete current.photoGps[photo];
   current.analysisStatus = "pending";
+  current.updatedAt = new Date().toISOString();
   saveCase(current);
   caseEvents.emit("update", current);
   return current;
@@ -274,6 +292,7 @@ export function addCaseEmail(id: string, email: SentEmail): Case | undefined {
   if (!current) return undefined;
   const list = current.sentEmails ?? [];
   current.sentEmails = [...list, email];
+  current.updatedAt = new Date().toISOString();
   saveCase(current);
   caseEvents.emit("update", current);
   return current;
@@ -287,6 +306,7 @@ export function addCaseThreadImage(
   if (!current) return undefined;
   const list = current.threadImages ?? [];
   current.threadImages = [...list, image];
+  current.updatedAt = new Date().toISOString();
   saveCase(current);
   caseEvents.emit("update", current);
   return current;
@@ -300,6 +320,7 @@ export function addOwnershipRequest(
   if (!current) return undefined;
   const list = current.ownershipRequests ?? [];
   current.ownershipRequests = [...list, request];
+  current.updatedAt = new Date().toISOString();
   saveCase(current);
   caseEvents.emit("update", current);
   return current;

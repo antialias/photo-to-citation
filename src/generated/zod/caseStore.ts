@@ -42,6 +42,7 @@ export const caseSchema = z.object({
     )
     .optional(),
   createdAt: z.string(),
+  updatedAt: z.string(),
   gps: z
     .object({
       lat: z.number(),

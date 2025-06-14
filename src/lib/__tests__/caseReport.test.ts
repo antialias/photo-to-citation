@@ -11,6 +11,7 @@ const baseCase: Case = {
   photos: ["/foo.jpg"],
   photoTimes: { "/foo.jpg": "2020-01-01T00:00:00.000Z" },
   createdAt: "2020-01-01T00:00:00.000Z",
+  updatedAt: "2020-01-01T00:00:00.000Z",
   gps: null,
   streetAddress: null,
   intersection: null,
