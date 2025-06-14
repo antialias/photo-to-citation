@@ -7,7 +7,8 @@ import { sendSnailMail } from "../src/lib/contactMethods";
 import { snailMailProviders } from "../src/lib/snailMail";
 
 let tmpDir: string;
-const root = process.cwd();
+let root: string;
+let cwdSpy: ReturnType<typeof vi.spyOn>;
 let createdPdf: { getPageCount(): number } | null;
 
 vi.mock("pdf-lib", () => {
@@ -63,6 +64,8 @@ vi.mock("pdf-lib", () => {
 
 beforeEach(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "snail-"));
+  root = fs.mkdtempSync(path.join(os.tmpdir(), "snailroot-"));
+  cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(root);
   fs.mkdirSync(path.join(root, "public", "uploads"), { recursive: true });
   const img = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVR42mP8/5+hHgAHggJ/P5V6XQAAAABJRU5ErkJggg==",
@@ -76,6 +79,7 @@ beforeEach(() => {
 afterEach(() => {
   fs.rmSync(path.join(root, "public"), { recursive: true, force: true });
   fs.rmSync(tmpDir, { recursive: true, force: true });
+  cwdSpy.mockRestore();
   process.env.RETURN_ADDRESS = undefined;
   process.env.SNAIL_MAIL_PROVIDER = undefined;
   vi.restoreAllMocks();
