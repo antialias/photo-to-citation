@@ -14,11 +14,24 @@ export default function PointAndShootPage() {
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
           video: { facingMode: "environment" },
         });
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play().catch(() => {});
+          const v = videoRef.current;
+          v.setAttribute("autoplay", "");
+          v.setAttribute("muted", "");
+          v.setAttribute("playsinline", "");
+          v.autoplay = true;
+          v.muted = true;
+          v.playsInline = true;
+          if ("srcObject" in v) {
+            v.srcObject = stream;
+          } else {
+            // @ts-ignore - fallback for older browsers
+            v.src = URL.createObjectURL(stream);
+          }
+          await v.play().catch(() => {});
         }
       } catch (err) {
         console.error("Could not access camera", err);
@@ -61,7 +74,7 @@ export default function PointAndShootPage() {
         autoPlay
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover z-0"
       >
         <track kind="captions" label="" />
       </video>
