@@ -368,41 +368,68 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
-        const content = (() => {
-          if (info.isImage !== false) {
-            if (Array.isArray(info.preview)) {
-              const small = info.preview.length > 1;
-              const imgClass = small ? "max-h-24 my-1" : "max-h-40";
-              const imgs = info.preview
-                .map((p) => `<img src="${p}" class="${imgClass}" />`)
-                .join("");
-              const extra =
-                info.count && info.count > info.preview.length
-                  ? info.count - info.preview.length
-                  : 0;
-              const extraLine =
-                extra > 0
-                  ? `<div class="text-xs text-center mt-1">and ${extra} more photo${extra === 1 ? "" : "s"} not shown</div>`
-                  : "";
-              return `<div class="flex flex-col items-center overflow-y-auto" style="max-height:60vh; max-width:80vw;">${imgs}${extraLine}</div>`;
+        if (id === "analysis" && caseData.analysisStatus === "complete") {
+          const menu = document.createElement("div");
+          menu.className = "flex flex-col";
+          const summary = document.createElement("div");
+          summary.className = "max-w-xs whitespace-pre-wrap mb-2";
+          summary.textContent = info.preview as string;
+          menu.appendChild(summary);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "Re-run Analysis";
+          btn.className =
+            "bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600";
+          btn.addEventListener("click", async () => {
+            await fetch(`/api/cases/${caseData.id}/reanalyze`, {
+              method: "POST",
+            });
+            window.location.reload();
+          });
+          menu.appendChild(btn);
+          const inst = tippy(el, {
+            content: menu,
+            interactive: true,
+            trigger: "click",
+          });
+          instances.push(inst);
+        } else {
+          const content = (() => {
+            if (info.isImage !== false) {
+              if (Array.isArray(info.preview)) {
+                const small = info.preview.length > 1;
+                const imgClass = small ? "max-h-24 my-1" : "max-h-40";
+                const imgs = info.preview
+                  .map((p) => `<img src="${p}" class="${imgClass}" />`)
+                  .join("");
+                const extra =
+                  info.count && info.count > info.preview.length
+                    ? info.count - info.preview.length
+                    : 0;
+                const extraLine =
+                  extra > 0
+                    ? `<div class="text-xs text-center mt-1">and ${extra} more photo${extra === 1 ? "" : "s"} not shown</div>`
+                    : "";
+                return `<div class="flex flex-col items-center overflow-y-auto" style="max-height:60vh; max-width:80vw;">${imgs}${extraLine}</div>`;
+              }
+              const caption = info.caption
+                ? `<div class="text-xs text-center mt-1">${escapeHtml(
+                    info.caption,
+                  )}</div>`
+                : "";
+              return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
             }
-            const caption = info.caption
-              ? `<div class="text-xs text-center mt-1">${escapeHtml(
-                  info.caption,
-                )}</div>`
-              : "";
-            return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
-          }
-          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
-            info.preview as string,
-          )}</div>`;
-        })();
-        const inst = tippy(el, {
-          content,
-          allowHTML: true,
-        });
-        el.addEventListener("click", () => window.open(info.url, "_blank"));
-        instances.push(inst);
+            return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+              info.preview as string,
+            )}</div>`;
+          })();
+          const inst = tippy(el, {
+            content,
+            allowHTML: true,
+          });
+          el.addEventListener("click", () => window.open(info.url, "_blank"));
+          instances.push(inst);
+        }
       }
     };
     const observer = new MutationObserver(() => apply());
