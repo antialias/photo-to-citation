@@ -19,11 +19,21 @@ export default function MapPreview({
   const url = key
     ? `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=16&size=${width}x${height}&markers=color:red|${lat},${lon}&key=${key}`
     : `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lon}&zoom=16&size=${width}x${height}&markers=${lat},${lon},red`;
-  const img = (
+  return (
     <div
       className={`relative ${className ?? ""}`}
       style={{ aspectRatio: `${width} / ${height}` }}
     >
+      {link ? (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0 z-10"
+        >
+          <span className="sr-only">View on map</span>
+        </a>
+      ) : null}
       <Image
         src={url}
         alt={`Map preview at ${lat}, ${lon}`}
@@ -32,12 +42,5 @@ export default function MapPreview({
         sizes="100vw"
       />
     </div>
-  );
-  return link ? (
-    <a href={link} target="_blank" rel="noopener noreferrer">
-      {img}
-    </a>
-  ) : (
-    img
   );
 }
