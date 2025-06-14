@@ -2,13 +2,17 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
 import { APIError } from "openai/error";
-import { caseEvents } from "./caseEvents";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import { AnalysisError, analyzeViolation, ocrPaperwork } from "./openai";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 const activeWorkers = new Map<string, Worker>();
+const activePhotoAnalyses = new Map<string, AbortController>();
+
+export function isPhotoAnalysisActive(id: string, photo: string): boolean {
+  return activePhotoAnalyses.has(`${id}:${photo}`);
+}
 
 export function isCaseAnalysisActive(id: string): boolean {
   return activeWorkers.has(id);
@@ -21,6 +25,23 @@ export function cancelCaseAnalysis(id: string): boolean {
   activeWorkers.delete(id);
   updateCase(id, { analysisStatus: "canceled", analysisProgress: null });
   return true;
+}
+
+export function cancelPhotoAnalysis(id: string, photo: string): boolean {
+  const key = `${id}:${photo}`;
+  const ctrl = activePhotoAnalyses.get(key);
+  if (!ctrl) return false;
+  ctrl.abort();
+  activePhotoAnalyses.delete(key);
+  return true;
+}
+
+export function trackPhotoAnalysis(
+  id: string,
+  photo: string,
+  ctrl: AbortController,
+): void {
+  activePhotoAnalyses.set(`${id}:${photo}`, ctrl);
 }
 
 export async function analyzeCase(caseData: Case): Promise<void> {
@@ -121,6 +142,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
 }
 
 export function analyzeCaseInBackground(caseData: Case): void {
+  if (activeWorkers.has(caseData.id)) return;
   const worker = runJob("analyzeCase", caseData);
   activeWorkers.set(caseData.id, worker);
   const cleanup = () => {

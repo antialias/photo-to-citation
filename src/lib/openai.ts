@@ -113,6 +113,7 @@ export type ViolationReport = z.infer<typeof violationReportSchema>;
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
   progress?: (info: LlmProgress) => void,
+  signal?: AbortSignal,
 ): Promise<ViolationReport> {
   if (images.length === 0) {
     throw new AnalysisError("images");
@@ -184,7 +185,9 @@ export async function analyzeViolation(
       response_format: { type: "json_object" },
     };
     if (progress) (req as Record<string, unknown>).stream = true;
-    const response = await client.chat.completions.create(req as never);
+    const response = await client.chat.completions.create(req as never, {
+      signal,
+    });
     let finish: string | null = null;
     let text = "";
     const totalTokens = req.max_tokens ?? 0;
@@ -318,6 +321,7 @@ export async function extractPaperworkInfo(
 export async function ocrPaperwork(
   image: { url: string },
   progress?: (info: LlmProgress) => void,
+  signal?: AbortSignal,
 ): Promise<PaperworkAnalysis> {
   const baseMessages = [
     {
@@ -344,7 +348,9 @@ export async function ocrPaperwork(
       max_tokens: 800,
     };
     if (progress) (req as Record<string, unknown>).stream = true;
-    const res = await client.chat.completions.create(req as never);
+    const res = await client.chat.completions.create(req as never, {
+      signal,
+    });
     let text = "";
     const totalTokens = req.max_tokens ?? 0;
     let receivedTokens = 0;

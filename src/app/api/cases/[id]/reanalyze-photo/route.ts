@@ -1,7 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+import {
+  cancelCaseAnalysis,
+  cancelPhotoAnalysis,
+  trackPhotoAnalysis,
+} from "@/lib/caseAnalysis";
 import { getCase, updateCase } from "@/lib/caseStore";
-import { analyzeViolation, ocrPaperwork } from "@/lib/openai";
+import {
+  type ViolationReport,
+  analyzeViolation,
+  ocrPaperwork,
+} from "@/lib/openai";
 import { fetchCaseVinInBackground } from "@/lib/vinLookup";
 import { NextResponse } from "next/server";
 
@@ -19,6 +28,10 @@ export async function POST(
   if (!c || !c.photos.includes(photo)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  cancelCaseAnalysis(id);
+  cancelPhotoAnalysis(id, photo);
+  const ctrl = new AbortController();
+  trackPhotoAnalysis(id, photo, ctrl);
   const filePath = path.join(
     process.cwd(),
     "public",
@@ -36,12 +49,19 @@ export async function POST(
         ? "image/webp"
         : "image/jpeg";
   const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-  const result = await analyzeViolation([
-    { filename: path.basename(photo), url: dataUrl },
-  ]);
+  let result: ViolationReport;
+  try {
+    result = await analyzeViolation(
+      [{ filename: path.basename(photo), url: dataUrl }],
+      undefined,
+      ctrl.signal,
+    );
+  } finally {
+    cancelPhotoAnalysis(id, photo);
+  }
   const info = result.images?.[path.basename(photo)];
   if (info?.paperwork && !info.paperworkText) {
-    const ocr = await ocrPaperwork({ url: dataUrl });
+    const ocr = await ocrPaperwork({ url: dataUrl }, undefined, ctrl.signal);
     info.paperworkText = ocr.text;
     if (ocr.info) info.paperworkInfo = ocr.info;
   }
