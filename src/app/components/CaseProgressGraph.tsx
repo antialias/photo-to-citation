@@ -10,6 +10,7 @@ import {
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
+import { reportModules } from "@/lib/reportModules";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
@@ -96,6 +97,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, []);
 
   const chart = useMemo(() => {
+    const authorityEmail = reportModules["oak-park"].authorityEmail;
+    const ownerInfo = getCaseOwnerContactInfo(caseData);
+    const authorityEmails = (caseData.sentEmails ?? []).filter(
+      (m) => m.to === authorityEmail,
+    );
+    const authorityEmailCount = authorityEmails.length;
+    const followUpNeeded =
+      ownerInfo && authorityEmailCount === 1 && status.own && status.notify;
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
     const edgesList: Array<[string, string, boolean, string | null]> = [];
     edgesList.push([
@@ -117,6 +126,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       edgesList.push(["vin", "ownreq", false, "lookup ownership"]);
       edgesList.push(["ownreq", "own", true, "awaiting ownership info"]);
       edgesList.push(["own", "ownnotify", true, "notifying owner"]);
+      if (followUpNeeded) {
+        edgesList.push([
+          "own",
+          "notify",
+          true,
+          "follow up with ownership information",
+        ]);
+      }
       edgesList.push(["violation", "notify", true, "notifying authorities"]);
       edgesList.push([
         "notify",
@@ -133,7 +150,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     if (reanalysisPending) activeFrom = "analysis";
     const edges = edgesList
       .map(([a, b, hard, label]) => {
-        const show = label && a === activeFrom && b === activeTo;
+        const show =
+          label &&
+          (label === "follow up with ownership information"
+            ? true
+            : a === activeFrom && b === activeTo);
         return `${a}${hard ? "-->" : "-.->"}${show ? `|${label}|` : ""}${b}`;
       })
       .join("\n");
@@ -170,19 +191,20 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
         : ownerDoc.url
       : null;
-    const ownerInfo = getCaseOwnerContactInfo(caseData);
     const ownerNotifyEmail = ownerInfo?.email
       ? (caseData.sentEmails ?? []).find((m) => m.to === ownerInfo.email)
       : undefined;
     const ownerNotifyLink = ownerNotifyEmail
       ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerNotifyEmail.sentAt)}`
       : null;
-    const firstEmail = caseData.sentEmails?.find(
-      (m) => !ownerInfo?.email || m.to !== ownerInfo.email,
-    );
-    const notifyLink = firstEmail
-      ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
-      : null;
+    const firstAuthorityEmail = authorityEmails[0];
+    const notifyLink = followUpNeeded
+      ? firstAuthorityEmail
+        ? `/cases/${caseData.id}/followup?owner=1&replyTo=${encodeURIComponent(firstAuthorityEmail.sentAt)}`
+        : null
+      : firstAuthorityEmail
+        ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstAuthorityEmail.sentAt)}`
+        : null;
     const clean = (t: string) => t.replace(/"/g, "'");
     const uploadedAt = caseData.photoTimes[caseData.photos[0]] ?? null;
     const uploadedTip = uploadedAt
@@ -201,9 +223,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           ownerContact.length > 40 ? "…" : ""
         }`
       : "View paperwork";
-    const notifyTip = firstEmail
-      ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
-      : "View notification email";
+    const notifyTip = followUpNeeded
+      ? "Draft follow-up with ownership information"
+      : firstAuthorityEmail
+        ? `Notification email to ${firstAuthorityEmail.to} on ${new Date(firstAuthorityEmail.sentAt).toLocaleString()}`
+        : "View notification email";
     const ownerNotifyTip = ownerNotifyEmail
       ? `Notification email to ${ownerNotifyEmail.to} on ${new Date(ownerNotifyEmail.sentAt).toLocaleString()}`
       : "View owner notification";
@@ -306,12 +330,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const ownerNotifyLink = ownerNotifyEmail
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerNotifyEmail.sentAt)}`
         : null;
-      const firstEmail = caseData.sentEmails?.find(
-        (m) => !ownerInfo?.email || m.to !== ownerInfo.email,
-      );
-      const notifyLink = firstEmail
-        ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
-        : null;
+      const firstAuthorityEmail = authorityEmails[0];
+      const notifyLink = followUpNeeded
+        ? firstAuthorityEmail
+          ? `/cases/${caseData.id}/followup?owner=1&replyTo=${encodeURIComponent(firstAuthorityEmail.sentAt)}`
+          : null
+        : firstAuthorityEmail
+          ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstAuthorityEmail.sentAt)}`
+          : null;
       const bestViolation = getBestViolationPhoto(caseData);
       if (caseData.photos.length > 0)
         map.uploaded = {
@@ -337,7 +363,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       if (notifyLink)
         map.notify = {
           url: notifyLink,
-          preview: firstEmail?.body ?? "",
+          preview: firstAuthorityEmail?.body ?? "",
           isImage: false,
         };
       if (bestViolation)
