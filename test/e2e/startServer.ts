@@ -24,15 +24,25 @@ export async function startServer(
 ): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
   const proc = spawn(nextBin, ["dev", "-p", String(port)], {
-    env: { ...process.env, ...env, CI: "1" },
-    stdio: "inherit",
+    env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1", ...env, CI: "1" },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let output = "";
+  proc.stdout.on("data", (c) => {
+    output += String(c);
+  });
+  proc.stderr.on("data", (c) => {
+    output += String(c);
   });
   await waitForServer(port);
   return {
     url: `http://localhost:${port}`,
     close: () =>
       new Promise((resolve) => {
-        proc.once("exit", () => resolve());
+        proc.once("exit", (code) => {
+          if (code !== 0) process.stdout.write(output);
+          resolve();
+        });
         proc.kill();
       }),
   };
