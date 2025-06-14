@@ -10,6 +10,7 @@ import {
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
+import { reportModules } from "@/lib/reportModules";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
@@ -84,6 +85,29 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     } as Record<string, boolean>;
   }, [analysisDone, violation, noviolation, caseData]);
 
+  const followupInfo = useMemo(() => {
+    const mod = reportModules["oak-park"];
+    const ownerDocs = (caseData.threadImages ?? []).filter(
+      (i) => i.ocrInfo?.contact,
+    );
+    if (ownerDocs.length === 0)
+      return { needed: false, url: null as string | null };
+    const firstOwner = ownerDocs.map((o) => o.uploadedAt).sort()[0];
+    const authorityEmails = (caseData.sentEmails ?? []).filter(
+      (m) => m.to === mod.authorityEmail,
+    );
+    if (authorityEmails.length === 0)
+      return { needed: false, url: null as string | null };
+    const before = authorityEmails.filter((e) => e.sentAt < firstOwner);
+    if (before.length === 0)
+      return { needed: false, url: null as string | null };
+    const after = authorityEmails.filter((e) => e.sentAt > firstOwner);
+    if (after.length > 0) return { needed: false, url: null as string | null };
+    const replyTo = before[before.length - 1].sentAt;
+    const url = `/cases/${caseData.id}/followup?replyTo=${encodeURIComponent(replyTo)}&owner=1`;
+    return { needed: true, url };
+  }, [caseData]);
+
   const firstPending = steps.findIndex((s) => !status[s.id]);
 
   const [isDark, setIsDark] = useState(false);
@@ -117,6 +141,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       edgesList.push(["vin", "ownreq", false, "lookup ownership"]);
       edgesList.push(["ownreq", "own", true, "awaiting ownership info"]);
       edgesList.push(["own", "ownnotify", true, "notifying owner"]);
+      if (followupInfo.needed) {
+        edgesList.push([
+          "own",
+          "notify",
+          true,
+          "follow up with ownership information",
+        ]);
+      }
       edgesList.push(["violation", "notify", true, "notifying authorities"]);
       edgesList.push([
         "notify",
@@ -133,7 +165,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     if (reanalysisPending) activeFrom = "analysis";
     const edges = edgesList
       .map(([a, b, hard, label]) => {
-        const show = label && a === activeFrom && b === activeTo;
+        const show =
+          label &&
+          ((a === activeFrom && b === activeTo) ||
+            (a === "own" && b === "notify" && followupInfo.needed));
         return `${a}${hard ? "-->" : "-.->"}${show ? `|${label}|` : ""}${b}`;
       })
       .join("\n");
@@ -254,6 +289,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     caseData,
     analysisPending,
     reanalysisPending,
+    followupInfo,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -404,6 +440,21 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         el.addEventListener("click", () => window.open(info.url, "_blank"));
         instances.push(inst);
       }
+      if (followupInfo.needed && followupInfo.url) {
+        const edgeEl = container.querySelector(
+          `[id^='L-own-notify']`,
+        ) as HTMLElement | null;
+        if (edgeEl) {
+          const inst = tippy(edgeEl, {
+            content: "Follow up with ownership information",
+          });
+          edgeEl.classList.add("cursor-pointer");
+          edgeEl.addEventListener("click", () => {
+            if (followupInfo.url) window.open(followupInfo.url, "_blank");
+          });
+          instances.push(inst);
+        }
+      }
     };
     const observer = new MutationObserver(() => apply());
     observer.observe(container, { childList: true, subtree: true });
@@ -413,7 +464,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       clearTimeout(timer);
       for (const inst of instances) inst.destroy();
     };
-  }, [caseData]);
+  }, [caseData, followupInfo.needed, followupInfo.url]);
 
   return (
     <div className="max-w-full overflow-x-auto" ref={containerRef}>

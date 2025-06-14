@@ -27,6 +27,7 @@ export async function GET(
   const { id } = await params;
   const url = new URL(req.url);
   const replyTo = url.searchParams.get("replyTo");
+  const includeOwner = url.searchParams.has("owner");
   console.log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);
   const c = getCase(id);
   if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -41,7 +42,7 @@ export async function GET(
   console.log(
     `drafting followup for ${recipient} with ${thread.length} emails`,
   );
-  const email = await draftFollowUp(c, recipient, thread);
+  const email = await draftFollowUp(c, recipient, thread, includeOwner);
   console.log(`drafted email subject: ${email.subject}`);
   return NextResponse.json({
     email,

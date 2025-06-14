@@ -14,12 +14,14 @@ export default function FollowUpWrapper({
   const router = useRouter();
   const params = useSearchParams();
   const replyTo = params.get("replyTo") || undefined;
+  const ownerInfo = params.get("owner") !== null;
   return (
     <>
       <ClientCasePage initialCase={caseData} caseId={caseId} />
       <FollowUpModal
         caseId={caseId}
         replyTo={replyTo || undefined}
+        ownerInfo={ownerInfo}
         onClose={() => router.push(`/cases/${caseId}`)}
       />
     </>
