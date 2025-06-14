@@ -8,7 +8,9 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
 
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
@@ -122,6 +124,64 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         return `class ${s.id} ${cls}`;
       })
       .join("\n");
+    const platePhoto = (() => {
+      const plate = getCasePlateNumber(caseData);
+      if (!plate || !caseData.analysis?.images)
+        return caseData.photos[0] ?? null;
+      for (const [name, info] of Object.entries(caseData.analysis.images)) {
+        if (
+          info.paperworkInfo?.vehicle?.licensePlateNumber === plate ||
+          info.highlights?.toLowerCase().includes("plate")
+        ) {
+          const file = caseData.photos.find((p) => p.split("/").pop() === name);
+          if (file) return file;
+        }
+      }
+      return caseData.photos[0] ?? null;
+    })();
+    const ownerDoc = (caseData.threadImages ?? []).find(
+      (i) => i.ocrInfo?.contact,
+    );
+    const ownerLink = ownerDoc
+      ? ownerDoc.threadParent
+        ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
+        : ownerDoc.url
+      : null;
+    const firstEmail = caseData.sentEmails?.[0];
+    const notifyLink = firstEmail
+      ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
+      : null;
+    const clean = (t: string) => t.replace(/"/g, "'");
+    const uploadedAt = caseData.photoTimes[caseData.photos[0]] ?? null;
+    const uploadedTip = uploadedAt
+      ? `Photo taken ${new Date(uploadedAt).toLocaleString()}`
+      : "View uploaded photo";
+    const plateTipParts = [] as string[];
+    const plateNum = getCasePlateNumber(caseData);
+    const plateState = getCasePlateState(caseData);
+    if (plateNum) plateTipParts.push(`Plate: ${plateNum}`);
+    if (plateState) plateTipParts.push(`State: ${plateState}`);
+    if (platePhoto) plateTipParts.push("View plate photo");
+    const plateTip = plateTipParts.join(" \u2013 ");
+    const ownerContact = getCaseOwnerContact(caseData);
+    const ownerTip = ownerContact
+      ? `Owner info: ${ownerContact.slice(0, 40)}${
+          ownerContact.length > 40 ? "…" : ""
+        }`
+      : "View paperwork";
+    const notifyTip = firstEmail
+      ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
+      : "View notification email";
+    const links = [
+      caseData.photos[0]
+        ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
+        : null,
+      platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
+      ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
+      notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
     const light = {
       completedFill: "#D1FAE5",
       completedStroke: "#047857",
@@ -140,11 +200,79 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     };
     const c = isDark ? dark : light;
     const edgeStyle = `linkStyle default fill:none,stroke:${c.pendingStroke},stroke-width:2px;`;
-    return `graph TD\n${nodes}\n${edges}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
-  }, [status, firstPending, noviolation, steps, isDark]);
+    return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
+  }, [status, firstPending, noviolation, steps, isDark, caseData]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const instances: Array<import("tippy.js").Instance> = [];
+    const apply = () => {
+      for (const inst of instances) inst.destroy();
+      instances.length = 0;
+      const map: Record<string, { url: string; preview: string } | null> = {};
+      const platePhoto = (() => {
+        const plate = getCasePlateNumber(caseData);
+        if (!plate || !caseData.analysis?.images)
+          return caseData.photos[0] ?? null;
+        for (const [name, info] of Object.entries(caseData.analysis.images)) {
+          if (
+            info.paperworkInfo?.vehicle?.licensePlateNumber === plate ||
+            info.highlights?.toLowerCase().includes("plate")
+          ) {
+            const file = caseData.photos.find(
+              (p) => p.split("/").pop() === name,
+            );
+            if (file) return file;
+          }
+        }
+        return caseData.photos[0] ?? null;
+      })();
+      const ownerDoc = (caseData.threadImages ?? []).find(
+        (i) => i.ocrInfo?.contact,
+      );
+      const ownerLink = ownerDoc
+        ? ownerDoc.threadParent
+          ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
+          : ownerDoc.url
+        : null;
+      const firstEmail = caseData.sentEmails?.[0];
+      const notifyLink = firstEmail
+        ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
+        : null;
+      if (caseData.photos[0])
+        map.uploaded = { url: caseData.photos[0], preview: caseData.photos[0] };
+      if (platePhoto) map.plate = { url: platePhoto, preview: platePhoto };
+      if (ownerLink)
+        map.own = { url: ownerLink, preview: ownerDoc?.url ?? ownerLink };
+      if (notifyLink) map.notify = { url: notifyLink, preview: notifyLink };
+      for (const [id, info] of Object.entries(map)) {
+        if (!info) continue;
+        const el = container.querySelector(
+          `[id^='flowchart-${id}-']`,
+        ) as HTMLElement | null;
+        if (!el) continue;
+        const inst = tippy(el, {
+          content: `<img src="${info.preview}" class="max-h-40" />`,
+          allowHTML: true,
+        });
+        el.addEventListener("click", () => window.open(info.url, "_blank"));
+        instances.push(inst);
+      }
+    };
+    const observer = new MutationObserver(() => apply());
+    observer.observe(container, { childList: true, subtree: true });
+    const timer = window.setTimeout(apply, 500);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+      for (const inst of instances) inst.destroy();
+    };
+  }, [caseData]);
 
   return (
-    <div className="max-w-full overflow-x-auto">
+    <div className="max-w-full overflow-x-auto" ref={containerRef}>
       <Mermaid
         chart={chart}
         key={chart}
