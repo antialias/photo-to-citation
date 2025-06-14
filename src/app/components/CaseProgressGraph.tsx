@@ -22,9 +22,7 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
-  { id: "analysisPending", label: "Analysis Requested" },
   { id: "analysis", label: "Analysis Complete" },
-  { id: "reanalysis", label: "Re-analysis Requested" },
   { id: "violation", label: "Violation Identified" },
   { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
@@ -57,9 +55,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
     return {
       uploaded: true,
-      analysisPending,
       analysis: analysisDone,
-      reanalysis: reanalysisPending,
       violation,
       noviol: noviolation,
       plate:
@@ -90,30 +86,43 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
-    const edgesList: Array<[string, string, boolean, string]> = noviolation
-      ? [
-          ["uploaded", "analysis", true, "queued for analysis"],
-          ["analysisPending", "analysis", true, "analyzing"],
-          ["analysis", "noviol", true, "no violation"],
-        ]
-      : [
-          ["uploaded", "analysis", true, "queued for analysis"],
-          ["analysisPending", "analysis", true, "analyzing"],
-          ["analysis", "violation", true, "evaluating"],
-          ["reanalysis", "analysis", true, "reanalyzing"],
-          ["violation", "plate", true, "detecting plate"],
-          ["plate", "vin", true, "decoding VIN"],
-          ["plate", "ownreq", true, "requesting ownership"],
-          ["vin", "ownreq", false, "lookup ownership"],
-          ["ownreq", "own", true, "awaiting ownership info"],
-          ["violation", "notify", true, "notifying authorities"],
-          ["notify", "confirm", true, "awaiting response from authorities"],
-          ["confirm", "sent", true, "citation processing"],
-          ["sent", "received", true, "awaiting delivery"],
-        ];
-    const activeFromIdx = firstPending > 0 ? firstPending - 1 : -1;
-    const activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
-    const activeTo = firstPending >= 0 ? steps[firstPending].id : null;
+    const edgesList: Array<[string, string, boolean, string]> = [
+      ["uploaded", "analysis", true, "analysis requested"],
+      ["analysis", "analysis", true, "re-analysis requested"],
+      ...(noviolation
+        ? ([["analysis", "noviol", true, "no violation"]] as Array<
+            [string, string, boolean, string]
+          >)
+        : ([
+            ["analysis", "violation", true, "evaluating"],
+            ["violation", "plate", true, "detecting plate"],
+            ["plate", "vin", true, "decoding VIN"],
+            ["plate", "ownreq", true, "requesting ownership"],
+            ["vin", "ownreq", false, "lookup ownership"],
+            ["ownreq", "own", true, "awaiting ownership info"],
+            ["violation", "notify", true, "notifying authorities"],
+            ["notify", "confirm", true, "awaiting response from authorities"],
+            ["confirm", "sent", true, "citation processing"],
+            ["sent", "received", true, "awaiting delivery"],
+          ] as Array<[string, string, boolean, string]>)),
+    ];
+    const analysisPending =
+      caseData.analysisStatus === "pending" && !caseData.analysis;
+    const reanalysisPending =
+      caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
+    let activeFrom: string | null = null;
+    let activeTo: string | null = null;
+    if (analysisPending) {
+      activeFrom = "uploaded";
+      activeTo = "analysis";
+    } else if (reanalysisPending) {
+      activeFrom = "analysis";
+      activeTo = "analysis";
+    } else {
+      const activeFromIdx = firstPending > 0 ? firstPending - 1 : -1;
+      activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
+      activeTo = firstPending >= 0 ? steps[firstPending].id : null;
+    }
     const edges = edgesList
       .map(([a, b, hard, label]) => {
         const show = label && a === activeFrom && b === activeTo;
