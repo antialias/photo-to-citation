@@ -285,6 +285,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           isImage: true,
           caption: bestViolation.caption,
         };
+      const vin = getCaseVin(caseData);
+      if (vin)
+        map.vin = {
+          url: "",
+          preview: vin,
+          isImage: false,
+        };
       const escapeHtml = (s: string) =>
         s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       for (const [id, info] of Object.entries(map)) {
