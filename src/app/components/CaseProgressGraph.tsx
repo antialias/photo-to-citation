@@ -199,8 +199,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       pendingStroke: "#9CA3AF",
     };
     const c = isDark ? dark : light;
+    const textColor = isDark ? "#F9FAFB" : "#000000";
     const edgeStyle = `linkStyle default fill:none,stroke:${c.pendingStroke},stroke-width:2px;`;
-    return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
+    return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke},color:${textColor};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke},color:${textColor};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke},color:${textColor};\n${edgeStyle}\n${classAssignments}`;
   }, [status, firstPending, noviolation, steps, isDark, caseData]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -276,7 +277,16 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       <Mermaid
         chart={chart}
         key={chart}
-        config={{ theme: isDark ? "dark" : "default" }}
+        config={{
+          theme: isDark ? "dark" : "default",
+          themeVariables: isDark
+            ? {
+                primaryTextColor: "#F9FAFB",
+                textColor: "#F9FAFB",
+                nodeTextColor: "#F9FAFB",
+              }
+            : {},
+        }}
       />
     </div>
   );
