@@ -55,6 +55,12 @@ export default function NavBar() {
           Cases
         </Link>
         <Link
+          href="/map"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          Map View
+        </Link>
+        <Link
           href="/settings"
           className="hover:text-gray-600 dark:hover:text-gray-300"
         >

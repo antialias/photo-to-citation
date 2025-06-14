@@ -75,8 +75,9 @@ export async function scanInbox(): Promise<void> {
         if (!firstPhoto) return;
         const takenAt = photoTimes[firstPhoto];
         const newCase = createCase(firstPhoto, firstGps, undefined, takenAt);
-        for (const p of casePhotos) {
-          addCasePhoto(newCase.id, p, photoTimes[p]);
+        for (let i = 0; i < casePhotos.length; i++) {
+          const p = casePhotos[i];
+          addCasePhoto(newCase.id, p, photoTimes[p], gpsList[i + 1] || null);
         }
         analyzeCaseInBackground(newCase);
         fetchCaseLocationInBackground(newCase);

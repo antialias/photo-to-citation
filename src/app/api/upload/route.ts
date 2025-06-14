@@ -26,7 +26,12 @@ export async function POST(req: NextRequest) {
   fs.writeFileSync(path.join(uploadDir, filename), buffer);
   const existing = clientId ? getCase(clientId) : null;
   if (existing) {
-    const updated = addCasePhoto(existing.id, `/uploads/${filename}`, takenAt);
+    const updated = addCasePhoto(
+      existing.id,
+      `/uploads/${filename}`,
+      takenAt,
+      gps,
+    );
     if (!updated) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }

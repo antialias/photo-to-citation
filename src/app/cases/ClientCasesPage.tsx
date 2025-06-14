@@ -3,7 +3,10 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Case } from "../../lib/caseStore";
-import { getRepresentativePhoto } from "../../lib/caseUtils";
+import {
+  getOfficialCaseGps,
+  getRepresentativePhoto,
+} from "../../lib/caseUtils";
 import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
@@ -132,15 +135,18 @@ export default function ClientCasesPage({
                   {c.photos.length}
                 </span>
               </div>
-              {c.gps ? (
-                <MapPreview
-                  lat={c.gps.lat}
-                  lon={c.gps.lon}
-                  width={80}
-                  height={60}
-                  className="w-20 aspect-[4/3]"
-                />
-              ) : null}
+              {(() => {
+                const g = getOfficialCaseGps(c);
+                return g ? (
+                  <MapPreview
+                    lat={g.lat}
+                    lon={g.lon}
+                    width={80}
+                    height={60}
+                    className="w-20 aspect-[4/3]"
+                  />
+                ) : null;
+              })()}
               <div className="flex flex-col text-sm gap-1">
                 <span className="font-semibold">Case {c.id}</span>
                 {c.analysis ? (

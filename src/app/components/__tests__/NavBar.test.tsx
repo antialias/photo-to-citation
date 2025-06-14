@@ -17,6 +17,7 @@ describe("NavBar", () => {
     mockedUsePathname.mockReturnValue("/cases");
     render(<NavBar />);
     expect(screen.getByText("Point & Shoot")).toBeInTheDocument();
+    expect(screen.getByText("Map View")).toBeInTheDocument();
   });
 
   it("hides the nav except for cases on /point", () => {
