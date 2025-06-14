@@ -35,11 +35,13 @@
     "react-dom": "^19.0.0",
     "react-icons": "^4.12.0",
     "react-mermaid2": "^0.1.4",
+    "tippy.js": "^6.3.7",
     "ts-node": "^10.9.2",
     "twilio": "^4.23.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@11ty/eleventy": "^2.0.0",
     "@anatine/zod-openapi": "^2.2.8",
     "@biomejs/biome": "^1.9.4",
     "@eslint/eslintrc": "^3",
@@ -66,8 +68,7 @@
     "ts-to-zod": "^3.15.0",
     "typescript": "^5",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^3.2.3",
-    "@11ty/eleventy": "^2.0.0"
+    "vitest": "^3.2.3"
   },
   "optionalDependencies": {
     "@biomejs/cli-linux-x64": "^1.9.4",
