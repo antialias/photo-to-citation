@@ -17,8 +17,14 @@ export default function PointAndShootPage() {
           video: { facingMode: "environment" },
         });
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play().catch(() => {});
+          const v = videoRef.current;
+          // iOS Safari requires these attributes for autoplay
+          v.setAttribute("autoplay", "");
+          v.setAttribute("muted", "");
+          v.setAttribute("playsinline", "");
+          v.muted = true;
+          v.srcObject = stream;
+          await v.play().catch(() => {});
         }
       } catch (err) {
         console.error("Could not access camera", err);
