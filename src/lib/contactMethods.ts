@@ -133,6 +133,27 @@ export async function sendSnailMail(options: {
     page.drawText(line, { x: 50, y, size: fontSize, font });
     y -= fontSize * 1.2;
   }
+  for (const att of options.attachments) {
+    const abs = path.join(process.cwd(), "public", att.replace(/^\/+/, ""));
+    if (!fs.existsSync(abs)) continue;
+    const bytes = fs.readFileSync(abs);
+    const ext = path.extname(abs).toLowerCase();
+    const image =
+      ext === ".png" ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes);
+    const ratio = Math.min(
+      maxWidth / image.width,
+      (height - 100) / image.height,
+      1,
+    );
+    const dims = image.scale(ratio);
+    page = pdf.addPage();
+    page.drawImage(image, {
+      x: 50 + (maxWidth - dims.width) / 2,
+      y: height - 50 - dims.height,
+      width: dims.width,
+      height: dims.height,
+    });
+  }
   fs.writeFileSync(filePath, await pdf.save());
   await providerSendSnailMail(provider, {
     to,
