@@ -21,6 +21,7 @@
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.7",
+    "better-sqlite3": "^11.10.0",
     "bree": "^9.2.4",
     "dotenv": "^16.5.0",
     "exif-parser": "^0.1.12",
