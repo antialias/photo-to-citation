@@ -48,13 +48,15 @@ beforeEach((context) => {
     context.consoleIntercept?.errors.push(args);
   };
 
-  originalGetUserMedia = navigator.mediaDevices?.getUserMedia;
-  if (!navigator.mediaDevices) {
-    (
-      navigator as unknown as { mediaDevices: Record<string, unknown> }
-    ).mediaDevices = {};
+  if (typeof navigator !== "undefined") {
+    originalGetUserMedia = navigator.mediaDevices?.getUserMedia;
+    if (!navigator.mediaDevices) {
+      (
+        navigator as unknown as { mediaDevices: Record<string, unknown> }
+      ).mediaDevices = {} as MediaDevices;
+    }
+    navigator.mediaDevices.getUserMedia = vi.fn(async () => undefined);
   }
-  navigator.mediaDevices.getUserMedia = vi.fn(async () => undefined);
 });
 
 afterEach((context) => {
@@ -65,11 +67,13 @@ afterEach((context) => {
   console.warn = originals.warn;
   console.error = originals.error;
 
-  if (originalGetUserMedia) {
-    navigator.mediaDevices.getUserMedia = originalGetUserMedia;
-  } else {
-    (navigator.mediaDevices as Record<string, unknown>).getUserMedia =
-      undefined;
+  if (typeof navigator !== "undefined") {
+    if (originalGetUserMedia) {
+      navigator.mediaDevices.getUserMedia = originalGetUserMedia;
+    } else if (navigator.mediaDevices) {
+      (navigator.mediaDevices as Record<string, unknown>).getUserMedia =
+        undefined;
+    }
   }
 
   if (context.task.result?.state === "fail") {

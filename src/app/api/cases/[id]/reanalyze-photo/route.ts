@@ -50,13 +50,14 @@ export async function POST(
         : "image/jpeg";
   const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
   let result: ViolationReport;
+  let info: ViolationReport["images"][string] | undefined;
   try {
     result = await analyzeViolation(
       [{ filename: path.basename(photo), url: dataUrl }],
       undefined,
       ctrl.signal,
     );
-    const info = result.images?.[path.basename(photo)];
+    info = result.images?.[path.basename(photo)];
     if (info?.paperwork && !info.paperworkText) {
       const ocr = await ocrPaperwork({ url: dataUrl }, undefined, ctrl.signal);
       info.paperworkText = ocr.text;
