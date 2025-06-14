@@ -284,8 +284,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         const content = (() => {
           if (info.isImage !== false) {
             if (Array.isArray(info.preview)) {
+              const multi = info.preview.length > 1;
+              const imgClass = multi
+                ? "max-h-24 max-w-24 object-contain"
+                : "max-h-40";
               const imgs = info.preview
-                .map((p) => `<img src="${p}" class="max-h-40" />`)
+                .map((p) => `<img src="${p}" class="${imgClass}" />`)
                 .join("");
               const extra =
                 info.count && info.count > info.preview.length
@@ -295,7 +299,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
                 extra > 0
                   ? `<div class="text-xs text-center mt-1">and ${extra} more photo${extra === 1 ? "" : "s"} not shown</div>`
                   : "";
-              return `<div class="flex flex-col items-center">${imgs}${extraLine}</div>`;
+              return `<div class="flex flex-col items-center"><div class="flex flex-wrap justify-center gap-2">${imgs}</div>${extraLine}</div>`;
             }
             return `<img src="${info.preview}" class="max-h-40" />`;
           }
@@ -306,6 +310,8 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         const inst = tippy(el, {
           content,
           allowHTML: true,
+          placement: "auto",
+          maxWidth: "none",
         });
         el.addEventListener("click", () => window.open(info.url, "_blank"));
         instances.push(inst);
