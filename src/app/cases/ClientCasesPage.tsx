@@ -63,7 +63,7 @@ export default function ClientCasesPage({
 
   return (
     <div
-      className="p-8 relative"
+      className="p-8 relative h-full"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
@@ -161,7 +161,7 @@ export default function ClientCasesPage({
         ))}
       </ul>
       {dragging ? (
-        <div className="fixed inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
           {dropCase
             ? `Add photos to case ${dropCase}`
             : "Drop photos to create case"}

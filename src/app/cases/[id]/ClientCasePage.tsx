@@ -262,7 +262,7 @@ export default function ClientCasePage({
 
   return (
     <div
-      className="relative"
+      className="relative h-full"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
@@ -472,7 +472,7 @@ export default function ClientCasePage({
         ) : null}
       </CaseLayout>
       {dragging ? (
-        <div className="fixed inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
           Drop to add photos
         </div>
       ) : null}
