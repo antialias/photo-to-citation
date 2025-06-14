@@ -4,6 +4,7 @@ import {
   getAnalysisSummary,
   getBestViolationPhoto,
   getCaseOwnerContact,
+  getCaseOwnerContactInfo,
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
@@ -31,6 +32,7 @@ const allSteps = [
   { id: "vin", label: "VIN Verified" },
   { id: "ownreq", label: "Ownership Info Requested" },
   { id: "own", label: "Ownership Info Obtained" },
+  { id: "ownnotify", label: "Registered Owner Notified" },
   { id: "notify", label: "Authorities Notified" },
   { id: "confirm", label: "Authority Response Confirmed" },
   { id: "sent", label: "Citation Sent" },
@@ -70,6 +72,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         caseData.ownershipRequests && caseData.ownershipRequests.length > 0,
       ),
       own: Boolean(getCaseOwnerContact(caseData)),
+      ownnotify: Boolean(
+        (() => {
+          const info = getCaseOwnerContactInfo(caseData);
+          return info?.email
+            ? (caseData.sentEmails ?? []).some((m) => m.to === info.email)
+            : false;
+        })(),
+      ),
       notify: Boolean(caseData.sentEmails && caseData.sentEmails.length > 0),
       confirm: false,
       sent: false,
@@ -106,6 +116,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           ["plate", "ownreq", true, "requesting ownership"],
           ["vin", "ownreq", false, "lookup ownership"],
           ["ownreq", "own", true, "awaiting ownership info"],
+          ["own", "ownnotify", true, "notifying owner"],
           ["violation", "notify", true, "notifying authorities"],
           ["notify", "confirm", true, "awaiting response from authorities"],
           ["confirm", "sent", true, "citation processing"],
@@ -153,7 +164,16 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
         : ownerDoc.url
       : null;
-    const firstEmail = caseData.sentEmails?.[0];
+    const ownerInfo = getCaseOwnerContactInfo(caseData);
+    const ownerNotifyEmail = ownerInfo?.email
+      ? (caseData.sentEmails ?? []).find((m) => m.to === ownerInfo.email)
+      : undefined;
+    const ownerNotifyLink = ownerNotifyEmail
+      ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerNotifyEmail.sentAt)}`
+      : null;
+    const firstEmail = caseData.sentEmails?.find(
+      (m) => !ownerInfo?.email || m.to !== ownerInfo.email,
+    );
     const notifyLink = firstEmail
       ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
       : null;
@@ -178,6 +198,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const notifyTip = firstEmail
       ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
       : "View notification email";
+    const ownerNotifyTip = ownerNotifyEmail
+      ? `Notification email to ${ownerNotifyEmail.to} on ${new Date(ownerNotifyEmail.sentAt).toLocaleString()}`
+      : "View owner notification";
     const analysisTip =
       caseData.analysis && getAnalysisSummary(caseData.analysis);
     const links = [
@@ -186,6 +209,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         : null,
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
+      ownerNotifyLink
+        ? `click ownnotify "${ownerNotifyLink}" "${clean(ownerNotifyTip)}"`
+        : null,
       notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
       analysisTip
         ? `click analysis "/cases/${caseData.id}" "${clean(analysisTip)}"`
@@ -258,7 +284,16 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
           : ownerDoc.url
         : null;
-      const firstEmail = caseData.sentEmails?.[0];
+      const ownerInfo = getCaseOwnerContactInfo(caseData);
+      const ownerNotifyEmail = ownerInfo?.email
+        ? (caseData.sentEmails ?? []).find((m) => m.to === ownerInfo.email)
+        : undefined;
+      const ownerNotifyLink = ownerNotifyEmail
+        ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerNotifyEmail.sentAt)}`
+        : null;
+      const firstEmail = caseData.sentEmails?.find(
+        (m) => !ownerInfo?.email || m.to !== ownerInfo.email,
+      );
       const notifyLink = firstEmail
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
         : null;
@@ -277,6 +312,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           url: ownerLink,
           preview: ownerDoc?.url ?? ownerLink,
           isImage: true,
+        };
+      if (ownerNotifyLink)
+        map.ownnotify = {
+          url: ownerNotifyLink,
+          preview: ownerNotifyEmail?.body ?? "",
+          isImage: false,
         };
       if (notifyLink)
         map.notify = {
