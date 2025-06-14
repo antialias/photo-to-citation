@@ -201,6 +201,14 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
+  async function reanalyzePhoto(photo: string) {
+    const url = `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(
+      photo,
+    )}`;
+    await fetch(url, { method: "POST" });
+    await refreshCase();
+  }
+
   async function removePhoto(photo: string) {
     await fetch(`/api/cases/${caseId}/photos`, {
       method: "DELETE",
@@ -405,6 +413,27 @@ export default function ClientCasePage({
                     fill
                     className="object-contain"
                   />
+                  <details className="absolute top-1 right-1 text-white">
+                    <summary className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70">
+                      ⋮
+                    </summary>
+                    <div className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white">
+                      <button
+                        type="button"
+                        onClick={() => reanalyzePhoto(selectedPhoto)}
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      >
+                        Reanalyze Photo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(selectedPhoto)}
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      >
+                        Delete Image
+                      </button>
+                    </div>
+                  </details>
                   {caseData.analysis ? (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
                       <ImageHighlights
