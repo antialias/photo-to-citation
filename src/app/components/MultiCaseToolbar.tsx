@@ -53,12 +53,14 @@ export default function MultiCaseToolbar({
                   Request Ownership Info
                 </Link>
               )}
-              <Link
-                href={`/cases/${first}/notify-owner?ids=${idsParam}`}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Notify Registered Owner
-              </Link>
+              {hasOwner ? (
+                <Link
+                  href={`/cases/${first}/notify-owner?ids=${idsParam}`}
+                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Notify Registered Owner
+                </Link>
+              ) : null}
             </>
           )}
           <button
