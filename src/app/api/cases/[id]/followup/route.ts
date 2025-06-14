@@ -77,6 +77,7 @@ export async function POST(
     `followup POST case=${id} to=${target} replyTo=${replyTo ?? "none"}`,
   );
   const results: Record<string, { success: boolean; error?: string }> = {};
+  let threadId: string | null = null;
   try {
     await sendEmail({ to: target, subject, body, attachments });
     results.email = { success: true };
@@ -100,14 +101,16 @@ export async function POST(
   }
   let updated = c;
   if (results.email?.success) {
+    const sentAt = new Date().toISOString();
+    threadId = sentAt;
     updated = addCaseEmail(id, {
       to: target,
       subject,
       body,
       attachments,
-      sentAt: new Date().toISOString(),
+      sentAt,
       replyTo: replyTo ?? null,
     });
   }
-  return NextResponse.json({ case: updated, results });
+  return NextResponse.json({ case: updated, results, threadId });
 }

@@ -114,19 +114,22 @@ export async function POST(
     );
   }
   let updated = c;
+  let threadId: string | null = null;
   if (
     methods.includes("email") &&
     contactInfo.email &&
     results.email?.success
   ) {
+    const sentAt = new Date().toISOString();
+    threadId = sentAt;
     updated = addCaseEmail(id, {
       to: contactInfo.email,
       subject,
       body,
       attachments,
-      sentAt: new Date().toISOString(),
+      sentAt,
       replyTo: null,
     });
   }
-  return NextResponse.json({ case: updated, results });
+  return NextResponse.json({ case: updated, results, threadId });
 }

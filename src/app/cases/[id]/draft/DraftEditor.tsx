@@ -2,6 +2,7 @@
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function DraftEditor({
@@ -28,6 +29,8 @@ export default function DraftEditor({
   const [results, setResults] = useState<
     Record<string, { status: string; error?: string }>
   >({});
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
@@ -58,6 +61,7 @@ export default function DraftEditor({
       if (res.ok) {
         const data = (await res.json()) as {
           results: Record<string, { success: boolean; error?: string }>;
+          threadId?: string | null;
         };
         const r: Record<string, { status: string; error?: string }> = {};
         for (const [k, v] of Object.entries(data.results)) {
@@ -66,8 +70,16 @@ export default function DraftEditor({
             : { status: "error", error: v.error };
         }
         setResults(r);
-        if (Object.values(r).every((x) => x.status === "success")) {
-          alert("Notification sent");
+        if (data.threadId && r.email?.status === "success") {
+          setThreadId(data.threadId);
+        }
+        if (
+          data.threadId &&
+          Object.values(r).every((x) => x.status === "success")
+        ) {
+          router.push(
+            `/cases/${caseId}/thread/${encodeURIComponent(data.threadId)}`,
+          );
         } else if (r.email && r.email.status === "success") {
           alert("Email sent with some errors");
         } else {
@@ -157,6 +169,17 @@ export default function DraftEditor({
           ))}
         </ul>
       )}
+      {threadId &&
+        Object.values(results).some((v) => v.status !== "success") && (
+          <a
+            href={`/cases/${caseId}/thread/${encodeURIComponent(threadId)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline"
+          >
+            View Thread
+          </a>
+        )}
     </div>
   );
 }
