@@ -5,11 +5,13 @@ import {
   getBestViolationPhoto,
   getCaseOwnerContact,
   getCaseOwnerContactInfo,
+  getCaseOwnerContactTime,
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
+import { reportModules } from "@/lib/reportModules";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
@@ -127,10 +129,37 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       edgesList.push(["confirm", "sent", true, "citation processing"]);
       edgesList.push(["sent", "received", true, "awaiting delivery"]);
     }
+
+    const module = reportModules["oak-park"];
+    const authorityEmails = (caseData.sentEmails ?? []).filter(
+      (m) => m.to === module.authorityEmail,
+    );
+    const firstAuthority = authorityEmails[0];
+    const ownerTime = getCaseOwnerContactTime(caseData);
+    const followUpSent = ownerTime
+      ? authorityEmails.some((m) => new Date(m.sentAt) > new Date(ownerTime))
+      : false;
+    const followUpNeeded =
+      !!ownerTime &&
+      !!firstAuthority &&
+      new Date(firstAuthority.sentAt) < new Date(ownerTime) &&
+      !followUpSent;
+    if (followUpNeeded) {
+      edgesList.push([
+        "own",
+        "notify",
+        false,
+        "follow up with ownership information",
+      ]);
+    }
     const activeFromIdx = firstPending > 0 ? firstPending - 1 : -1;
     let activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
-    const activeTo = firstPending >= 0 ? steps[firstPending].id : null;
+    let activeTo = firstPending >= 0 ? steps[firstPending].id : null;
     if (reanalysisPending) activeFrom = "analysis";
+    if (followUpNeeded) {
+      activeFrom = "own";
+      activeTo = "notify";
+    }
     const edges = edgesList
       .map(([a, b, hard, label]) => {
         const show = label && a === activeFrom && b === activeTo;
@@ -260,7 +289,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const instances: Array<import("tippy.js").Instance> = [];
+    const instances: Array<{ destroy(): void }> = [];
     const apply = () => {
       for (const inst of instances) inst.destroy();
       instances.length = 0;
@@ -347,6 +376,20 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           isImage: true,
           caption: bestViolation.caption,
         };
+      const module = reportModules["oak-park"];
+      const authorityEmails = (caseData.sentEmails ?? []).filter(
+        (m) => m.to === module.authorityEmail,
+      );
+      const firstAuthority = authorityEmails[0];
+      const ownerTime = getCaseOwnerContactTime(caseData);
+      const followUpSent = ownerTime
+        ? authorityEmails.some((m) => new Date(m.sentAt) > new Date(ownerTime))
+        : false;
+      const followUpNeeded =
+        !!ownerTime &&
+        !!firstAuthority &&
+        new Date(firstAuthority.sentAt) < new Date(ownerTime) &&
+        !followUpSent;
       const vin = getCaseVin(caseData);
       if (vin)
         map.vin = {
@@ -403,6 +446,23 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         });
         el.addEventListener("click", () => window.open(info.url, "_blank"));
         instances.push(inst);
+      }
+      if (followUpNeeded && firstAuthority) {
+        const label = Array.from(container.querySelectorAll("text")).find(
+          (t) => t.textContent === "follow up with ownership information",
+        ) as SVGTextElement | undefined;
+        if (label) {
+          const handler = () =>
+            window.open(
+              `/cases/${caseData.id}/followup?replyTo=${encodeURIComponent(firstAuthority.sentAt)}`,
+              "_blank",
+            );
+          label.style.cursor = "pointer";
+          label.addEventListener("click", handler);
+          instances.push({
+            destroy: () => label.removeEventListener("click", handler),
+          });
+        }
       }
     };
     const observer = new MutationObserver(() => apply());

@@ -113,6 +113,27 @@ export function getCaseOwnerContactInfo(
   return parseContactInfo(contact);
 }
 
+export function getCaseOwnerContactTime(caseData: Case): string | null {
+  let time: string | null = null;
+  const imgs = caseData.analysis?.images ?? {};
+  for (const [name, info] of Object.entries(imgs)) {
+    if (info.paperworkInfo?.contact) {
+      const file = caseData.photos.find((p) => basename(p) === name);
+      if (file) {
+        const t = caseData.photoTimes[file];
+        if (t && (!time || new Date(t) < new Date(time))) time = t;
+      }
+    }
+  }
+  for (const img of caseData.threadImages ?? []) {
+    if (img.ocrInfo?.contact) {
+      const t = img.uploadedAt;
+      if (!time || new Date(t) < new Date(time)) time = t;
+    }
+  }
+  return time;
+}
+
 export function getBestViolationPhoto(
   caseData: Pick<Case, "photos" | "analysis">,
 ): { photo: string; caption?: string } | null {
