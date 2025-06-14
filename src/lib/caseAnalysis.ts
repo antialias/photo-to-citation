@@ -30,13 +30,19 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     const imageMap: Record<string, string> = Object.fromEntries(
       images.map((i) => [i.filename, i.url]),
     );
-    const result = await analyzeViolation(images);
+    const result = await analyzeViolation(images, (p) => {
+      updateCase(caseData.id, { analysisProgress: p });
+    });
+    updateCase(caseData.id, { analysisProgress: null });
     if (result.images) {
       for (const [name, info] of Object.entries(result.images)) {
         if (info.paperwork && !info.paperworkText) {
           const url = imageMap[name];
           if (url) {
-            const ocr = await ocrPaperwork({ url });
+            const ocr = await ocrPaperwork({ url }, (p) => {
+              updateCase(caseData.id, { analysisProgress: p });
+            });
+            updateCase(caseData.id, { analysisProgress: null });
             info.paperworkText = ocr.text;
             if (ocr.info) info.paperworkInfo = ocr.info;
           }
