@@ -19,6 +19,7 @@ import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
+import useDragReset from "../useDragReset";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -64,6 +65,10 @@ export default function ClientCasePage({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
+
+  useDragReset(() => {
+    setDragging(false);
+  });
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
@@ -257,7 +262,7 @@ export default function ClientCasePage({
 
   return (
     <div
-      className="relative"
+      className="relative overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
@@ -467,7 +472,7 @@ export default function ClientCasePage({
         ) : null}
       </CaseLayout>
       {dragging ? (
-        <div className="fixed inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
           Drop to add photos
         </div>
       ) : null}
