@@ -359,7 +359,8 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           url: `/cases/${caseData.id}`,
           preview: getAnalysisSummary(caseData.analysis),
           isImage: false,
-        };
+          menu: true,
+        } as Record<string, unknown>;
       const escapeHtml = (s: string) =>
         s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       for (const [id, info] of Object.entries(map)) {
@@ -368,40 +369,63 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
-        const content = (() => {
-          if (info.isImage !== false) {
-            if (Array.isArray(info.preview)) {
-              const small = info.preview.length > 1;
-              const imgClass = small ? "max-h-24 my-1" : "max-h-40";
-              const imgs = info.preview
-                .map((p) => `<img src="${p}" class="${imgClass}" />`)
-                .join("");
-              const extra =
-                info.count && info.count > info.preview.length
-                  ? info.count - info.preview.length
-                  : 0;
-              const extraLine =
-                extra > 0
-                  ? `<div class="text-xs text-center mt-1">and ${extra} more photo${extra === 1 ? "" : "s"} not shown</div>`
-                  : "";
-              return `<div class="flex flex-col items-center overflow-y-auto" style="max-height:60vh; max-width:80vw;">${imgs}${extraLine}</div>`;
+        let content: string;
+        let interactive = false;
+        let trigger: "click" | "mouseenter focus" = "mouseenter focus";
+        if (id === "analysis" && caseData.analysis) {
+          interactive = true;
+          trigger = "click";
+          content = `<div class="flex flex-col text-sm"><button type="button" class="reanalyze px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700">Re-run Analysis</button><a href="${info.url}" target="_blank" class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">View Analysis</a></div>`;
+        } else {
+          content = (() => {
+            if (info.isImage !== false) {
+              if (Array.isArray(info.preview)) {
+                const small = info.preview.length > 1;
+                const imgClass = small ? "max-h-24 my-1" : "max-h-40";
+                const imgs = (info.preview as string[])
+                  .map((p) => `<img src="${p}" class="${imgClass}" />`)
+                  .join("");
+                const extra =
+                  info.count && info.count > (info.preview as string[]).length
+                    ? info.count - (info.preview as string[]).length
+                    : 0;
+                const extraLine =
+                  extra > 0
+                    ? `<div class="text-xs text-center mt-1">and ${extra} more photo${extra === 1 ? "" : "s"} not shown</div>`
+                    : "";
+                return `<div class="flex flex-col items-center overflow-y-auto" style="max-height:60vh; max-width:80vw;">${imgs}${extraLine}</div>`;
+              }
+              const caption = info.caption
+                ? `<div class="text-xs text-center mt-1">${escapeHtml(
+                    info.caption,
+                  )}</div>`
+                : "";
+              return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
             }
-            const caption = info.caption
-              ? `<div class="text-xs text-center mt-1">${escapeHtml(
-                  info.caption,
-                )}</div>`
-              : "";
-            return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
-          }
-          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
-            info.preview as string,
-          )}</div>`;
-        })();
+            return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+              info.preview as string,
+            )}</div>`;
+          })();
+        }
         const inst = tippy(el, {
           content,
           allowHTML: true,
+          interactive,
+          trigger,
         });
-        el.addEventListener("click", () => window.open(info.url, "_blank"));
+        if (id === "analysis") {
+          const btn = inst.popper.querySelector(
+            ".reanalyze",
+          ) as HTMLButtonElement | null;
+          btn?.addEventListener("click", async () => {
+            await fetch(`/api/cases/${caseData.id}/reanalyze`, {
+              method: "POST",
+            });
+            window.location.reload();
+          });
+        } else {
+          el.addEventListener("click", () => window.open(info.url, "_blank"));
+        }
         instances.push(inst);
       }
     };
