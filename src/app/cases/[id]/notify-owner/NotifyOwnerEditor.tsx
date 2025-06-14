@@ -34,7 +34,6 @@ export default function NotifyOwnerEditor({
   const [methods, setMethods] = useState<string[]>(availableMethods);
   const [disabledMethods, setDisabledMethods] = useState<string[]>([]);
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
@@ -131,6 +130,11 @@ export default function NotifyOwnerEditor({
               disabled={disabledMethods.includes("email")}
             />
             <span>Email: {contactInfo.email}</span>
+            {results.email?.status === "error" && (
+              <span className="text-red-600 text-sm">
+                {results.email.error}
+              </span>
+            )}
           </label>
         )}
         {contactInfo.phone && (
@@ -149,6 +153,11 @@ export default function NotifyOwnerEditor({
                 disabled={disabledMethods.includes("sms")}
               />
               <span>SMS: {contactInfo.phone}</span>
+              {results.sms?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.sms.error}
+                </span>
+              )}
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -164,6 +173,11 @@ export default function NotifyOwnerEditor({
                 disabled={disabledMethods.includes("whatsapp")}
               />
               <span>WhatsApp: {contactInfo.phone}</span>
+              {results.whatsapp?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.whatsapp.error}
+                </span>
+              )}
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -179,6 +193,11 @@ export default function NotifyOwnerEditor({
                 disabled={disabledMethods.includes("robocall")}
               />
               <span>Robocall: {contactInfo.phone}</span>
+              {results.robocall?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.robocall.error}
+                </span>
+              )}
             </label>
           </>
         )}
@@ -197,6 +216,11 @@ export default function NotifyOwnerEditor({
               disabled={disabledMethods.includes("snailMail")}
             />
             <span>Snail Mail: {contactInfo.address}</span>
+            {results.snailMail?.status === "error" && (
+              <span className="text-red-600 text-sm">
+                {results.snailMail.error}
+              </span>
+            )}
           </label>
         )}
         {violationAddress && (
@@ -214,6 +238,11 @@ export default function NotifyOwnerEditor({
               disabled={disabledMethods.includes("snailMailLocation")}
             />
             <span>Mail to address of violation: {violationAddress}</span>
+            {results.snailMailLocation?.status === "error" && (
+              <span className="text-red-600 text-sm">
+                {results.snailMailLocation.error}
+              </span>
+            )}
           </label>
         )}
       </div>

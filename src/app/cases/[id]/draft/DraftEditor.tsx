@@ -33,7 +33,6 @@ export default function DraftEditor({
     Record<string, { status: string; error?: string }>
   >({});
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
@@ -155,6 +154,11 @@ export default function DraftEditor({
             disabled={snailMailDisabled}
           />
           <span>Send via snail mail to {module.authorityAddress}</span>
+          {results.snailMail?.status === "error" && (
+            <span className="text-red-600 text-sm">
+              {results.snailMail.error}
+            </span>
+          )}
         </label>
       )}
       <button
