@@ -6,7 +6,7 @@ Photo To Citation is an experimental app that helps residents of Oak Park, IL re
 
 - ✅ **Next.js 14** (App Router with React Server Components)
 - 🎨 **Tailwind CSS + shadcn/ui + Radix UI**
-- 🧠 **Drizzle ORM with PostgreSQL**
+ - 🧠 **Drizzle ORM with SQLite**
 - 🔄 **React Query (TanStack Query)** for client interactivity
 - 🔐 **Lucia or NextAuth.js** for authentication
 - ⚡ **Framer Motion** for animations
