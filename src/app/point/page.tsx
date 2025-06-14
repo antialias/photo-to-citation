@@ -18,6 +18,9 @@ export default function PointAndShootPage() {
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          videoRef.current.setAttribute("autoplay", "");
+          videoRef.current.setAttribute("muted", "");
+          videoRef.current.setAttribute("playsinline", "");
           await videoRef.current.play().catch(() => {});
         }
       } catch (err) {
@@ -61,7 +64,7 @@ export default function PointAndShootPage() {
         autoPlay
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover z-0"
       >
         <track kind="captions" label="" />
       </video>
