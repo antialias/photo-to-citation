@@ -12,6 +12,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 
+const UPLOADED_PREVIEW_COUNT = 4;
+
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
@@ -214,7 +216,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       instances.length = 0;
       const map: Record<
         string,
-        { url: string; preview: string; isImage?: boolean } | null
+        {
+          url: string;
+          preview: string | string[];
+          isImage?: boolean;
+          count?: number;
+        } | null
       > = {};
       const platePhoto = (() => {
         const plate = getCasePlateNumber(caseData);
@@ -245,11 +252,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const notifyLink = firstEmail
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
         : null;
-      if (caseData.photos[0])
+      if (caseData.photos.length > 0)
         map.uploaded = {
           url: caseData.photos[0],
-          preview: caseData.photos[0],
+          preview: caseData.photos.slice(-UPLOADED_PREVIEW_COUNT),
           isImage: true,
+          count: caseData.photos.length,
         };
       if (platePhoto)
         map.plate = { url: platePhoto, preview: platePhoto, isImage: true };
@@ -273,13 +281,37 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
-        const content =
-          info.isImage !== false
-            ? `<img src="${info.preview}" class="max-h-40" />`
-            : `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(info.preview)}</div>`;
+        const content = (() => {
+          if (info.isImage !== false) {
+            if (Array.isArray(info.preview)) {
+              const multi = info.preview.length > 1;
+              const imgClass = multi
+                ? "max-h-24 max-w-24 object-contain"
+                : "max-h-40";
+              const imgs = info.preview
+                .map((p) => `<img src="${p}" class="${imgClass}" />`)
+                .join("");
+              const extra =
+                info.count && info.count > info.preview.length
+                  ? info.count - info.preview.length
+                  : 0;
+              const extraLine =
+                extra > 0
+                  ? `<div class="text-xs text-center mt-1">and ${extra} more photo${extra === 1 ? "" : "s"} not shown</div>`
+                  : "";
+              return `<div class="flex flex-col items-center"><div class="flex flex-wrap justify-center gap-2">${imgs}</div>${extraLine}</div>`;
+            }
+            return `<img src="${info.preview}" class="max-h-40" />`;
+          }
+          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+            info.preview as string,
+          )}</div>`;
+        })();
         const inst = tippy(el, {
           content,
           allowHTML: true,
+          placement: "auto",
+          maxWidth: "none",
         });
         el.addEventListener("click", () => window.open(info.url, "_blank"));
         instances.push(inst);
