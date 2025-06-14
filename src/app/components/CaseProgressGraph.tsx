@@ -404,6 +404,46 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         el.addEventListener("click", () => window.open(info.url, "_blank"));
         instances.push(inst);
       }
+      const showMenu = caseData.analysisStatus === "complete";
+      const analysisNode = container.querySelector(
+        "[id^='flowchart-analysis-']",
+      ) as SVGGElement | null;
+      let menuBtn = container.querySelector(
+        "[data-analysis-menu]",
+      ) as HTMLButtonElement | null;
+      menuBtn?.remove();
+      if (showMenu && analysisNode) {
+        const rect = analysisNode.getBoundingClientRect();
+        const crect = container.getBoundingClientRect();
+        menuBtn = document.createElement("button");
+        menuBtn.type = "button";
+        menuBtn.dataset.analysisMenu = "";
+        menuBtn.textContent = "⋮";
+        menuBtn.className =
+          "absolute text-xs bg-gray-200 dark:bg-gray-700 rounded px-1 leading-none";
+        menuBtn.style.left = `${rect.right - crect.left - 12}px`;
+        menuBtn.style.top = `${rect.top - crect.top + 2}px`;
+        container.appendChild(menuBtn);
+        const menu = tippy(menuBtn, {
+          content:
+            '<button type="button" data-reanalyze class="block px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left">Re-run Analysis</button>',
+          trigger: "click",
+          allowHTML: true,
+          interactive: true,
+          placement: "bottom-end",
+        });
+        const reBtn = menu.popper.querySelector(
+          "[data-reanalyze]",
+        ) as HTMLButtonElement | null;
+        reBtn?.addEventListener("click", async () => {
+          if (menuBtn) menuBtn.disabled = true;
+          await fetch(`/api/cases/${caseData.id}/reanalyze`, {
+            method: "POST",
+          });
+          window.location.reload();
+        });
+        instances.push(menu);
+      }
     };
     const observer = new MutationObserver(() => apply());
     observer.observe(container, { childList: true, subtree: true });
@@ -416,7 +456,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, [caseData]);
 
   return (
-    <div className="max-w-full overflow-x-auto" ref={containerRef}>
+    <div className="relative max-w-full overflow-x-auto" ref={containerRef}>
       <Mermaid
         chart={chart}
         key={chart}
