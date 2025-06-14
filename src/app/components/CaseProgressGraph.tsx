@@ -22,9 +22,7 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
-  { id: "analysisPending", label: "Analysis Requested" },
   { id: "analysis", label: "Analysis Complete" },
-  { id: "reanalysis", label: "Re-analysis Requested" },
   { id: "violation", label: "Violation Identified" },
   { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
@@ -51,15 +49,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, [noviolation]);
 
   const status = useMemo(() => {
-    const analysisPending =
-      caseData.analysisStatus === "pending" && !caseData.analysis;
-    const reanalysisPending =
-      caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
     return {
       uploaded: true,
-      analysisPending,
       analysis: analysisDone,
-      reanalysis: reanalysisPending,
       violation,
       noviol: noviolation,
       plate:
@@ -90,17 +82,39 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
+    const analysisRunning = caseData.analysisStatus === "pending";
+    const reanalysisRunning = analysisRunning && Boolean(caseData.analysis);
+    const initialAnalysisRunning = analysisRunning && !caseData.analysis;
     const edgesList: Array<[string, string, boolean, string]> = noviolation
       ? [
-          ["uploaded", "analysis", true, "queued for analysis"],
-          ["analysisPending", "analysis", true, "analyzing"],
+          [
+            "uploaded",
+            "analysis",
+            true,
+            initialAnalysisRunning ? "analysis requested" : "",
+          ],
+          [
+            "analysis",
+            "analysis",
+            true,
+            reanalysisRunning ? "re-analysis requested" : "",
+          ],
           ["analysis", "noviol", true, "no violation"],
         ]
       : [
-          ["uploaded", "analysis", true, "queued for analysis"],
-          ["analysisPending", "analysis", true, "analyzing"],
+          [
+            "uploaded",
+            "analysis",
+            true,
+            initialAnalysisRunning ? "analysis requested" : "",
+          ],
+          [
+            "analysis",
+            "analysis",
+            true,
+            reanalysisRunning ? "re-analysis requested" : "",
+          ],
           ["analysis", "violation", true, "evaluating"],
-          ["reanalysis", "analysis", true, "reanalyzing"],
           ["violation", "plate", true, "detecting plate"],
           ["plate", "vin", true, "decoding VIN"],
           ["plate", "ownreq", true, "requesting ownership"],
@@ -112,8 +126,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           ["sent", "received", true, "awaiting delivery"],
         ];
     const activeFromIdx = firstPending > 0 ? firstPending - 1 : -1;
-    const activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
-    const activeTo = firstPending >= 0 ? steps[firstPending].id : null;
+    let activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
+    let activeTo = firstPending >= 0 ? steps[firstPending].id : null;
+    if (reanalysisRunning) {
+      activeFrom = "analysis";
+      activeTo = "analysis";
+    }
     const edges = edgesList
       .map(([a, b, hard, label]) => {
         const show = label && a === activeFrom && b === activeTo;
