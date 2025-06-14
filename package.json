@@ -14,6 +14,7 @@
     "poll:snailmail": "ts-node --transpile-only scripts/pollSnailMail.ts",
     "scan:inbox": "ts-node --transpile-only scripts/scanInbox.ts",
     "migrate": "ts-node --transpile-only scripts/migrate.ts",
+    "seed:cases": "ts-node --transpile-only scripts/seedCases.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate:schemas": "ts-to-zod --skipValidation --all",
@@ -21,6 +22,8 @@
     "website": "eleventy"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "commander": "^11.1.0",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.7",
     "better-sqlite3": "^11.10.0",
