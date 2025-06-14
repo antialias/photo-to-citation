@@ -34,7 +34,6 @@ export default function NotifyOwnerEditor({
   const [methods, setMethods] = useState<string[]>(availableMethods);
   const [disabledMethods, setDisabledMethods] = useState<string[]>([]);
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
