@@ -22,6 +22,28 @@ export function getRepresentativePhoto(
   return [...caseData.photos].sort()[0];
 }
 
+export function getOfficialCaseGps(caseData: Case): Case["gps"] {
+  if (caseData.analysis?.images && caseData.photoGps) {
+    const entries = Object.entries(caseData.analysis.images).sort(
+      (a, b) => b[1].representationScore - a[1].representationScore,
+    );
+    for (const [name] of entries) {
+      const file = caseData.photos.find((p) => basename(p) === name);
+      if (file) {
+        const gps = caseData.photoGps[file];
+        if (gps) return gps;
+      }
+    }
+  }
+  if (caseData.photoGps) {
+    for (const p of caseData.photos) {
+      const g = caseData.photoGps[p];
+      if (g) return g;
+    }
+  }
+  return caseData.gps ?? null;
+}
+
 export function hasViolation(report?: ViolationReport | null): boolean {
   if (!report) return false;
   if (report.images) {

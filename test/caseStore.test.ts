@@ -32,11 +32,15 @@ describe("caseStore", () => {
     );
     expect(c.photos).toEqual(["/foo.jpg"]);
     expect(c.gps).toEqual({ lat: 10, lon: 20 });
+    expect(c.photoGps["/foo.jpg"]).toEqual({ lat: 10, lon: 20 });
     expect(c.streetAddress).toBeNull();
     expect(c.intersection).toBeNull();
     expect(getCase(c.id)).toEqual(c);
     expect(getCases()).toHaveLength(1);
-    addCasePhoto(c.id, "/bar.jpg", "2020-01-02T00:00:00.000Z");
+    addCasePhoto(c.id, "/bar.jpg", "2020-01-02T00:00:00.000Z", {
+      lat: 11,
+      lon: 21,
+    });
     const updated = updateCase(c.id, {
       analysis: {
         violationType: "foo",
@@ -84,7 +88,10 @@ describe("caseStore", () => {
   it("computes the representative photo", () => {
     const { createCase, addCasePhoto, getCase } = caseStore;
     const c = createCase("/b.jpg", null, undefined, "2020-01-05T00:00:00.000Z");
-    addCasePhoto(c.id, "/a.jpg", "2020-01-06T00:00:00.000Z");
+    addCasePhoto(c.id, "/a.jpg", "2020-01-06T00:00:00.000Z", {
+      lat: 12,
+      lon: 22,
+    });
     const updated = getCase(c.id);
     expect(updated).toBeDefined();
     const rep = getRepresentativePhoto(updated as NonNullable<typeof updated>);
@@ -99,12 +106,16 @@ describe("caseStore", () => {
       undefined,
       "2020-01-07T00:00:00.000Z",
     );
-    addCasePhoto(c.id, "/bar.jpg", "2020-01-08T00:00:00.000Z");
+    addCasePhoto(c.id, "/bar.jpg", "2020-01-08T00:00:00.000Z", {
+      lat: 13,
+      lon: 23,
+    });
     const updated = removeCasePhoto(c.id, "/foo.jpg");
     expect(updated?.photos).toEqual(["/bar.jpg"]);
     expect(updated?.analysisStatus).toBe("pending");
     const stored = getCase(c.id);
     expect(stored?.photos).toEqual(["/bar.jpg"]);
+    expect(stored?.photoGps["/foo.jpg"]).toBeUndefined();
   });
 
   it("deletes a case", () => {

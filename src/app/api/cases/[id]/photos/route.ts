@@ -23,11 +23,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { photo, takenAt } = (await req.json()) as {
+  const { photo, takenAt, gps } = (await req.json()) as {
     photo: string;
     takenAt?: string | null;
+    gps?: { lat: number; lon: number } | null;
   };
-  const updated = addCasePhoto(id, photo, takenAt);
+  const updated = addCasePhoto(id, photo, takenAt, gps ?? null);
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

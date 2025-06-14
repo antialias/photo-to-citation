@@ -9,6 +9,7 @@ import {
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
+  getOfficialCaseGps,
   getRepresentativePhoto,
   hasViolation,
 } from "../../../lib/caseUtils";
@@ -350,21 +351,24 @@ export default function ClientCasePage({
                   {caseData.intersection}
                 </p>
               ) : null}
-              {caseData.gps ? (
-                <>
-                  <p>
-                    <span className="font-semibold">GPS:</span>{" "}
-                    {caseData.gps.lat}, {caseData.gps.lon}
-                  </p>
-                  <MapPreview
-                    lat={caseData.gps.lat}
-                    lon={caseData.gps.lon}
-                    width={600}
-                    height={300}
-                    className="w-full aspect-[2/1] md:max-w-xl"
-                  />
-                </>
-              ) : null}
+              {(() => {
+                const g = getOfficialCaseGps(caseData);
+                return g ? (
+                  <>
+                    <p>
+                      <span className="font-semibold">GPS:</span> {g.lat},{" "}
+                      {g.lon}
+                    </p>
+                    <MapPreview
+                      lat={g.lat}
+                      lon={g.lon}
+                      width={600}
+                      height={300}
+                      className="w-full aspect-[2/1] md:max-w-xl"
+                    />
+                  </>
+                ) : null;
+              })()}
               <p>
                 <span className="font-semibold">VIN:</span>{" "}
                 <EditableText

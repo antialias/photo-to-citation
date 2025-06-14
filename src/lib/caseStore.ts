@@ -9,6 +9,7 @@ export interface Case {
   id: string;
   photos: string[];
   photoTimes: Record<string, string | null>;
+  photoGps?: Record<string, { lat: number; lon: number } | null>;
   /** @zod.date */
   createdAt: string;
   gps?: {
@@ -76,6 +77,14 @@ function loadCases(): Case[] {
       ...c,
       photos: c.photos ?? (c.photo ? [c.photo] : []),
       photoTimes: c.photoTimes ?? {},
+      photoGps:
+        c.photoGps ??
+        (c.photos ?? (c.photo ? [c.photo] : [])).reduce<
+          Record<string, { lat: number; lon: number } | null>
+        >((acc, p) => {
+          acc[p] = null;
+          return acc;
+        }, {}),
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
       sentEmails: (c.sentEmails ?? []).map((m: unknown) => {
         const mail = m as Partial<SentEmail> & { [key: string]: unknown };
@@ -142,6 +151,7 @@ export function createCase(
     id: id ?? Date.now().toString(),
     photos: [photo],
     photoTimes: { [photo]: takenAt ?? null },
+    photoGps: { [photo]: gps },
     createdAt: new Date().toISOString(),
     gps,
     streetAddress: null,
@@ -180,12 +190,15 @@ export function addCasePhoto(
   id: string,
   photo: string,
   takenAt?: string | null,
+  gps: Case["gps"] = null,
 ): Case | undefined {
   const cases = loadCases();
   const idx = cases.findIndex((c) => c.id === id);
   if (idx === -1) return undefined;
   cases[idx].photos.push(photo);
   cases[idx].photoTimes[photo] = takenAt ?? null;
+  if (!cases[idx].photoGps) cases[idx].photoGps = {};
+  cases[idx].photoGps[photo] = gps;
   cases[idx].analysisStatus = "pending";
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
@@ -200,6 +213,7 @@ export function removeCasePhoto(id: string, photo: string): Case | undefined {
   if (photoIdx === -1) return undefined;
   cases[idx].photos.splice(photoIdx, 1);
   delete cases[idx].photoTimes[photo];
+  if (cases[idx].photoGps) delete cases[idx].photoGps[photo];
   cases[idx].analysisStatus = "pending";
   saveCases(cases);
   caseEvents.emit("update", cases[idx]);
