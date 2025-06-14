@@ -24,7 +24,6 @@ export default function NotifyOwnerEditor({
   availableMethods: string[];
   caseId: string;
 }) {
-  const router = useRouter();
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
@@ -34,7 +33,6 @@ export default function NotifyOwnerEditor({
   const [methods, setMethods] = useState<string[]>(availableMethods);
   const [disabledMethods, setDisabledMethods] = useState<string[]>([]);
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {

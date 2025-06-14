@@ -133,6 +133,8 @@ export default function ClientCasePage({
     if (res.ok) {
       const data = (await res.json()) as Case;
       setCaseData(data);
+    } else {
+      alert("Failed to refresh case after upload.");
     }
     router.refresh();
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -148,11 +150,13 @@ export default function ClientCasePage({
     if (res.ok) {
       const data = (await res.json()) as Case;
       setCaseData(data);
+    } else {
+      alert("Failed to refresh case.");
     }
   }
 
   async function updateVehicle(plateNum: string, plateSt: string) {
-    await fetch(`/api/cases/${caseId}/override`, {
+    const res = await fetch(`/api/cases/${caseId}/override`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -162,6 +166,10 @@ export default function ClientCasePage({
         },
       }),
     });
+    if (!res.ok) {
+      alert("Failed to update vehicle information.");
+      return;
+    }
     await refreshCase();
   }
 
@@ -187,22 +195,36 @@ export default function ClientCasePage({
 
   async function updateVinFn(value: string) {
     setVin(value);
-    await fetch(`/api/cases/${caseId}/vin`, {
+    const res = await fetch(`/api/cases/${caseId}/vin`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vin: value || null }),
     });
+    if (!res.ok) {
+      alert("Failed to update VIN.");
+      return;
+    }
     await refreshCase();
   }
 
   async function clearVin() {
     setVin("");
-    await fetch(`/api/cases/${caseId}/vin`, { method: "DELETE" });
+    const res = await fetch(`/api/cases/${caseId}/vin`, { method: "DELETE" });
+    if (!res.ok) {
+      alert("Failed to clear VIN.");
+      return;
+    }
     await refreshCase();
   }
 
   async function reanalyzeCase() {
-    await fetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" });
+    const res = await fetch(`/api/cases/${caseId}/reanalyze`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      alert("Failed to reanalyze case.");
+      return;
+    }
     await refreshCase();
   }
 
@@ -215,22 +237,32 @@ export default function ClientCasePage({
     )}`;
     if (caseData) setCaseData({ ...caseData, analysisStatus: "pending" });
     const res = await fetch(url, { method: "POST" });
-    if (res.ok && detailsEl) {
-      detailsEl.open = false;
+    if (res.ok) {
+      if (detailsEl) {
+        detailsEl.open = false;
+      }
+    } else {
+      alert("Failed to reanalyze photo.");
     }
     await refreshCase();
   }
 
   async function removePhoto(photo: string) {
-    await fetch(`/api/cases/${caseId}/photos`, {
+    const delRes = await fetch(`/api/cases/${caseId}/photos`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ photo }),
     });
+    if (!delRes.ok) {
+      alert("Failed to remove photo.");
+      return;
+    }
     const res = await fetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
       setCaseData(data);
+    } else {
+      alert("Failed to refresh case after removing photo.");
     }
     router.refresh();
   }

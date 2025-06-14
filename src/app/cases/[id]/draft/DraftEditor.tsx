@@ -23,7 +23,6 @@ export default function DraftEditor({
   replyTo?: string;
   to?: string;
 }) {
-  const router = useRouter();
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
@@ -33,7 +32,6 @@ export default function DraftEditor({
     Record<string, { status: string; error?: string }>
   >({});
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
