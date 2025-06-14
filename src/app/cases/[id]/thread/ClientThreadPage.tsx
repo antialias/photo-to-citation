@@ -40,8 +40,11 @@ export default function ClientThreadPage({
     });
     const es = new EventSource("/api/cases/stream");
     es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case;
-      if (data.id === caseId) {
+      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
+      if (data.id !== caseId) return;
+      if (data.deleted) {
+        setCaseData(null);
+      } else {
         setCaseData(data);
       }
     };
