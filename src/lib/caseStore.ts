@@ -67,6 +67,29 @@ const dataFile = process.env.CASE_STORE_FILE
   ? path.resolve(process.env.CASE_STORE_FILE)
   : path.join(process.cwd(), "data", "cases.json");
 
+const lockFile = `${dataFile}.lock`;
+
+function withStoreLock<T>(fn: () => T): T {
+  const start = Date.now();
+  for (;;) {
+    try {
+      const fd = fs.openSync(lockFile, "wx");
+      try {
+        return fn();
+      } finally {
+        fs.closeSync(fd);
+        fs.unlinkSync(lockFile);
+      }
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
+      if (Date.now() - start > 30000) {
+        throw new Error("Timeout waiting for case store lock");
+      }
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
+    }
+  }
+}
+
 function loadCases(): Case[] {
   if (!fs.existsSync(dataFile)) {
     return [];
@@ -151,45 +174,49 @@ export function createCase(
   id?: string,
   takenAt?: string | null,
 ): Case {
-  const cases = loadCases();
-  const newCase: Case = {
-    id: id ?? Date.now().toString(),
-    photos: [photo],
-    photoTimes: { [photo]: takenAt ?? null },
-    photoGps: { [photo]: gps },
-    createdAt: new Date().toISOString(),
-    gps,
-    streetAddress: null,
-    intersection: null,
-    vin: null,
-    vinOverride: null,
-    analysis: null,
-    analysisOverrides: null,
-    analysisStatus: "pending",
-    analysisStatusCode: null,
-    analysisError: null,
-    analysisProgress: null,
-    sentEmails: [],
-    ownershipRequests: [],
-    threadImages: [],
-  };
-  cases.push(newCase);
-  saveCases(cases);
-  caseEvents.emit("update", newCase);
-  return newCase;
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const newCase: Case = {
+      id: id ?? Date.now().toString(),
+      photos: [photo],
+      photoTimes: { [photo]: takenAt ?? null },
+      photoGps: { [photo]: gps },
+      createdAt: new Date().toISOString(),
+      gps,
+      streetAddress: null,
+      intersection: null,
+      vin: null,
+      vinOverride: null,
+      analysis: null,
+      analysisOverrides: null,
+      analysisStatus: "pending",
+      analysisStatusCode: null,
+      analysisError: null,
+      analysisProgress: null,
+      sentEmails: [],
+      ownershipRequests: [],
+      threadImages: [],
+    };
+    cases.push(newCase);
+    saveCases(cases);
+    caseEvents.emit("update", newCase);
+    return newCase;
+  });
 }
 
 export function updateCase(
   id: string,
   updates: Partial<Case>,
 ): Case | undefined {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return undefined;
-  cases[idx] = { ...cases[idx], ...updates };
-  saveCases(cases);
-  caseEvents.emit("update", cases[idx]);
-  return cases[idx];
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return undefined;
+    cases[idx] = { ...cases[idx], ...updates };
+    saveCases(cases);
+    caseEvents.emit("update", cases[idx]);
+    return cases[idx];
+  });
 }
 
 export function addCasePhoto(
@@ -198,32 +225,36 @@ export function addCasePhoto(
   takenAt?: string | null,
   gps: Case["gps"] = null,
 ): Case | undefined {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return undefined;
-  cases[idx].photos.push(photo);
-  cases[idx].photoTimes[photo] = takenAt ?? null;
-  if (!cases[idx].photoGps) cases[idx].photoGps = {};
-  cases[idx].photoGps[photo] = gps;
-  cases[idx].analysisStatus = "pending";
-  saveCases(cases);
-  caseEvents.emit("update", cases[idx]);
-  return cases[idx];
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return undefined;
+    cases[idx].photos.push(photo);
+    cases[idx].photoTimes[photo] = takenAt ?? null;
+    if (!cases[idx].photoGps) cases[idx].photoGps = {};
+    cases[idx].photoGps[photo] = gps;
+    cases[idx].analysisStatus = "pending";
+    saveCases(cases);
+    caseEvents.emit("update", cases[idx]);
+    return cases[idx];
+  });
 }
 
 export function removeCasePhoto(id: string, photo: string): Case | undefined {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return undefined;
-  const photoIdx = cases[idx].photos.indexOf(photo);
-  if (photoIdx === -1) return undefined;
-  cases[idx].photos.splice(photoIdx, 1);
-  delete cases[idx].photoTimes[photo];
-  if (cases[idx].photoGps) delete cases[idx].photoGps[photo];
-  cases[idx].analysisStatus = "pending";
-  saveCases(cases);
-  caseEvents.emit("update", cases[idx]);
-  return cases[idx];
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return undefined;
+    const photoIdx = cases[idx].photos.indexOf(photo);
+    if (photoIdx === -1) return undefined;
+    cases[idx].photos.splice(photoIdx, 1);
+    delete cases[idx].photoTimes[photo];
+    if (cases[idx].photoGps) delete cases[idx].photoGps[photo];
+    cases[idx].analysisStatus = "pending";
+    saveCases(cases);
+    caseEvents.emit("update", cases[idx]);
+    return cases[idx];
+  });
 }
 
 export function setCaseAnalysisOverrides(
@@ -257,50 +288,58 @@ export function setCaseVinOverride(
 }
 
 export function addCaseEmail(id: string, email: SentEmail): Case | undefined {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return undefined;
-  const list = cases[idx].sentEmails ?? [];
-  cases[idx].sentEmails = [...list, email];
-  saveCases(cases);
-  caseEvents.emit("update", cases[idx]);
-  return cases[idx];
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return undefined;
+    const list = cases[idx].sentEmails ?? [];
+    cases[idx].sentEmails = [...list, email];
+    saveCases(cases);
+    caseEvents.emit("update", cases[idx]);
+    return cases[idx];
+  });
 }
 
 export function addCaseThreadImage(
   id: string,
   image: ThreadImage,
 ): Case | undefined {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return undefined;
-  const list = cases[idx].threadImages ?? [];
-  cases[idx].threadImages = [...list, image];
-  saveCases(cases);
-  caseEvents.emit("update", cases[idx]);
-  return cases[idx];
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return undefined;
+    const list = cases[idx].threadImages ?? [];
+    cases[idx].threadImages = [...list, image];
+    saveCases(cases);
+    caseEvents.emit("update", cases[idx]);
+    return cases[idx];
+  });
 }
 
 export function addOwnershipRequest(
   id: string,
   request: OwnershipRequest,
 ): Case | undefined {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return undefined;
-  const list = cases[idx].ownershipRequests ?? [];
-  cases[idx].ownershipRequests = [...list, request];
-  saveCases(cases);
-  caseEvents.emit("update", cases[idx]);
-  return cases[idx];
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return undefined;
+    const list = cases[idx].ownershipRequests ?? [];
+    cases[idx].ownershipRequests = [...list, request];
+    saveCases(cases);
+    caseEvents.emit("update", cases[idx]);
+    return cases[idx];
+  });
 }
 
 export function deleteCase(id: string): boolean {
-  const cases = loadCases();
-  const idx = cases.findIndex((c) => c.id === id);
-  if (idx === -1) return false;
-  const [removed] = cases.splice(idx, 1);
-  saveCases(cases);
-  caseEvents.emit("update", { id: removed.id, deleted: true });
-  return true;
+  return withStoreLock(() => {
+    const cases = loadCases();
+    const idx = cases.findIndex((c) => c.id === id);
+    if (idx === -1) return false;
+    const [removed] = cases.splice(idx, 1);
+    saveCases(cases);
+    caseEvents.emit("update", { id: removed.id, deleted: true });
+    return true;
+  });
 }
