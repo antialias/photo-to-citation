@@ -51,6 +51,12 @@ Run database migrations whenever the schema changes:
 npm run migrate
 ```
 
+Generate new migration files from the Drizzle schema with:
+
+```bash
+npm run generate:migrations
+```
+
 Migrations are stored as SQL files under the `migrations` folder and executed with [Umzug](https://github.com/sequelize/umzug). The default SQLite database is `data/cases.sqlite`.
 
 ## OpenAI Integration
