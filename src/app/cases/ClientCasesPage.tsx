@@ -44,6 +44,19 @@ export default function ClientCasesPage({
     return () => es.close();
   }, []);
 
+  useEffect(() => {
+    function handleDragEnd() {
+      setDragging(false);
+      setDropCase(null);
+    }
+    window.addEventListener("dragend", handleDragEnd);
+    window.addEventListener("drop", handleDragEnd);
+    return () => {
+      window.removeEventListener("dragend", handleDragEnd);
+      window.removeEventListener("drop", handleDragEnd);
+    };
+  }, []);
+
   async function uploadFilesToCase(id: string, files: FileList) {
     await Promise.all(
       Array.from(files).map((file) => {

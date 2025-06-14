@@ -66,6 +66,18 @@ export default function ClientCasePage({
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
+    function handleDragEnd() {
+      setDragging(false);
+    }
+    window.addEventListener("dragend", handleDragEnd);
+    window.addEventListener("drop", handleDragEnd);
+    return () => {
+      window.removeEventListener("dragend", handleDragEnd);
+      window.removeEventListener("drop", handleDragEnd);
+    };
+  }, []);
+
+  useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
     if (stored) setPreview(stored);
     fetch(`/api/cases/${caseId}`).then(async (res) => {
