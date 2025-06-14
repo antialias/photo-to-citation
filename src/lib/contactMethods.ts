@@ -151,10 +151,18 @@ export async function sendSnailMail(options: {
     });
   }
   fs.writeFileSync(filePath, await pdf.save());
-  await providerSendSnailMail(provider, {
+  const result = await providerSendSnailMail(provider, {
     to,
     from,
     subject: options.subject,
     contents: filePath,
   });
+  if (result.status === "shortfall") {
+    throw new Error(
+      `Unable to send mail: provider shortfall of ${result.shortfall}`,
+    );
+  }
+  if (result.status !== "queued" && result.status !== "saved") {
+    throw new Error(`Unable to send mail: provider error ${result.status}`);
+  }
 }

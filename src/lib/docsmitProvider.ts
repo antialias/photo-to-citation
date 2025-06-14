@@ -161,13 +161,19 @@ const provider: SnailMailProvider = {
       },
     );
     let shortfall: number | undefined;
-    if (res.status === 402) {
+    let statusText: string;
+    if (res.status === 201) {
+      statusText = "queued";
+    } else if (res.status === 402) {
       shortfall = (await res.json()).shortfall as number | undefined;
       console.log("Docsmit payment required", { shortfall });
+      statusText = "shortfall";
+    } else {
+      statusText = "error";
     }
     const status: SnailMailStatus = {
       id: messageID,
-      status: res.status === 201 ? "queued" : "error",
+      status: statusText,
       shortfall,
     };
     addSentMail({
