@@ -38,8 +38,7 @@ export async function sendSms(to: string, message: string): Promise<void> {
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_FROM_NUMBER;
   if (!sid || !token || !from) {
-    console.warn("Twilio not configured");
-    return;
+    throw new Error("Twilio SMS not configured");
   }
   const client = twilio(sid, token);
   await client.messages.create({
@@ -54,8 +53,7 @@ export async function sendWhatsapp(to: string, message: string): Promise<void> {
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_FROM_NUMBER;
   if (!sid || !token || !from) {
-    console.warn("Twilio not configured");
-    return;
+    throw new Error("Twilio WhatsApp not configured");
   }
   const client = twilio(sid, token);
   await client.messages.create({
@@ -70,8 +68,7 @@ export async function makeRobocall(to: string, message: string): Promise<void> {
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_FROM_NUMBER;
   if (!sid || !token || !from) {
-    console.warn("Twilio not configured");
-    return;
+    throw new Error("Twilio voice not configured");
   }
   const client = twilio(sid, token);
   await client.calls.create({
@@ -90,8 +87,7 @@ export async function sendSnailMail(options: {
   const provider = process.env.SNAIL_MAIL_PROVIDER || "mock";
   const returnAddr = process.env.RETURN_ADDRESS;
   if (!returnAddr) {
-    console.warn("RETURN_ADDRESS not configured");
-    return;
+    throw new Error("RETURN_ADDRESS not configured");
   }
   const to = parseAddress(options.address);
   const from = parseAddress(returnAddr);
