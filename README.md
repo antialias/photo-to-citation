@@ -43,6 +43,16 @@ npm run generate:schemas
 
 The command uses `ts-to-zod` with `ts-to-zod.config.js` to write schemas under `src/generated/zod`.
 
+## Database Migrations
+
+Run database migrations whenever the schema changes:
+
+```bash
+npm run migrate
+```
+
+Migrations are stored as SQL files under the `migrations` folder and executed with [Umzug](https://github.com/sequelize/umzug). The default SQLite database is `data/cases.sqlite`.
+
 ## OpenAI Integration
 
 Copy `.env.example` to `.env` and add your API key:
