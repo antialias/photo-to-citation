@@ -398,7 +398,7 @@ export default function ClientCasePage({
             </div>
             {selectedPhoto ? (
               <>
-                <div className="relative w-full aspect-[3/2] md:max-w-2xl">
+                <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
                   <Image
                     src={selectedPhoto}
                     alt="uploaded"
