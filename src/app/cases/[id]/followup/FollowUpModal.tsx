@@ -27,14 +27,21 @@ export default function FollowUpModal({
     let canceled = false;
     const url = `/api/cases/${caseId}/followup${replyTo ? `?replyTo=${encodeURIComponent(replyTo)}` : ""}`;
     fetch(url)
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        alert("Failed to draft follow-up");
+        onClose();
+        return null;
+      })
       .then((d) => {
-        if (!canceled) setData(d as DraftData);
+        if (d && !canceled) setData(d as DraftData);
       });
     return () => {
       canceled = true;
     };
-  }, [caseId, replyTo]);
+  }, [caseId, replyTo, onClose]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>

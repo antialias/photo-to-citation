@@ -24,14 +24,21 @@ export default function DraftModal({
   useEffect(() => {
     let canceled = false;
     fetch(`/api/cases/${caseId}/report`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        alert("Failed to draft report");
+        onClose();
+        return null;
+      })
       .then((d) => {
-        if (!canceled) setData(d as DraftData);
+        if (d && !canceled) setData(d as DraftData);
       });
     return () => {
       canceled = true;
     };
-  }, [caseId]);
+  }, [caseId, onClose]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
