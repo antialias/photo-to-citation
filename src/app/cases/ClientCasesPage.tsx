@@ -7,6 +7,7 @@ import { getRepresentativePhoto } from "../../lib/caseUtils";
 import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
+import useDragReset from "./useDragReset";
 
 export default function ClientCasesPage({
   initialCases,
@@ -43,6 +44,11 @@ export default function ClientCasesPage({
     };
     return () => es.close();
   }, []);
+
+  useDragReset(() => {
+    setDragging(false);
+    setDropCase(null);
+  });
 
   async function uploadFilesToCase(id: string, files: FileList) {
     await Promise.all(
@@ -155,7 +161,7 @@ export default function ClientCasesPage({
         ))}
       </ul>
       {dragging ? (
-        <div className="fixed inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
           {dropCase
             ? `Add photos to case ${dropCase}`
             : "Drop photos to create case"}
