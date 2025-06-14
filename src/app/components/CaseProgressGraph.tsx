@@ -12,6 +12,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 
+const UPLOADED_PHOTO_LIMIT = 4;
+
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
@@ -152,10 +154,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
       : null;
     const clean = (t: string) => t.replace(/"/g, "'");
-    const uploadedAt = caseData.photoTimes[caseData.photos[0]] ?? null;
+    const lastPhoto = caseData.photos[caseData.photos.length - 1];
+    const uploadedAt = lastPhoto ? caseData.photoTimes[lastPhoto] ?? null : null;
     const uploadedTip = uploadedAt
       ? `Photo taken ${new Date(uploadedAt).toLocaleString()}`
-      : "View uploaded photo";
+      : "View uploaded photos";
     const plateTipParts = [] as string[];
     const plateNum = getCasePlateNumber(caseData);
     const plateState = getCasePlateState(caseData);
@@ -173,8 +176,8 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
       : "View notification email";
     const links = [
-      caseData.photos[0]
-        ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
+      lastPhoto
+        ? `click uploaded "${lastPhoto}" "${clean(uploadedTip)}"`
         : null,
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
@@ -245,12 +248,24 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const notifyLink = firstEmail
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
         : null;
-      if (caseData.photos[0])
+      if (caseData.photos.length > 0) {
+        const photos = caseData.photos.slice(-UPLOADED_PHOTO_LIMIT);
+        const remaining = caseData.photos.length - photos.length;
+        const preview =
+          `<div class="flex flex-wrap gap-1">${photos
+            .map((p) => `<img src="${p}" class="max-h-24" />`)
+            .join("")}</div>` +
+          (remaining > 0
+            ? `<div class="mt-1 text-xs">${remaining} more photo${
+                remaining === 1 ? "" : "s"
+              } not shown</div>`
+            : "");
         map.uploaded = {
-          url: caseData.photos[0],
-          preview: caseData.photos[0],
-          isImage: true,
+          url: photos[photos.length - 1],
+          preview,
+          isImage: false,
         };
+      }
       if (platePhoto)
         map.plate = { url: platePhoto, preview: platePhoto, isImage: true };
       if (ownerLink)
