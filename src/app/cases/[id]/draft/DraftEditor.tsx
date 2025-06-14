@@ -1,5 +1,6 @@
 "use client";
 import type { EmailDraft } from "@/lib/caseReport";
+import type { Case } from "@/lib/caseStore";
 import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,12 @@ export default function DraftEditor({
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
   const [snailMail, setSnailMail] = useState(false);
+  const [snailMailDisabled, setSnailMailDisabled] = useState(false);
+  const [results, setResults] = useState<
+    Record<string, { status: string; error?: string }>
+  >({});
+  const [threadUrl, setThreadUrl] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
@@ -37,6 +44,11 @@ export default function DraftEditor({
 
   async function sendEmail() {
     setSending(true);
+    const pending: Record<string, { status: string; error?: string }> = {
+      email: { status: "sending" },
+    };
+    if (snailMail) pending.snailMail = { status: "sending" };
+    setResults(pending);
     try {
       const res = await fetch(`/api/cases/${caseId}/${action}`, {
         method: "POST",
@@ -50,18 +62,41 @@ export default function DraftEditor({
         }),
       });
       if (res.ok) {
-        alert("Email sent");
         const data = (await res.json()) as {
           sentEmails?: { sentAt: string }[];
+          case: Case;
+          results: Record<string, { success: boolean; error?: string }>;
         };
-        const sent = data.sentEmails?.at(-1)?.sentAt;
-        if (sent) {
-          router.push(`/cases/${caseId}/thread/${encodeURIComponent(sent)}`);
+        const r: Record<string, { status: string; error?: string }> = {};
+        for (const [k, v] of Object.entries(data.results)) {
+          r[k] = v.success
+            ? { status: "success" }
+            : { status: "error", error: v.error };
+        }
+        setResults(r);
+        if (r.snailMail?.status === "success") {
+          setSnailMail(false);
+          setSnailMailDisabled(true);
+        }
+        const newEmail = data.case.sentEmails?.at(-1);
+        const url = newEmail
+          ? `/cases/${caseId}/thread/${encodeURIComponent(newEmail.sentAt)}`
+          : null;
+        if (Object.values(r).every((x) => x.status === "success")) {
+          if (url) {
+            router.push(url);
+            return;
+          }
+          alert("Notification sent");
+        } else if (r.email && r.email.status === "success") {
+          if (url) setThreadUrl(url);
+          alert("Email sent with some errors");
         } else {
-          router.push(`/cases/${caseId}`);
+          alert("Failed to send notification");
         }
       } else {
-        alert("Failed to send email");
+        setResults({ email: { status: "error", error: res.statusText } });
+        alert("Failed to send notification");
       }
     } finally {
       setSending(false);
@@ -117,6 +152,7 @@ export default function DraftEditor({
             type="checkbox"
             checked={snailMail}
             onChange={(e) => setSnailMail(e.target.checked)}
+            disabled={snailMailDisabled}
           />
           <span>Send via snail mail to {module.authorityAddress}</span>
         </label>
@@ -129,6 +165,30 @@ export default function DraftEditor({
       >
         {sending ? "Sending..." : "Send"}
       </button>
+      {Object.entries(results).length > 0 && (
+        <ul className="mt-2 text-sm">
+          {Object.entries(results).map(([k, v]) => (
+            <li key={k}>
+              {k}:{" "}
+              {v.status === "sending"
+                ? "Sending"
+                : v.status === "success"
+                  ? "Sent"
+                  : `Failed - ${v.error}`}
+            </li>
+          ))}
+        </ul>
+      )}
+      {threadUrl && (
+        <a
+          href={threadUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline mt-2 text-sm"
+        >
+          View Thread
+        </a>
+      )}
     </div>
   );
 }

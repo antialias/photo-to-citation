@@ -26,14 +26,12 @@ describe("makeRobocall", () => {
     });
   });
 
-  it("skips when Twilio is not configured", async () => {
+  it("fails when Twilio is not configured", async () => {
     process.env.TWILIO_ACCOUNT_SID = "";
     process.env.TWILIO_AUTH_TOKEN = "";
     process.env.TWILIO_FROM_NUMBER = "";
     callCreateMock.mockClear();
-
-    await makeRobocall("+15557654321", "hello");
-
+    await expect(makeRobocall("+15557654321", "hello")).rejects.toThrow();
     expect(callCreateMock).not.toHaveBeenCalled();
   });
 });
@@ -54,14 +52,12 @@ describe("sendSms", () => {
     });
   });
 
-  it("skips when Twilio is not configured", async () => {
+  it("fails when Twilio is not configured", async () => {
     process.env.TWILIO_ACCOUNT_SID = "";
     process.env.TWILIO_AUTH_TOKEN = "";
     process.env.TWILIO_FROM_NUMBER = "";
     messageCreateMock.mockClear();
-
-    await sendSms("+15557654321", "hello");
-
+    await expect(sendSms("+15557654321", "hello")).rejects.toThrow();
     expect(messageCreateMock).not.toHaveBeenCalled();
   });
 });
@@ -82,14 +78,12 @@ describe("sendWhatsapp", () => {
     });
   });
 
-  it("skips when Twilio is not configured", async () => {
+  it("fails when Twilio is not configured", async () => {
     process.env.TWILIO_ACCOUNT_SID = "";
     process.env.TWILIO_AUTH_TOKEN = "";
     process.env.TWILIO_FROM_NUMBER = "";
     messageCreateMock.mockClear();
-
-    await sendWhatsapp("+15557654321", "hello");
-
+    await expect(sendWhatsapp("+15557654321", "hello")).rejects.toThrow();
     expect(messageCreateMock).not.toHaveBeenCalled();
   });
 });
