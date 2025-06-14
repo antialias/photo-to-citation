@@ -42,8 +42,20 @@ export async function startOpenAIStub(
           : handler;
       const content =
         typeof value === "string" ? value : JSON.stringify(value ?? {});
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ choices: [{ message: { content } }] }));
+      const withStream = parsed as { stream?: boolean };
+      if (typeof parsed === "object" && parsed && withStream.stream) {
+        res.setHeader("Content-Type", "text/event-stream");
+        res.write(
+          `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`,
+        );
+        res.write(
+          `data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: "stop" }] })}\n\n`,
+        );
+        res.end();
+      } else {
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ choices: [{ message: { content } }] }));
+      }
     });
   });
   await new Promise((resolve) => server.listen(0, resolve));
