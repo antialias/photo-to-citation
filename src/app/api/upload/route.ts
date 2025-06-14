@@ -34,7 +34,14 @@ export async function POST(req: NextRequest) {
       updateCase(updated.id, { gps });
       fetchCaseLocationInBackground({ ...updated, gps });
     }
-    analyzeCaseInBackground(updated);
+    const p = updateCase(updated.id, {
+      analysisProgress: {
+        stage: "upload",
+        index: 0,
+        total: updated.photos.length,
+      },
+    });
+    analyzeCaseInBackground(p || updated);
     return NextResponse.json({ caseId: updated.id });
   }
   const newCase = createCase(
@@ -43,7 +50,14 @@ export async function POST(req: NextRequest) {
     clientId || undefined,
     takenAt,
   );
-  analyzeCaseInBackground(newCase);
+  const p = updateCase(newCase.id, {
+    analysisProgress: {
+      stage: "upload",
+      index: 0,
+      total: newCase.photos.length,
+    },
+  });
+  analyzeCaseInBackground(p || newCase);
   fetchCaseLocationInBackground(newCase);
   return NextResponse.json({ caseId: newCase.id });
 }

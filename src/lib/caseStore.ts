@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { caseEvents } from "./caseEvents";
@@ -26,6 +27,7 @@ export interface Case {
   analysisStatusCode?: number | null;
   /** @zod.enum(["truncated", "parse", "schema"]).nullable() */
   analysisError?: "truncated" | "parse" | "schema" | "images" | null;
+  analysisProgress?: import("./openai").LlmProgress | null;
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
   threadImages?: ThreadImage[];
@@ -77,6 +79,7 @@ function loadCases(): Case[] {
       photos: c.photos ?? (c.photo ? [c.photo] : []),
       photoTimes: c.photoTimes ?? {},
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
+      analysisProgress: c.analysisProgress ?? null,
       sentEmails: (c.sentEmails ?? []).map((m: unknown) => {
         const mail = m as Partial<SentEmail> & { [key: string]: unknown };
         return {
@@ -98,7 +101,9 @@ function loadCases(): Case[] {
 
 function saveCases(cases: Case[]) {
   fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-  fs.writeFileSync(dataFile, JSON.stringify(cases, null, 2));
+  const tmp = `${dataFile}.${crypto.randomUUID()}`;
+  fs.writeFileSync(tmp, JSON.stringify(cases, null, 2));
+  fs.renameSync(tmp, dataFile);
 }
 
 function applyOverrides(caseData: Case): Case {
@@ -153,6 +158,7 @@ export function createCase(
     analysisStatus: "pending",
     analysisStatusCode: null,
     analysisError: null,
+    analysisProgress: null,
     sentEmails: [],
     ownershipRequests: [],
     threadImages: [],

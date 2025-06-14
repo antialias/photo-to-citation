@@ -1,7 +1,29 @@
 import OpenAI from "openai";
+import type {
+  ChatCompletion,
+  ChatCompletionChunk,
+  ChatCompletionCreateParams,
+} from "openai/resources/chat/completions";
 import { z } from "zod";
 import "./zod-setup";
 import { getLlm } from "./llm";
+
+export type LlmProgress =
+  | {
+      stage: "upload";
+      index: number;
+      total: number;
+      step?: number;
+      steps?: number;
+    }
+  | {
+      stage: "stream";
+      received: number;
+      total: number;
+      done: boolean;
+      step?: number;
+      steps?: number;
+    };
 
 export class AnalysisError extends Error {
   kind: "truncated" | "parse" | "schema" | "images";
@@ -23,6 +45,10 @@ function logBadResponse(
     response,
   };
   console.warn(JSON.stringify(entry));
+}
+
+function approxTokens(text: string): number {
+  return Math.ceil(text.length / 4);
 }
 
 const licensePlateStateSchema = z.string().regex(/^[A-Z]{2}$/);
@@ -86,6 +112,7 @@ export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
+  progress?: (info: LlmProgress) => void,
 ): Promise<ViolationReport> {
   if (images.length === 0) {
     throw new AnalysisError("images");
@@ -126,6 +153,7 @@ export async function analyzeViolation(
 
   const urls = images.map((i) => i.url);
   const names = images.map((i) => i.filename);
+  progress?.({ stage: "upload", index: 0, total: images.length });
   const baseMessages = [
     {
       role: "system",
@@ -149,14 +177,41 @@ export async function analyzeViolation(
   const messages = [...baseMessages];
   const { client, model } = getLlm("analyze_images");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await client.chat.completions.create({
+    const req: ChatCompletionCreateParams = {
       model,
       messages,
       max_tokens: 800,
       response_format: { type: "json_object" },
-    });
-    const finish = response.choices[0]?.finish_reason;
-    const text = response.choices[0]?.message?.content ?? "{}";
+    };
+    if (progress) (req as Record<string, unknown>).stream = true;
+    const response = await client.chat.completions.create(req as never);
+    let finish: string | null = null;
+    let text = "";
+    const totalTokens = req.max_tokens ?? 0;
+    let receivedTokens = 0;
+    if (progress) {
+      for await (const chunk of response as AsyncIterable<ChatCompletionChunk>) {
+        const delta = chunk.choices[0]?.delta?.content ?? "";
+        text += delta;
+        finish = chunk.choices[0]?.finish_reason || null;
+        receivedTokens = approxTokens(text);
+        progress({
+          stage: "stream",
+          received: receivedTokens,
+          total: totalTokens,
+          done: false,
+        });
+      }
+      progress({
+        stage: "stream",
+        received: receivedTokens,
+        total: totalTokens,
+        done: true,
+      });
+    } else {
+      finish = (response as ChatCompletion).choices[0]?.finish_reason ?? null;
+      text = (response as ChatCompletion).choices[0]?.message?.content ?? "{}";
+    }
 
     if (finish === "length") {
       logBadResponse(attempt, text, "truncated");
@@ -260,9 +315,10 @@ export async function extractPaperworkInfo(
   return {} as PaperworkInfo;
 }
 
-export async function ocrPaperwork(image: {
-  url: string;
-}): Promise<PaperworkAnalysis> {
+export async function ocrPaperwork(
+  image: { url: string },
+  progress?: (info: LlmProgress) => void,
+): Promise<PaperworkAnalysis> {
   const baseMessages = [
     {
       role: "system",
@@ -279,14 +335,40 @@ export async function ocrPaperwork(image: {
   ];
 
   const messages = [...baseMessages];
+  progress?.({ stage: "upload", index: 0, total: 1 });
   const { client, model } = getLlm("ocr_paperwork");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
+    const req: ChatCompletionCreateParams = {
       model,
       messages,
       max_tokens: 800,
-    });
-    const text = res.choices[0]?.message?.content ?? "";
+    };
+    if (progress) (req as Record<string, unknown>).stream = true;
+    const res = await client.chat.completions.create(req as never);
+    let text = "";
+    const totalTokens = req.max_tokens ?? 0;
+    let receivedTokens = 0;
+    if (progress) {
+      for await (const chunk of res as AsyncIterable<ChatCompletionChunk>) {
+        const delta = chunk.choices[0]?.delta?.content ?? "";
+        text += delta;
+        receivedTokens = approxTokens(text);
+        progress({
+          stage: "stream",
+          received: receivedTokens,
+          total: totalTokens,
+          done: false,
+        });
+      }
+      progress({
+        stage: "stream",
+        received: receivedTokens,
+        total: totalTokens,
+        done: true,
+      });
+    } else {
+      text = (res as ChatCompletion).choices[0]?.message?.content ?? "";
+    }
     if (text.trim()) {
       const info = await extractPaperworkInfo(text.trim());
       return { text: text.trim(), info };
