@@ -15,17 +15,22 @@ interface DraftData {
 export default function FollowUpModal({
   caseId,
   replyTo,
+  ownerInfo = false,
   onClose,
 }: {
   caseId: string;
   replyTo?: string;
+  ownerInfo?: boolean;
   onClose: () => void;
 }) {
   const [data, setData] = useState<DraftData | null>(null);
 
   useEffect(() => {
     let canceled = false;
-    const url = `/api/cases/${caseId}/followup${replyTo ? `?replyTo=${encodeURIComponent(replyTo)}` : ""}`;
+    const params = new URLSearchParams();
+    if (replyTo) params.set("replyTo", replyTo);
+    if (ownerInfo) params.set("owner", "1");
+    const url = `/api/cases/${caseId}/followup${params.size > 0 ? `?${params.toString()}` : ""}`;
     fetch(url)
       .then((res) => res.json())
       .then((d) => {
@@ -34,7 +39,7 @@ export default function FollowUpModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, replyTo]);
+  }, [caseId, replyTo, ownerInfo]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>

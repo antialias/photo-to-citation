@@ -2,6 +2,7 @@ import path from "node:path";
 import { z } from "zod";
 import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
+import { getCaseOwnerContactInfo } from "./caseUtils";
 import { getLlm } from "./llm";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
@@ -114,6 +115,7 @@ export async function draftFollowUp(
   caseData: Case,
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
+  includeOwner = false,
 ): Promise<EmailDraft> {
   console.log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
@@ -140,6 +142,10 @@ export async function draftFollowUp(
     "oak-park",
     analysis?.violationType || "",
   );
+  const owner = includeOwner ? getCaseOwnerContactInfo(caseData) : null;
+  const ownerLine = owner
+    ? `Owner info: ${owner.email ?? ""} ${owner.phone ?? ""} ${owner.address ?? ""}`
+    : "";
   const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
@@ -147,6 +153,7 @@ Include these details if available:
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
 ${code ? `Applicable code: ${code}` : ""}
+${ownerLine}
 Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
