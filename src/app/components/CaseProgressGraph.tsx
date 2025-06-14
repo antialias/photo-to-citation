@@ -8,7 +8,9 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
 
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
@@ -195,8 +197,68 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
   }, [status, firstPending, noviolation, steps, isDark, caseData]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const timers: number[] = [];
+    const apply = () => {
+      const map: Record<string, { url: string; preview: string } | null> = {};
+      const platePhoto = (() => {
+        const plate = getCasePlateNumber(caseData);
+        if (!plate || !caseData.analysis?.images)
+          return caseData.photos[0] ?? null;
+        for (const [name, info] of Object.entries(caseData.analysis.images)) {
+          if (
+            info.paperworkInfo?.vehicle?.licensePlateNumber === plate ||
+            info.highlights?.toLowerCase().includes("plate")
+          ) {
+            const file = caseData.photos.find(
+              (p) => p.split("/").pop() === name,
+            );
+            if (file) return file;
+          }
+        }
+        return caseData.photos[0] ?? null;
+      })();
+      const ownerDoc = (caseData.threadImages ?? []).find(
+        (i) => i.ocrInfo?.contact,
+      );
+      const ownerLink = ownerDoc
+        ? ownerDoc.threadParent
+          ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
+          : ownerDoc.url
+        : null;
+      const firstEmail = caseData.sentEmails?.[0];
+      const notifyLink = firstEmail
+        ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
+        : null;
+      if (caseData.photos[0])
+        map.uploaded = { url: caseData.photos[0], preview: caseData.photos[0] };
+      if (platePhoto) map.plate = { url: platePhoto, preview: platePhoto };
+      if (ownerLink)
+        map.own = { url: ownerLink, preview: ownerDoc?.url ?? ownerLink };
+      if (notifyLink) map.notify = { url: notifyLink, preview: notifyLink };
+      for (const [id, info] of Object.entries(map)) {
+        if (!info) continue;
+        const el = container.querySelector(`#${id}`) as HTMLElement | null;
+        if (!el) continue;
+        tippy(el, {
+          content: `<img src="${info.preview}" class="max-h-40" />`,
+          allowHTML: true,
+        });
+        el.addEventListener("click", () => window.open(info.url, "_blank"));
+      }
+    };
+    const timer = window.setTimeout(apply, 100);
+    timers.push(timer);
+    return () => {
+      for (const t of timers) clearTimeout(t);
+    };
+  }, [caseData]);
+
   return (
-    <div className="max-w-full overflow-x-auto">
+    <div className="max-w-full overflow-x-auto" ref={containerRef}>
       <Mermaid chart={chart} key={chart} />
     </div>
   );
