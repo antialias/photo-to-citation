@@ -113,6 +113,12 @@ export function getCaseOwnerContactInfo(
   return parseContactInfo(contact);
 }
 
+export function isOwnerNotified(caseData: Case): boolean {
+  const info = getCaseOwnerContactInfo(caseData);
+  if (!info?.email) return false;
+  return (caseData.sentEmails ?? []).some((m) => m.to === info.email);
+}
+
 export function getBestViolationPhoto(
   caseData: Pick<Case, "photos" | "analysis">,
 ): { photo: string; caption?: string } | null {
