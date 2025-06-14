@@ -82,6 +82,20 @@ export function getCaseOwnerContact(caseData: Case): string | null {
   return null;
 }
 
+export function getCaseViolationImage(caseData: Case): {
+  photo: string | null;
+  caption: string | null;
+} {
+  if (!caseData.analysis?.images) return { photo: null, caption: null };
+  const entries = Object.entries(caseData.analysis.images)
+    .filter(([, info]) => info.violation === true)
+    .sort((a, b) => b[1].representationScore - a[1].representationScore);
+  const best = entries[0];
+  if (!best) return { photo: null, caption: null };
+  const file = caseData.photos.find((p) => basename(p) === best[0]) ?? null;
+  return { photo: file, caption: best[1].highlights ?? null };
+}
+
 export interface OwnerContactInfo {
   email?: string;
   phone?: string;

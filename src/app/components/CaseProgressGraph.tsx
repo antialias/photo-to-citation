@@ -139,6 +139,16 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       }
       return caseData.photos[0] ?? null;
     })();
+    const violationPreview = (() => {
+      if (!caseData.analysis?.images) return null;
+      const entries = Object.entries(caseData.analysis.images)
+        .filter(([, info]) => info.violation === true)
+        .sort((a, b) => b[1].representationScore - a[1].representationScore);
+      const best = entries[0];
+      if (!best) return null;
+      const file = caseData.photos.find((p) => p.split("/").pop() === best[0]);
+      return file ? { photo: file, caption: best[1].highlights ?? null } : null;
+    })();
     const ownerDoc = (caseData.threadImages ?? []).find(
       (i) => i.ocrInfo?.contact,
     );
@@ -175,6 +185,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const links = [
       caseData.photos[0]
         ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
+        : null,
+      violationPreview
+        ? `click violation "${violationPreview.photo}" "Violation evidence"`
         : null,
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
@@ -214,7 +227,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       instances.length = 0;
       const map: Record<
         string,
-        { url: string; preview: string; isImage?: boolean } | null
+        {
+          url: string;
+          preview: string;
+          caption?: string;
+          isImage?: boolean;
+        } | null
       > = {};
       const platePhoto = (() => {
         const plate = getCasePlateNumber(caseData);
@@ -233,6 +251,20 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         }
         return caseData.photos[0] ?? null;
       })();
+      const violationPreview = (() => {
+        if (!caseData.analysis?.images) return null;
+        const entries = Object.entries(caseData.analysis.images)
+          .filter(([, info]) => info.violation === true)
+          .sort((a, b) => b[1].representationScore - a[1].representationScore);
+        const best = entries[0];
+        if (!best) return null;
+        const file = caseData.photos.find(
+          (p) => p.split("/").pop() === best[0],
+        );
+        return file
+          ? { photo: file, caption: best[1].highlights ?? null }
+          : null;
+      })();
       const ownerDoc = (caseData.threadImages ?? []).find(
         (i) => i.ocrInfo?.contact,
       );
@@ -249,6 +281,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         map.uploaded = {
           url: caseData.photos[0],
           preview: caseData.photos[0],
+          isImage: true,
+        };
+      if (violationPreview)
+        map.violation = {
+          url: violationPreview.photo,
+          preview: violationPreview.photo,
+          caption: violationPreview.caption ?? undefined,
           isImage: true,
         };
       if (platePhoto)
@@ -275,7 +314,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         if (!el) continue;
         const content =
           info.isImage !== false
-            ? `<img src="${info.preview}" class="max-h-40" />`
+            ? `<div class="max-w-xs text-center"><img src="${info.preview}" class="max-h-40" />${
+                info.caption
+                  ? `<div class="mt-1 text-xs">${escapeHtml(info.caption)}</div>`
+                  : ""
+              }</div>`
             : `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(info.preview)}</div>`;
         const inst = tippy(el, {
           content,
