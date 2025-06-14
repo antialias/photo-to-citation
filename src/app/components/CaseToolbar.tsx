@@ -1,4 +1,5 @@
 "use client";
+import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 
@@ -13,23 +14,40 @@ export default function CaseToolbar({
   hasOwner?: boolean;
   progress?: LlmProgress | null;
 }) {
-  const progressText = progress
+  const reqText = progress
     ? progress.stage === "upload"
       ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
           (progress.index / progress.total) * 100,
-        )}%)...`
+        )}%)`
       : progress.done
         ? "Processing results..."
         : `Analyzing... received ${progress.received} chars`
     : null;
+  const progressText = progress
+    ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${reqText}`
+    : null;
+
+  const overallValue = progress?.steps
+    ? ((progress.step - 1) / progress.steps) * 100
+    : undefined;
+  const requestValue = progress
+    ? progress.stage === "upload"
+      ? (progress.index / progress.total) * 100
+      : progress.done
+        ? 100
+        : undefined
+    : undefined;
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2">
       {progress ? (
         <div className="flex flex-col gap-1">
-          <progress
-            value={progress.stage === "upload" ? progress.index : undefined}
-            max={progress.stage === "upload" ? progress.total : undefined}
-            className="w-full"
+          <Progress
+            value={overallValue}
+            indeterminate={overallValue === undefined}
+          />
+          <Progress
+            value={requestValue}
+            indeterminate={requestValue === undefined}
           />
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {progressText}

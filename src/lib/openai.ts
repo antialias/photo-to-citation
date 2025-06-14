@@ -9,8 +9,20 @@ import "./zod-setup";
 import { getLlm } from "./llm";
 
 export type LlmProgress =
-  | { stage: "upload"; index: number; total: number }
-  | { stage: "stream"; received: number; done: boolean };
+  | {
+      stage: "upload";
+      index: number;
+      total: number;
+      step?: number;
+      steps?: number;
+    }
+  | {
+      stage: "stream";
+      received: number;
+      done: boolean;
+      step?: number;
+      steps?: number;
+    };
 
 export class AnalysisError extends Error {
   kind: "truncated" | "parse" | "schema" | "images";

@@ -30,24 +30,40 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     const imageMap: Record<string, string> = Object.fromEntries(
       images.map((i) => [i.filename, i.url]),
     );
+    let steps: number | undefined = undefined;
+    const currentStep = 1;
     const result = await analyzeViolation(images, (p) => {
-      updateCase(caseData.id, { analysisProgress: p });
+      updateCase(caseData.id, {
+        analysisProgress: { ...p, step: currentStep, steps },
+      });
     });
     updateCase(caseData.id, { analysisProgress: null });
+    const paperwork: Array<[string, string]> = [];
     if (result.images) {
       for (const [name, info] of Object.entries(result.images)) {
         if (info.paperwork && !info.paperworkText) {
           const url = imageMap[name];
           if (url) {
-            const ocr = await ocrPaperwork({ url }, (p) => {
-              updateCase(caseData.id, { analysisProgress: p });
-            });
-            updateCase(caseData.id, { analysisProgress: null });
-            info.paperworkText = ocr.text;
-            if (ocr.info) info.paperworkInfo = ocr.info;
+            paperwork.push([name, url]);
           }
         }
       }
+    }
+    steps = 1 + paperwork.length;
+    let stepIndex = 2;
+    for (const [name, url] of paperwork) {
+      const ocr = await ocrPaperwork({ url }, (p) => {
+        updateCase(caseData.id, {
+          analysisProgress: { ...p, step: stepIndex, steps },
+        });
+      });
+      updateCase(caseData.id, { analysisProgress: null });
+      const info = result.images?.[name];
+      if (info) {
+        info.paperworkText = ocr.text;
+        if (ocr.info) info.paperworkInfo = ocr.info;
+      }
+      stepIndex++;
     }
     updateCase(caseData.id, {
       analysis: result,

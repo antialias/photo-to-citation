@@ -232,6 +232,17 @@ export default function ClientCasePage({
 
   const progress =
     caseData.analysisStatus === "pending" ? caseData.analysisProgress : null;
+  const progressDescription = progress
+    ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${
+        progress.stage === "upload"
+          ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
+              (progress.index / progress.total) * 100,
+            )}%)`
+          : progress.done
+            ? "Processing results..."
+            : `Analyzing... received ${progress.received} chars`
+      }`
+    : "Analyzing photo...";
   const analysisBlock = caseData.analysis ? (
     <>
       <AnalysisInfo
@@ -388,29 +399,11 @@ export default function ClientCasePage({
                         analysis={caseData.analysis}
                         photo={selectedPhoto}
                       />
-                      {progress ? (
-                        <p>
-                          {progress.stage === "upload"
-                            ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
-                                (progress.index / progress.total) * 100,
-                              )}%)...`
-                            : progress.done
-                              ? "Processing results..."
-                              : `Analyzing... received ${progress.received} chars`}
-                        </p>
-                      ) : null}
+                      {progress ? <p>{progressDescription}</p> : null}
                     </div>
                   ) : (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                      {progress
-                        ? progress.stage === "upload"
-                          ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
-                              (progress.index / progress.total) * 100,
-                            )}%)...`
-                          : progress.done
-                            ? "Processing results..."
-                            : `Analyzing... received ${progress.received} chars`
-                        : "Analyzing photo..."}
+                      {progress ? progressDescription : "Analyzing photo..."}
                     </div>
                   )}
                 </div>
