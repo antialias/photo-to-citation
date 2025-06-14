@@ -17,14 +17,17 @@ describe("Home page", () => {
       FakeEventSource as unknown as typeof EventSource;
   });
 
-  it("redirects mobile users to /point", () => {
+  it("redirects mobile users to /point", async () => {
     (headers as vi.Mock).mockReturnValueOnce(
-      new Headers({
-        "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)",
-      }),
+      Promise.resolve(
+        new Headers({
+          "user-agent":
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)",
+        }),
+      ),
     );
     try {
-      Home();
+      await Home();
     } catch (err) {
       expect((err as { digest?: string }).digest).toContain("/point");
       return;
@@ -32,12 +35,14 @@ describe("Home page", () => {
     throw new Error("Expected redirect");
   });
 
-  it("redirects desktop users to /cases", () => {
+  it("redirects desktop users to /cases", async () => {
     (headers as vi.Mock).mockReturnValueOnce(
-      new Headers({ "user-agent": "Mozilla/5.0 (X11; Linux x86_64)" }),
+      Promise.resolve(
+        new Headers({ "user-agent": "Mozilla/5.0 (X11; Linux x86_64)" }),
+      ),
     );
     try {
-      Home();
+      await Home();
     } catch (err) {
       expect((err as { digest?: string }).digest).toContain("/cases");
       return;

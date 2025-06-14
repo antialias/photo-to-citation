@@ -37,6 +37,7 @@ const baseCase: Case = {
   photos: [],
   photoTimes: {},
   createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   analysisStatus: "pending",
 };
 

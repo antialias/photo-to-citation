@@ -18,6 +18,7 @@ const base: Case = {
   ],
   photoTimes: {},
   createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   gps: { lat: 41.88, lon: -87.78 },
   streetAddress: "123 Main St",
   intersection: "Main & 1st",

@@ -14,6 +14,7 @@ const caseBase: Omit<Case, "id"> = {
   photos: ["https://placehold.co/600x400?text=photo"],
   photoTimes: {},
   createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   gps: { lat: 41.88, lon: -87.78 },
   streetAddress: null,
   intersection: null,

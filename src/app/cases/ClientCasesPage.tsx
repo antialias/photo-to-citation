@@ -12,12 +12,22 @@ import MapPreview from "../components/MapPreview";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
 import useDragReset from "./useDragReset";
 
+type Order = "createdAt" | "updatedAt";
+function sortList(list: Case[], key: Order): Case[] {
+  return [...list].sort(
+    (a, b) =>
+      new Date((b as Record<Order, string>)[key] ?? b.createdAt).getTime() -
+      new Date((a as Record<Order, string>)[key] ?? a.createdAt).getTime(),
+  );
+}
+
 export default function ClientCasesPage({
   initialCases,
 }: {
   initialCases: Case[];
 }) {
-  const [cases, setCases] = useState(initialCases);
+  const [orderBy, setOrderBy] = useState<Order>("createdAt");
+  const [cases, setCases] = useState(() => sortList(initialCases, "createdAt"));
   const router = useRouter();
   const uploadNewCase = useNewCaseFromFiles();
   const [dragging, setDragging] = useState(false);
@@ -36,17 +46,24 @@ export default function ClientCasesPage({
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       setCases((prev) => {
         if (data.deleted) {
-          return prev.filter((c) => c.id !== data.id);
+          return sortList(
+            prev.filter((c) => c.id !== data.id),
+            orderBy,
+          );
         }
         const idx = prev.findIndex((c) => c.id === data.id);
         if (idx === -1) return [...prev, data];
         const copy = [...prev];
         copy[idx] = data;
-        return copy;
+        return sortList(copy, orderBy);
       });
     };
     return () => es.close();
-  }, []);
+  }, [orderBy]);
+
+  useEffect(() => {
+    setCases((prev) => sortList(prev, orderBy));
+  }, [orderBy]);
 
   useDragReset(() => {
     setDragging(false);
@@ -91,6 +108,20 @@ export default function ClientCasesPage({
       }}
     >
       <h1 className="text-xl font-bold mb-4">Cases</h1>
+      <div className="mb-4">
+        <label className="mr-2" htmlFor="order">
+          Order by:
+        </label>
+        <select
+          id="order"
+          value={orderBy}
+          onChange={(e) => setOrderBy(e.target.value as Order)}
+          className="border rounded p-1 bg-white dark:bg-gray-900"
+        >
+          <option value="createdAt">Creation Date</option>
+          <option value="updatedAt">Last Updated</option>
+        </select>
+      </div>
       <ul className="grid gap-4">
         {cases.map((c) => (
           <li
