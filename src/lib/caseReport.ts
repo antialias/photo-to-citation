@@ -215,13 +215,16 @@ export async function draftOwnerNotification(
     type: "object",
     properties: { subject: { type: "string" }, body: { type: "string" } },
   };
-  const authorityList =
-    authorities.length > 0 ? authorities.join(", ") : "no authorities";
+  const authorityList = authorities.join(", ");
+  const authorityLine =
+    authorities.length > 0
+      ? `Mention that the following authorities have been contacted: ${authorityList}. `
+      : "";
   const code = await getViolationCode(
     "oak-park",
     analysis?.violationType || "",
   );
-  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. Mention that the following authorities have been contacted: ${authorityList}. Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. ${authorityLine}Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages = [

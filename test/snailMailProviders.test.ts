@@ -14,7 +14,10 @@ beforeEach(async () => {
     active: idx === 0,
     failureCount: 0,
   }));
-  fs.writeFileSync(process.env.SNAIL_MAIL_PROVIDER_FILE, JSON.stringify(statuses));
+  fs.writeFileSync(
+    process.env.SNAIL_MAIL_PROVIDER_FILE,
+    JSON.stringify(statuses),
+  );
 });
 
 afterEach(() => {
@@ -35,7 +38,9 @@ describe("snail mail provider store", () => {
   it("records failures", async () => {
     const store = await import("../src/lib/snailMailProviders");
     store.recordProviderFailure("mock");
-    const item = store.getSnailMailProviderStatuses().find((p) => p.id === "mock");
+    const item = store
+      .getSnailMailProviderStatuses()
+      .find((p) => p.id === "mock");
     expect(item?.failureCount).toBe(1);
   });
 });
