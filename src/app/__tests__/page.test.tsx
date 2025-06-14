@@ -1,5 +1,10 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { headers } from "next/headers";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import Home from "../page";
+
+vi.mock("next/headers", () => ({
+  headers: vi.fn(),
+}));
 
 describe("Home page", () => {
   beforeAll(() => {
@@ -12,7 +17,25 @@ describe("Home page", () => {
       FakeEventSource as unknown as typeof EventSource;
   });
 
-  it("redirects to /cases", () => {
+  it("redirects mobile users to /point", () => {
+    (headers as vi.Mock).mockReturnValueOnce(
+      new Headers({
+        "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)",
+      }),
+    );
+    try {
+      Home();
+    } catch (err) {
+      expect((err as { digest?: string }).digest).toContain("/point");
+      return;
+    }
+    throw new Error("Expected redirect");
+  });
+
+  it("redirects desktop users to /cases", () => {
+    (headers as vi.Mock).mockReturnValueOnce(
+      new Headers({ "user-agent": "Mozilla/5.0 (X11; Linux x86_64)" }),
+    );
     try {
       Home();
     } catch (err) {
