@@ -3,8 +3,8 @@ import { z } from "zod";
 import { caseSchema } from "../generated/zod/caseStore";
 import { emailOptionsSchema } from "../generated/zod/email";
 import { reportModuleSchema } from "../generated/zod/reportModules";
-import { vinSourceStatusSchema } from "../generated/zod/vinSources";
 import { snailMailProviderStatusSchema } from "../generated/zod/snailMailProviders";
+import { vinSourceStatusSchema } from "../generated/zod/vinSources";
 
 const c = initContract();
 
