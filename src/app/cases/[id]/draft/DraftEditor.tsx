@@ -153,6 +153,11 @@ export default function DraftEditor({
             disabled={snailMailDisabled}
           />
           <span>Send via snail mail to {module.authorityAddress}</span>
+          {results.snailMail?.status === "error" && (
+            <span className="text-red-600 text-sm">
+              {results.snailMail.error}
+            </span>
+          )}
         </label>
       )}
       <button
