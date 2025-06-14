@@ -1,6 +1,7 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
 import {
+  getAnalysisSummary,
   getCaseOwnerContact,
   getCasePlateNumber,
   getCasePlateState,
@@ -176,6 +177,8 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const notifyTip = firstEmail
       ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
       : "View notification email";
+    const analysisTip =
+      caseData.analysis && getAnalysisSummary(caseData.analysis);
     const links = [
       caseData.photos[0]
         ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
@@ -183,6 +186,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
       notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
+      analysisTip
+        ? `click analysis "/cases/${caseData.id}" "${clean(analysisTip)}"`
+        : null,
     ]
       .filter(Boolean)
       .join("\n");
@@ -273,6 +279,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         map.notify = {
           url: notifyLink,
           preview: firstEmail?.body ?? "",
+          isImage: false,
+        };
+      if (caseData.analysis)
+        map.analysis = {
+          url: `/cases/${caseData.id}`,
+          preview: getAnalysisSummary(caseData.analysis),
           isImage: false,
         };
       const escapeHtml = (s: string) =>

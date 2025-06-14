@@ -112,3 +112,15 @@ export function getCaseOwnerContactInfo(
   if (!contact) return null;
   return parseContactInfo(contact);
 }
+
+export function getAnalysisSummary(report: ViolationReport): string {
+  const parts = [`Violation: ${report.violationType}`, report.details];
+  if (report.location) parts.push(`Location: ${report.location}`);
+  const plate: string[] = [];
+  if (report.vehicle?.licensePlateState)
+    plate.push(report.vehicle.licensePlateState);
+  if (report.vehicle?.licensePlateNumber)
+    plate.push(report.vehicle.licensePlateNumber);
+  if (plate.length > 0) parts.push(`Plate: ${plate.join(" ")}`);
+  return parts.filter(Boolean).join("\n");
+}
