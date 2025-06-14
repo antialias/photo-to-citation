@@ -10,6 +10,14 @@ export default meta;
 
 type Story = StoryObj<typeof ClientCasesPage>;
 
+function stubEventSource() {
+  (globalThis as unknown as { EventSource: typeof EventSource }).EventSource =
+    class {
+      onmessage: ((ev: MessageEvent) => void) | null = null;
+      close() {}
+    };
+}
+
 const caseBase: Omit<Case, "id"> = {
   photos: ["https://placehold.co/600x400?text=photo"],
   photoTimes: {},
@@ -30,6 +38,7 @@ const caseBase: Omit<Case, "id"> = {
 
 export const MultipleCases: Story = {
   render: () => {
+    stubEventSource();
     const cases: Case[] = [
       {
         id: "1",
@@ -58,6 +67,7 @@ export const MultipleCases: Story = {
 
 export const SelectedCase: Story = {
   render: () => {
+    stubEventSource();
     const cases: Case[] = [
       { id: "1", ...caseBase },
       { id: "2", ...caseBase },

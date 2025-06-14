@@ -11,6 +11,14 @@ export default meta;
 
 type Story = StoryObj<typeof ComposeWrapper>;
 
+function stubEventSource() {
+  (globalThis as unknown as { EventSource: typeof EventSource }).EventSource =
+    class {
+      onmessage: ((ev: MessageEvent) => void) | null = null;
+      close() {}
+    };
+}
+
 const base: Case = {
   id: "123",
   photos: [
@@ -60,6 +68,7 @@ function mockFetch() {
 export const Default: Story = {
   render: () => {
     mockFetch();
+    stubEventSource();
     return <ComposeWrapper caseData={base} caseId={base.id} />;
   },
 };

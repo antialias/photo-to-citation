@@ -10,6 +10,17 @@ export default meta;
 
 type Story = StoryObj<typeof ClientCasePage>;
 
+function setupMocks(data: Case) {
+  (
+    globalThis as unknown as { fetch: (input: string) => Promise<Response> }
+  ).fetch = async () => new Response(JSON.stringify(data));
+  (globalThis as unknown as { EventSource: typeof EventSource }).EventSource =
+    class {
+      onmessage: ((ev: MessageEvent) => void) | null = null;
+      close() {}
+    };
+}
+
 const base: Case = {
   id: "123",
   photos: [
@@ -42,19 +53,21 @@ const base: Case = {
 };
 
 export const Completed: Story = {
-  render: () => <ClientCasePage caseId={base.id} initialCase={base} />,
+  render: () => {
+    setupMocks(base);
+    return <ClientCasePage caseId={base.id} initialCase={base} />;
+  },
 };
 
 export const PendingAnalysis: Story = {
-  render: () => (
-    <ClientCasePage
-      caseId="124"
-      initialCase={{
-        ...base,
-        id: "124",
-        analysis: null,
-        analysisStatus: "pending",
-      }}
-    />
-  ),
+  render: () => {
+    const data: Case = {
+      ...base,
+      id: "124",
+      analysis: null,
+      analysisStatus: "pending",
+    };
+    setupMocks(data);
+    return <ClientCasePage caseId="124" initialCase={data} />;
+  },
 };
