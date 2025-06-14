@@ -1,5 +1,15 @@
 import "@testing-library/jest-dom";
-import { type TestContext, afterEach, beforeEach } from "vitest";
+import React, { type ImgHTMLAttributes } from "react";
+import { type TestContext, afterEach, beforeEach, vi } from "vitest";
+
+vi.mock("next/image", () => ({
+  default: (props: ImgHTMLAttributes<HTMLImageElement>) =>
+    React.createElement("img", props),
+}));
+
+let originalGetUserMedia:
+  | ((constraints: MediaStreamConstraints) => Promise<MediaStream>)
+  | undefined;
 
 declare module "vitest" {
   interface TestContext {
@@ -37,6 +47,14 @@ beforeEach((context) => {
   console.error = (...args: unknown[]) => {
     context.consoleIntercept?.errors.push(args);
   };
+
+  originalGetUserMedia = navigator.mediaDevices?.getUserMedia;
+  if (!navigator.mediaDevices) {
+    (
+      navigator as unknown as { mediaDevices: Record<string, unknown> }
+    ).mediaDevices = {};
+  }
+  navigator.mediaDevices.getUserMedia = vi.fn(async () => undefined);
 });
 
 afterEach((context) => {
@@ -46,6 +64,13 @@ afterEach((context) => {
   console.log = originals.log;
   console.warn = originals.warn;
   console.error = originals.error;
+
+  if (originalGetUserMedia) {
+    navigator.mediaDevices.getUserMedia = originalGetUserMedia;
+  } else {
+    (navigator.mediaDevices as Record<string, unknown>).getUserMedia =
+      undefined;
+  }
 
   if (context.task.result?.state === "fail") {
     for (const args of logs) originals.log(...args);
