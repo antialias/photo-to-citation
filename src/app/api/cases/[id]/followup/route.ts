@@ -1,4 +1,4 @@
-import { draftFollowUp } from "@/lib/caseReport";
+import { draftFollowUp, draftFollowUpWithOwnerInfo } from "@/lib/caseReport";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
 import { sendSnailMail } from "@/lib/contactMethods";
@@ -27,6 +27,7 @@ export async function GET(
   const { id } = await params;
   const url = new URL(req.url);
   const replyTo = url.searchParams.get("replyTo");
+  const owner = url.searchParams.get("owner");
   console.log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);
   const c = getCase(id);
   if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -41,7 +42,9 @@ export async function GET(
   console.log(
     `drafting followup for ${recipient} with ${thread.length} emails`,
   );
-  const email = await draftFollowUp(c, recipient, thread);
+  const email = owner
+    ? await draftFollowUpWithOwnerInfo(c, recipient, thread)
+    : await draftFollowUp(c, recipient, thread);
   console.log(`drafted email subject: ${email.subject}`);
   return NextResponse.json({
     email,
