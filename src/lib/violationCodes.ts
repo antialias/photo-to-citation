@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getLlm } from "./llm";
+import type OpenAI from "openai";
+import { runCompletion } from "./openai";
 
 export interface ViolationCodeMap {
   [municipality: string]: Record<string, string>;
@@ -60,14 +61,12 @@ export async function getViolationCode(
       },
       { role: "user", content: prompt },
     ];
-    const { client, model } = getLlm("lookup_code");
-    const res = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 60,
-      response_format: { type: "json_object" },
-    });
-    const text = res.choices[0]?.message?.content ?? "{}";
+    const { text } = await runCompletion(
+      "lookup_code",
+      messages as OpenAI.ChatCompletionMessageParam[],
+      60,
+      { type: "json_object" },
+    );
     const parsed = JSON.parse(text) as { code?: string };
     const code = parsed.code?.trim();
     if (code) {
