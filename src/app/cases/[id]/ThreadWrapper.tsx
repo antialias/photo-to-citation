@@ -16,6 +16,7 @@ export default function ThreadWrapper({
   const router = useRouter();
   const params = useSearchParams();
   const followup = params.get("followup");
+  const withOwnerInfo = params.get("owner") === "1";
   return (
     <>
       <ClientThreadPage
@@ -27,6 +28,7 @@ export default function ThreadWrapper({
         <FollowUpModal
           caseId={caseId}
           replyTo={startId}
+          withOwnerInfo={withOwnerInfo}
           onClose={() =>
             router.push(
               `/cases/${caseId}/thread/${encodeURIComponent(startId)}`,

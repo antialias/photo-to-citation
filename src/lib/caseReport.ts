@@ -2,6 +2,7 @@ import path from "node:path";
 import { z } from "zod";
 import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
+import { getCaseOwnerContactInfo } from "./caseUtils";
 import { getLlm } from "./llm";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
@@ -114,6 +115,7 @@ export async function draftFollowUp(
   caseData: Case,
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
+  includeOwnerInfo = false,
 ): Promise<EmailDraft> {
   console.log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
@@ -140,6 +142,18 @@ export async function draftFollowUp(
     "oak-park",
     analysis?.violationType || "",
   );
+  const ownerInfo = (() => {
+    if (!includeOwnerInfo) return "";
+    const info = getCaseOwnerContactInfo(caseData);
+    if (!info) return "";
+    const parts = [] as string[];
+    if (info.email) parts.push(`Email: ${info.email}`);
+    if (info.phone) parts.push(`Phone: ${info.phone}`);
+    if (info.address) parts.push(`Address: ${info.address}`);
+    return parts.length > 0
+      ? `Include this registered owner information:\n${parts.join("\n")}`
+      : "";
+  })();
   const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
@@ -147,6 +161,7 @@ Include these details if available:
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
 ${code ? `Applicable code: ${code}` : ""}
+${ownerInfo}
 Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
