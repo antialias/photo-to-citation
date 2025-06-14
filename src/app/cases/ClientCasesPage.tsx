@@ -7,17 +7,33 @@ import {
   getOfficialCaseGps,
   getRepresentativePhoto,
 } from "../../lib/caseUtils";
+import { distanceBetween } from "../../lib/distance";
 import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
 import useDragReset from "./useDragReset";
 
-type Order = "createdAt" | "updatedAt";
-function sortList(list: Case[], key: Order): Case[] {
+type Order = "createdAt" | "updatedAt" | "distance";
+function sortList(
+  list: Case[],
+  key: Order,
+  location?: { lat: number; lon: number } | null,
+): Case[] {
+  if (key === "distance" && location) {
+    return [...list].sort((a, b) => {
+      const ag = getOfficialCaseGps(a);
+      const bg = getOfficialCaseGps(b);
+      if (!ag && !bg) return 0;
+      if (!ag) return 1;
+      if (!bg) return -1;
+      return distanceBetween(location, ag) - distanceBetween(location, bg);
+    });
+  }
+  const k = key as Exclude<Order, "distance">;
   return [...list].sort(
     (a, b) =>
-      new Date((b as Record<Order, string>)[key] ?? b.createdAt).getTime() -
-      new Date((a as Record<Order, string>)[key] ?? a.createdAt).getTime(),
+      new Date((b as Record<typeof k, string>)[k] ?? b.createdAt).getTime() -
+      new Date((a as Record<typeof k, string>)[k] ?? a.createdAt).getTime(),
   );
 }
 
@@ -28,6 +44,10 @@ export default function ClientCasesPage({
 }) {
   const [orderBy, setOrderBy] = useState<Order>("createdAt");
   const [cases, setCases] = useState(() => sortList(initialCases, "createdAt"));
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
   const router = useRouter();
   const uploadNewCase = useNewCaseFromFiles();
   const [dragging, setDragging] = useState(false);
@@ -49,21 +69,33 @@ export default function ClientCasesPage({
           return sortList(
             prev.filter((c) => c.id !== data.id),
             orderBy,
+            userLocation,
           );
         }
         const idx = prev.findIndex((c) => c.id === data.id);
-        if (idx === -1) return [...prev, data];
+        if (idx === -1) return sortList([...prev, data], orderBy, userLocation);
         const copy = [...prev];
         copy[idx] = data;
-        return sortList(copy, orderBy);
+        return sortList(copy, orderBy, userLocation);
       });
     };
     return () => es.close();
-  }, [orderBy]);
+  }, [orderBy, userLocation]);
 
   useEffect(() => {
-    setCases((prev) => sortList(prev, orderBy));
-  }, [orderBy]);
+    setCases((prev) => sortList(prev, orderBy, userLocation));
+  }, [orderBy, userLocation]);
+
+  useEffect(() => {
+    if (orderBy === "distance" && !userLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        });
+      });
+    }
+  }, [orderBy, userLocation]);
 
   useDragReset(() => {
     setDragging(false);
@@ -120,6 +152,7 @@ export default function ClientCasesPage({
         >
           <option value="createdAt">Creation Date</option>
           <option value="updatedAt">Last Updated</option>
+          <option value="distance">Distance from My Location</option>
         </select>
       </div>
       <ul className="grid gap-4">
