@@ -77,7 +77,10 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  fs.rmSync(path.join(root, "public"), { recursive: true, force: true });
+  fs.rmSync(path.join(root, "public", "uploads"), {
+    recursive: true,
+    force: true,
+  });
   fs.rmSync(tmpDir, { recursive: true, force: true });
   cwdSpy.mockRestore();
   process.env.RETURN_ADDRESS = undefined;
