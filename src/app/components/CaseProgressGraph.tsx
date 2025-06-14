@@ -189,6 +189,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       currentStroke: "#92400E",
       pendingFill: "#F3F4F6",
       pendingStroke: "#6B7280",
+      text: "#000000",
     };
     const dark = {
       completedFill: "#064E3B",
@@ -197,10 +198,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       currentStroke: "#FBBF24",
       pendingFill: "#1F2937",
       pendingStroke: "#9CA3AF",
+      text: "#FFFFFF",
     };
     const c = isDark ? dark : light;
     const edgeStyle = `linkStyle default fill:none,stroke:${c.pendingStroke},stroke-width:2px;`;
-    return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke};\n${edgeStyle}\n${classAssignments}`;
+    return `graph TD\n${nodes}\n${edges}\n${links}\nclassDef completed fill:${c.completedFill},stroke:${c.completedStroke},color:${c.text};\nclassDef current fill:${c.currentFill},stroke:${c.currentStroke},color:${c.text};\nclassDef pending fill:${c.pendingFill},stroke:${c.pendingStroke},color:${c.text};\n${edgeStyle}\n${classAssignments}`;
   }, [status, firstPending, noviolation, steps, isDark, caseData]);
 
   const containerRef = useRef<HTMLDivElement>(null);
