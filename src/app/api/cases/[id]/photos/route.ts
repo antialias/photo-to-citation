@@ -1,5 +1,10 @@
 import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
-import { addCasePhoto, getCase, removeCasePhoto } from "@/lib/caseStore";
+import {
+  addCasePhoto,
+  getCase,
+  removeCasePhoto,
+  updateCase,
+} from "@/lib/caseStore";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 

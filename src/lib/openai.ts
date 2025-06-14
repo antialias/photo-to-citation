@@ -8,6 +8,10 @@ import { z } from "zod";
 import "./zod-setup";
 import { getLlm } from "./llm";
 
+function countTokens(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
 export type LlmProgress =
   | {
       stage: "upload";
@@ -19,6 +23,7 @@ export type LlmProgress =
   | {
       stage: "stream";
       received: number;
+      total?: number;
       done: boolean;
       step?: number;
       steps?: number;
@@ -148,9 +153,7 @@ export async function analyzeViolation(
 
   const urls = images.map((i) => i.url);
   const names = images.map((i) => i.filename);
-  images.forEach((_, idx) => {
-    progress?.({ stage: "upload", index: idx + 1, total: images.length });
-  });
+  progress?.({ stage: "upload", index: 0, total: images.length });
   const baseMessages = [
     {
       role: "system",
@@ -184,14 +187,26 @@ export async function analyzeViolation(
     const response = await client.chat.completions.create(req as never);
     let finish: string | null = null;
     let text = "";
+    let tokens = 0;
     if (progress) {
       for await (const chunk of response as AsyncIterable<ChatCompletionChunk>) {
         const delta = chunk.choices[0]?.delta?.content ?? "";
         text += delta;
+        tokens += countTokens(delta);
         finish = chunk.choices[0]?.finish_reason || null;
-        progress({ stage: "stream", received: text.length, done: false });
+        progress({
+          stage: "stream",
+          received: tokens,
+          total: req.max_tokens,
+          done: false,
+        });
       }
-      progress({ stage: "stream", received: text.length, done: true });
+      progress({
+        stage: "stream",
+        received: tokens,
+        total: req.max_tokens,
+        done: true,
+      });
     } else {
       finish = (response as ChatCompletion).choices[0]?.finish_reason ?? null;
       text = (response as ChatCompletion).choices[0]?.message?.content ?? "{}";
@@ -330,13 +345,25 @@ export async function ocrPaperwork(
     if (progress) (req as Record<string, unknown>).stream = true;
     const res = await client.chat.completions.create(req as never);
     let text = "";
+    let tokens = 0;
     if (progress) {
       for await (const chunk of res as AsyncIterable<ChatCompletionChunk>) {
         const delta = chunk.choices[0]?.delta?.content ?? "";
         text += delta;
-        progress({ stage: "stream", received: text.length, done: false });
+        tokens += countTokens(delta);
+        progress({
+          stage: "stream",
+          received: tokens,
+          total: req.max_tokens,
+          done: false,
+        });
       }
-      progress({ stage: "stream", received: text.length, done: true });
+      progress({
+        stage: "stream",
+        received: tokens,
+        total: req.max_tokens,
+        done: true,
+      });
     } else {
       text = (res as ChatCompletion).choices[0]?.message?.content ?? "";
     }

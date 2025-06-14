@@ -19,23 +19,23 @@ export default function CaseToolbar({
       ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
           (progress.index / progress.total) * 100,
         )}%)`
-      : progress.done
-        ? "Processing results..."
-        : `Analyzing... received ${progress.received} chars`
+      : progress.total
+        ? `Analyzing... ${((progress.received / progress.total) * 100).toFixed(0)}%`
+        : "Analyzing..."
     : null;
   const progressText = progress
     ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${reqText}`
     : null;
 
-  const overallValue = progress?.steps
-    ? ((progress.step - 1) / progress.steps) * 100
-    : undefined;
   const requestValue = progress
     ? progress.stage === "upload"
       ? (progress.index / progress.total) * 100
-      : progress.done
-        ? 100
+      : progress.total
+        ? (progress.received / progress.total) * 100
         : undefined
+    : undefined;
+  const overallValue = progress?.steps
+    ? ((progress.step - 1 + (requestValue ?? 0) / 100) / progress.steps) * 100
     : undefined;
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2">

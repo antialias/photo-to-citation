@@ -238,9 +238,9 @@ export default function ClientCasePage({
           ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
               (progress.index / progress.total) * 100,
             )}%)`
-          : progress.done
-            ? "Processing results..."
-            : `Analyzing... received ${progress.received} chars`
+          : progress.total
+            ? `Analyzing... ${((progress.received / progress.total) * 100).toFixed(0)}%`
+            : "Analyzing..."
       }`
     : "Analyzing photo...";
   const analysisBlock = caseData.analysis ? (

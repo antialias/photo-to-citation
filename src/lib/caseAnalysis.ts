@@ -30,7 +30,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     const imageMap: Record<string, string> = Object.fromEntries(
       images.map((i) => [i.filename, i.url]),
     );
-    let steps: number | undefined = undefined;
+    let steps = 1 + caseData.photos.length;
     const currentStep = 1;
     const result = await analyzeViolation(images, (p) => {
       updateCase(caseData.id, {
