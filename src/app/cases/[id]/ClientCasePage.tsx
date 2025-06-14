@@ -235,7 +235,9 @@ export default function ClientCasePage({
   const ownerContact = getCaseOwnerContact(caseData);
 
   const progress =
-    caseData.analysisStatus === "pending" ? caseData.analysisProgress : null;
+    caseData.analysisStatus === "pending" && caseData.analysisProgress
+      ? caseData.analysisProgress
+      : null;
   const progressDescription = progress
     ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${
         progress.stage === "upload"
@@ -248,7 +250,11 @@ export default function ClientCasePage({
             ? "Processing results..."
             : `Analyzing... ${progress.received} of ${progress.total} tokens`
       }`
-    : "Analyzing photo...";
+    : caseData.analysisStatus === "pending"
+      ? "Analyzing photo..."
+      : caseData.analysisStatus === "canceled"
+        ? "Analysis canceled."
+        : "Analysis failed.";
   const analysisBlock = caseData.analysis ? (
     <>
       <AnalysisInfo
@@ -273,10 +279,14 @@ export default function ClientCasePage({
     <p className="text-sm text-red-600">
       Analysis failed. Please try again later.
     </p>
-  ) : (
+  ) : caseData.analysisStatus === "canceled" ? (
+    <p className="text-sm text-red-600">Analysis canceled.</p>
+  ) : caseData.analysisStatus === "pending" && progress ? (
     <p className="text-sm text-gray-500 dark:text-gray-400">
-      Analyzing photo...
+      {progressDescription}
     </p>
+  ) : (
+    <p className="text-sm text-red-600">Analysis failed.</p>
   );
 
   const analysisImages = caseData.analysis?.images ?? {};
@@ -399,7 +409,7 @@ export default function ClientCasePage({
                     </div>
                   ) : (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                      {progress ? progressDescription : "Analyzing photo..."}
+                      {progressDescription}
                     </div>
                   )}
                 </div>

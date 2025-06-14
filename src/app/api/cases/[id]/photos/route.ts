@@ -14,6 +14,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   const p = updateCase(updated.id, {
+    analysisStatus: "pending",
     analysisProgress: {
       stage: "upload",
       index: 0,
@@ -40,6 +41,7 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   const p = updateCase(updated.id, {
+    analysisStatus: "pending",
     analysisProgress: {
       stage: "upload",
       index: 0,

@@ -31,6 +31,16 @@ export const caseSchema = z.object({
   id: z.string(),
   photos: z.array(z.string()),
   photoTimes: z.record(z.string().nullable()),
+  photoGps: z
+    .record(
+      z
+        .object({
+          lat: z.number(),
+          lon: z.number(),
+        })
+        .nullable(),
+    )
+    .optional(),
   createdAt: z.string(),
   gps: z
     .object({
@@ -45,7 +55,12 @@ export const caseSchema = z.object({
   vinOverride: z.string().optional().nullable(),
   analysis: violationReportSchema.optional().nullable(),
   analysisOverrides: violationReportSchema.partial().optional().nullable(),
-  analysisStatus: z.union([z.literal("pending"), z.literal("complete")]),
+  analysisStatus: z.union([
+    z.literal("pending"),
+    z.literal("complete"),
+    z.literal("failed"),
+    z.literal("canceled"),
+  ]),
   analysisStatusCode: z.number().optional().nullable(),
   analysisError: z
     .union([
@@ -56,6 +71,7 @@ export const caseSchema = z.object({
     ])
     .optional()
     .nullable(),
+  analysisProgress: z.any().optional().nullable(),
   sentEmails: z.array(sentEmailSchema).optional(),
   ownershipRequests: z.array(ownershipRequestSchema).optional(),
   threadImages: z.array(threadImageSchema).optional(),
