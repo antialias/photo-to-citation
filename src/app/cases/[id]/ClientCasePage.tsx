@@ -330,7 +330,7 @@ export default function ClientCasePage({
         : caseData.analysisError === "parse"
           ? "Analysis failed due to invalid JSON from the AI. Please try again."
           : caseData.analysisError === "images"
-            ? "Analysis failed because no images were provided."
+            ? "Analysis failed because no images were provided or some photo files were missing."
             : "Analysis failed because the AI response did not match the expected format. Please retry."}
     </p>
   ) : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400 ? (
