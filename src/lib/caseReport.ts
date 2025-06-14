@@ -2,6 +2,7 @@ import path from "node:path";
 import { z } from "zod";
 import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
+import { getCaseOwnerContact } from "./caseUtils";
 import { getLlm } from "./llm";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
@@ -161,6 +162,69 @@ Ask about the current citation status and mention that photos are attached again
 
   console.log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
 
+  const messages = [...baseMessages];
+  const { client, model } = getLlm("draft_email");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await client.chat.completions.create({
+      model,
+      messages,
+      max_tokens: 800,
+      response_format: { type: "json_object" },
+    });
+    const text = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(text);
+      return emailDraftSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) return { subject: "", body: "" };
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  return { subject: "", body: "" };
+}
+
+export async function draftFollowUpWithOwnerInfo(
+  caseData: Case,
+  recipient: string,
+  historyEmails: SentEmail[] = caseData.sentEmails ?? [],
+): Promise<EmailDraft> {
+  const owner = getCaseOwnerContact(caseData) ?? "";
+  const history = historyEmails.map((m) => ({
+    role: "assistant",
+    content: `Subject: ${m.subject}\n\n${m.body}`,
+  }));
+  const analysis = caseData.analysis;
+  const vehicle = analysis?.vehicle ?? {};
+  const location =
+    caseData.streetAddress ||
+    caseData.intersection ||
+    (caseData.gps
+      ? `${caseData.gps.lat}, ${caseData.gps.lon}`
+      : "unknown location");
+  const schema = {
+    type: "object",
+    properties: { subject: { type: "string" }, body: { type: "string" } },
+  };
+  const code = await getViolationCode(
+    "oak-park",
+    analysis?.violationType || "",
+  );
+  const prompt = `Write a brief follow-up email to ${recipient} about the previous report. Include this registered owner information: ${owner}. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n${code ? `Applicable code: ${code}` : ""}Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
+    schema,
+  )}`;
+  const baseMessages = [
+    {
+      role: "system",
+      content: "You create email drafts for municipal authorities.",
+    },
+    ...history,
+    { role: "user", content: prompt },
+  ];
   const messages = [...baseMessages];
   const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
