@@ -14,12 +14,24 @@ export default function PointAndShootPage() {
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
+          audio: false,
+          video: { facingMode: { ideal: "environment" } },
         });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play().catch(() => {});
+        const video = videoRef.current;
+        if (!video) return;
+        video.setAttribute("autoplay", "");
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
+        if ("srcObject" in video) {
+          video.srcObject = stream;
+        } else {
+          // @ts-ignore - fallback for older browsers
+          video.src = URL.createObjectURL(stream);
         }
+        video.play().catch(() => {});
       } catch (err) {
         console.error("Could not access camera", err);
       }
@@ -61,12 +73,12 @@ export default function PointAndShootPage() {
         autoPlay
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover z-0"
       >
         <track kind="captions" label="" />
       </video>
       <canvas ref={canvasRef} className="hidden" />
-      <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 pointer-events-none">
+      <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 pointer-events-none z-10">
         <input
           ref={inputRef}
           type="file"
