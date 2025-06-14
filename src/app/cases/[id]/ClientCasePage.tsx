@@ -231,6 +231,8 @@ export default function ClientCasePage({
     caseData.analysisOverrides?.vehicle?.licensePlateState !== undefined;
   const ownerContact = getCaseOwnerContact(caseData);
 
+  const progress =
+    caseData.analysisStatus === "pending" ? caseData.analysisProgress : null;
   const analysisBlock = caseData.analysis ? (
     <>
       <AnalysisInfo
@@ -240,11 +242,6 @@ export default function ClientCasePage({
         onClearPlate={plateNumberOverridden ? clearPlateNumber : undefined}
         onClearState={plateStateOverridden ? clearPlateState : undefined}
       />
-      {caseData.analysisStatus === "pending" ? (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Updating analysis...
-        </p>
-      ) : null}
     </>
   ) : caseData.analysisError ? (
     <p className="text-sm text-red-600">
@@ -314,6 +311,7 @@ export default function ClientCasePage({
               caseId={caseId}
               disabled={!violationIdentified}
               hasOwner={Boolean(ownerContact)}
+              progress={progress}
             />
           </div>
         }
@@ -381,13 +379,29 @@ export default function ClientCasePage({
                         analysis={caseData.analysis}
                         photo={selectedPhoto}
                       />
-                      {caseData.analysisStatus === "pending" ? (
-                        <p>Updating analysis...</p>
+                      {progress ? (
+                        <p>
+                          {progress.stage === "upload"
+                            ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
+                                (progress.index / progress.total) * 100,
+                              )}%)...`
+                            : progress.done
+                              ? "Processing results..."
+                              : `Analyzing... received ${progress.received} chars`}
+                        </p>
                       ) : null}
                     </div>
                   ) : (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                      Analyzing photo...
+                      {progress
+                        ? progress.stage === "upload"
+                          ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
+                              (progress.index / progress.total) * 100,
+                            )}%)...`
+                          : progress.done
+                            ? "Processing results..."
+                            : `Analyzing... received ${progress.received} chars`
+                        : "Analyzing photo..."}
                     </div>
                   )}
                 </div>

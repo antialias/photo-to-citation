@@ -27,6 +27,7 @@ export interface Case {
   analysisStatusCode?: number | null;
   /** @zod.enum(["truncated", "parse", "schema"]).nullable() */
   analysisError?: "truncated" | "parse" | "schema" | "images" | null;
+  analysisProgress?: import("./openai").LlmProgress | null;
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
   threadImages?: ThreadImage[];
@@ -86,6 +87,7 @@ function loadCases(): Case[] {
           return acc;
         }, {}),
       analysisStatus: c.analysisStatus ?? (c.analysis ? "complete" : "pending"),
+      analysisProgress: c.analysisProgress ?? null,
       sentEmails: (c.sentEmails ?? []).map((m: unknown) => {
         const mail = m as Partial<SentEmail> & { [key: string]: unknown };
         return {
@@ -163,6 +165,7 @@ export function createCase(
     analysisStatus: "pending",
     analysisStatusCode: null,
     analysisError: null,
+    analysisProgress: null,
     sentEmails: [],
     ownershipRequests: [],
     threadImages: [],
