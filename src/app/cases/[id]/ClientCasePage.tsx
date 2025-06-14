@@ -351,19 +351,14 @@ export default function ClientCasePage({
                 </p>
               ) : null}
               {caseData.gps ? (
-                <>
-                  <p>
-                    <span className="font-semibold">GPS:</span>{" "}
-                    {caseData.gps.lat}, {caseData.gps.lon}
-                  </p>
-                  <MapPreview
-                    lat={caseData.gps.lat}
-                    lon={caseData.gps.lon}
-                    width={600}
-                    height={300}
-                    className="w-full aspect-[2/1] md:max-w-xl"
-                  />
-                </>
+                <MapPreview
+                  lat={caseData.gps.lat}
+                  lon={caseData.gps.lon}
+                  width={600}
+                  height={300}
+                  className="w-full aspect-[2/1] md:max-w-xl"
+                  link={`https://www.google.com/maps?q=${caseData.gps.lat},${caseData.gps.lon}`}
+                />
               ) : null}
               <p>
                 <span className="font-semibold">VIN:</span>{" "}

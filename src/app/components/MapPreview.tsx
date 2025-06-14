@@ -6,18 +6,20 @@ export default function MapPreview({
   width,
   height,
   className,
+  link,
 }: {
   lat: number;
   lon: number;
   width: number;
   height: number;
   className?: string;
+  link?: string;
 }) {
   const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const url = key
     ? `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lon}&zoom=16&size=${width}x${height}&markers=color:red|${lat},${lon}&key=${key}`
     : `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lon}&zoom=16&size=${width}x${height}&markers=${lat},${lon},red`;
-  return (
+  const img = (
     <div
       className={`relative ${className ?? ""}`}
       style={{ aspectRatio: `${width} / ${height}` }}
@@ -30,5 +32,12 @@ export default function MapPreview({
         sizes="100vw"
       />
     </div>
+  );
+  return link ? (
+    <a href={link} target="_blank" rel="noopener noreferrer">
+      {img}
+    </a>
+  ) : (
+    img
   );
 }
