@@ -417,10 +417,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           allowHTML: true,
           interactive: isAnalysis,
         };
-        if (isAnalysis) opts.trigger = "click";
+        if (isAnalysis) opts.trigger = "manual";
         const inst = tippy(el, opts);
         if (isAnalysis) {
-          el.addEventListener("click", (e) => e.preventDefault());
+          el.addEventListener("click", (e) => {
+            e.preventDefault();
+            inst.show();
+          });
           const btn = inst.popper.querySelector(
             "[data-reanalyze]",
           ) as HTMLButtonElement | null;
