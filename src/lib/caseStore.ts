@@ -1,6 +1,9 @@
 import crypto from "node:crypto";
+import { eq, sql } from "drizzle-orm";
 import { caseEvents } from "./caseEvents";
 import { db } from "./db";
+import { orm } from "./orm";
+import { casePhotos } from "./schema";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 import type { ViolationReport } from "./openai";
@@ -63,14 +66,57 @@ export interface ThreadImage {
 }
 
 function rowToCase(row: { id: string; data: string }): Case {
-  return JSON.parse(row.data) as Case;
+  const base = JSON.parse(row.data) as Omit<
+    Case,
+    "photos" | "photoTimes" | "photoGps"
+  >;
+  const photos = orm
+    .select()
+    .from(casePhotos)
+    .where(eq(casePhotos.caseId, row.id))
+    .orderBy(sql`rowid`)
+    .all();
+  const list: string[] = [];
+  const times: Record<string, string | null> = {};
+  const gps: Record<string, { lat: number; lon: number } | null> = {};
+  for (const p of photos) {
+    list.push(p.url);
+    times[p.url] = p.takenAt ?? null;
+    gps[p.url] =
+      p.gpsLat !== null &&
+      p.gpsLat !== undefined &&
+      p.gpsLon !== null &&
+      p.gpsLon !== undefined
+        ? { lat: p.gpsLat, lon: p.gpsLon }
+        : null;
+  }
+  return {
+    ...base,
+    photos: list,
+    photoTimes: times,
+    photoGps: gps,
+  } as Case;
 }
 
 function saveCase(c: Case) {
+  const { photos, photoTimes, photoGps, ...rest } = c;
   const stmt = db.prepare(
     "INSERT OR REPLACE INTO cases (id, data) VALUES (?, ?)",
   );
-  stmt.run(c.id, JSON.stringify(c));
+  stmt.run(c.id, JSON.stringify(rest));
+  orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
+  for (const url of photos) {
+    orm
+      .insert(casePhotos)
+      .values({
+        caseId: c.id,
+        url,
+        takenAt: photoTimes[url] ?? null,
+        gpsLat: photoGps?.[url]?.lat ?? null,
+        gpsLon: photoGps?.[url]?.lon ?? null,
+      })
+      .run();
+  }
 }
 
 function getCaseRow(id: string): Case | undefined {
@@ -263,6 +309,7 @@ export function deleteCase(id: string): boolean {
   const current = getCaseRow(id);
   if (!current) return false;
   db.prepare("DELETE FROM cases WHERE id = ?").run(id);
+  orm.delete(casePhotos).where(eq(casePhotos.caseId, id)).run();
   caseEvents.emit("update", { id: current.id, deleted: true });
   return true;
 }
