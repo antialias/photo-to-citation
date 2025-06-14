@@ -7,6 +7,7 @@ import { getRepresentativePhoto } from "../../lib/caseUtils";
 import AnalysisInfo from "../components/AnalysisInfo";
 import MapPreview from "../components/MapPreview";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
+import useDragReset from "./useDragReset";
 
 export default function ClientCasesPage({
   initialCases,
@@ -44,18 +45,10 @@ export default function ClientCasesPage({
     return () => es.close();
   }, []);
 
-  useEffect(() => {
-    function handleDragEnd() {
-      setDragging(false);
-      setDropCase(null);
-    }
-    window.addEventListener("dragend", handleDragEnd);
-    window.addEventListener("drop", handleDragEnd);
-    return () => {
-      window.removeEventListener("dragend", handleDragEnd);
-      window.removeEventListener("drop", handleDragEnd);
-    };
-  }, []);
+  useDragReset(() => {
+    setDragging(false);
+    setDropCase(null);
+  });
 
   async function uploadFilesToCase(id: string, files: FileList) {
     await Promise.all(

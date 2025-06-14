@@ -19,6 +19,7 @@ import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
+import useDragReset from "../useDragReset";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -65,17 +66,9 @@ export default function ClientCasePage({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
 
-  useEffect(() => {
-    function handleDragEnd() {
-      setDragging(false);
-    }
-    window.addEventListener("dragend", handleDragEnd);
-    window.addEventListener("drop", handleDragEnd);
-    return () => {
-      window.removeEventListener("dragend", handleDragEnd);
-      window.removeEventListener("drop", handleDragEnd);
-    };
-  }, []);
+  useDragReset(() => {
+    setDragging(false);
+  });
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
