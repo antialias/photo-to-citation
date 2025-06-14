@@ -13,7 +13,14 @@ export async function DELETE(
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  analyzeCaseInBackground(updated);
+  const p = updateCase(updated.id, {
+    analysisProgress: {
+      stage: "upload",
+      index: 0,
+      total: updated.photos.length,
+    },
+  });
+  analyzeCaseInBackground(p || updated);
   const layered = getCase(id);
   return NextResponse.json(layered);
 }
@@ -31,7 +38,14 @@ export async function POST(
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  analyzeCaseInBackground(updated);
+  const p = updateCase(updated.id, {
+    analysisProgress: {
+      stage: "upload",
+      index: 0,
+      total: updated.photos.length,
+    },
+  });
+  analyzeCaseInBackground(p || updated);
   const layered = getCase(id);
   return NextResponse.json(layered);
 }
