@@ -100,7 +100,9 @@ function loadCases(): Case[] {
 
 function saveCases(cases: Case[]) {
   fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-  fs.writeFileSync(dataFile, JSON.stringify(cases, null, 2));
+  const tmp = `${dataFile}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(cases, null, 2));
+  fs.renameSync(tmp, dataFile);
 }
 
 function applyOverrides(caseData: Case): Case {
