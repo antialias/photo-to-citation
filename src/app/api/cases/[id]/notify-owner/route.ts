@@ -64,9 +64,18 @@ export async function POST(
   if (!contactInfo) {
     return NextResponse.json({ error: "No owner contact" }, { status: 400 });
   }
-  const notifications: Array<Promise<void>> = [];
+  const results: Record<string, { success: boolean; error?: string }> = {};
+  async function run(name: string, fn: () => Promise<void>) {
+    try {
+      await fn();
+      results[name] = { success: true };
+    } catch (err) {
+      console.error(`Failed to send ${name}`, err);
+      results[name] = { success: false, error: (err as Error).message };
+    }
+  }
   if (methods.includes("email") && contactInfo.email) {
-    notifications.push(
+    await run("email", () =>
       sendEmail({
         to: contactInfo.email,
         subject,
@@ -76,16 +85,16 @@ export async function POST(
     );
   }
   if (methods.includes("sms") && contactInfo.phone) {
-    notifications.push(sendSms(contactInfo.phone, body));
+    await run("sms", () => sendSms(contactInfo.phone, body));
   }
   if (methods.includes("whatsapp") && contactInfo.phone) {
-    notifications.push(sendWhatsapp(contactInfo.phone, body));
+    await run("whatsapp", () => sendWhatsapp(contactInfo.phone, body));
   }
   if (methods.includes("robocall") && contactInfo.phone) {
-    notifications.push(makeRobocall(contactInfo.phone, body));
+    await run("robocall", () => makeRobocall(contactInfo.phone, body));
   }
   if (methods.includes("snailMail") && contactInfo.address) {
-    notifications.push(
+    await run("snailMail", () =>
       sendSnailMail({
         address: contactInfo.address,
         subject,
@@ -95,7 +104,7 @@ export async function POST(
     );
   }
   if (methods.includes("snailMailLocation") && c.streetAddress) {
-    notifications.push(
+    await run("snailMailLocation", () =>
       sendSnailMail({
         address: c.streetAddress,
         subject,
@@ -104,17 +113,13 @@ export async function POST(
       }),
     );
   }
-  try {
-    await Promise.all(notifications);
-  } catch (err) {
-    console.error("Failed to send notification", err);
-    return NextResponse.json(
-      { error: "Failed to send notification" },
-      { status: 500 },
-    );
-  }
-  if (methods.includes("email") && contactInfo.email) {
-    const updated = addCaseEmail(id, {
+  let updated = c;
+  if (
+    methods.includes("email") &&
+    contactInfo.email &&
+    results.email?.success
+  ) {
+    updated = addCaseEmail(id, {
       to: contactInfo.email,
       subject,
       body,
@@ -122,7 +127,6 @@ export async function POST(
       sentAt: new Date().toISOString(),
       replyTo: null,
     });
-    return NextResponse.json(updated);
   }
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ case: updated, results });
 }

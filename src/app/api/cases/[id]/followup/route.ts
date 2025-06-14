@@ -76,35 +76,38 @@ export async function POST(
   console.log(
     `followup POST case=${id} to=${target} replyTo=${replyTo ?? "none"}`,
   );
+  const results: Record<string, { success: boolean; error?: string }> = {};
   try {
-    await sendEmail({
-      to: target,
-      subject,
-      body,
-      attachments,
-    });
-    if (snailMail && reportModule.authorityAddress) {
+    await sendEmail({ to: target, subject, body, attachments });
+    results.email = { success: true };
+  } catch (err) {
+    console.error("Failed to send email", err);
+    results.email = { success: false, error: (err as Error).message };
+  }
+  if (snailMail && reportModule.authorityAddress) {
+    try {
       await sendSnailMail({
         address: reportModule.authorityAddress,
         subject,
         body,
         attachments,
       });
+      results.snailMail = { success: true };
+    } catch (err) {
+      console.error("Failed to send snail mail", err);
+      results.snailMail = { success: false, error: (err as Error).message };
     }
-  } catch (err) {
-    console.error("Failed to send email", err);
-    return NextResponse.json(
-      { error: "Failed to send email" },
-      { status: 500 },
-    );
   }
-  const updated = addCaseEmail(id, {
-    to: target,
-    subject,
-    body,
-    attachments,
-    sentAt: new Date().toISOString(),
-    replyTo: replyTo ?? null,
-  });
-  return NextResponse.json(updated);
+  let updated = c;
+  if (results.email?.success) {
+    updated = addCaseEmail(id, {
+      to: target,
+      subject,
+      body,
+      attachments,
+      sentAt: new Date().toISOString(),
+      replyTo: replyTo ?? null,
+    });
+  }
+  return NextResponse.json({ case: updated, results });
 }

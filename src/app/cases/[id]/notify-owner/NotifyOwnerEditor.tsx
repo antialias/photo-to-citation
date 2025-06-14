@@ -1,6 +1,8 @@
 "use client";
 import type { EmailDraft } from "@/lib/caseReport";
+import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function NotifyOwnerEditor({
@@ -25,7 +27,13 @@ export default function NotifyOwnerEditor({
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
+  const [results, setResults] = useState<
+    Record<string, { status: string; error?: string }>
+  >({});
   const [methods, setMethods] = useState<string[]>(availableMethods);
+  const [disabledMethods, setDisabledMethods] = useState<string[]>([]);
+  const [threadUrl, setThreadUrl] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
@@ -36,6 +44,9 @@ export default function NotifyOwnerEditor({
 
   async function sendNotification() {
     setSending(true);
+    setResults(
+      Object.fromEntries(methods.map((m) => [m, { status: "sending" }])),
+    );
     try {
       const res = await fetch(`/api/cases/${caseId}/notify-owner`, {
         method: "POST",
@@ -43,8 +54,49 @@ export default function NotifyOwnerEditor({
         body: JSON.stringify({ subject, body, attachments, methods }),
       });
       if (res.ok) {
-        alert("Notification sent");
+        const data = (await res.json()) as {
+          case: Case;
+          results: Record<string, { success: boolean; error?: string }>;
+        };
+        const r: Record<string, { status: string; error?: string }> = {};
+        for (const [k, v] of Object.entries(data.results)) {
+          r[k] = v.success
+            ? { status: "success" }
+            : { status: "error", error: v.error };
+        }
+        setResults(r);
+        const successes = Object.entries(r)
+          .filter(([, v]) => v.status === "success")
+          .map(([k]) => k);
+        if (successes.length > 0) {
+          setMethods((prev) => prev.filter((m) => !successes.includes(m)));
+          setDisabledMethods((prev) => [
+            ...prev,
+            ...successes.filter((m) => !prev.includes(m)),
+          ]);
+        }
+        const newEmail = data.case.sentEmails?.at(-1);
+        const url = newEmail
+          ? `/cases/${caseId}/thread/${encodeURIComponent(newEmail.sentAt)}`
+          : null;
+        if (Object.values(r).every((x) => x.status === "success")) {
+          if (url) {
+            router.push(url);
+            return;
+          }
+          alert("Notification sent");
+        } else if (r.email && r.email.status === "success") {
+          if (url) setThreadUrl(url);
+          alert("Some notifications failed");
+        } else {
+          alert("Some notifications failed");
+        }
       } else {
+        setResults({
+          ...Object.fromEntries(
+            methods.map((m) => [m, { status: "error", error: res.statusText }]),
+          ),
+        });
         alert("Failed to send notification");
       }
     } finally {
@@ -75,6 +127,7 @@ export default function NotifyOwnerEditor({
                   setMethods(methods.filter((m) => m !== "email"));
                 }
               }}
+              disabled={disabledMethods.includes("email")}
             />
             <span>Email: {contactInfo.email}</span>
           </label>
@@ -92,6 +145,7 @@ export default function NotifyOwnerEditor({
                     setMethods(methods.filter((m) => m !== "sms"));
                   }
                 }}
+                disabled={disabledMethods.includes("sms")}
               />
               <span>SMS: {contactInfo.phone}</span>
             </label>
@@ -106,6 +160,7 @@ export default function NotifyOwnerEditor({
                     setMethods(methods.filter((m) => m !== "whatsapp"));
                   }
                 }}
+                disabled={disabledMethods.includes("whatsapp")}
               />
               <span>WhatsApp: {contactInfo.phone}</span>
             </label>
@@ -120,6 +175,7 @@ export default function NotifyOwnerEditor({
                     setMethods(methods.filter((m) => m !== "robocall"));
                   }
                 }}
+                disabled={disabledMethods.includes("robocall")}
               />
               <span>Robocall: {contactInfo.phone}</span>
             </label>
@@ -137,6 +193,7 @@ export default function NotifyOwnerEditor({
                   setMethods(methods.filter((m) => m !== "snailMail"));
                 }
               }}
+              disabled={disabledMethods.includes("snailMail")}
             />
             <span>Snail Mail: {contactInfo.address}</span>
           </label>
@@ -153,6 +210,7 @@ export default function NotifyOwnerEditor({
                   setMethods(methods.filter((m) => m !== "snailMailLocation"));
                 }
               }}
+              disabled={disabledMethods.includes("snailMailLocation")}
             />
             <span>Mail to address of violation: {violationAddress}</span>
           </label>
@@ -196,6 +254,30 @@ export default function NotifyOwnerEditor({
       >
         {sending ? "Sending..." : "Send Notification"}
       </button>
+      {Object.entries(results).length > 0 && (
+        <ul className="mt-2 text-sm">
+          {Object.entries(results).map(([k, v]) => (
+            <li key={k}>
+              {k}:{" "}
+              {v.status === "sending"
+                ? "Sending"
+                : v.status === "success"
+                  ? "Sent"
+                  : `Failed - ${v.error}`}
+            </li>
+          ))}
+        </ul>
+      )}
+      {threadUrl && (
+        <a
+          href={threadUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline mt-2 text-sm"
+        >
+          View Thread
+        </a>
+      )}
     </div>
   );
 }
