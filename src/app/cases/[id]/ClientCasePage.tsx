@@ -19,6 +19,7 @@ import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
+import useDragReset from "../useDragReset";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -64,6 +65,10 @@ export default function ClientCasePage({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
+
+  useDragReset(() => {
+    setDragging(false);
+  });
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
