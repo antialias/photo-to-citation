@@ -9,7 +9,7 @@ export default function useNewCaseFromFiles() {
     const id = Date.now().toString();
     const preview = URL.createObjectURL(files[0]);
     sessionStorage.setItem(`preview-${id}`, preview);
-    await Promise.all(
+    const results = await Promise.all(
       Array.from(files).map((file, idx) => {
         const formData = new FormData();
         formData.append("photo", file);
@@ -23,6 +23,10 @@ export default function useNewCaseFromFiles() {
         return upload;
       }),
     );
+    if (results.some((r) => !r.ok)) {
+      alert("Failed to upload one or more files.");
+      return;
+    }
     router.push(`/cases/${id}`);
   };
 }

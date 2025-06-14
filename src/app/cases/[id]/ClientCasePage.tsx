@@ -117,7 +117,7 @@ export default function ClientCasePage({
 
   async function uploadFiles(files: FileList) {
     if (!files || files.length === 0) return;
-    await Promise.all(
+    const results = await Promise.all(
       Array.from(files).map((file) => {
         const formData = new FormData();
         formData.append("photo", file);
@@ -125,6 +125,10 @@ export default function ClientCasePage({
         return fetch("/api/upload", { method: "POST", body: formData });
       }),
     );
+    if (results.some((r) => !r.ok)) {
+      alert("Failed to upload one or more files.");
+      return;
+    }
     const res = await fetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
