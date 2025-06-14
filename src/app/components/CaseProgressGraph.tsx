@@ -22,9 +22,7 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
-  { id: "analysisPending", label: "Analysis Requested" },
   { id: "analysis", label: "Analysis Complete" },
-  { id: "reanalysis", label: "Re-analysis Requested" },
   { id: "violation", label: "Violation Identified" },
   { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
@@ -51,15 +49,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, [noviolation]);
 
   const status = useMemo(() => {
-    const analysisPending =
-      caseData.analysisStatus === "pending" && !caseData.analysis;
-    const reanalysisPending =
-      caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
     return {
       uploaded: true,
-      analysisPending,
       analysis: analysisDone,
-      reanalysis: reanalysisPending,
       violation,
       noviol: noviolation,
       plate:
@@ -90,17 +82,20 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
 
   const chart = useMemo(() => {
     const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
+    const analysisPending = caseData.analysisStatus === "pending";
+    const analysisLabel = analysisPending
+      ? caseData.analysis
+        ? "re-analysis requested"
+        : "analysis requested"
+      : "";
     const edgesList: Array<[string, string, boolean, string]> = noviolation
       ? [
-          ["uploaded", "analysis", true, "queued for analysis"],
-          ["analysisPending", "analysis", true, "analyzing"],
+          ["uploaded", "analysis", true, analysisLabel],
           ["analysis", "noviol", true, "no violation"],
         ]
       : [
-          ["uploaded", "analysis", true, "queued for analysis"],
-          ["analysisPending", "analysis", true, "analyzing"],
+          ["uploaded", "analysis", true, analysisLabel],
           ["analysis", "violation", true, "evaluating"],
-          ["reanalysis", "analysis", true, "reanalyzing"],
           ["violation", "plate", true, "detecting plate"],
           ["plate", "vin", true, "decoding VIN"],
           ["plate", "ownreq", true, "requesting ownership"],
