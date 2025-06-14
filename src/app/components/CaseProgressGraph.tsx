@@ -368,7 +368,6 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
-        const isAnalysis = id === "analysis";
         const content = (() => {
           if (info.isImage !== false) {
             if (Array.isArray(info.preview)) {
@@ -394,38 +393,56 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
               : "";
             return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
           }
-          let html = `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,
           )}</div>`;
-          if (isAnalysis) {
-            html +=
-              '<button data-reanalyze class="mt-2 bg-blue-500 text-white px-2 py-1 rounded">Re-run Analysis</button>';
-          }
-          return html;
         })();
-        const opts: import("tippy.js").Props = {
+        const inst = tippy(el, {
           content,
           allowHTML: true,
-          interactive: isAnalysis,
-        };
-        if (isAnalysis) opts.trigger = "click";
-        const inst = tippy(el, opts);
-        if (isAnalysis) {
-          const btn = inst.popper.querySelector(
-            "[data-reanalyze]",
-          ) as HTMLButtonElement | null;
-          btn?.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            btn.disabled = true;
-            await fetch(`/api/cases/${caseData.id}/reanalyze`, {
-              method: "POST",
-            });
-            window.location.reload();
-          });
-        } else {
-          el.addEventListener("click", () => window.open(info.url, "_blank"));
-        }
+        });
+        el.addEventListener("click", () => window.open(info.url, "_blank"));
         instances.push(inst);
+      }
+      const showMenu = caseData.analysisStatus === "complete";
+      const analysisNode = container.querySelector(
+        "[id^='flowchart-analysis-']",
+      ) as SVGGElement | null;
+      let menuBtn = container.querySelector(
+        "[data-analysis-menu]",
+      ) as HTMLButtonElement | null;
+      menuBtn?.remove();
+      if (showMenu && analysisNode) {
+        const rect = analysisNode.getBoundingClientRect();
+        const crect = container.getBoundingClientRect();
+        menuBtn = document.createElement("button");
+        menuBtn.type = "button";
+        menuBtn.dataset.analysisMenu = "";
+        menuBtn.textContent = "⋮";
+        menuBtn.className =
+          "absolute text-xs bg-gray-200 dark:bg-gray-700 rounded px-1 leading-none";
+        menuBtn.style.left = `${rect.right - crect.left - 12}px`;
+        menuBtn.style.top = `${rect.top - crect.top + 2}px`;
+        container.appendChild(menuBtn);
+        const menu = tippy(menuBtn, {
+          content:
+            '<button type="button" data-reanalyze class="block px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left">Re-run Analysis</button>',
+          trigger: "click",
+          allowHTML: true,
+          interactive: true,
+          placement: "bottom-end",
+        });
+        const reBtn = menu.popper.querySelector(
+          "[data-reanalyze]",
+        ) as HTMLButtonElement | null;
+        reBtn?.addEventListener("click", async () => {
+          if (menuBtn) menuBtn.disabled = true;
+          await fetch(`/api/cases/${caseData.id}/reanalyze`, {
+            method: "POST",
+          });
+          window.location.reload();
+        });
+        instances.push(menu);
       }
     };
     const observer = new MutationObserver(() => apply());
@@ -439,7 +456,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, [caseData]);
 
   return (
-    <div className="max-w-full overflow-x-auto" ref={containerRef}>
+    <div className="relative max-w-full overflow-x-auto" ref={containerRef}>
       <Mermaid
         chart={chart}
         key={chart}
