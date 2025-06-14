@@ -58,21 +58,33 @@ export default function ClientThreadPage({
     const form = new FormData();
     form.append("photo", file);
     form.append("replyTo", startId);
-    await fetch(`/api/cases/${caseId}/thread-images`, {
+    const uploadRes = await fetch(`/api/cases/${caseId}/thread-images`, {
       method: "POST",
       body: form,
     });
+    if (!uploadRes.ok) {
+      alert("Failed to upload image. Please try again.");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     const res = await fetch(`/api/cases/${caseId}`);
-    if (res.ok) setCaseData((await res.json()) as Case);
+    if (res.ok) {
+      setCaseData((await res.json()) as Case);
+    } else {
+      alert("Failed to refresh case data. Please retry.");
+    }
     if (fileRef.current) fileRef.current.value = "";
   }
 
   async function attachEvidence(url: string) {
-    await fetch(`/api/cases/${caseId}/photos`, {
+    const res = await fetch(`/api/cases/${caseId}/photos`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ photo: url }),
     });
+    if (!res.ok) {
+      alert("Failed to attach evidence. Please try again.");
+    }
   }
 
   if (!caseData) {
