@@ -1,7 +1,17 @@
-import OpenAI from "openai";
+import type OpenAI from "openai";
+import type {
+  ChatCompletionChunk,
+  ChatCompletionMessageParam,
+} from "openai/resources/chat/completions";
 import { z } from "zod";
 import "./zod-setup";
 import { getLlm } from "./llm";
+
+export interface LlmProgress {
+  type: "upload" | "stream";
+  current: number;
+  total: number;
+}
 
 export class AnalysisError extends Error {
   kind: "truncated" | "parse" | "schema" | "images";
@@ -23,6 +33,50 @@ function logBadResponse(
     response,
   };
   console.warn(JSON.stringify(entry));
+}
+
+export async function runCompletion(
+  feature: LlmFeature,
+  messages: OpenAI.ChatCompletionMessageParam[],
+  maxTokens: number,
+  responseFormat: { type: "json_object" } | undefined,
+  progress?: (update: LlmProgress) => void,
+): Promise<{ text: string; finish: string | null }> {
+  const { client, model } = getLlm(feature);
+  if (progress) {
+    const stream = (await client.chat.completions.create({
+      model,
+      messages,
+      max_tokens: maxTokens,
+      response_format: responseFormat,
+      stream: true,
+    })) as AsyncIterable<OpenAI.ChatCompletionChunk>;
+    let text = "";
+    let tokens = 0;
+    let finish: string | null = null;
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content;
+      if (delta) {
+        text += delta;
+        tokens += delta.split(/\s+/).length;
+        progress({ type: "stream", current: tokens, total: maxTokens });
+      }
+      if (chunk.choices[0]?.finish_reason) {
+        finish = chunk.choices[0]?.finish_reason ?? null;
+      }
+    }
+    return { text, finish };
+  }
+  const res = await client.chat.completions.create({
+    model,
+    messages,
+    max_tokens: maxTokens,
+    response_format: responseFormat,
+  });
+  return {
+    text: res.choices[0]?.message?.content ?? "",
+    finish: res.choices[0]?.finish_reason ?? null,
+  };
 }
 
 const licensePlateStateSchema = z.string().regex(/^[A-Z]{2}$/);
@@ -86,6 +140,7 @@ export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
+  progress?: (update: LlmProgress) => void,
 ): Promise<ViolationReport> {
   if (images.length === 0) {
     throw new AnalysisError("images");
@@ -126,6 +181,9 @@ export async function analyzeViolation(
 
   const urls = images.map((i) => i.url);
   const names = images.map((i) => i.filename);
+  urls.forEach((_, i) => {
+    progress?.({ type: "upload", current: i + 1, total: urls.length });
+  });
   const baseMessages = [
     {
       role: "system",
@@ -147,16 +205,14 @@ export async function analyzeViolation(
   ];
 
   const messages = [...baseMessages];
-  const { client, model } = getLlm("analyze_images");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 800,
-      response_format: { type: "json_object" },
-    });
-    const finish = response.choices[0]?.finish_reason;
-    const text = response.choices[0]?.message?.content ?? "{}";
+    const { text, finish } = await runCompletion(
+      "analyze_images",
+      messages as ChatCompletionMessageParam[],
+      800,
+      { type: "json_object" },
+      progress,
+    );
 
     if (finish === "length") {
       logBadResponse(attempt, text, "truncated");
@@ -201,6 +257,7 @@ export async function analyzeViolation(
 
 export async function extractPaperworkInfo(
   text: string,
+  progress?: (update: LlmProgress) => void,
 ): Promise<PaperworkInfo> {
   const schema = {
     type: "object",
@@ -235,15 +292,14 @@ export async function extractPaperworkInfo(
   ];
 
   const messages = [...baseMessages];
-  const { client, model } = getLlm("extract_info");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 400,
-      response_format: { type: "json_object" },
-    });
-    const output = res.choices[0]?.message?.content ?? "{}";
+    const { text: output } = await runCompletion(
+      "extract_info",
+      messages as ChatCompletionMessageParam[],
+      400,
+      { type: "json_object" },
+      progress,
+    );
     try {
       const parsed = JSON.parse(output);
       return paperworkInfoSchema.parse(parsed);
@@ -260,9 +316,12 @@ export async function extractPaperworkInfo(
   return {} as PaperworkInfo;
 }
 
-export async function ocrPaperwork(image: {
-  url: string;
-}): Promise<PaperworkAnalysis> {
+export async function ocrPaperwork(
+  image: {
+    url: string;
+  },
+  progress?: (update: LlmProgress) => void,
+): Promise<PaperworkAnalysis> {
   const baseMessages = [
     {
       role: "system",
@@ -279,17 +338,18 @@ export async function ocrPaperwork(image: {
   ];
 
   const messages = [...baseMessages];
-  const { client, model } = getLlm("ocr_paperwork");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 800,
-    });
-    const text = res.choices[0]?.message?.content ?? "";
-    if (text.trim()) {
-      const info = await extractPaperworkInfo(text.trim());
-      return { text: text.trim(), info };
+    const { text } = await runCompletion(
+      "ocr_paperwork",
+      messages as ChatCompletionMessageParam[],
+      800,
+      undefined,
+      progress,
+    );
+    const trimmed = text.trim();
+    if (trimmed) {
+      const info = await extractPaperworkInfo(trimmed, progress);
+      return { text: trimmed, info };
     }
     logBadResponse(attempt, text, new Error("Empty OCR result"));
     if (attempt < 2) {

@@ -1,8 +1,10 @@
 import path from "node:path";
 import { z } from "zod";
 import "./zod-setup";
+import type OpenAI from "openai";
 import type { Case, SentEmail } from "./caseStore";
-import { getLlm } from "./llm";
+import type { LlmProgress } from "./openai";
+import { runCompletion } from "./openai";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
 
@@ -30,6 +32,7 @@ export type EmailDraft = z.infer<typeof emailDraftSchema>;
 export async function draftEmail(
   caseData: Case,
   mod: ReportModule,
+  progress?: (update: LlmProgress) => void,
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -85,15 +88,14 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
   ];
 
   const messages = [...baseMessages];
-  const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 800,
-      response_format: { type: "json_object" },
-    });
-    const text = res.choices[0]?.message?.content ?? "{}";
+    const { text } = await runCompletion(
+      "draft_email",
+      messages as OpenAI.ChatCompletionMessageParam[],
+      800,
+      { type: "json_object" },
+      progress,
+    );
     try {
       const parsed = JSON.parse(text);
       return emailDraftSchema.parse(parsed);
@@ -114,6 +116,7 @@ export async function draftFollowUp(
   caseData: Case,
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
+  progress?: (update: LlmProgress) => void,
 ): Promise<EmailDraft> {
   console.log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
@@ -162,15 +165,14 @@ Ask about the current citation status and mention that photos are attached again
   console.log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
 
   const messages = [...baseMessages];
-  const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 800,
-      response_format: { type: "json_object" },
-    });
-    const text = res.choices[0]?.message?.content ?? "{}";
+    const { text } = await runCompletion(
+      "draft_email",
+      messages as OpenAI.ChatCompletionMessageParam[],
+      800,
+      { type: "json_object" },
+      progress,
+    );
     try {
       const parsed = JSON.parse(text);
       return emailDraftSchema.parse(parsed);
@@ -189,6 +191,7 @@ Ask about the current citation status and mention that photos are attached again
 export async function draftOwnerNotification(
   caseData: Case,
   authorities: string[],
+  progress?: (update: LlmProgress) => void,
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -236,15 +239,14 @@ export async function draftOwnerNotification(
     { role: "user", content: prompt },
   ];
   const messages = [...baseMessages];
-  const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
-      model,
-      messages,
-      max_tokens: 800,
-      response_format: { type: "json_object" },
-    });
-    const text = res.choices[0]?.message?.content ?? "{}";
+    const { text } = await runCompletion(
+      "draft_email",
+      messages as OpenAI.ChatCompletionMessageParam[],
+      800,
+      { type: "json_object" },
+      progress,
+    );
     try {
       const parsed = JSON.parse(text);
       return emailDraftSchema.parse(parsed);

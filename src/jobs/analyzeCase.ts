@@ -4,7 +4,12 @@ import type { Case } from "../lib/caseStore";
 
 (async () => {
   const { jobData } = workerData as { jobData: Case };
-  await analyzeCase(jobData);
+  await analyzeCase(jobData, (update) => {
+    parentPort?.postMessage({
+      event: "update",
+      data: { id: jobData.id, progress: update },
+    });
+  });
   if (parentPort) parentPort.postMessage("done");
 })().catch((err) => {
   console.error("analyzeCase job failed", err);
