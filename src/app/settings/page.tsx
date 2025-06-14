@@ -15,7 +15,9 @@ interface SnailMailProviderStatus {
 
 export default function SettingsPage() {
   const [sources, setSources] = useState<VinSourceStatus[]>([]);
-  const [mailProviders, setMailProviders] = useState<SnailMailProviderStatus[]>([]);
+  const [mailProviders, setMailProviders] = useState<SnailMailProviderStatus[]>(
+    [],
+  );
 
   useEffect(() => {
     fetch("/api/vin-sources")
@@ -73,7 +75,9 @@ export default function SettingsPage() {
               {p.id} (failures: {p.failureCount})
             </span>
             {p.active ? (
-              <span className="px-2 py-1 bg-green-500 text-white rounded">Active</span>
+              <span className="px-2 py-1 bg-green-500 text-white rounded">
+                Active
+              </span>
             ) : (
               <button
                 type="button"
