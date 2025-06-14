@@ -2,6 +2,8 @@
 import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
+import { useRef } from "react";
+import useCloseOnOutsideClick from "../useCloseOnOutsideClick";
 
 export default function CaseToolbar({
   caseId,
@@ -40,6 +42,8 @@ export default function CaseToolbar({
     progress?.steps !== undefined && progress.step !== undefined
       ? ((progress.step - 1 + (requestValue ?? 0) / 100) / progress.steps) * 100
       : undefined;
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2 flex-1">
       {progress ? (
@@ -58,7 +62,7 @@ export default function CaseToolbar({
         </div>
       ) : null}
       <div className="flex justify-end">
-        <details className="relative">
+        <details ref={detailsRef} className="relative">
           <summary className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded">
             Actions
           </summary>

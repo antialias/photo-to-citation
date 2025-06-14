@@ -20,6 +20,7 @@ import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import MapPreview from "../../components/MapPreview";
+import useCloseOnOutsideClick from "../../useCloseOnOutsideClick";
 import useDragReset from "../useDragReset";
 
 function buildThreads(c: Case): SentEmail[] {
@@ -325,6 +326,8 @@ export default function ClientCasePage({
     ...paperworkPhotos.map((p) => ({ url: p, time: caseData.photoTimes[p] })),
     ...paperworkScans,
   ];
+  const photoMenuRef = useRef<HTMLDetailsElement>(null);
+  useCloseOnOutsideClick(photoMenuRef);
 
   return (
     <div
@@ -420,7 +423,10 @@ export default function ClientCasePage({
                     fill
                     className="object-contain"
                   />
-                  <details className="absolute top-1 right-1 text-white">
+                  <details
+                    ref={photoMenuRef}
+                    className="absolute top-1 right-1 text-white"
+                  >
                     <summary className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70">
                       ⋮
                     </summary>
