@@ -136,3 +136,56 @@ export function analyzeCaseInBackground(caseData: Case): void {
     cleanup();
   });
 }
+
+export async function reanalyzeCaseImage(
+  caseData: Case,
+  photo: string,
+): Promise<void> {
+  try {
+    const filePath = path.join(
+      process.cwd(),
+      "public",
+      photo.replace(/^\/+/, ""),
+    );
+    const buffer = fs.readFileSync(filePath);
+    const ext = path.extname(filePath).toLowerCase();
+    const mime =
+      ext === ".png"
+        ? "image/png"
+        : ext === ".webp"
+          ? "image/webp"
+          : "image/jpeg";
+    const img = {
+      filename: path.basename(photo),
+      url: `data:${mime};base64,${buffer.toString("base64")}`,
+    };
+    const result = await analyzeViolation([img]);
+    const current = getCase(caseData.id);
+    if (!current) return;
+    const analysis = current.analysis ?? { vehicle: {}, images: {} };
+    const vehicle = { ...analysis.vehicle };
+    const newVehicle = result.vehicle ?? {};
+    for (const key of [
+      "licensePlateNumber",
+      "licensePlateState",
+      "make",
+      "model",
+      "type",
+      "color",
+    ] as const) {
+      if (!vehicle[key] && newVehicle[key]) {
+        (vehicle as Record<string, unknown>)[key] = newVehicle[key];
+      }
+    }
+    const images = { ...analysis.images };
+    const info = result.images?.[img.filename];
+    if (info) images[img.filename] = info;
+    updateCase(caseData.id, {
+      analysis: { ...analysis, vehicle, images },
+    });
+    const updated = getCase(caseData.id);
+    if (updated) fetchCaseVinInBackground(updated);
+  } catch (err) {
+    console.error("Failed to reanalyze image", caseData.id, photo, err);
+  }
+}
