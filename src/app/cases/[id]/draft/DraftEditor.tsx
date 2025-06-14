@@ -2,6 +2,7 @@
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function DraftEditor({
@@ -21,6 +22,7 @@ export default function DraftEditor({
   replyTo?: string;
   to?: string;
 }) {
+  const router = useRouter();
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
@@ -49,6 +51,15 @@ export default function DraftEditor({
       });
       if (res.ok) {
         alert("Email sent");
+        const data = (await res.json()) as {
+          sentEmails?: { sentAt: string }[];
+        };
+        const sent = data.sentEmails?.at(-1)?.sentAt;
+        if (sent) {
+          router.push(`/cases/${caseId}/thread/${encodeURIComponent(sent)}`);
+        } else {
+          router.push(`/cases/${caseId}`);
+        }
       } else {
         alert("Failed to send email");
       }
