@@ -225,7 +225,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         ? `click ownnotify "${ownerNotifyLink}" "${clean(ownerNotifyTip)}"`
         : null,
       notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
-      analysisTip
+      analysisTip && !analysisDone
         ? `click analysis "/cases/${caseData.id}" "${clean(analysisTip)}"`
         : null,
     ]
