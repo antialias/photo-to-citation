@@ -201,11 +201,18 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
-  async function reanalyzePhoto(photo: string) {
+  async function reanalyzePhoto(
+    photo: string,
+    detailsEl?: HTMLDetailsElement | null,
+  ) {
     const url = `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(
       photo,
     )}`;
-    await fetch(url, { method: "POST" });
+    if (caseData) setCaseData({ ...caseData, analysisStatus: "pending" });
+    const res = await fetch(url, { method: "POST" });
+    if (res.ok && detailsEl) {
+      detailsEl.open = false;
+    }
     await refreshCase();
   }
 
@@ -420,7 +427,12 @@ export default function ClientCasePage({
                     <div className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white">
                       <button
                         type="button"
-                        onClick={() => reanalyzePhoto(selectedPhoto)}
+                        onClick={(e) =>
+                          reanalyzePhoto(
+                            selectedPhoto,
+                            e.currentTarget.closest("details"),
+                          )
+                        }
                         className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                       >
                         Reanalyze Photo
