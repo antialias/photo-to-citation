@@ -24,7 +24,6 @@ export default function NotifyOwnerEditor({
   availableMethods: string[];
   caseId: string;
 }) {
-  const router = useRouter();
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
