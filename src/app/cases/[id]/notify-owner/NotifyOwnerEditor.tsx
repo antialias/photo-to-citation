@@ -115,136 +115,201 @@ export default function NotifyOwnerEditor({
       <h1 className="text-xl font-semibold">Owner Notification</h1>
       <p>The photos shown below will be attached automatically.</p>
       <div className="flex flex-col gap-2">
-        {contactInfo.email && (
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={methods.includes("email")}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setMethods([...methods, "email"]);
-                } else {
-                  setMethods(methods.filter((m) => m !== "email"));
-                }
-              }}
-              disabled={disabledMethods.includes("email")}
-            />
-            <span>Email: {contactInfo.email}</span>
-            {results.email?.status === "error" && (
-              <span className="text-red-600 text-sm">
-                {results.email.error}
-              </span>
-            )}
-          </label>
-        )}
+        {contactInfo.email &&
+          (disabledMethods.includes("email") ? (
+            <div className="flex items-center gap-2">
+              <span className="text-green-700">Sent</span>
+              <span>Email: {contactInfo.email}</span>
+              {results.email?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.email.error}
+                </span>
+              )}
+            </div>
+          ) : (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={methods.includes("email")}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setMethods([...methods, "email"]);
+                  } else {
+                    setMethods(methods.filter((m) => m !== "email"));
+                  }
+                }}
+              />
+              <span>Email: {contactInfo.email}</span>
+              {results.email?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.email.error}
+                </span>
+              )}
+            </label>
+          ))}
         {contactInfo.phone && (
           <>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={methods.includes("sms")}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setMethods([...methods, "sms"]);
-                  } else {
-                    setMethods(methods.filter((m) => m !== "sms"));
-                  }
-                }}
-                disabled={disabledMethods.includes("sms")}
-              />
-              <span>SMS: {contactInfo.phone}</span>
-              {results.sms?.status === "error" && (
-                <span className="text-red-600 text-sm">
-                  {results.sms.error}
-                </span>
-              )}
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={methods.includes("whatsapp")}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setMethods([...methods, "whatsapp"]);
-                  } else {
-                    setMethods(methods.filter((m) => m !== "whatsapp"));
-                  }
-                }}
-                disabled={disabledMethods.includes("whatsapp")}
-              />
-              <span>WhatsApp: {contactInfo.phone}</span>
-              {results.whatsapp?.status === "error" && (
-                <span className="text-red-600 text-sm">
-                  {results.whatsapp.error}
-                </span>
-              )}
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={methods.includes("robocall")}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setMethods([...methods, "robocall"]);
-                  } else {
-                    setMethods(methods.filter((m) => m !== "robocall"));
-                  }
-                }}
-                disabled={disabledMethods.includes("robocall")}
-              />
-              <span>Robocall: {contactInfo.phone}</span>
-              {results.robocall?.status === "error" && (
-                <span className="text-red-600 text-sm">
-                  {results.robocall.error}
-                </span>
-              )}
-            </label>
+            {disabledMethods.includes("sms") ? (
+              <div className="flex items-center gap-2">
+                <span className="text-green-700">Sent</span>
+                <span>SMS: {contactInfo.phone}</span>
+                {results.sms?.status === "error" && (
+                  <span className="text-red-600 text-sm">
+                    {results.sms.error}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={methods.includes("sms")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setMethods([...methods, "sms"]);
+                    } else {
+                      setMethods(methods.filter((m) => m !== "sms"));
+                    }
+                  }}
+                />
+                <span>SMS: {contactInfo.phone}</span>
+                {results.sms?.status === "error" && (
+                  <span className="text-red-600 text-sm">
+                    {results.sms.error}
+                  </span>
+                )}
+              </label>
+            )}
+            {disabledMethods.includes("whatsapp") ? (
+              <div className="flex items-center gap-2">
+                <span className="text-green-700">Sent</span>
+                <span>WhatsApp: {contactInfo.phone}</span>
+                {results.whatsapp?.status === "error" && (
+                  <span className="text-red-600 text-sm">
+                    {results.whatsapp.error}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={methods.includes("whatsapp")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setMethods([...methods, "whatsapp"]);
+                    } else {
+                      setMethods(methods.filter((m) => m !== "whatsapp"));
+                    }
+                  }}
+                />
+                <span>WhatsApp: {contactInfo.phone}</span>
+                {results.whatsapp?.status === "error" && (
+                  <span className="text-red-600 text-sm">
+                    {results.whatsapp.error}
+                  </span>
+                )}
+              </label>
+            )}
+            {disabledMethods.includes("robocall") ? (
+              <div className="flex items-center gap-2">
+                <span className="text-green-700">Sent</span>
+                <span>Robocall: {contactInfo.phone}</span>
+                {results.robocall?.status === "error" && (
+                  <span className="text-red-600 text-sm">
+                    {results.robocall.error}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={methods.includes("robocall")}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setMethods([...methods, "robocall"]);
+                    } else {
+                      setMethods(methods.filter((m) => m !== "robocall"));
+                    }
+                  }}
+                />
+                <span>Robocall: {contactInfo.phone}</span>
+                {results.robocall?.status === "error" && (
+                  <span className="text-red-600 text-sm">
+                    {results.robocall.error}
+                  </span>
+                )}
+              </label>
+            )}
           </>
         )}
-        {contactInfo.address && (
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={methods.includes("snailMail")}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setMethods([...methods, "snailMail"]);
-                } else {
-                  setMethods(methods.filter((m) => m !== "snailMail"));
-                }
-              }}
-              disabled={disabledMethods.includes("snailMail")}
-            />
-            <span>Snail Mail: {contactInfo.address}</span>
-            {results.snailMail?.status === "error" && (
-              <span className="text-red-600 text-sm">
-                {results.snailMail.error}
-              </span>
-            )}
-          </label>
-        )}
-        {violationAddress && (
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={methods.includes("snailMailLocation")}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setMethods([...methods, "snailMailLocation"]);
-                } else {
-                  setMethods(methods.filter((m) => m !== "snailMailLocation"));
-                }
-              }}
-              disabled={disabledMethods.includes("snailMailLocation")}
-            />
-            <span>Mail to address of violation: {violationAddress}</span>
-            {results.snailMailLocation?.status === "error" && (
-              <span className="text-red-600 text-sm">
-                {results.snailMailLocation.error}
-              </span>
-            )}
-          </label>
-        )}
+        {contactInfo.address &&
+          (disabledMethods.includes("snailMail") ? (
+            <div className="flex items-center gap-2">
+              <span className="text-green-700">Sent</span>
+              <span>Snail Mail: {contactInfo.address}</span>
+              {results.snailMail?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.snailMail.error}
+                </span>
+              )}
+            </div>
+          ) : (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={methods.includes("snailMail")}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setMethods([...methods, "snailMail"]);
+                  } else {
+                    setMethods(methods.filter((m) => m !== "snailMail"));
+                  }
+                }}
+              />
+              <span>Snail Mail: {contactInfo.address}</span>
+              {results.snailMail?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.snailMail.error}
+                </span>
+              )}
+            </label>
+          ))}
+        {violationAddress &&
+          (disabledMethods.includes("snailMailLocation") ? (
+            <div className="flex items-center gap-2">
+              <span className="text-green-700">Sent</span>
+              <span>Mail to address of violation: {violationAddress}</span>
+              {results.snailMailLocation?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.snailMailLocation.error}
+                </span>
+              )}
+            </div>
+          ) : (
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={methods.includes("snailMailLocation")}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setMethods([...methods, "snailMailLocation"]);
+                  } else {
+                    setMethods(
+                      methods.filter((m) => m !== "snailMailLocation"),
+                    );
+                  }
+                }}
+              />
+              <span>Mail to address of violation: {violationAddress}</span>
+              {results.snailMailLocation?.status === "error" && (
+                <span className="text-red-600 text-sm">
+                  {results.snailMailLocation.error}
+                </span>
+              )}
+            </label>
+          ))}
       </div>
       <label className="flex flex-col">
         Subject
@@ -284,20 +349,6 @@ export default function NotifyOwnerEditor({
       >
         {sending ? "Sending..." : "Send Notification"}
       </button>
-      {Object.entries(results).length > 0 && (
-        <ul className="mt-2 text-sm">
-          {Object.entries(results).map(([k, v]) => (
-            <li key={k}>
-              {k}:{" "}
-              {v.status === "sending"
-                ? "Sending"
-                : v.status === "success"
-                  ? "Sent"
-                  : `Failed - ${v.error}`}
-            </li>
-          ))}
-        </ul>
-      )}
       {threadUrl && (
         <a
           href={threadUrl}
