@@ -29,3 +29,16 @@ body {
 .mermaid:not([data-processed]) {
   visibility: hidden;
 }
+
+@keyframes progress-indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-progress {
+  animation: progress-indeterminate 1s linear infinite;
+}
