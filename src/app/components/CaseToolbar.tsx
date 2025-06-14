@@ -41,7 +41,7 @@ export default function CaseToolbar({
       ? ((progress.step - 1 + (requestValue ?? 0) / 100) / progress.steps) * 100
       : undefined;
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2">
+    <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2 flex-1">
       {progress ? (
         <div className="flex flex-col gap-1">
           <Progress
