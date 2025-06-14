@@ -46,25 +46,42 @@ export function trackPhotoAnalysis(
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
-    const images = caseData.photos.map((p) => {
-      const filePath = path.join(
-        process.cwd(),
-        "public",
-        p.replace(/^\/+/, ""),
-      );
-      const buffer = fs.readFileSync(filePath);
-      const ext = path.extname(filePath).toLowerCase();
-      const mime =
-        ext === ".png"
-          ? "image/png"
-          : ext === ".webp"
-            ? "image/webp"
-            : "image/jpeg";
-      return {
-        filename: path.basename(p),
-        url: `data:${mime};base64,${buffer.toString("base64")}`,
-      };
-    });
+    const missing: string[] = [];
+    const images = caseData.photos
+      .map((p) => {
+        const filePath = path.join(
+          process.cwd(),
+          "public",
+          p.replace(/^\/+/, ""),
+        );
+        if (!fs.existsSync(filePath)) {
+          missing.push(p);
+          return null;
+        }
+        const buffer = fs.readFileSync(filePath);
+        const ext = path.extname(filePath).toLowerCase();
+        const mime =
+          ext === ".png"
+            ? "image/png"
+            : ext === ".webp"
+              ? "image/webp"
+              : "image/jpeg";
+        return {
+          filename: path.basename(p),
+          url: `data:${mime};base64,${buffer.toString("base64")}`,
+        };
+      })
+      .filter(Boolean) as Array<{ filename: string; url: string }>;
+    if (missing.length > 0) {
+      updateCase(caseData.id, {
+        analysisStatus: "failed",
+        analysisStatusCode: 404,
+        analysisError: "images",
+        analysisProgress: null,
+      });
+      console.error("Missing image files", caseData.id, missing);
+      return;
+    }
     const imageMap: Record<string, string> = Object.fromEntries(
       images.map((i) => [i.filename, i.url]),
     );
