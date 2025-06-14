@@ -162,6 +162,31 @@ describe("e2e flows", () => {
     expect(text).toContain("Case Summary");
   }, 30000);
 
+  it("deletes a case", async () => {
+    const id = await createCase();
+    const del = await fetch(`${server.url}/api/cases/${id}`, {
+      method: "DELETE",
+    });
+    expect(del.status).toBe(200);
+    const notFound = await fetch(`${server.url}/api/cases/${id}`);
+    expect(notFound.status).toBe(404);
+  }, 30000);
+
+  it("deletes multiple cases", async () => {
+    const id1 = await createCase();
+    const id2 = await createCase();
+    const [r1, r2] = await Promise.all([
+      fetch(`${server.url}/api/cases/${id1}`, { method: "DELETE" }),
+      fetch(`${server.url}/api/cases/${id2}`, { method: "DELETE" }),
+    ]);
+    expect(r1.status).toBe(200);
+    expect(r2.status).toBe(200);
+    const nf1 = await fetch(`${server.url}/api/cases/${id1}`);
+    const nf2 = await fetch(`${server.url}/api/cases/${id2}`);
+    expect(nf1.status).toBe(404);
+    expect(nf2.status).toBe(404);
+  }, 30000);
+
   it("toggles vin source modules", async () => {
     const listRes = await fetch(`${server.url}/api/vin-sources`);
     expect(listRes.status).toBe(200);
