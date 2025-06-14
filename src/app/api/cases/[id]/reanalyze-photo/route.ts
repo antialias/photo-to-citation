@@ -56,14 +56,14 @@ export async function POST(
       undefined,
       ctrl.signal,
     );
+    const info = result.images?.[path.basename(photo)];
+    if (info?.paperwork && !info.paperworkText) {
+      const ocr = await ocrPaperwork({ url: dataUrl }, undefined, ctrl.signal);
+      info.paperworkText = ocr.text;
+      if (ocr.info) info.paperworkInfo = ocr.info;
+    }
   } finally {
     cancelPhotoAnalysis(id, photo);
-  }
-  const info = result.images?.[path.basename(photo)];
-  if (info?.paperwork && !info.paperworkText) {
-    const ocr = await ocrPaperwork({ url: dataUrl }, undefined, ctrl.signal);
-    info.paperworkText = ocr.text;
-    if (ocr.info) info.paperworkInfo = ocr.info;
   }
   const baseAnalysis = c.analysis ?? { vehicle: {}, images: {} };
   const newAnalysis = {
