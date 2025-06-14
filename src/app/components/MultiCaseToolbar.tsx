@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { useRef } from "react";
+import useCloseOnOutsideClick from "../useCloseOnOutsideClick";
 
 export default function MultiCaseToolbar({
   caseIds,
@@ -12,9 +14,11 @@ export default function MultiCaseToolbar({
 }) {
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex justify-end">
-      <details className="relative">
+      <details ref={detailsRef} className="relative">
         <summary className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded">
           Actions
         </summary>
