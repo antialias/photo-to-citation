@@ -241,22 +241,6 @@ export default function ClientCasePage({
         onClearPlate={plateNumberOverridden ? clearPlateNumber : undefined}
         onClearState={plateStateOverridden ? clearPlateState : undefined}
       />
-      {progress ? (
-        <>
-          <progress
-            value={progress.stage === "upload" ? progress.index : undefined}
-            max={progress.stage === "upload" ? progress.total : undefined}
-            className="w-full"
-          />
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {progress.stage === "upload"
-              ? `Uploading ${progress.index} of ${progress.total} photos...`
-              : progress.done
-                ? "Processing results..."
-                : `Analyzing... received ${progress.received} chars`}
-          </p>
-        </>
-      ) : null}
     </>
   ) : caseData.analysisError ? (
     <p className="text-sm text-red-600">
@@ -272,21 +256,6 @@ export default function ClientCasePage({
     <p className="text-sm text-red-600">
       Analysis failed. Please try again later.
     </p>
-  ) : progress ? (
-    <>
-      <progress
-        value={progress.stage === "upload" ? progress.index : undefined}
-        max={progress.stage === "upload" ? progress.total : undefined}
-        className="w-full"
-      />
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        {progress.stage === "upload"
-          ? `Uploading ${progress.index} of ${progress.total} photos...`
-          : progress.done
-            ? "Processing results..."
-            : `Analyzing... received ${progress.received} chars`}
-      </p>
-    </>
   ) : (
     <p className="text-sm text-gray-500 dark:text-gray-400">
       Analyzing photo...
@@ -341,6 +310,7 @@ export default function ClientCasePage({
               caseId={caseId}
               disabled={!violationIdentified}
               hasOwner={Boolean(ownerContact)}
+              progress={progress}
             />
           </div>
         }
@@ -421,7 +391,9 @@ export default function ClientCasePage({
                       {progress ? (
                         <p>
                           {progress.stage === "upload"
-                            ? `Uploading ${progress.index} of ${progress.total} photos...`
+                            ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
+                                (progress.index / progress.total) * 100,
+                              )}%)...`
                             : progress.done
                               ? "Processing results..."
                               : `Analyzing... received ${progress.received} chars`}
@@ -432,7 +404,9 @@ export default function ClientCasePage({
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
                       {progress
                         ? progress.stage === "upload"
-                          ? `Uploading ${progress.index} of ${progress.total} photos...`
+                          ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
+                              (progress.index / progress.total) * 100,
+                            )}%)...`
                           : progress.done
                             ? "Processing results..."
                             : `Analyzing... received ${progress.received} chars`
