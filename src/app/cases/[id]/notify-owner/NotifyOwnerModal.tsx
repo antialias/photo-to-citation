@@ -28,14 +28,22 @@ export default function NotifyOwnerModal({
   useEffect(() => {
     let canceled = false;
     fetch(`/api/cases/${caseId}/notify-owner`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || "Failed to draft notification");
+        onClose();
+        return null;
+      })
       .then((d) => {
-        if (!canceled) setData(d as DraftData);
+        if (d && !canceled) setData(d as DraftData);
       });
     return () => {
       canceled = true;
     };
-  }, [caseId]);
+  }, [caseId, onClose]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
