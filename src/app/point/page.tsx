@@ -12,14 +12,17 @@ export default function PointAndShootPage() {
 
   useEffect(() => {
     async function startCamera() {
+      if (!videoRef.current) return;
+      videoRef.current.autoplay = true;
+      videoRef.current.muted = true;
+      videoRef.current.playsInline = true;
+      videoRef.current.setAttribute("playsinline", "");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment" },
         });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play().catch(() => {});
-        }
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play().catch(() => {});
       } catch (err) {
         console.error("Could not access camera", err);
       }
@@ -61,7 +64,7 @@ export default function PointAndShootPage() {
         autoPlay
         muted
         playsInline
-        className="fixed inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover z-0"
       >
         <track kind="captions" label="" />
       </video>
