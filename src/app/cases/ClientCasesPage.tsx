@@ -131,9 +131,11 @@ export default function ClientCasesPage({
                   width={80}
                   height={60}
                 />
-                <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
-                  {c.photos.length}
-                </span>
+                {c.photos.length > 1 ? (
+                  <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
+                    {c.photos.length}
+                  </span>
+                ) : null}
               </div>
               {(() => {
                 const g = getOfficialCaseGps(c);
