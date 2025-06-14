@@ -359,6 +359,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           url: `/cases/${caseData.id}`,
           preview: getAnalysisSummary(caseData.analysis),
           isImage: false,
+          extra: `<details class="mt-2"><summary class="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded text-sm">Actions</summary><button type="button" class="block px-4 py-1 text-left w-full hover:bg-gray-100 dark:hover:bg-gray-700" onclick="(async()=>{await fetch('/api/cases/${caseData.id}/reanalyze',{method:'POST'});window.location.reload();})()">Re-run Analysis</button></details>`,
         };
       const escapeHtml = (s: string) =>
         s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -393,15 +394,20 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
               : "";
             return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
           }
-          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+          const main = `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,
           )}</div>`;
+          return info.extra ? `${main}${info.extra}` : main;
         })();
         const inst = tippy(el, {
           content,
           allowHTML: true,
+          interactive: id === "analysis",
+          trigger: id === "analysis" ? "click" : "mouseenter focus",
         });
-        el.addEventListener("click", () => window.open(info.url, "_blank"));
+        if (id !== "analysis") {
+          el.addEventListener("click", () => window.open(info.url, "_blank"));
+        }
         instances.push(inst);
       }
     };
