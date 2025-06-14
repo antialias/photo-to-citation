@@ -5,6 +5,7 @@ import {
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
+  getViolationPhoto,
   hasViolation,
 } from "@/lib/caseUtils";
 import dynamic from "next/dynamic";
@@ -143,6 +144,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       }
       return caseData.photos[0] ?? null;
     })();
+    const violationImg = getViolationPhoto(caseData);
     const ownerDoc = (caseData.threadImages ?? []).find(
       (i) => i.ocrInfo?.contact,
     );
@@ -176,11 +178,19 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const notifyTip = firstEmail
       ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
       : "View notification email";
+    const violationTip = violationImg
+      ? violationImg.caption
+        ? violationImg.caption
+        : "View violation photo"
+      : null;
     const links = [
       caseData.photos[0]
         ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
         : null,
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
+      violationImg && violationTip
+        ? `click violation "${violationImg.photo}" "${clean(violationTip)}"`
+        : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
       notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
     ]
@@ -221,6 +231,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         {
           url: string;
           preview: string | string[];
+          caption?: string;
           isImage?: boolean;
           count?: number;
         } | null
@@ -254,6 +265,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const notifyLink = firstEmail
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
         : null;
+      if (violationImg)
+        map.violation = {
+          url: violationImg.photo,
+          preview: violationImg.photo,
+          caption: violationImg.caption,
+          isImage: true,
+        };
       if (caseData.photos.length > 0)
         map.uploaded = {
           url: caseData.photos[0],
@@ -301,7 +319,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
                   : "";
               return `<div class="flex flex-col items-center overflow-y-auto" style="max-height:60vh; max-width:80vw;">${imgs}${extraLine}</div>`;
             }
-            return `<img src="${info.preview}" class="max-h-40" />`;
+            const caption = info.caption
+              ? `<div class="text-xs mt-1 max-w-xs">${escapeHtml(info.caption)}</div>`
+              : "";
+            return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
           }
           return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,
