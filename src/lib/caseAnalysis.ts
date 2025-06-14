@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { APIError } from "openai/error";
+import { computeBestGps, fetchCaseLocationInBackground } from "./caseLocation";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import { AnalysisError, analyzeViolation, ocrPaperwork } from "./openai";
@@ -43,14 +44,19 @@ export async function analyzeCase(caseData: Case): Promise<void> {
         }
       }
     }
+    const bestGps = computeBestGps({ ...caseData, analysis: result });
     updateCase(caseData.id, {
       analysis: result,
       analysisStatus: "complete",
       analysisStatusCode: 200,
       analysisError: null,
+      ...(bestGps ? { gps: bestGps } : {}),
     });
     const updated = getCase(caseData.id);
-    if (updated) fetchCaseVinInBackground(updated);
+    if (updated) {
+      fetchCaseVinInBackground(updated);
+      if (bestGps) fetchCaseLocationInBackground(updated);
+    }
   } catch (err) {
     if (err instanceof AnalysisError) {
       updateCase(caseData.id, {
