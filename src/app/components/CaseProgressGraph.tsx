@@ -212,7 +212,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const apply = () => {
       for (const inst of instances) inst.destroy();
       instances.length = 0;
-      const map: Record<string, { url: string; preview: string } | null> = {};
+      const map: Record<
+        string,
+        { url: string; preview: string; isImage?: boolean } | null
+      > = {};
       const platePhoto = (() => {
         const plate = getCasePlateNumber(caseData);
         if (!plate || !caseData.analysis?.images)
@@ -243,19 +246,39 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
         : null;
       if (caseData.photos[0])
-        map.uploaded = { url: caseData.photos[0], preview: caseData.photos[0] };
-      if (platePhoto) map.plate = { url: platePhoto, preview: platePhoto };
+        map.uploaded = {
+          url: caseData.photos[0],
+          preview: caseData.photos[0],
+          isImage: true,
+        };
+      if (platePhoto)
+        map.plate = { url: platePhoto, preview: platePhoto, isImage: true };
       if (ownerLink)
-        map.own = { url: ownerLink, preview: ownerDoc?.url ?? ownerLink };
-      if (notifyLink) map.notify = { url: notifyLink, preview: notifyLink };
+        map.own = {
+          url: ownerLink,
+          preview: ownerDoc?.url ?? ownerLink,
+          isImage: true,
+        };
+      if (notifyLink)
+        map.notify = {
+          url: notifyLink,
+          preview: firstEmail?.body ?? "",
+          isImage: false,
+        };
+      const escapeHtml = (s: string) =>
+        s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       for (const [id, info] of Object.entries(map)) {
         if (!info) continue;
         const el = container.querySelector(
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
+        const content =
+          info.isImage !== false
+            ? `<img src="${info.preview}" class="max-h-40" />`
+            : `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(info.preview)}</div>`;
         const inst = tippy(el, {
-          content: `<img src="${info.preview}" class="max-h-40" />`,
+          content,
           allowHTML: true,
         });
         el.addEventListener("click", () => window.open(info.url, "_blank"));
