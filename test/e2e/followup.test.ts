@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
@@ -81,11 +82,12 @@ describe("follow up", () => {
   it("passes prior emails to openai", async () => {
     const id = await createCase();
     const caseFile = path.join(tmpDir, "cases.json");
-    const list = JSON.parse(fs.readFileSync(caseFile, "utf8")) as Array<
-      Record<string, unknown>
-    >;
-    const c = list.find((n) => n.id === id);
-    c.sentEmails = [
+    const db = new Database(caseFile);
+    const row = db.prepare("SELECT data FROM cases WHERE id = ?").get(id) as {
+      data: string;
+    };
+    const info = JSON.parse(row.data) as Record<string, unknown>;
+    info.sentEmails = [
       {
         subject: "orig",
         body: "first message",
@@ -93,7 +95,11 @@ describe("follow up", () => {
         sentAt: new Date().toISOString(),
       },
     ];
-    fs.writeFileSync(caseFile, JSON.stringify(list, null, 2));
+    db.prepare("UPDATE cases SET data = ? WHERE id = ?").run(
+      JSON.stringify(info),
+      id,
+    );
+    db.close();
 
     const res = await fetchFollowup(id);
     expect(res.status).toBe(200);
