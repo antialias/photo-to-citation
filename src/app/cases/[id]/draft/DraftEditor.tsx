@@ -144,17 +144,32 @@ export default function DraftEditor({
           />
         ))}
       </div>
-      {module.authorityAddress && (
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={snailMail}
-            onChange={(e) => setSnailMail(e.target.checked)}
-            disabled={snailMailDisabled}
-          />
-          <span>Send via snail mail to {module.authorityAddress}</span>
-        </label>
-      )}
+      {module.authorityAddress &&
+        (snailMailDisabled ? (
+          <div className="flex items-center gap-2">
+            <span className="text-green-700">Sent</span>
+            <span>Send via snail mail to {module.authorityAddress}</span>
+            {results.snailMail?.status === "error" && (
+              <span className="text-red-600 text-sm">
+                {results.snailMail.error}
+              </span>
+            )}
+          </div>
+        ) : (
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={snailMail}
+              onChange={(e) => setSnailMail(e.target.checked)}
+            />
+            <span>Send via snail mail to {module.authorityAddress}</span>
+            {results.snailMail?.status === "error" && (
+              <span className="text-red-600 text-sm">
+                {results.snailMail.error}
+              </span>
+            )}
+          </label>
+        ))}
       <button
         type="button"
         onClick={sendEmail}
@@ -163,20 +178,6 @@ export default function DraftEditor({
       >
         {sending ? "Sending..." : "Send"}
       </button>
-      {Object.entries(results).length > 0 && (
-        <ul className="mt-2 text-sm">
-          {Object.entries(results).map(([k, v]) => (
-            <li key={k}>
-              {k}:{" "}
-              {v.status === "sending"
-                ? "Sending"
-                : v.status === "success"
-                  ? "Sent"
-                  : `Failed - ${v.error}`}
-            </li>
-          ))}
-        </ul>
-      )}
       {threadUrl && (
         <a
           href={threadUrl}
