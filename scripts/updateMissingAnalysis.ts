@@ -1,7 +1,9 @@
 import { analyzeCase } from "../src/lib/caseAnalysis";
 import { getCases } from "../src/lib/caseStore";
+import { migrationsReady } from "../src/lib/db";
 
 async function run() {
+  await migrationsReady;
   const cases = getCases();
   for (const c of cases) {
     const status = c.analysisStatusCode;
