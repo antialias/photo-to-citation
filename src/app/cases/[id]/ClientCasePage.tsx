@@ -104,7 +104,13 @@ export default function ClientCasePage({
       setPlate(getCasePlateNumber(caseData) || "");
       setPlateState(getCasePlateState(caseData) || "");
       setVin(getCaseVin(caseData) || "");
-      setSelectedPhoto(getRepresentativePhoto(caseData));
+      setSelectedPhoto((prev) => {
+        const all = new Set<string>([
+          ...caseData.photos,
+          ...(caseData.threadImages ?? []).map((img) => img.url),
+        ]);
+        return prev && all.has(prev) ? prev : getRepresentativePhoto(caseData);
+      });
     }
   }, [caseData]);
 
