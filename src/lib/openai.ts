@@ -1,7 +1,16 @@
 import OpenAI from "openai";
+import type {
+  ChatCompletion,
+  ChatCompletionChunk,
+  ChatCompletionCreateParams,
+} from "openai/resources/chat/completions";
 import { z } from "zod";
 import "./zod-setup";
 import { getLlm } from "./llm";
+
+export type LlmProgress =
+  | { stage: "upload"; index: number; total: number }
+  | { stage: "stream"; received: number; done: boolean };
 
 export class AnalysisError extends Error {
   kind: "truncated" | "parse" | "schema" | "images";
@@ -86,6 +95,7 @@ export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
+  progress?: (info: LlmProgress) => void,
 ): Promise<ViolationReport> {
   if (images.length === 0) {
     throw new AnalysisError("images");
@@ -126,6 +136,9 @@ export async function analyzeViolation(
 
   const urls = images.map((i) => i.url);
   const names = images.map((i) => i.filename);
+  images.forEach((_, idx) => {
+    progress?.({ stage: "upload", index: idx + 1, total: images.length });
+  });
   const baseMessages = [
     {
       role: "system",
@@ -149,14 +162,28 @@ export async function analyzeViolation(
   const messages = [...baseMessages];
   const { client, model } = getLlm("analyze_images");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await client.chat.completions.create({
+    const req: ChatCompletionCreateParams = {
       model,
       messages,
       max_tokens: 800,
       response_format: { type: "json_object" },
-    });
-    const finish = response.choices[0]?.finish_reason;
-    const text = response.choices[0]?.message?.content ?? "{}";
+    };
+    if (progress) (req as Record<string, unknown>).stream = true;
+    const response = await client.chat.completions.create(req as never);
+    let finish: string | null = null;
+    let text = "";
+    if (progress) {
+      for await (const chunk of response as AsyncIterable<ChatCompletionChunk>) {
+        const delta = chunk.choices[0]?.delta?.content ?? "";
+        text += delta;
+        finish = chunk.choices[0]?.finish_reason || null;
+        progress({ stage: "stream", received: text.length, done: false });
+      }
+      progress({ stage: "stream", received: text.length, done: true });
+    } else {
+      finish = (response as ChatCompletion).choices[0]?.finish_reason ?? null;
+      text = (response as ChatCompletion).choices[0]?.message?.content ?? "{}";
+    }
 
     if (finish === "length") {
       logBadResponse(attempt, text, "truncated");
@@ -260,9 +287,10 @@ export async function extractPaperworkInfo(
   return {} as PaperworkInfo;
 }
 
-export async function ocrPaperwork(image: {
-  url: string;
-}): Promise<PaperworkAnalysis> {
+export async function ocrPaperwork(
+  image: { url: string },
+  progress?: (info: LlmProgress) => void,
+): Promise<PaperworkAnalysis> {
   const baseMessages = [
     {
       role: "system",
@@ -279,14 +307,27 @@ export async function ocrPaperwork(image: {
   ];
 
   const messages = [...baseMessages];
+  progress?.({ stage: "upload", index: 1, total: 1 });
   const { client, model } = getLlm("ocr_paperwork");
   for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await client.chat.completions.create({
+    const req: ChatCompletionCreateParams = {
       model,
       messages,
       max_tokens: 800,
-    });
-    const text = res.choices[0]?.message?.content ?? "";
+    };
+    if (progress) (req as Record<string, unknown>).stream = true;
+    const res = await client.chat.completions.create(req as never);
+    let text = "";
+    if (progress) {
+      for await (const chunk of res as AsyncIterable<ChatCompletionChunk>) {
+        const delta = chunk.choices[0]?.delta?.content ?? "";
+        text += delta;
+        progress({ stage: "stream", received: text.length, done: false });
+      }
+      progress({ stage: "stream", received: text.length, done: true });
+    } else {
+      text = (res as ChatCompletion).choices[0]?.message?.content ?? "";
+    }
     if (text.trim()) {
       const info = await extractPaperworkInfo(text.trim());
       return { text: text.trim(), info };
