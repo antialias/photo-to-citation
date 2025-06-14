@@ -55,13 +55,13 @@ export default function PointAndShootPage() {
   }
 
   return (
-    <div className="relative h-[100dvh] bg-black">
+    <div className="relative h-[100dvh] overflow-hidden bg-black">
       <video
         ref={videoRef}
         autoPlay
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover -z-10"
       >
         <track kind="captions" label="" />
       </video>
