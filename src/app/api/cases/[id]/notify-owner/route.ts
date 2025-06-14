@@ -22,7 +22,12 @@ export async function GET(
   if (!contactInfo) {
     return NextResponse.json({ error: "No owner contact" }, { status: 400 });
   }
-  const authorities = [reportModules["oak-park"].authorityName];
+  const reportModule = reportModules["oak-park"];
+  const authorities = c.sentEmails?.some(
+    (m) => m.to === reportModule.authorityEmail,
+  )
+    ? [reportModule.authorityName]
+    : [];
   const email = await draftOwnerNotification(c, authorities);
   return NextResponse.json({
     email,
