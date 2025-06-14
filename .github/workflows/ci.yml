@@ -18,7 +18,13 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run e2e
-      - run: npm run storybook:screenshot
+      - run: |
+          npm run build-storybook
+          npx storycap http://localhost:6006 \
+            --serverCmd "http-server storybook-static -p 6006" \
+            --serverTimeout 120000 \
+            --captureTimeout 60000 \
+            --out storybook-screenshots
       - uses: actions/upload-artifact@v4
         with:
           name: storybook-screenshots
