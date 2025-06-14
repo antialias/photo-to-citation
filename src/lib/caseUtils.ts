@@ -79,6 +79,10 @@ export function getCaseOwnerContact(caseData: Case): string | null {
     const contact = info.paperworkInfo?.contact;
     if (contact) return contact;
   }
+  for (const img of caseData.threadImages ?? []) {
+    const contact = img.ocrInfo?.contact;
+    if (contact) return contact;
+  }
   return null;
 }
 

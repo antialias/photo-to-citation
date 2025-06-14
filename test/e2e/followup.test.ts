@@ -104,4 +104,39 @@ describe("follow up", () => {
     };
     expect(request.body.messages[1].content).toContain("first message");
   }, 30000);
+
+  it("includes owner info when requested", async () => {
+    const id = await createCase();
+    const caseFile = path.join(tmpDir, "cases.json");
+    const list = JSON.parse(fs.readFileSync(caseFile, "utf8")) as Array<
+      Record<string, unknown>
+    >;
+    const c = list.find((n) => n.id === id) as Record<string, unknown>;
+    c.sentEmails = [
+      {
+        to: "police@oak-park.us",
+        subject: "orig",
+        body: "first message",
+        attachments: [],
+        sentAt: new Date(Date.now() - 1000).toISOString(),
+      },
+    ];
+    c.threadImages = [
+      {
+        id: "t1",
+        url: "/up/t1.jpg",
+        uploadedAt: new Date().toISOString(),
+        ocrText: "owner info",
+        ocrInfo: { contact: "Joe Smith" },
+      },
+    ];
+    fs.writeFileSync(caseFile, JSON.stringify(list, null, 2));
+
+    const res = await fetch(`${server.url}/api/cases/${id}/followup?owner=1`);
+    expect(res.status).toBe(200);
+    const request = stub.requests.at(-1) as {
+      body: { messages: Array<{ content: string }> };
+    };
+    expect(request.body.messages.at(-1)?.content).toContain("Joe Smith");
+  }, 30000);
 });
