@@ -17,6 +17,8 @@ beforeEach(async () => {
   }));
   fs.writeFileSync(process.env.VIN_SOURCE_FILE, JSON.stringify(statuses));
   vi.resetModules();
+  const dbModule = await import("../src/lib/db");
+  await dbModule.migrationsReady;
 });
 
 afterEach(() => {

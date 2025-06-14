@@ -11,4 +11,4 @@ fs.mkdirSync(path.dirname(dbFile), { recursive: true });
 
 export const db = new Database(dbFile);
 
-await runMigrations(db);
+export const migrationsReady = runMigrations(db);

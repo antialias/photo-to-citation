@@ -11,7 +11,9 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.json");
   vi.resetModules();
+  const dbModule = await import("../src/lib/db");
   caseStore = await import("../src/lib/caseStore");
+  await dbModule.migrationsReady;
 });
 
 afterEach(() => {
