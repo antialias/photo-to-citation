@@ -1,6 +1,7 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
 import {
+  getBestViolationPhoto,
   getCaseOwnerContact,
   getCasePlateNumber,
   getCasePlateState,
@@ -223,6 +224,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           preview: string | string[];
           isImage?: boolean;
           count?: number;
+          caption?: string;
         } | null
       > = {};
       const platePhoto = (() => {
@@ -254,6 +256,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const notifyLink = firstEmail
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(firstEmail.sentAt)}`
         : null;
+      const bestViolation = getBestViolationPhoto(caseData);
       if (caseData.photos.length > 0)
         map.uploaded = {
           url: caseData.photos[0],
@@ -274,6 +277,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           url: notifyLink,
           preview: firstEmail?.body ?? "",
           isImage: false,
+        };
+      if (bestViolation)
+        map.violation = {
+          url: bestViolation.photo,
+          preview: bestViolation.photo,
+          isImage: true,
+          caption: bestViolation.caption,
         };
       const escapeHtml = (s: string) =>
         s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -301,7 +311,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
                   : "";
               return `<div class="flex flex-col items-center overflow-y-auto" style="max-height:60vh; max-width:80vw;">${imgs}${extraLine}</div>`;
             }
-            return `<img src="${info.preview}" class="max-h-40" />`;
+            const caption = info.caption
+              ? `<div class="text-xs text-center mt-1">${escapeHtml(
+                  info.caption,
+                )}</div>`
+              : "";
+            return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
           }
           return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,

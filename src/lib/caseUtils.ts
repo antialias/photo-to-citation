@@ -112,3 +112,18 @@ export function getCaseOwnerContactInfo(
   if (!contact) return null;
   return parseContactInfo(contact);
 }
+
+export function getBestViolationPhoto(
+  caseData: Pick<Case, "photos" | "analysis">,
+): { photo: string; caption?: string } | null {
+  const imgs = caseData.analysis?.images ?? {};
+  const entries = Object.entries(imgs)
+    .filter(([, info]) => info.violation)
+    .sort((a, b) => b[1].representationScore - a[1].representationScore);
+  const best = entries[0];
+  if (!best) return null;
+  const [name, info] = best;
+  const file = caseData.photos.find((p) => basename(p) === name);
+  if (!file) return null;
+  return { photo: file, caption: info.highlights };
+}
