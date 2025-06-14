@@ -40,6 +40,11 @@ function buildThreads(c: Case): SentEmail[] {
   );
 }
 
+function baseName(filePath: string): string {
+  const parts = filePath.split(/[\\/]/);
+  return parts[parts.length - 1];
+}
+
 export default function ClientCasePage({
   initialCase,
   caseId,
@@ -255,6 +260,22 @@ export default function ClientCasePage({
     </p>
   );
 
+  const analysisImages = caseData.analysis?.images ?? {};
+  const evidencePhotos = caseData.photos.filter(
+    (p) => !analysisImages[baseName(p)]?.paperwork,
+  );
+  const paperworkPhotos = caseData.photos.filter(
+    (p) => analysisImages[baseName(p)]?.paperwork,
+  );
+  const paperworkScans = (caseData.threadImages ?? []).map((img) => ({
+    url: img.url,
+    time: img.uploadedAt,
+  }));
+  const allPaperwork = [
+    ...paperworkPhotos.map((p) => ({ url: p, time: caseData.photoTimes[p] })),
+    ...paperworkScans,
+  ];
+
   return (
     <div
       className="relative"
@@ -383,7 +404,7 @@ export default function ClientCasePage({
               </>
             ) : null}
             <div className="flex gap-2 flex-wrap">
-              {caseData.photos.map((p) => (
+              {evidencePhotos.map((p) => (
                 <div key={p} className="relative">
                   <button
                     type="button"
@@ -435,36 +456,72 @@ export default function ClientCasePage({
           </>
         }
       >
-        {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
-          <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-            <h2 className="font-semibold">Email Log</h2>
-            <ul className="flex flex-col gap-2 text-sm">
-              {buildThreads(caseData).map((mail) => (
-                <li
-                  key={mail.sentAt}
-                  id={`email-${mail.sentAt}`}
-                  className="flex flex-col gap-1"
-                >
-                  <span>
-                    {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
-                  </span>
-                  <span className="text-gray-500 dark:text-gray-400">
-                    To: {mail.to}
-                  </span>
-                  <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
-                    {mail.body}
-                  </span>
-                  <a
-                    href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
-                    className="self-start text-blue-500 underline"
+        <div className="grid gap-4 md:grid-cols-2">
+          {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
+              <h2 className="font-semibold">Email Log</h2>
+              <ul className="flex flex-col gap-2 text-sm">
+                {buildThreads(caseData).map((mail) => (
+                  <li
+                    key={mail.sentAt}
+                    id={`email-${mail.sentAt}`}
+                    className="flex flex-col gap-1"
                   >
-                    View Thread
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
+                    <span>
+                      {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
+                    </span>
+                    <span className="text-gray-500 dark:text-gray-400">
+                      To: {mail.to}
+                    </span>
+                    <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
+                      {mail.body}
+                    </span>
+                    <a
+                      href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
+                      className="self-start text-blue-500 underline"
+                    >
+                      View Thread
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {allPaperwork.length > 0 ? (
+            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
+              <h2 className="font-semibold">Paperwork</h2>
+              <div className="flex gap-2 flex-wrap">
+                {allPaperwork.map(({ url, time }) => (
+                  <div key={url} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPhoto(url)}
+                      className={
+                        selectedPhoto === url
+                          ? "ring-2 ring-blue-500"
+                          : "ring-1 ring-transparent"
+                      }
+                    >
+                      <div className="relative w-20 aspect-[4/3]">
+                        <Image
+                          src={url}
+                          alt="paperwork"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      {time ? (
+                        <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
+                          {new Date(time).toLocaleDateString()}
+                        </span>
+                      ) : null}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </CaseLayout>
       {dragging ? (
         <div className="fixed inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl">
