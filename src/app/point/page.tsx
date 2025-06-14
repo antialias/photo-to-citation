@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
 
 export default function PointAndShootPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const uploadCase = useNewCaseFromFiles();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function PointAndShootPage() {
         }
       } catch (err) {
         console.error("Could not access camera", err);
+        setCameraError("Unable to access camera. Please check permissions.");
       }
     }
     startCamera();
@@ -69,6 +71,11 @@ export default function PointAndShootPage() {
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">
+      {cameraError && (
+        <div className="absolute inset-x-0 top-0 z-10 bg-red-600 text-white text-center py-2">
+          {cameraError}
+        </div>
+      )}
       <video
         ref={videoRef}
         autoPlay
