@@ -22,6 +22,21 @@ export function getRepresentativePhoto(
   return [...caseData.photos].sort()[0];
 }
 
+export function getViolationPhoto(
+  caseData: Pick<Case, "photos" | "analysis">,
+): { photo: string; caption?: string } | null {
+  const imgs = caseData.analysis?.images;
+  if (!imgs) return null;
+  const best = Object.entries(imgs)
+    .filter(([, info]) => info.violation === true)
+    .sort((a, b) => b[1].representationScore - a[1].representationScore)[0];
+  if (!best) return null;
+  const [name, info] = best;
+  const file = caseData.photos.find((p) => basename(p) === name);
+  if (!file) return null;
+  return { photo: file, caption: info.highlights };
+}
+
 export function hasViolation(report?: ViolationReport | null): boolean {
   if (!report) return false;
   if (report.images) {
