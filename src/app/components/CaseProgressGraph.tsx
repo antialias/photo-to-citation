@@ -201,8 +201,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const timers: number[] = [];
+    const instances: Array<import("tippy.js").Instance> = [];
     const apply = () => {
+      for (const inst of instances) inst.destroy();
+      instances.length = 0;
       const map: Record<string, { url: string; preview: string } | null> = {};
       const platePhoto = (() => {
         const plate = getCasePlateNumber(caseData);
@@ -241,19 +243,25 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       if (notifyLink) map.notify = { url: notifyLink, preview: notifyLink };
       for (const [id, info] of Object.entries(map)) {
         if (!info) continue;
-        const el = container.querySelector(`#${id}`) as HTMLElement | null;
+        const el = container.querySelector(
+          `[id^='flowchart-${id}-']`,
+        ) as HTMLElement | null;
         if (!el) continue;
-        tippy(el, {
+        const inst = tippy(el, {
           content: `<img src="${info.preview}" class="max-h-40" />`,
           allowHTML: true,
         });
         el.addEventListener("click", () => window.open(info.url, "_blank"));
+        instances.push(inst);
       }
     };
-    const timer = window.setTimeout(apply, 100);
-    timers.push(timer);
+    const observer = new MutationObserver(() => apply());
+    observer.observe(container, { childList: true, subtree: true });
+    const timer = window.setTimeout(apply, 500);
     return () => {
-      for (const t of timers) clearTimeout(t);
+      observer.disconnect();
+      clearTimeout(timer);
+      for (const inst of instances) inst.destroy();
     };
   }, [caseData]);
 
