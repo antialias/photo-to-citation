@@ -96,7 +96,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   }, []);
 
   const chart = useMemo(() => {
-    const nodes = steps.map((s) => `${s.id}["${s.label}"]`).join("\n");
+    const nodes = steps
+      .map((s) => {
+        let label = s.label;
+        if (s.id === "analysis" && analysisDone) label += " \u25BC";
+        return `${s.id}["${label}"]`;
+      })
+      .join("\n");
     const edgesList: Array<[string, string, boolean, string | null]> = [];
     edgesList.push([
       "uploaded",
@@ -219,7 +225,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         ? `click ownnotify "${ownerNotifyLink}" "${clean(ownerNotifyTip)}"`
         : null,
       notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
-      analysisTip
+      analysisTip && !analysisDone
         ? `click analysis "/cases/${caseData.id}" "${clean(analysisTip)}"`
         : null,
     ]
@@ -254,6 +260,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     caseData,
     analysisPending,
     reanalysisPending,
+    analysisDone,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -368,6 +375,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
+        const isAnalysis = id === "analysis";
         const content = (() => {
           if (info.isImage !== false) {
             if (Array.isArray(info.preview)) {
@@ -393,15 +401,39 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
               : "";
             return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
           }
-          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+          let html = `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,
           )}</div>`;
+          if (isAnalysis) {
+            html +=
+              '<div class="flex flex-col" style="min-width:8rem">' +
+              '<button data-reanalyze class="text-left px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-700">Re-run Analysis</button>' +
+              "</div>";
+          }
+          return html;
         })();
-        const inst = tippy(el, {
+        const opts: import("tippy.js").Props = {
           content,
           allowHTML: true,
-        });
-        el.addEventListener("click", () => window.open(info.url, "_blank"));
+          interactive: isAnalysis,
+        };
+        if (isAnalysis) opts.trigger = "click";
+        const inst = tippy(el, opts);
+        if (isAnalysis) {
+          const btn = inst.popper.querySelector(
+            "[data-reanalyze]",
+          ) as HTMLButtonElement | null;
+          btn?.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            btn.disabled = true;
+            await fetch(`/api/cases/${caseData.id}/reanalyze`, {
+              method: "POST",
+            });
+            window.location.reload();
+          });
+        } else {
+          el.addEventListener("click", () => window.open(info.url, "_blank"));
+        }
         instances.push(inst);
       }
     };
