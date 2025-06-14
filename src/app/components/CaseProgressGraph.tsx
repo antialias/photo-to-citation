@@ -176,6 +176,14 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const notifyTip = firstEmail
       ? `Notification email to ${firstEmail.to} on ${new Date(firstEmail.sentAt).toLocaleString()}`
       : "View notification email";
+    const analysisTip = (() => {
+      const a = caseData.analysis;
+      if (!a) return null;
+      const parts = [`Violation: ${a.violationType}`];
+      if (a.details) parts.push(a.details);
+      if (a.location) parts.push(`Location: ${a.location}`);
+      return parts.join("\n");
+    })();
     const links = [
       caseData.photos[0]
         ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
@@ -183,6 +191,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
       notifyLink ? `click notify "${notifyLink}" "${clean(notifyTip)}"` : null,
+      analysisTip
+        ? `click analysis "/cases/${caseData.id}" "${clean(analysisTip)}"`
+        : null,
     ]
       .filter(Boolean)
       .join("\n");
@@ -273,6 +284,12 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         map.notify = {
           url: notifyLink,
           preview: firstEmail?.body ?? "",
+          isImage: false,
+        };
+      if (analysisTip)
+        map.analysis = {
+          url: `/cases/${caseData.id}`,
+          preview: analysisTip,
           isImage: false,
         };
       const escapeHtml = (s: string) =>
