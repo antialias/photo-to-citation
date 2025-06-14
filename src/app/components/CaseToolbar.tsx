@@ -77,6 +77,20 @@ export default function CaseToolbar({
                 >
                   Re-run Analysis
                 </button>
+                {progress ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await fetch(`/api/cases/${caseId}/cancel-analysis`, {
+                        method: "POST",
+                      });
+                      window.location.reload();
+                    }}
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  >
+                    Cancel Analysis
+                  </button>
+                ) : null}
                 <Link
                   href={`/cases/${caseId}/compose`}
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"

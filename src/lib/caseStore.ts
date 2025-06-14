@@ -23,8 +23,8 @@ export interface Case {
   vinOverride?: string | null;
   analysis?: ViolationReport | null;
   analysisOverrides?: Partial<ViolationReport> | null;
-  /** @zod.enum(["pending", "complete"]) */
-  analysisStatus: "pending" | "complete";
+  /** @zod.enum(["pending", "complete", "failed", "canceled"]) */
+  analysisStatus: "pending" | "complete" | "failed" | "canceled";
   analysisStatusCode?: number | null;
   /** @zod.enum(["truncated", "parse", "schema"]).nullable() */
   analysisError?: "truncated" | "parse" | "schema" | "images" | null;

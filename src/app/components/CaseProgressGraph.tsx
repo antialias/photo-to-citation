@@ -43,9 +43,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   const noviolation = analysisDone && !violation;
 
   const analysisPending =
-    caseData.analysisStatus === "pending" && !caseData.analysis;
+    caseData.analysisStatus === "pending" &&
+    !caseData.analysis &&
+    caseData.analysisProgress;
   const reanalysisPending =
-    caseData.analysisStatus === "pending" && Boolean(caseData.analysis);
+    caseData.analysisStatus === "pending" &&
+    Boolean(caseData.analysis) &&
+    caseData.analysisProgress;
 
   const steps = useMemo(() => {
     return noviolation

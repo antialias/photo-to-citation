@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       fetchCaseLocationInBackground({ ...updated, gps });
     }
     const p = updateCase(updated.id, {
+      analysisStatus: "pending",
       analysisProgress: {
         stage: "upload",
         index: 0,
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
     takenAt,
   );
   const p = updateCase(newCase.id, {
+    analysisStatus: "pending",
     analysisProgress: {
       stage: "upload",
       index: 0,

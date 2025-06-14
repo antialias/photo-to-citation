@@ -1,10 +1,27 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { Worker } from "node:worker_threads";
 import { APIError } from "openai/error";
+import { caseEvents } from "./caseEvents";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import { AnalysisError, analyzeViolation, ocrPaperwork } from "./openai";
 import { fetchCaseVinInBackground } from "./vinLookup";
+
+const activeWorkers = new Map<string, Worker>();
+
+export function isCaseAnalysisActive(id: string): boolean {
+  return activeWorkers.has(id);
+}
+
+export function cancelCaseAnalysis(id: string): boolean {
+  const worker = activeWorkers.get(id);
+  if (!worker) return false;
+  worker.terminate();
+  activeWorkers.delete(id);
+  updateCase(id, { analysisStatus: "canceled", analysisProgress: null });
+  return true;
+}
 
 export async function analyzeCase(caseData: Case): Promise<void> {
   try {
@@ -85,14 +102,18 @@ export async function analyzeCase(caseData: Case): Promise<void> {
   } catch (err) {
     if (err instanceof AnalysisError) {
       updateCase(caseData.id, {
+        analysisStatus: "failed",
         analysisStatusCode: 400,
         analysisError: err.kind,
+        analysisProgress: null,
       });
     } else {
       const status = err instanceof APIError ? err.status : 500;
       updateCase(caseData.id, {
+        analysisStatus: "failed",
         analysisStatusCode: status,
         analysisError: null,
+        analysisProgress: null,
       });
     }
     console.error("Failed to analyze case", caseData.id, err);
@@ -100,5 +121,18 @@ export async function analyzeCase(caseData: Case): Promise<void> {
 }
 
 export function analyzeCaseInBackground(caseData: Case): void {
-  runJob("analyzeCase", caseData);
+  const worker = runJob("analyzeCase", caseData);
+  activeWorkers.set(caseData.id, worker);
+  const cleanup = () => {
+    activeWorkers.delete(caseData.id);
+  };
+  worker.on("exit", cleanup);
+  worker.on("error", (err) => {
+    console.error("analyzeCase worker failed", err);
+    updateCase(caseData.id, {
+      analysisStatus: "failed",
+      analysisProgress: null,
+    });
+    cleanup();
+  });
 }
