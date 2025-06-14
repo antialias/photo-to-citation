@@ -368,6 +368,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           `[id^='flowchart-${id}-']`,
         ) as HTMLElement | null;
         if (!el) continue;
+        const isAnalysis = id === "analysis";
         const content = (() => {
           if (info.isImage !== false) {
             if (Array.isArray(info.preview)) {
@@ -393,15 +394,37 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
               : "";
             return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
           }
-          return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
+          let html = `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,
           )}</div>`;
+          if (isAnalysis) {
+            html +=
+              '<button data-reanalyze class="mt-2 bg-blue-500 text-white px-2 py-1 rounded">Re-run Analysis</button>';
+          }
+          return html;
         })();
-        const inst = tippy(el, {
+        const opts: import("tippy.js").Props = {
           content,
           allowHTML: true,
-        });
-        el.addEventListener("click", () => window.open(info.url, "_blank"));
+          interactive: isAnalysis,
+        };
+        if (isAnalysis) opts.trigger = "click";
+        const inst = tippy(el, opts);
+        if (isAnalysis) {
+          const btn = inst.popper.querySelector(
+            "[data-reanalyze]",
+          ) as HTMLButtonElement | null;
+          btn?.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            btn.disabled = true;
+            await fetch(`/api/cases/${caseData.id}/reanalyze`, {
+              method: "POST",
+            });
+            window.location.reload();
+          });
+        } else {
+          el.addEventListener("click", () => window.open(info.url, "_blank"));
+        }
         instances.push(inst);
       }
     };
