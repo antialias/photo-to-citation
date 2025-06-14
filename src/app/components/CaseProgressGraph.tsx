@@ -10,7 +10,9 @@ import {
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
-import "tippy.js/dist/tippy.css";
+if (typeof window !== "undefined" && !process.env.VITEST) {
+  import("tippy.js/dist/tippy.css");
+}
 
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 

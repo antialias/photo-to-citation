@@ -290,7 +290,9 @@ export default function ClientCasePage({
         setDragging(true);
       }}
       onDragLeave={(e) => {
-        if (e.currentTarget === e.target) setDragging(false);
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setDragging(false);
+        }
       }}
       onDrop={async (e) => {
         e.preventDefault();

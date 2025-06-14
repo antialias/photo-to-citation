@@ -70,7 +70,7 @@ export default function ClientCasesPage({
         setDragging(true);
       }}
       onDragLeave={(e) => {
-        if (e.currentTarget === e.target) {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
           setDragging(false);
           setDropCase(null);
         }
@@ -97,7 +97,9 @@ export default function ClientCasesPage({
               setDragging(true);
             }}
             onDragLeave={(e) => {
-              if (e.currentTarget === e.target) setDropCase(null);
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setDropCase(null);
+              }
             }}
             className={`border p-2 ${
               selectedIds.includes(c.id)
