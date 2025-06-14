@@ -25,6 +25,9 @@ export default function DraftEditor({
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
   const [snailMail, setSnailMail] = useState(false);
+  const [results, setResults] = useState<
+    Record<string, { status: string; error?: string }>
+  >({});
 
   useEffect(() => {
     if (initialDraft) {
@@ -35,6 +38,11 @@ export default function DraftEditor({
 
   async function sendEmail() {
     setSending(true);
+    const pending: Record<string, { status: string; error?: string }> = {
+      email: { status: "sending" },
+    };
+    if (snailMail) pending.snailMail = { status: "sending" };
+    setResults(pending);
     try {
       const res = await fetch(`/api/cases/${caseId}/${action}`, {
         method: "POST",
@@ -48,9 +56,26 @@ export default function DraftEditor({
         }),
       });
       if (res.ok) {
-        alert("Email sent");
+        const data = (await res.json()) as {
+          results: Record<string, { success: boolean; error?: string }>;
+        };
+        const r: Record<string, { status: string; error?: string }> = {};
+        for (const [k, v] of Object.entries(data.results)) {
+          r[k] = v.success
+            ? { status: "success" }
+            : { status: "error", error: v.error };
+        }
+        setResults(r);
+        if (Object.values(r).every((x) => x.status === "success")) {
+          alert("Notification sent");
+        } else if (r.email && r.email.status === "success") {
+          alert("Email sent with some errors");
+        } else {
+          alert("Failed to send notification");
+        }
       } else {
-        alert("Failed to send email");
+        setResults({ email: { status: "error", error: res.statusText } });
+        alert("Failed to send notification");
       }
     } finally {
       setSending(false);
@@ -118,6 +143,20 @@ export default function DraftEditor({
       >
         {sending ? "Sending..." : "Send"}
       </button>
+      {Object.entries(results).length > 0 && (
+        <ul className="mt-2 text-sm">
+          {Object.entries(results).map(([k, v]) => (
+            <li key={k}>
+              {k}:{" "}
+              {v.status === "sending"
+                ? "Sending"
+                : v.status === "success"
+                  ? "Sent"
+                  : `Failed - ${v.error}`}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

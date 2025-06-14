@@ -25,6 +25,9 @@ export default function NotifyOwnerEditor({
   const [subject, setSubject] = useState(initialDraft?.subject || "");
   const [body, setBody] = useState(initialDraft?.body || "");
   const [sending, setSending] = useState(false);
+  const [results, setResults] = useState<
+    Record<string, { status: string; error?: string }>
+  >({});
   const [methods, setMethods] = useState<string[]>(availableMethods);
 
   useEffect(() => {
@@ -36,6 +39,9 @@ export default function NotifyOwnerEditor({
 
   async function sendNotification() {
     setSending(true);
+    setResults(
+      Object.fromEntries(methods.map((m) => [m, { status: "sending" }])),
+    );
     try {
       const res = await fetch(`/api/cases/${caseId}/notify-owner`, {
         method: "POST",
@@ -43,8 +49,27 @@ export default function NotifyOwnerEditor({
         body: JSON.stringify({ subject, body, attachments, methods }),
       });
       if (res.ok) {
-        alert("Notification sent");
+        const data = (await res.json()) as {
+          results: Record<string, { success: boolean; error?: string }>;
+        };
+        const r: Record<string, { status: string; error?: string }> = {};
+        for (const [k, v] of Object.entries(data.results)) {
+          r[k] = v.success
+            ? { status: "success" }
+            : { status: "error", error: v.error };
+        }
+        setResults(r);
+        if (Object.values(r).every((x) => x.status === "success")) {
+          alert("Notification sent");
+        } else {
+          alert("Some notifications failed");
+        }
       } else {
+        setResults({
+          ...Object.fromEntries(
+            methods.map((m) => [m, { status: "error", error: res.statusText }]),
+          ),
+        });
         alert("Failed to send notification");
       }
     } finally {
@@ -196,6 +221,20 @@ export default function NotifyOwnerEditor({
       >
         {sending ? "Sending..." : "Send Notification"}
       </button>
+      {Object.entries(results).length > 0 && (
+        <ul className="mt-2 text-sm">
+          {Object.entries(results).map(([k, v]) => (
+            <li key={k}>
+              {k}:{" "}
+              {v.status === "sending"
+                ? "Sending"
+                : v.status === "success"
+                  ? "Sent"
+                  : `Failed - ${v.error}`}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
