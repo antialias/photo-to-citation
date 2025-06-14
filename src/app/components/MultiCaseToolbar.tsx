@@ -19,22 +19,22 @@ export default function MultiCaseToolbar({
           Actions
         </summary>
         <div className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow">
+          <button
+            type="button"
+            onClick={async () => {
+              await Promise.all(
+                caseIds.map((id) =>
+                  fetch(`/api/cases/${id}/reanalyze`, { method: "POST" }),
+                ),
+              );
+              window.location.reload();
+            }}
+            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+          >
+            Re-run Analysis
+          </button>
           {disabled ? null : (
             <>
-              <button
-                type="button"
-                onClick={async () => {
-                  await Promise.all(
-                    caseIds.map((id) =>
-                      fetch(`/api/cases/${id}/reanalyze`, { method: "POST" }),
-                    ),
-                  );
-                  window.location.reload();
-                }}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-              >
-                Re-run Analysis
-              </button>
               <Link
                 href={`/cases/${first}/compose?ids=${idsParam}`}
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
