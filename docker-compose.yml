@@ -19,26 +19,6 @@ services:
     networks:
       - web
 
-  traefik:
-    image: traefik:v3.0
-    command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.http.address=:80
-      - --entrypoints.https.address=:443
-      - --certificatesresolvers.myresolver.acme.tlschallenge=true
-      - --certificatesresolvers.myresolver.acme.email=you@example.com
-      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./letsencrypt:/letsencrypt
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - web
-    restart: unless-stopped
-
 networks:
   web:
-    external: false
+    external: true
