@@ -62,14 +62,15 @@ export async function POST(
   }
   let updated = c;
   if (results.email?.success) {
-    updated = addCaseEmail(id, {
-      to,
-      subject,
-      body,
-      attachments,
-      sentAt: new Date().toISOString(),
-      replyTo: null,
-    });
+    updated =
+      addCaseEmail(id, {
+        to,
+        subject,
+        body,
+        attachments,
+        sentAt: new Date().toISOString(),
+        replyTo: null,
+      }) ?? c;
   }
   return NextResponse.json({ case: updated, results });
 }
