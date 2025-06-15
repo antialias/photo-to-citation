@@ -65,6 +65,19 @@ describe("e2e flows", () => {
     return fetch(`${server.url}/api/cases/${id}`);
   }
 
+  async function waitForPhotos(id: string, count: number) {
+    for (let i = 0; i < 20; i++) {
+      const res = await fetchCase(id);
+      if (res.status === 200) {
+        const json = await res.json();
+        if (json.photos.length === count) return json;
+      }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    const res = await fetchCase(id);
+    return res.json();
+  }
+
   async function putVin(id: string, vin: string): Promise<Response> {
     for (let i = 0; i < 10; i++) {
       const res = await fetch(`${server.url}/api/cases/${id}/vin`, {
@@ -99,9 +112,7 @@ describe("e2e flows", () => {
     const data2 = (await res2.json()) as { caseId: string };
     expect(data2.caseId).toBe(caseId);
 
-    const res = await fetchCase(caseId);
-    expect(res.status).toBe(200);
-    let json = await res.json();
+    let json = await waitForPhotos(caseId, 2);
     expect(json.photos).toHaveLength(2);
 
     const delRes = await fetch(`${server.url}/api/cases/${caseId}/photos`, {
@@ -110,7 +121,7 @@ describe("e2e flows", () => {
       body: JSON.stringify({ photo: json.photos[0] }),
     });
     expect(delRes.status).toBe(200);
-    json = await delRes.json();
+    json = await waitForPhotos(caseId, 1);
     expect(json.photos).toHaveLength(1);
 
     const overrideRes = await fetch(
