@@ -273,8 +273,11 @@ export function updateCase(
     updatedAt: new Date().toISOString(),
   };
   saveCase(updated);
-  caseEvents.emit("update", updated);
-  return updated;
+  const final = getCase(id);
+  if (final) {
+    caseEvents.emit("update", final);
+  }
+  return final;
 }
 
 export function addCasePhoto(
