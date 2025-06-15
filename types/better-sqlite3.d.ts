@@ -8,6 +8,7 @@ declare module "better-sqlite3" {
   interface DB {
     prepare<T = unknown>(sql: string): Statement<T>;
     exec(sql: string): this;
+    close(): void;
   }
 
   interface DatabaseConstructor {
@@ -20,9 +21,7 @@ declare module "better-sqlite3" {
 
   namespace Database {
     export type Database = DB;
-    export type Statement<T = unknown> = import(
-      "./better-sqlite3",
-    ).Statement<T>;
+    export type Statement<T = unknown> = import("better-sqlite3").Statement<T>;
   }
 
   export = Database;

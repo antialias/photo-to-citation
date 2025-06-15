@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-type Database = unknown;
+import type Database from "better-sqlite3";
 
 export function runMigrations(db: Database.Database): void {
   const anyDb = db as {
