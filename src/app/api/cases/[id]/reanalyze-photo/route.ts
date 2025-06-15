@@ -1,17 +1,9 @@
-import fs from "node:fs";
-import path from "node:path";
 import {
+  analyzePhotoInBackground,
   cancelCaseAnalysis,
   cancelPhotoAnalysis,
-  trackPhotoAnalysis,
 } from "@/lib/caseAnalysis";
 import { getCase, updateCase } from "@/lib/caseStore";
-import {
-  type ViolationReport,
-  analyzeViolation,
-  ocrPaperwork,
-} from "@/lib/openai";
-import { fetchCaseVinInBackground } from "@/lib/vinLookup";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -30,88 +22,10 @@ export async function POST(
   }
   cancelCaseAnalysis(id);
   cancelPhotoAnalysis(id, photo);
-  const ctrl = new AbortController();
-  trackPhotoAnalysis(id, photo, ctrl);
-  const filePath = path.join(
-    process.cwd(),
-    "public",
-    photo.replace(/^\/+/, ""),
-  );
-  if (!fs.existsSync(filePath)) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-  const buffer = fs.readFileSync(filePath);
-  const ext = path.extname(filePath).toLowerCase();
-  const mime =
-    ext === ".png"
-      ? "image/png"
-      : ext === ".webp"
-        ? "image/webp"
-        : "image/jpeg";
-  const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-  let result: ViolationReport;
-  let info: ViolationReport["images"][string] | undefined;
-  try {
-    result = await analyzeViolation(
-      [{ filename: path.basename(photo), url: dataUrl }],
-      undefined,
-      ctrl.signal,
-    );
-    info = result.images?.[path.basename(photo)];
-    if (info?.paperwork && !info.paperworkText) {
-      const ocr = await ocrPaperwork({ url: dataUrl }, undefined, ctrl.signal);
-      info.paperworkText = ocr.text;
-      if (ocr.info) info.paperworkInfo = ocr.info;
-    }
-  } finally {
-    cancelPhotoAnalysis(id, photo);
-  }
-  const baseAnalysis = c.analysis ?? { vehicle: {}, images: {} };
-  const newAnalysis = {
-    ...baseAnalysis,
-    vehicle: { ...baseAnalysis.vehicle },
-  } as typeof baseAnalysis;
-  let changed = false;
-  if (!baseAnalysis.violationType && result.violationType) {
-    newAnalysis.violationType = result.violationType;
-    changed = true;
-  }
-  const vehicle = result.vehicle || {};
-  if (!baseAnalysis.vehicle?.make && vehicle.make) {
-    newAnalysis.vehicle.make = vehicle.make;
-    changed = true;
-  }
-  if (!baseAnalysis.vehicle?.model && vehicle.model) {
-    newAnalysis.vehicle.model = vehicle.model;
-    changed = true;
-  }
-  if (!baseAnalysis.vehicle?.licensePlateState && vehicle.licensePlateState) {
-    newAnalysis.vehicle.licensePlateState = vehicle.licensePlateState;
-    changed = true;
-  }
-  if (!baseAnalysis.vehicle?.licensePlateNumber && vehicle.licensePlateNumber) {
-    newAnalysis.vehicle.licensePlateNumber = vehicle.licensePlateNumber;
-    changed = true;
-  }
-  if (info?.paperworkInfo) {
-    const pVeh = info.paperworkInfo.vehicle;
-    if (!baseAnalysis.vehicle?.licensePlateState && pVeh.licensePlateState) {
-      newAnalysis.vehicle.licensePlateState = pVeh.licensePlateState;
-      changed = true;
-    }
-    if (!baseAnalysis.vehicle?.licensePlateNumber && pVeh.licensePlateNumber) {
-      newAnalysis.vehicle.licensePlateNumber = pVeh.licensePlateNumber;
-      changed = true;
-    }
-    if (!c.vin && pVeh.vin) {
-      updateCase(id, { vin: pVeh.vin });
-    }
-  }
-  const updates: Record<string, unknown> = {};
-  if (changed) updates.analysis = newAnalysis;
-  if (Object.keys(updates).length > 0) {
-    const updated = updateCase(id, updates);
-    if (updated) fetchCaseVinInBackground(updated);
-  }
+  const updated = updateCase(id, {
+    analysisStatus: "pending",
+    analysisProgress: { stage: "upload", index: 0, total: 1 },
+  });
+  analyzePhotoInBackground(updated || c, photo);
   return NextResponse.json(getCase(id));
 }
