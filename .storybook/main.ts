@@ -1,10 +1,6 @@
 import type { StorybookConfig } from "@storybook/nextjs";
 
-import path, { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import path from "node:path";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
@@ -17,7 +13,7 @@ const config: StorybookConfig = {
     config.resolve = config.resolve ?? { alias: {}, modules: [] };
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
-      "@": path.resolve(__dirname, "../src"),
+      "@": path.resolve(process.cwd(), "src"),
     };
     return config;
   },

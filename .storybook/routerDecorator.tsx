@@ -1,3 +1,4 @@
+"use client";
 import type { Decorator } from "@storybook/react";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import {
