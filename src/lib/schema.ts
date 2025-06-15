@@ -18,3 +18,20 @@ export const casePhotos = sqliteTable(
     caseIdx: primaryKey(photos.caseId, photos.url),
   }),
 );
+
+export const casePhotoAnalysis = sqliteTable(
+  "case_photo_analysis",
+  {
+    caseId: text("case_id").notNull(),
+    url: text("url").notNull(),
+    representationScore: real("representation_score").notNull(),
+    highlights: text("highlights"),
+    violation: integer("violation"),
+    paperwork: integer("paperwork"),
+    paperworkText: text("paperwork_text"),
+    paperworkInfo: text("paperwork_info"),
+  },
+  (t) => ({
+    pk: primaryKey(t.caseId, t.url),
+  }),
+);

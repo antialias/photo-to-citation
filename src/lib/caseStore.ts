@@ -1,9 +1,10 @@
 import crypto from "node:crypto";
+import path from "node:path";
 import { eq, sql } from "drizzle-orm";
 import { caseEvents } from "./caseEvents";
 import { db } from "./db";
 import { orm } from "./orm";
-import { casePhotos } from "./schema";
+import { casePhotoAnalysis, casePhotos } from "./schema";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 import type { ViolationReport } from "./openai";
@@ -95,6 +96,29 @@ function rowToCase(row: { id: string; data: string }): Case {
         ? { lat: p.gpsLat, lon: p.gpsLon }
         : null;
   }
+  const analysisRows = orm
+    .select()
+    .from(casePhotoAnalysis)
+    .where(eq(casePhotoAnalysis.caseId, row.id))
+    .all();
+  if (analysisRows.length > 0) {
+    const images: Record<string, ViolationReport["images"][string]> = {};
+    for (const a of analysisRows) {
+      images[path.basename(a.url)] = {
+        representationScore: a.representationScore,
+        ...(a.highlights !== null && { highlights: a.highlights }),
+        ...(a.violation !== null && { violation: Boolean(a.violation) }),
+        ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),
+        ...(a.paperworkText !== null && { paperworkText: a.paperworkText }),
+        ...(a.paperworkInfo !== null && {
+          paperworkInfo: JSON.parse(a.paperworkInfo),
+        }),
+      };
+    }
+    if (!base.analysis)
+      base.analysis = { vehicle: {}, images } as ViolationReport;
+    else base.analysis.images = images;
+  }
   return {
     ...base,
     photos: list,
@@ -105,11 +129,16 @@ function rowToCase(row: { id: string; data: string }): Case {
 
 function saveCase(c: Case) {
   const { photos, photoTimes, photoGps, ...rest } = c;
+  const images = rest.analysis?.images ?? {};
+  if (rest.analysis && "images" in rest.analysis) {
+    (rest.analysis as Partial<ViolationReport>).images = undefined;
+  }
   const stmt = db.prepare(
     "INSERT OR REPLACE INTO cases (id, data) VALUES (?, ?)",
   );
   stmt.run(c.id, JSON.stringify(rest));
   orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
+  orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, c.id)).run();
   for (const url of photos) {
     orm
       .insert(casePhotos)
@@ -119,6 +148,35 @@ function saveCase(c: Case) {
         takenAt: photoTimes[url] ?? null,
         gpsLat: photoGps?.[url]?.lat ?? null,
         gpsLon: photoGps?.[url]?.lon ?? null,
+      })
+      .run();
+  }
+  for (const [name, info] of Object.entries(images)) {
+    const url = photos.find((p) => path.basename(p) === name);
+    if (!url) continue;
+    orm
+      .insert(casePhotoAnalysis)
+      .values({
+        caseId: c.id,
+        url,
+        representationScore: info.representationScore,
+        highlights: info.highlights ?? null,
+        violation:
+          info.violation === undefined || info.violation === null
+            ? null
+            : info.violation
+              ? 1
+              : 0,
+        paperwork:
+          info.paperwork === undefined || info.paperwork === null
+            ? null
+            : info.paperwork
+              ? 1
+              : 0,
+        paperworkText: info.paperworkText ?? null,
+        paperworkInfo: info.paperworkInfo
+          ? JSON.stringify(info.paperworkInfo)
+          : null,
       })
       .run();
   }
@@ -331,6 +389,7 @@ export function deleteCase(id: string): boolean {
   if (!current) return false;
   db.prepare("DELETE FROM cases WHERE id = ?").run(id);
   orm.delete(casePhotos).where(eq(casePhotos.caseId, id)).run();
+  orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, id)).run();
   caseEvents.emit("update", { id: current.id, deleted: true });
   return true;
 }

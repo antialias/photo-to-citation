@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 type Database = unknown;
 
-export function runMigrations(db: Database): void {
+export function runMigrations(db: Database.Database): void {
   const anyDb = db as {
     exec: (sql: string) => void;
     prepare: (sql: string) => {

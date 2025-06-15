@@ -14,6 +14,7 @@
     "jsx": "preserve",
     "incremental": true,
     "allowImportingTsExtensions": true,
+    "typeRoots": ["./types", "./node_modules/@types"],
     "plugins": [
       {
         "name": "next"
@@ -34,6 +35,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.d.ts",
     ".next/types/**/*.ts",
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx"
