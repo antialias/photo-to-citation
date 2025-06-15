@@ -54,11 +54,9 @@ export default function ClientCasesPage({
   const [dropCase, setDropCase] = useState<string | null>(null);
   const params = useParams<{ id?: string }>();
   const searchParams = useSearchParams();
-  const selectedIds = searchParams.get("ids")
-    ? searchParams.get("ids")?.split(",").filter(Boolean)
-    : params.id
-      ? [params.id]
-      : [];
+  const selectedIds =
+    searchParams.get("ids")?.split(",").filter(Boolean) ??
+    (params.id ? [params.id] : []);
 
   useEffect(() => {
     const es = new EventSource("/api/cases/stream");

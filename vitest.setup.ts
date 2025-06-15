@@ -51,11 +51,10 @@ beforeEach((context) => {
   if (typeof navigator !== "undefined") {
     originalGetUserMedia = navigator.mediaDevices?.getUserMedia;
     if (!navigator.mediaDevices) {
-      (
-        navigator as unknown as { mediaDevices: Record<string, unknown> }
-      ).mediaDevices = {} as MediaDevices;
+      (navigator as unknown as { mediaDevices: MediaDevices }).mediaDevices =
+        {} as MediaDevices;
     }
-    navigator.mediaDevices.getUserMedia = vi.fn(async () => undefined);
+    navigator.mediaDevices.getUserMedia = vi.fn(async () => new MediaStream());
   }
 });
 

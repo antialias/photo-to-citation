@@ -13,8 +13,9 @@ function getThread(c: Case, startId?: string | null): SentEmail[] {
   const chain: SentEmail[] = [];
   while (current) {
     chain.unshift(current);
-    current = current.replyTo
-      ? c.sentEmails?.find((m) => m.sentAt === current.replyTo)
+    const replyTo = current.replyTo;
+    current = replyTo
+      ? c.sentEmails?.find((m) => m.sentAt === replyTo)
       : undefined;
   }
   return chain;
@@ -100,14 +101,15 @@ export async function POST(
   }
   let updated = c;
   if (results.email?.success) {
-    updated = addCaseEmail(id, {
-      to: target,
-      subject,
-      body,
-      attachments,
-      sentAt: new Date().toISOString(),
-      replyTo: replyTo ?? null,
-    });
+    updated =
+      addCaseEmail(id, {
+        to: target,
+        subject,
+        body,
+        attachments,
+        sentAt: new Date().toISOString(),
+        replyTo: replyTo ?? null,
+      }) ?? c;
   }
   return NextResponse.json({ case: updated, results });
 }
