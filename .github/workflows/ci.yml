@@ -18,11 +18,6 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - name: Upload node modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-modules
-          path: node_modules
 
   test:
     runs-on: ubuntu-latest
@@ -33,10 +28,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - uses: actions/download-artifact@v4
-        with:
-          name: node-modules
-          path: .
+      - run: npm ci
       - run: npm test
 
   e2e:
@@ -48,10 +40,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - uses: actions/download-artifact@v4
-        with:
-          name: node-modules
-          path: .
+      - run: npm ci
       - run: npm run e2e
 
   storybook:
@@ -68,10 +57,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - uses: actions/download-artifact@v4
-        with:
-          name: node-modules
-          path: .
+      - run: npm ci
       - run: npm run build-storybook
       - name: Deploy Storybook to GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
