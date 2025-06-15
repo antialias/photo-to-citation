@@ -58,3 +58,34 @@ export const PendingAnalysis: Story = {
     />
   ),
 };
+
+export const FailedAnalysis: Story = {
+  render: () => (
+    <ClientCasePage
+      caseId="125"
+      initialCase={{
+        ...base,
+        id: "125",
+        analysis: null,
+        analysisStatus: "failed",
+        analysisStatusCode: 500,
+      }}
+    />
+  ),
+};
+
+export const TruncatedError: Story = {
+  render: () => (
+    <ClientCasePage
+      caseId="126"
+      initialCase={{
+        ...base,
+        id: "126",
+        analysis: null,
+        analysisStatus: "failed",
+        analysisStatusCode: 400,
+        analysisError: "truncated",
+      }}
+    />
+  ),
+};
