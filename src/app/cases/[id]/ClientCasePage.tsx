@@ -73,6 +73,8 @@ export default function ClientCasePage({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
+  const photoMenuRef = useRef<HTMLDetailsElement>(null);
+  useCloseOnOutsideClick(photoMenuRef);
 
   useDragReset(() => {
     setDragging(false);
@@ -218,17 +220,6 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
-  async function reanalyzeCase() {
-    const res = await fetch(`/api/cases/${caseId}/reanalyze`, {
-      method: "POST",
-    });
-    if (!res.ok) {
-      alert("Failed to reanalyze case.");
-      return;
-    }
-    await refreshCase();
-  }
-
   async function reanalyzePhoto(
     photo: string,
     detailsEl?: HTMLDetailsElement | null,
@@ -363,8 +354,6 @@ export default function ClientCasePage({
     ...paperworkPhotos.map((p) => ({ url: p, time: caseData.photoTimes[p] })),
     ...paperworkScans,
   ];
-  const photoMenuRef = useRef<HTMLDetailsElement>(null);
-  useCloseOnOutsideClick(photoMenuRef);
 
   return (
     <div
