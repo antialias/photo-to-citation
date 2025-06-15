@@ -22,7 +22,10 @@ async function run() {
       .from(casePhotos)
       .where(eq(casePhotos.caseId, row.id))
       .all();
-    for (const [name, info] of Object.entries(analysisImages)) {
+    const entries = Object.entries(analysisImages) as Array<
+      [string, ViolationReport["images"][string]]
+    >;
+    for (const [name, info] of entries) {
       const photoRow = photos.find((p) => path.basename(p.url) === name);
       if (!photoRow) continue;
       orm

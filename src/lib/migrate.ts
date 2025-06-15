@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type Database from "better-sqlite3";
 
-export function runMigrations(db: Database): void {
+export function runMigrations(db: Database.Database): void {
   const migrationsDir = path.join(process.cwd(), "migrations");
   fs.mkdirSync(migrationsDir, { recursive: true });
 
