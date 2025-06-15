@@ -1,4 +1,5 @@
 "use client";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import useAltKey from "../useAltKey";
@@ -40,18 +41,27 @@ export default function DebugWrapper({
   const enabled = Boolean(process.env.NEXT_PUBLIC_BROWSER_DEBUG);
   const alt = useAltKey();
   const [hovered, setHovered] = useState(false);
+  const [tipHovered, setTipHovered] = useState(false);
   if (!enabled) return <>{children}</>;
   const json = JSON.stringify(data, null, 2);
   const tokens = tokenize(json);
+  const open = (hovered || tipHovered) && (alt || tipHovered);
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="relative inline-block"
-    >
-      {children}
-      {hovered && alt ? (
-        <div className="absolute z-50 text-xs bg-black/80 text-white p-2 rounded shadow max-w-sm max-h-60 overflow-auto">
+    <Tooltip.Root open={open} delayDuration={0}>
+      <Tooltip.Trigger
+        asChild
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        <div className="inline-block relative">{children}</div>
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          onMouseEnter={() => setTipHovered(true)}
+          onMouseLeave={() => setTipHovered(false)}
+          sideOffset={4}
+          className="z-50 text-xs bg-black/80 text-white p-2 rounded shadow max-w-[min(100vw-16px,24rem)] max-h-[min(100vh-16px,20rem)] overflow-auto"
+        >
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(json)}
@@ -60,8 +70,9 @@ export default function DebugWrapper({
             Copy
           </button>
           <pre className="pt-4">{tokens}</pre>
-        </div>
-      ) : null}
-    </div>
+          <Tooltip.Arrow className="fill-black/80" />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
