@@ -37,7 +37,7 @@ to various services. Follow these basic steps to get a local copy running:
    `http://localhost:3000` to see the app.
 
 These steps give you a working development environment. The server reloads when
-files change, so you can iterate quickly. Review the `docker-compose.yml` file
+files change, so you can iterate quickly. Review the `docker-compose.example.yaml` file
 if you want to spin up supporting services with Docker.
 
 ### 2.1 Environment Variables
