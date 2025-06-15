@@ -26,11 +26,16 @@ describe("hasViolation", () => {
 
   it("falls back to violationType when flags missing", () => {
     expect(
-      hasViolation({ violationType: "parking", details: "", vehicle: {} }),
+      hasViolation({
+        violationType: "parking",
+        details: "",
+        vehicle: {},
+        images: {},
+      }),
     ).toBe(true);
-    expect(hasViolation({ violationType: "", details: "", vehicle: {} })).toBe(
-      false,
-    );
+    expect(
+      hasViolation({ violationType: "", details: "", vehicle: {}, images: {} }),
+    ).toBe(false);
   });
 });
 
