@@ -78,14 +78,18 @@ specs.push({
 });
 
 function fetchRemote(file: string): Buffer | null {
-  try {
-    const data = execSync(`git show origin/gh-pages:website/${file}`, {
-      encoding: "buffer",
-    });
-    return Buffer.from(data);
-  } catch {
-    return null;
+  const paths = [`website/${file}`, `website/dist/${file}`];
+  for (const p of paths) {
+    try {
+      const data = execSync(`git show origin/gh-pages:${p}`, {
+        encoding: "buffer",
+      });
+      return Buffer.from(data);
+    } catch {
+      // try next path
+    }
   }
+  return null;
 }
 
 async function saveResized(
