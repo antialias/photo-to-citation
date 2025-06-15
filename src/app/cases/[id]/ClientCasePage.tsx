@@ -510,6 +510,7 @@ export default function ClientCasePage({
                   url: p,
                   takenAt: caseData.photoTimes[p] ?? null,
                   gps: caseData.photoGps?.[p] ?? null,
+                  analysis: analysisImages[baseName(p)] ?? null,
                 };
                 return (
                   <DebugWrapper key={p} data={info}>
@@ -602,7 +603,11 @@ export default function ClientCasePage({
               <h2 className="font-semibold">Paperwork</h2>
               <div className="flex gap-2 flex-wrap">
                 {allPaperwork.map(({ url, time }) => {
-                  const info = { url, time };
+                  const info = {
+                    url,
+                    time,
+                    analysis: analysisImages[baseName(url)] ?? null,
+                  };
                   return (
                     <DebugWrapper key={url} data={info}>
                       <div className="relative">
