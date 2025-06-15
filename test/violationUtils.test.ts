@@ -6,6 +6,8 @@ describe("hasViolation", () => {
     expect(
       hasViolation({
         violationType: "",
+        details: "",
+        vehicle: {},
         images: { a: { representationScore: 1, violation: true } },
       }),
     ).toBe(true);
@@ -15,14 +17,20 @@ describe("hasViolation", () => {
     expect(
       hasViolation({
         violationType: "",
+        details: "",
+        vehicle: {},
         images: { a: { representationScore: 1, violation: false } },
       }),
     ).toBe(false);
   });
 
   it("falls back to violationType when flags missing", () => {
-    expect(hasViolation({ violationType: "parking" })).toBe(true);
-    expect(hasViolation({ violationType: "" })).toBe(false);
+    expect(
+      hasViolation({ violationType: "parking", details: "", vehicle: {} }),
+    ).toBe(true);
+    expect(hasViolation({ violationType: "", details: "", vehicle: {} })).toBe(
+      false,
+    );
   });
 });
 

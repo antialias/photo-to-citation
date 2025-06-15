@@ -70,8 +70,9 @@ afterEach((context) => {
     if (originalGetUserMedia) {
       navigator.mediaDevices.getUserMedia = originalGetUserMedia;
     } else if (navigator.mediaDevices) {
-      (navigator.mediaDevices as Record<string, unknown>).getUserMedia =
-        undefined;
+      (
+        navigator.mediaDevices as unknown as Record<string, unknown>
+      ).getUserMedia = undefined;
     }
   }
 

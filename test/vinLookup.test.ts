@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Case } from "../src/lib/caseStore";
 
 let dataDir: string;
 
@@ -77,7 +78,7 @@ describe("vinLookup", () => {
       },
     });
     const current = caseStore.getCase(c.id);
-    await fetchCaseVin(current as caseStore.Case);
+    await fetchCaseVin(current as Case);
     expect(logSpy).toHaveBeenCalledWith(
       "VIN fetch successful",
       "1HGCM82633A004352",
