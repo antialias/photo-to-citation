@@ -20,7 +20,7 @@ function waitForServer(port: number): Promise<void> {
 
 export async function startServer(
   port = 3002,
-  env: NodeJS.ProcessEnv = {},
+  env: Partial<NodeJS.ProcessEnv> = {},
 ): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
   const proc = spawn(nextBin, ["dev", "-p", String(port)], {

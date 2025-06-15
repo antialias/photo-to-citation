@@ -18,6 +18,8 @@ describe("case events", () => {
     const res = await fetch(`${server.url}/api/cases/stream`);
     expect(res.status).toBe(200);
     const reader = res.body?.getReader();
+    expect(reader).toBeDefined();
+    if (!reader) throw new Error("no reader");
     const decoder = new TextDecoder();
 
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
