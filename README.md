@@ -298,6 +298,12 @@ docker compose up -d
 The compose file sets `platform: \"linux/amd64\"` so builds use an architecture
 with prebuilt Node.js binaries.
 
+### Publishing to GHCR
+
+When commits land on `main`, the `docker-build.yml` workflow pushes the image to
+GitHub Container Registry as `ghcr.io/<OWNER>/photo-to-citation:latest`. Point
+Watchtower at this tag so your Synology NAS automatically pulls updates and redeploys.
+
 Run Traefik separately and it will use the labels in `docker-compose.yml` to route traffic to `https://730op.synology.me/photo-citation`.
 
 ## Marketing Website
