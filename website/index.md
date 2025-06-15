@@ -18,3 +18,10 @@ Welcome to **Photo To Citation**, a tool for cyclists and pedestrians who feel p
   <img src="{{ '/images/library/4.png' | url }}" alt="Citation example" />
   <img src="{{ '/images/owners.png' | url }}" alt="Violator paying fine" />
 </div>
+
+<div class="screenshots">
+  <img src="{{ '/images/screenshots/1.png' | url }}" alt="Case list" />
+  <img src="{{ '/images/screenshots/2.png' | url }}" alt="Camera interface" />
+  <img src="{{ '/images/screenshots/3.png' | url }}" alt="Case detail" />
+  <img src="{{ '/images/screenshots/4.png' | url }}" alt="Map view" />
+</div>
