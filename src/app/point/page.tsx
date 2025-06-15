@@ -40,8 +40,8 @@ export default function PointAndShootPage() {
       }
     }
     startCamera();
+    const v = videoRef.current;
     return () => {
-      const v = videoRef.current;
       if (v?.srcObject) {
         for (const t of (v.srcObject as MediaStream).getTracks()) {
           t.stop();
