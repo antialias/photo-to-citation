@@ -21,7 +21,7 @@
     "generate:schemas": "ts-to-zod --skipValidation --all && npm run validate:generated",
     "validate:generated": "tsc --noEmit -p tsconfig.generated.json",
     "generate:migrations": "drizzle-kit generate:sqlite",
-    "website": "eleventy",
+    "website": "ts-node --transpile-only scripts/generateWebsiteImages.ts && eleventy",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

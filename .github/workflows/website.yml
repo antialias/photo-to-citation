@@ -20,6 +20,7 @@ jobs:
       - run: npm run website
         env:
           PATH_PREFIX: /photo-to-citation/website/
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Deploy Website to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
