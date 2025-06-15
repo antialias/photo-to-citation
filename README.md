@@ -310,3 +310,6 @@ npm run website
 ```
 
 The output is written to `website/dist`.
+
+## Browser Debugging
+Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay when holding the Option key and hovering over case images or details. The overlay stays visible while the cursor is over it so you can easily copy the data.
