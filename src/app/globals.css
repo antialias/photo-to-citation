@@ -42,3 +42,18 @@ body {
 .animate-progress {
   animation: progress-indeterminate 1s linear infinite;
 }
+.json-key {
+  color: #9cdcfe;
+}
+.json-string {
+  color: #ce9178;
+}
+.json-number {
+  color: #b5cea8;
+}
+.json-boolean {
+  color: #b5cea8;
+}
+.json-null {
+  color: #808080;
+}
