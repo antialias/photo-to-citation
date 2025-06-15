@@ -314,5 +314,14 @@ The output is written to `website/dist`.
 
 The build step uses OpenAI to generate marketing images when they are missing in the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the GitHub Action can access the API.
 
+The `scripts/generateWebsiteImages.ts` script defines prompts for each PNG used on the site. When new pages reference additional graphics, add a spec in that file so GitHub Actions can render them with GPT‑4o during the main-branch build. The **community**, **mission**, and **ethos** illustrations on the about page are produced this way.
+
 ## Browser Debugging
 Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images or details to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
+
+## Project Links
+
+- [**GitHub Repository**](https://github.com/antialias/photo-to-citation) — star the project or submit a pull request.
+- [**Documentation Outline**](docs/feature-outline.md) — discover planned features and architecture.
+- [**Releases**](https://github.com/antialias/photo-to-citation/releases) — download the latest packaged version.
+- [**Live Demo**](https://730op.synology.me/photo-citation) — try the hosted web app.
