@@ -57,7 +57,7 @@ Generate new migration files from the Drizzle schema with:
 npm run generate:migrations
 ```
 
-Migrations are stored as SQL files under the `migrations` folder and applied at runtime. The default SQLite database is `data/cases.sqlite`.
+Migrations are stored as SQL files under the `migrations` folder and applied at runtime. The default SQLite database is `data/cases.sqlite`. Per-photo analysis results now live in the `case_photo_analysis` table instead of the JSON `analysis.images` field.
 
 ## OpenAI Integration
 

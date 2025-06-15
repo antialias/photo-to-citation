@@ -2,11 +2,16 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
+
+import { and, eq } from "drizzle-orm";
 import { APIError } from "openai/error";
+
 import { clearQueue, enqueueTask, removeQueuedPhoto } from "./analysisQueue";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import { AnalysisError, analyzeViolation, ocrPaperwork } from "./openai";
+import { orm } from "./orm";
+import { casePhotoAnalysis } from "./schema";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 const activeWorkers = new Map<string, Worker>();
@@ -307,6 +312,15 @@ export function analyzePhotoInBackground(caseData: Case, photo: string): void {
 export function removePhotoAnalysis(caseId: string, photo: string): void {
   cancelPhotoAnalysis(caseId, photo);
   removeQueuedPhoto(caseId, photo);
+  orm
+    .delete(casePhotoAnalysis)
+    .where(
+      and(
+        eq(casePhotoAnalysis.caseId, caseId),
+        eq(casePhotoAnalysis.url, photo),
+      ),
+    )
+    .run();
   const c = getCase(caseId);
   if (!c || !c.analysis?.images) return;
   const name = path.basename(photo);
