@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { Case } from "../../src/lib/caseStore";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
@@ -32,14 +33,14 @@ async function createPhoto(name: string): Promise<File> {
   return new File([Buffer.from(name)], `${name}.jpg`, { type: "image/jpeg" });
 }
 
-async function fetchCase(id: string): Promise<Record<string, unknown>> {
+async function fetchCase(id: string): Promise<Case> {
   for (let i = 0; i < 20; i++) {
     const res = await fetch(`${server.url}/api/cases/${id}`);
-    if (res.status === 200) return res.json();
+    if (res.status === 200) return (await res.json()) as Case;
     await new Promise((r) => setTimeout(r, 500));
   }
   const res = await fetch(`${server.url}/api/cases/${id}`);
-  return res.json();
+  return (await res.json()) as Case;
 }
 
 beforeAll(async () => {
@@ -107,7 +108,7 @@ describe("analysis queue", () => {
     const { caseId } = (await res.json()) as { caseId: string };
 
     let data = await fetchCase(caseId);
-    const photo = data.photos[0] as string;
+    const photo = data.photos[0];
 
     const second = await createPhoto("d");
     const add = new FormData();

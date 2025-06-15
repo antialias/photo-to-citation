@@ -34,7 +34,7 @@ describe("caseStore", () => {
     );
     expect(c.photos).toEqual(["/foo.jpg"]);
     expect(c.gps).toEqual({ lat: 10, lon: 20 });
-    expect(c.photoGps["/foo.jpg"]).toEqual({ lat: 10, lon: 20 });
+    expect(c.photoGps?.["/foo.jpg"]).toEqual({ lat: 10, lon: 20 });
     expect(c.streetAddress).toBeNull();
     expect(c.intersection).toBeNull();
     expect(getCase(c.id)).toEqual(c);
@@ -117,7 +117,7 @@ describe("caseStore", () => {
     expect(updated?.analysisStatus).toBe("pending");
     const stored = getCase(c.id);
     expect(stored?.photos).toEqual(["/bar.jpg"]);
-    expect(stored?.photoGps["/foo.jpg"]).toBeUndefined();
+    expect(stored?.photoGps?.["/foo.jpg"]).toBeUndefined();
   });
 
   it("deletes a case", () => {

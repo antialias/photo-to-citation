@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { type Mock, beforeAll, describe, expect, it, vi } from "vitest";
 import Home from "../page";
 
 vi.mock("next/headers", () => ({
@@ -18,7 +18,7 @@ describe("Home page", () => {
   });
 
   it("redirects mobile users to /point", async () => {
-    (headers as vi.Mock).mockReturnValueOnce(
+    (headers as Mock).mockReturnValueOnce(
       Promise.resolve(
         new Headers({
           "user-agent":
@@ -36,7 +36,7 @@ describe("Home page", () => {
   });
 
   it("redirects desktop users to /cases", async () => {
-    (headers as vi.Mock).mockReturnValueOnce(
+    (headers as Mock).mockReturnValueOnce(
       Promise.resolve(
         new Headers({ "user-agent": "Mozilla/5.0 (X11; Linux x86_64)" }),
       ),
