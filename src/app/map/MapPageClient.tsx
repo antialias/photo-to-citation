@@ -1,10 +1,11 @@
 "use client";
-import L from "leaflet";
+import * as L from "leaflet";
 import type { DivIcon, TooltipOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import type React from "react";
 import {
   MapContainer,
   Marker,
@@ -12,6 +13,16 @@ import {
   Tooltip,
   useMap,
 } from "react-leaflet";
+
+const MapContainerAny = MapContainer as unknown as React.ComponentType<
+  Record<string, unknown>
+>;
+const MarkerAny = Marker as unknown as React.ComponentType<
+  Record<string, unknown>
+>;
+const TooltipAny = Tooltip as unknown as React.ComponentType<
+  Record<string, unknown>
+>;
 
 import "../globals.css";
 
@@ -54,8 +65,7 @@ function FitBounds({ cases }: { cases: MapCase[] }) {
 export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   const router = useRouter();
   return (
-    // @ts-expect-error leaflet props
-    <MapContainer
+    <MapContainerAny
       style={{ height: "calc(100vh - 4rem)", width: "100%" }}
       center={[0, 0] as [number, number]}
       zoom={2}
@@ -64,15 +74,13 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <FitBounds cases={cases} />
       {cases.map((c) => (
-        // @ts-expect-error leaflet props
-        <Marker
+        <MarkerAny
           key={c.id}
           position={[c.gps.lat, c.gps.lon] as [number, number]}
-          icon={markerIcon as DivIcon}
+          icon={markerIcon}
           eventHandlers={{ click: () => router.push(`/cases/${c.id}`) }}
         >
-          {/* @ts-expect-error leaflet props */}
-          <Tooltip {...({ direction: "top" } as TooltipOptions)}>
+          <TooltipAny direction="top">
             <a
               href={`/cases/${c.id}`}
               className="w-40 cursor-pointer block"
@@ -90,9 +98,9 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
               />
               <div>Case {c.id}</div>
             </a>
-          </Tooltip>
-        </Marker>
+          </TooltipAny>
+        </MarkerAny>
       ))}
-    </MapContainer>
+    </MapContainerAny>
   );
 }
