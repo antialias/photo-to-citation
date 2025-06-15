@@ -6,3 +6,6 @@ website/dist
 data
 storybook-static
 storybook-screenshots
+*.tsbuildinfo
+public/uploads
+
