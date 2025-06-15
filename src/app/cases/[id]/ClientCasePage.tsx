@@ -1,4 +1,5 @@
 "use client";
+import MapPreview from "@/app/components/MapPreview";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,6 @@ import CaseProgressGraph from "../../components/CaseProgressGraph";
 import CaseToolbar from "../../components/CaseToolbar";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
-import MapPreview from "../../components/MapPreview";
 import useCloseOnOutsideClick from "../../useCloseOnOutsideClick";
 import useDragReset from "../useDragReset";
 
