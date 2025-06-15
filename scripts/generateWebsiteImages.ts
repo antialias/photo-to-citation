@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
 import OpenAI from "openai";
+import sharp from "sharp";
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ interface ImageSpec {
   file: string;
   prompt: string;
   size?: string;
+  width?: number;
+  height?: number;
 }
 
 const specs: ImageSpec[] = [
@@ -20,11 +23,14 @@ const specs: ImageSpec[] = [
     prompt:
       "minimal logo reading 'Photo To Citation' with camera and ticket icon, dark background",
     size: "1024x1024",
+    width: 40,
+    height: 40,
   },
   {
     file: "images/hero.png",
     prompt:
       "cyclist snapping a photo of a car blocking the bike lane using a phone app",
+    width: 800,
   },
 ];
 
@@ -44,6 +50,8 @@ for (let i = 0; i < featurePrompts.length; i++) {
     file: `images/features/${i + 1}.png`,
     prompt: featurePrompts[i],
     size: "1024x1024",
+    width: 64,
+    height: 64,
   });
 }
 
@@ -58,12 +66,14 @@ for (let i = 0; i < libraryPrompts.length; i++) {
   specs.push({
     file: `images/library/${i + 1}.png`,
     prompt: libraryPrompts[i],
+    width: 180,
   });
 }
 
 specs.push({
   file: "images/owners.png",
   prompt: "vehicle owner looking sorry while paying fine for parking violation",
+  width: 180,
 });
 
 function fetchRemote(file: string): Buffer | null {
@@ -77,13 +87,27 @@ function fetchRemote(file: string): Buffer | null {
   }
 }
 
+async function saveResized(
+  localPath: string,
+  buf: Buffer,
+  spec: ImageSpec,
+): Promise<void> {
+  let output = buf;
+  if (spec.width || spec.height) {
+    output = await sharp(buf)
+      .resize(spec.width, spec.height, { fit: "inside" })
+      .toBuffer();
+  }
+  fs.mkdirSync(path.dirname(localPath), { recursive: true });
+  fs.writeFileSync(localPath, output);
+}
+
 async function generate(spec: ImageSpec): Promise<void> {
   const localPath = path.join("website", spec.file);
   if (fs.existsSync(localPath)) return;
   const data = fetchRemote(spec.file);
   if (data) {
-    fs.mkdirSync(path.dirname(localPath), { recursive: true });
-    fs.writeFileSync(localPath, data);
+    await saveResized(localPath, data, spec);
     return;
   }
   const res = await openai.images.generate({
@@ -96,8 +120,7 @@ async function generate(spec: ImageSpec): Promise<void> {
   if (!url) throw new Error("Image generation failed");
   const imgRes = await fetch(url);
   const buf = Buffer.from(await imgRes.arrayBuffer());
-  fs.mkdirSync(path.dirname(localPath), { recursive: true });
-  fs.writeFileSync(localPath, buf);
+  await saveResized(localPath, buf, spec);
 }
 
 (async () => {
