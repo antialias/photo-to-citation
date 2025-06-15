@@ -16,8 +16,16 @@ services:
       - "traefik.http.services.photo-citation.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.photo-citation-stripprefix.stripprefix.prefixes=/photo-citation"
       - "traefik.http.routers.photo-citation.middlewares=photo-citation-stripprefix"
+      - "com.centurylinklabs.watchtower.enable=true"
     networks:
       - web
+
+  watchtower:
+    image: containrrr/watchtower
+    command: --interval 300 --cleanup --label-enable
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
 
 networks:
   web:
