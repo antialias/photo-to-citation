@@ -109,9 +109,10 @@ export async function POST(
     );
   }
   if (methods.includes("snailMailLocation") && c.streetAddress) {
+    const address = c.streetAddress;
     await run("snailMailLocation", () =>
       sendSnailMail({
-        address: c.streetAddress,
+        address,
         subject,
         body,
         attachments,

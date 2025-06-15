@@ -96,12 +96,8 @@ async function seedCase(prompt: string): Promise<void> {
   const photo = await generateImage(prompt);
   const takenAt = faker.date.recent().toISOString();
   const gps = {
-    lat: Number.parseFloat(
-      faker.location.latitude({ min: latRange.min, max: latRange.max }),
-    ),
-    lon: Number.parseFloat(
-      faker.location.longitude({ min: lonRange.min, max: lonRange.max }),
-    ),
+    lat: faker.location.latitude({ min: latRange.min, max: latRange.max }),
+    lon: faker.location.longitude({ min: lonRange.min, max: lonRange.max }),
   };
   const c = createCase(photo, gps, crypto.randomUUID(), takenAt);
   const updates: Record<string, unknown> = {};
