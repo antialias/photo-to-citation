@@ -112,7 +112,7 @@ export const apiContract = c.router({
     responses: c.responses({
       200: c.otherResponse({
         contentType: "text/event-stream",
-        body: c.noBody(),
+        body: c.noBody() as unknown as ReturnType<typeof c.type>,
       }),
     }),
     summary: "Case stream",

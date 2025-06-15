@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { z } from "zod";
 import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
@@ -76,15 +77,15 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     schema,
   )}`;
 
-  const baseMessages = [
+  const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       content: "You create email drafts for municipal authorities.",
     },
-    { role: "user", content: prompt },
+    { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
 
-  const messages = [...baseMessages];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
   const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
     const res = await client.chat.completions.create({
@@ -120,10 +121,10 @@ export async function draftFollowUp(
       .map((m) => `${m.sentAt}:${m.subject}`)
       .join("|")}`,
   );
-  const history = historyEmails.map((m) => ({
+  const history: ChatCompletionMessageParam[] = historyEmails.map((m) => ({
     role: "assistant",
     content: `Subject: ${m.subject}\n\n${m.body}`,
-  }));
+  })) as ChatCompletionMessageParam[];
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
   const location =
@@ -150,18 +151,18 @@ ${code ? `Applicable code: ${code}` : ""}
 Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
-  const baseMessages = [
+  const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       content: "You create email drafts for municipal authorities.",
     },
     ...history,
-    { role: "user", content: prompt },
+    { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
 
   console.log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
 
-  const messages = [...baseMessages];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
   const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
     const res = await client.chat.completions.create({
@@ -227,15 +228,15 @@ export async function draftOwnerNotification(
   const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. ${authorityLine}Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
-  const baseMessages = [
+  const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       content:
         "You create anonymous notification emails for vehicle owners about violations.",
     },
-    { role: "user", content: prompt },
+    { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
-  const messages = [...baseMessages];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
   const { client, model } = getLlm("draft_email");
   for (let attempt = 0; attempt < 3; attempt++) {
     const res = await client.chat.completions.create({

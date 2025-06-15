@@ -50,7 +50,7 @@ export async function scanInbox(): Promise<void> {
       source: true,
     })) {
       const parsed = await simpleParser(msg.source);
-      const images = parsed.attachments.filter((a) =>
+      const images = parsed.attachments.filter((a: { contentType: string }) =>
         a.contentType.startsWith("image/"),
       );
       if (images.length > 0) {

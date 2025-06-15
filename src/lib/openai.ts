@@ -2,7 +2,9 @@ import OpenAI from "openai";
 import type {
   ChatCompletion,
   ChatCompletionChunk,
+  ChatCompletionContentPart,
   ChatCompletionCreateParams,
+  ChatCompletionMessageParam,
 } from "openai/resources/chat/completions";
 import { z } from "zod";
 import "./zod-setup";
@@ -54,18 +56,7 @@ function approxTokens(text: string): number {
 const licensePlateStateSchema = z.string().regex(/^[A-Z]{2}$/);
 const licensePlateNumberSchema = z.string();
 
-export interface PaperworkInfo {
-  contact?: string;
-  vehicle: {
-    vin?: string;
-    registrationStatus?: string;
-    licensePlateState?: string;
-    licensePlateNumber?: string;
-  };
-  callsToAction?: string[];
-}
-
-export const paperworkInfoSchema: z.ZodType<PaperworkInfo> = z.object({
+export const paperworkInfoSchema = z.object({
   contact: z.string().optional(),
   vehicle: z
     .object({
@@ -81,37 +72,14 @@ export const paperworkInfoSchema: z.ZodType<PaperworkInfo> = z.object({
   callsToAction: z.array(z.string()).optional(),
 });
 
+export type PaperworkInfo = z.infer<typeof paperworkInfoSchema>;
+
 export interface PaperworkAnalysis {
   text: string;
   info: PaperworkInfo | null;
 }
 
-export interface ViolationReport {
-  violationType: string;
-  details: string;
-  location?: string;
-  vehicle: {
-    make?: string;
-    model?: string;
-    type?: string;
-    color?: string;
-    licensePlateState?: string;
-    licensePlateNumber?: string;
-  };
-  images: Record<
-    string,
-    {
-      representationScore: number;
-      highlights?: string;
-      violation?: boolean;
-      paperwork?: boolean;
-      paperworkText?: string;
-      paperworkInfo?: PaperworkInfo;
-    }
-  >;
-}
-
-export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
+export const violationReportSchema = z.object({
   violationType: z.string(),
   details: z.string(),
   location: z.string().optional(),
@@ -141,6 +109,8 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
     )
     .default({}),
 });
+
+export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
@@ -187,7 +157,7 @@ export async function analyzeViolation(
   const urls = images.map((i) => i.url);
   const names = images.map((i) => i.filename);
   progress?.({ stage: "upload", index: 0, total: images.length });
-  const baseMessages = [
+  const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       content:
@@ -203,11 +173,11 @@ export async function analyzeViolation(
           )}`,
         },
         ...urls.map((u) => ({ type: "image_url", image_url: { url: u } })),
-      ],
-    },
+      ] as unknown as ChatCompletionContentPart[],
+    } as ChatCompletionMessageParam,
   ];
 
-  const messages = [...baseMessages];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
   const { client, model } = getLlm("analyze_images");
   for (let attempt = 0; attempt < 3; attempt++) {
     const req: ChatCompletionCreateParams = {
@@ -216,10 +186,13 @@ export async function analyzeViolation(
       max_tokens: 800,
       response_format: { type: "json_object" },
     };
-    if (progress) (req as Record<string, unknown>).stream = true;
-    const response = await client.chat.completions.create(req as never, {
-      signal,
-    });
+    if (progress) (req as unknown as Record<string, unknown>).stream = true;
+    const response = await client.chat.completions.create(
+      req as ChatCompletionCreateParams,
+      {
+        signal,
+      },
+    );
     let finish: string | null = null;
     let text = "";
     const totalTokens = req.max_tokens ?? 0;
@@ -309,7 +282,7 @@ export async function extractPaperworkInfo(
     },
   };
 
-  const baseMessages = [
+  const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       content:
@@ -324,7 +297,7 @@ export async function extractPaperworkInfo(
     { role: "user", content: text },
   ];
 
-  const messages = [...baseMessages];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
   const { client, model } = getLlm("extract_info");
   for (let attempt = 0; attempt < 3; attempt++) {
     const res = await client.chat.completions.create({
@@ -355,7 +328,7 @@ export async function ocrPaperwork(
   progress?: (info: LlmProgress) => void,
   signal?: AbortSignal,
 ): Promise<PaperworkAnalysis> {
-  const baseMessages = [
+  const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
       content:
@@ -370,7 +343,7 @@ export async function ocrPaperwork(
     },
   ];
 
-  const messages = [...baseMessages];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
   progress?.({ stage: "upload", index: 0, total: 1 });
   const { client, model } = getLlm("ocr_paperwork");
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -379,10 +352,13 @@ export async function ocrPaperwork(
       messages,
       max_tokens: 800,
     };
-    if (progress) (req as Record<string, unknown>).stream = true;
-    const res = await client.chat.completions.create(req as never, {
-      signal,
-    });
+    if (progress) (req as unknown as Record<string, unknown>).stream = true;
+    const res = await client.chat.completions.create(
+      req as ChatCompletionCreateParams,
+      {
+        signal,
+      },
+    );
     let text = "";
     const totalTokens = req.max_tokens ?? 0;
     let receivedTokens = 0;

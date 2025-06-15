@@ -23,10 +23,10 @@ export async function reverseGeocode({
   lat,
   lon,
 }: Coordinates): Promise<string | null> {
-  const data = await fetchGeocode({
+  const data = (await fetchGeocode({
     latlng: `${lat},${lon}`,
     result_type: "street_address",
-  });
+  })) as { results?: Array<{ formatted_address?: string }> };
   return data.results?.[0]?.formatted_address ?? null;
 }
 
@@ -34,9 +34,9 @@ export async function intersectionLookup({
   lat,
   lon,
 }: Coordinates): Promise<string | null> {
-  const data = await fetchGeocode({
+  const data = (await fetchGeocode({
     latlng: `${lat},${lon}`,
     result_type: "intersection",
-  });
+  })) as { results?: Array<{ formatted_address?: string }> };
   return data.results?.[0]?.formatted_address ?? null;
 }

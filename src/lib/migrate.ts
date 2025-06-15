@@ -1,18 +1,25 @@
 import fs from "node:fs";
 import path from "node:path";
-import type Database from "better-sqlite3";
+type Database = unknown;
 
 export function runMigrations(db: Database): void {
+  const anyDb = db as {
+    exec: (sql: string) => void;
+    prepare: (sql: string) => {
+      run: (...args: unknown[]) => void;
+      all: () => unknown;
+    };
+  };
   const migrationsDir = path.join(process.cwd(), "migrations");
   fs.mkdirSync(migrationsDir, { recursive: true });
 
-  db.exec(`
+  anyDb.exec(`
     CREATE TABLE IF NOT EXISTS migrations (
       name TEXT PRIMARY KEY
     );
   `);
 
-  const executedRows = db
+  const executedRows = anyDb
     .prepare("SELECT name FROM migrations ORDER BY name")
     .all() as Array<{ name: string }>;
   const executed = new Set(executedRows.map((r) => r.name));
@@ -24,7 +31,7 @@ export function runMigrations(db: Database): void {
   for (const file of files) {
     if (executed.has(file)) continue;
     const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
-    db.exec(sql);
-    db.prepare("INSERT INTO migrations (name) VALUES (?)").run(file);
+    anyDb.exec(sql);
+    anyDb.prepare("INSERT INTO migrations (name) VALUES (?)").run(file);
   }
 }

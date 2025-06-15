@@ -6,7 +6,12 @@ import { APIError } from "openai/error";
 import { clearQueue, enqueueTask, removeQueuedPhoto } from "./analysisQueue";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
-import { AnalysisError, analyzeViolation, ocrPaperwork } from "./openai";
+import {
+  AnalysisError,
+  type ViolationReport,
+  analyzeViolation,
+  ocrPaperwork,
+} from "./openai";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
 const activeWorkers = new Map<string, Worker>();
@@ -244,12 +249,17 @@ export async function reanalyzePhoto(
       info.paperworkText = ocr.text;
       if (ocr.info) info.paperworkInfo = ocr.info;
     }
-    const base = caseData.analysis ?? { vehicle: {}, images: {} };
-    const merged = {
+    const base: ViolationReport = caseData.analysis ?? {
+      violationType: "",
+      details: "",
+      vehicle: {},
+      images: {},
+    };
+    const merged: ViolationReport = {
       ...base,
       vehicle: { ...base.vehicle },
       images: { ...base.images },
-    } as typeof base;
+    };
     merged.images[path.basename(photo)] = info ?? { representationScore: 0 };
     const updates: Record<string, unknown> = {
       analysis: merged,
