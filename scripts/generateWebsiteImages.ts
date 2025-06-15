@@ -19,7 +19,7 @@ const specs: ImageSpec[] = [
     file: "images/logo.png",
     prompt:
       "minimal logo reading 'Photo To Citation' with camera and ticket icon, dark background",
-    size: "512x512",
+    size: "1024x1024",
   },
   {
     file: "images/hero.png",
@@ -43,7 +43,7 @@ for (let i = 0; i < featurePrompts.length; i++) {
   specs.push({
     file: `images/features/${i + 1}.png`,
     prompt: featurePrompts[i],
-    size: "512x512",
+    size: "1024x1024",
   });
 }
 
