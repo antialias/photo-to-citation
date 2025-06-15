@@ -27,6 +27,7 @@
     "@faker-js/faker": "^8.4.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.7",
+    "@tippyjs/react": "^4.2.6",
     "better-sqlite3": "^11.10.0",
     "bree": "^9.2.4",
     "commander": "^11.1.0",

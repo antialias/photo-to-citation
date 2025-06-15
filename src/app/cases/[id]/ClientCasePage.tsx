@@ -18,6 +18,7 @@ import AnalysisInfo from "../../components/AnalysisInfo";
 import CaseLayout from "../../components/CaseLayout";
 import CaseProgressGraph from "../../components/CaseProgressGraph";
 import CaseToolbar from "../../components/CaseToolbar";
+import DebugWrapper from "../../components/DebugWrapper";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import useCloseOnOutsideClick from "../../useCloseOnOutsideClick";
@@ -404,52 +405,54 @@ export default function ClientCasePage({
         left={<CaseProgressGraph caseData={caseData} />}
         right={
           <>
-            <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
-              {analysisBlock}
-              {ownerContact ? (
+            <DebugWrapper data={caseData}>
+              <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
+                {analysisBlock}
+                {ownerContact ? (
+                  <p>
+                    <span className="font-semibold">Owner:</span> {ownerContact}
+                  </p>
+                ) : null}
                 <p>
-                  <span className="font-semibold">Owner:</span> {ownerContact}
+                  <span className="font-semibold">Created:</span>{" "}
+                  {new Date(caseData.createdAt).toLocaleString()}
                 </p>
-              ) : null}
-              <p>
-                <span className="font-semibold">Created:</span>{" "}
-                {new Date(caseData.createdAt).toLocaleString()}
-              </p>
-              {caseData.streetAddress ? (
+                {caseData.streetAddress ? (
+                  <p>
+                    <span className="font-semibold">Address:</span>{" "}
+                    {caseData.streetAddress}
+                  </p>
+                ) : null}
+                {caseData.intersection ? (
+                  <p>
+                    <span className="font-semibold">Intersection:</span>{" "}
+                    {caseData.intersection}
+                  </p>
+                ) : null}
+                {(() => {
+                  const g = getOfficialCaseGps(caseData);
+                  return g ? (
+                    <MapPreview
+                      lat={g.lat}
+                      lon={g.lon}
+                      width={600}
+                      height={300}
+                      className="w-full aspect-[2/1] md:max-w-xl"
+                      link={`https://www.google.com/maps?q=${caseData.gps.lat},${caseData.gps.lon}`}
+                    />
+                  ) : null;
+                })()}
                 <p>
-                  <span className="font-semibold">Address:</span>{" "}
-                  {caseData.streetAddress}
-                </p>
-              ) : null}
-              {caseData.intersection ? (
-                <p>
-                  <span className="font-semibold">Intersection:</span>{" "}
-                  {caseData.intersection}
-                </p>
-              ) : null}
-              {(() => {
-                const g = getOfficialCaseGps(caseData);
-                return g ? (
-                  <MapPreview
-                    lat={g.lat}
-                    lon={g.lon}
-                    width={600}
-                    height={300}
-                    className="w-full aspect-[2/1] md:max-w-xl"
-                    link={`https://www.google.com/maps?q=${g.lat},${g.lon}`}
+                  <span className="font-semibold">VIN:</span>{" "}
+                  <EditableText
+                    value={vin}
+                    onSubmit={updateVinFn}
+                    onClear={vinOverridden ? clearVin : undefined}
+                    placeholder="VIN"
                   />
-                ) : null;
-              })()}
-              <p>
-                <span className="font-semibold">VIN:</span>{" "}
-                <EditableText
-                  value={vin}
-                  onSubmit={updateVinFn}
-                  onClear={vinOverridden ? clearVin : undefined}
-                  placeholder="VIN"
-                />
-              </p>
-            </div>
+                </p>
+              </div>
+            </DebugWrapper>
             {selectedPhoto ? (
               <>
                 <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
@@ -513,43 +516,52 @@ export default function ClientCasePage({
               </>
             ) : null}
             <div className="flex gap-2 flex-wrap">
-              {evidencePhotos.map((p) => (
-                <div key={p} className="relative group">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPhoto(p)}
-                    className={
-                      selectedPhoto === p
-                        ? "ring-2 ring-blue-500"
-                        : "ring-1 ring-transparent"
-                    }
-                  >
-                    <div className="relative w-20 aspect-[4/3]">
-                      <Image
-                        src={p}
-                        alt="case photo"
-                        fill
-                        className="object-cover"
-                      />
+              {evidencePhotos.map((p) => {
+                const info = {
+                  url: p,
+                  takenAt: caseData.photoTimes[p] ?? null,
+                  gps: caseData.photoGps?.[p] ?? null,
+                };
+                return (
+                  <DebugWrapper key={p} data={info}>
+                    <div className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPhoto(p)}
+                        className={
+                          selectedPhoto === p
+                            ? "ring-2 ring-blue-500"
+                            : "ring-1 ring-transparent"
+                        }
+                      >
+                        <div className="relative w-20 aspect-[4/3]">
+                          <Image
+                            src={p}
+                            alt="case photo"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        {(() => {
+                          const t = caseData.photoTimes[p];
+                          return t ? (
+                            <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
+                              {new Date(t).toLocaleDateString()}
+                            </span>
+                          ) : null;
+                        })()}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(p)}
+                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
                     </div>
-                    {(() => {
-                      const t = caseData.photoTimes[p];
-                      return t ? (
-                        <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                          {new Date(t).toLocaleDateString()}
-                        </span>
-                      ) : null;
-                    })()}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removePhoto(p)}
-                    className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+                  </DebugWrapper>
+                );
+              })}
               <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
                 + add image
                 <input
@@ -600,33 +612,38 @@ export default function ClientCasePage({
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
               <h2 className="font-semibold">Paperwork</h2>
               <div className="flex gap-2 flex-wrap">
-                {allPaperwork.map(({ url, time }) => (
-                  <div key={url} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPhoto(url)}
-                      className={
-                        selectedPhoto === url
-                          ? "ring-2 ring-blue-500"
-                          : "ring-1 ring-transparent"
-                      }
-                    >
-                      <div className="relative w-20 aspect-[4/3]">
-                        <Image
-                          src={url}
-                          alt="paperwork"
-                          fill
-                          className="object-cover"
-                        />
+                {allPaperwork.map(({ url, time }) => {
+                  const info = { url, time };
+                  return (
+                    <DebugWrapper key={url} data={info}>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPhoto(url)}
+                          className={
+                            selectedPhoto === url
+                              ? "ring-2 ring-blue-500"
+                              : "ring-1 ring-transparent"
+                          }
+                        >
+                          <div className="relative w-20 aspect-[4/3]">
+                            <Image
+                              src={url}
+                              alt="paperwork"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          {time ? (
+                            <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
+                              {new Date(time).toLocaleDateString()}
+                            </span>
+                          ) : null}
+                        </button>
                       </div>
-                      {time ? (
-                        <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                          {new Date(time).toLocaleDateString()}
-                        </span>
-                      ) : null}
-                    </button>
-                  </div>
-                ))}
+                    </DebugWrapper>
+                  );
+                })}
               </div>
             </div>
           ) : null}
