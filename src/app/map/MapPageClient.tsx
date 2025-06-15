@@ -1,6 +1,5 @@
 "use client";
 import * as L from "leaflet";
-import type { DivIcon, TooltipOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
