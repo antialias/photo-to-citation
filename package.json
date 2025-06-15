@@ -20,7 +20,8 @@
     "storybook:screenshot": "npm run build-storybook && storycap http://localhost:6006 --serverCmd \"http-server storybook-static -p 6006\" --out storybook-screenshots",
     "generate:schemas": "ts-to-zod --skipValidation --all",
     "generate:migrations": "drizzle-kit generate:sqlite",
-    "website": "eleventy"
+    "website": "eleventy",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
