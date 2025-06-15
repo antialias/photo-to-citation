@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import PointAndShootPage from "../point/page";
 
 vi.mock("next/navigation", () => ({
