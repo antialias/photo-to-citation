@@ -75,9 +75,10 @@ export async function POST(
     }
   }
   if (methods.includes("email") && contactInfo.email) {
+    const toEmail = contactInfo.email;
     await run("email", () =>
       sendEmail({
-        to: contactInfo.email,
+        to: toEmail,
         subject,
         body,
         attachments,
@@ -85,18 +86,22 @@ export async function POST(
     );
   }
   if (methods.includes("sms") && contactInfo.phone) {
-    await run("sms", () => sendSms(contactInfo.phone, body));
+    const phone = contactInfo.phone;
+    await run("sms", () => sendSms(phone, body));
   }
   if (methods.includes("whatsapp") && contactInfo.phone) {
-    await run("whatsapp", () => sendWhatsapp(contactInfo.phone, body));
+    const phone = contactInfo.phone;
+    await run("whatsapp", () => sendWhatsapp(phone, body));
   }
   if (methods.includes("robocall") && contactInfo.phone) {
-    await run("robocall", () => makeRobocall(contactInfo.phone, body));
+    const phone = contactInfo.phone;
+    await run("robocall", () => makeRobocall(phone, body));
   }
   if (methods.includes("snailMail") && contactInfo.address) {
+    const address = contactInfo.address;
     await run("snailMail", () =>
       sendSnailMail({
-        address: contactInfo.address,
+        address,
         subject,
         body,
         attachments,
@@ -119,14 +124,16 @@ export async function POST(
     contactInfo.email &&
     results.email?.success
   ) {
-    updated = addCaseEmail(id, {
-      to: contactInfo.email,
-      subject,
-      body,
-      attachments,
-      sentAt: new Date().toISOString(),
-      replyTo: null,
-    });
+    const toEmail = contactInfo.email;
+    updated =
+      addCaseEmail(id, {
+        to: toEmail,
+        subject,
+        body,
+        attachments,
+        sentAt: new Date().toISOString(),
+        replyTo: null,
+      }) ?? c;
   }
   return NextResponse.json({ case: updated, results });
 }

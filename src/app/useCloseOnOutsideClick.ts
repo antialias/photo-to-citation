@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { RefObject } from "react";
 
 export default function useCloseOnOutsideClick(
-  ref: RefObject<HTMLDetailsElement>,
+  ref: RefObject<HTMLDetailsElement | null>,
 ) {
   useEffect(() => {
     function handleClick(e: MouseEvent) {

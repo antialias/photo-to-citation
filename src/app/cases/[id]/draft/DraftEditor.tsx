@@ -32,6 +32,7 @@ export default function DraftEditor({
     Record<string, { status: string; error?: string }>
   >({});
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (initialDraft) {
