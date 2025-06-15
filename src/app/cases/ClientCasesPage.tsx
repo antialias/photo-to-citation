@@ -1,4 +1,5 @@
 "use client";
+import MapPreview from "@/app/components/MapPreview";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,7 +10,6 @@ import {
 } from "../../lib/caseUtils";
 import { distanceBetween } from "../../lib/distance";
 import AnalysisInfo from "../components/AnalysisInfo";
-import MapPreview from "../components/MapPreview";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
 import useDragReset from "./useDragReset";
 
