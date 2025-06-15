@@ -33,6 +33,23 @@ const specs: ImageSpec[] = [
       "cyclist snapping a photo of a car blocking the bike lane using a phone app",
     width: 800,
   },
+  {
+    file: "images/community.png",
+    prompt: "neighbors standing together in a welcoming style",
+    width: 180,
+  },
+  {
+    file: "images/mission.png",
+    prompt: "simple icon representing our mission of safer streets",
+    width: 64,
+    height: 64,
+  },
+  {
+    file: "images/ethos.png",
+    prompt: "graphic showing unity and cooperation",
+    width: 64,
+    height: 64,
+  },
 ];
 
 const featurePrompts = [
