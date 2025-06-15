@@ -310,3 +310,6 @@ npm run website
 ```
 
 The output is written to `website/dist`.
+
+## Browser Debugging
+Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images or details to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
