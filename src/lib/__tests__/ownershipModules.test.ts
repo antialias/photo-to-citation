@@ -11,7 +11,7 @@ describe("ownershipModules.il.requestVin", () => {
       .spyOn(snailMail, "sendSnailMail")
       .mockResolvedValue({ id: "1", status: "saved" });
 
-    await ownershipModules.il.requestVin({
+    await ownershipModules.il.requestVin?.({
       plate: "ABC123",
       state: "IL",
       vin: "1HGCM82633A004352",

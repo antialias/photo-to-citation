@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { getLlm } from "./llm";
 
 export interface ViolationCodeMap {
@@ -52,7 +53,7 @@ export async function getViolationCode(
     const prompt = `What municipal or state code applies to the following violation?\nMunicipality: ${municipality}\nViolation: ${violation}\nRespond with JSON matching this schema: ${JSON.stringify(
       schema,
     )}`;
-    const messages = [
+    const messages: ChatCompletionMessageParam[] = [
       {
         role: "system",
         content:
