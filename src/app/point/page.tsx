@@ -27,7 +27,7 @@ export default function PointAndShootPage() {
           if ("srcObject" in v) {
             v.srcObject = stream;
           } else {
-            // @ts-ignore - fallback for older browsers
+            // @ts-expect-error - fallback for older browsers
             v.src = URL.createObjectURL(stream);
           }
           v.onloadedmetadata = () => {
@@ -41,10 +41,9 @@ export default function PointAndShootPage() {
     }
     startCamera();
     return () => {
-      if (videoRef.current?.srcObject) {
-        for (const t of (
-          videoRef.current.srcObject as MediaStream
-        ).getTracks()) {
+      const v = videoRef.current;
+      if (v?.srcObject) {
+        for (const t of (v.srcObject as MediaStream).getTracks()) {
           t.stop();
         }
       }
