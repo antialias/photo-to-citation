@@ -1,5 +1,6 @@
 "use client";
 import L from "leaflet";
+import type { DivIcon, TooltipOptions } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -55,20 +56,20 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   return (
     <MapContainer
       style={{ height: "calc(100vh - 4rem)", width: "100%" }}
-      center={[0, 0]}
+      center={[0, 0] as [number, number]}
       zoom={2}
-      scrollWheelZoom
+      scrollWheelZoom={true}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <FitBounds cases={cases} />
       {cases.map((c) => (
         <Marker
           key={c.id}
-          position={[c.gps.lat, c.gps.lon]}
-          icon={markerIcon}
+          position={[c.gps.lat, c.gps.lon] as [number, number]}
+          icon={markerIcon as DivIcon}
           eventHandlers={{ click: () => router.push(`/cases/${c.id}`) }}
         >
-          <Tooltip direction="top">
+          <Tooltip {...({ direction: "top" } as TooltipOptions)}>
             <a
               href={`/cases/${c.id}`}
               className="w-40 cursor-pointer block"

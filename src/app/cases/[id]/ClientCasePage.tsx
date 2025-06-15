@@ -438,7 +438,7 @@ export default function ClientCasePage({
                       width={600}
                       height={300}
                       className="w-full aspect-[2/1] md:max-w-xl"
-                      link={`https://www.google.com/maps?q=${caseData.gps.lat},${caseData.gps.lon}`}
+                      link={`https://www.google.com/maps?q=${g.lat},${g.lon}`}
                     />
                   ) : null;
                 })()}

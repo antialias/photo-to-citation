@@ -43,8 +43,8 @@ export default function DebugWrapper({
   const [refHover, setRefHover] = useState(false);
   const [tipHover, setTipHover] = useState(false);
   const [open, setOpen] = useState(false);
-  const enterRef = useRef<() => void>();
-  const leaveRef = useRef<() => void>();
+  const enterRef = useRef<(() => void) | null>(null);
+  const leaveRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (!enabled) return;
     import("tippy.js/dist/tippy.css");
