@@ -1,6 +1,7 @@
 import path from "node:path";
 import { eq } from "drizzle-orm";
 import { db, migrationsReady } from "../src/lib/db";
+import type { ViolationReport } from "../src/lib/openai";
 import { orm } from "../src/lib/orm";
 import { casePhotoAnalysis, casePhotos } from "../src/lib/schema";
 
@@ -12,7 +13,9 @@ async function run() {
   }>;
   for (const row of cases) {
     const data = JSON.parse(row.data);
-    const analysisImages = data.analysis?.images;
+    const analysisImages = data.analysis?.images as
+      | Record<string, ViolationReport["images"][string]>
+      | undefined;
     if (!analysisImages) continue;
     const photos = orm
       .select({ url: casePhotos.url })
