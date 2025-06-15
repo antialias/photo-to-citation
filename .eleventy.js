@@ -1,5 +1,6 @@
 module.exports = (eleventyConfig) => {
   eleventyConfig.addPassthroughCopy("website/style.css");
+  eleventyConfig.addPassthroughCopy("website/images");
   return {
     pathPrefix: process.env.PATH_PREFIX || "/",
     dir: {
