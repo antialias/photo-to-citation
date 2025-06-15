@@ -17,7 +17,17 @@ beforeAll(async () => {
     images: {},
   });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-snail-"));
-  const env = {
+  const env: NodeJS.ProcessEnv & {
+    CASE_STORE_FILE: string;
+    VIN_SOURCE_FILE: string;
+    OPENAI_BASE_URL: string;
+    SNAIL_MAIL_PROVIDER_FILE: string;
+    SNAIL_MAIL_FILE: string;
+    SNAIL_MAIL_OUT_DIR: string;
+    RETURN_ADDRESS: string;
+    SNAIL_MAIL_PROVIDER: string;
+    NODE_ENV: string;
+  } = {
     CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
@@ -26,7 +36,8 @@ beforeAll(async () => {
     SNAIL_MAIL_OUT_DIR: path.join(tmpDir, "out"),
     RETURN_ADDRESS: "Me\n1 A St\nTown, ST 12345",
     SNAIL_MAIL_PROVIDER: "file",
-  } as NodeJS.ProcessEnv;
+    NODE_ENV: "test",
+  };
   fs.writeFileSync(
     env.VIN_SOURCE_FILE,
     JSON.stringify(

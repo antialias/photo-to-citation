@@ -69,16 +69,24 @@ describe("reanalysis", () => {
       expect(res.status).toBe(200);
       const { caseId } = (await res.json()) as { caseId: string };
 
-      let json: Record<string, unknown> | undefined;
+      type CaseData = {
+        photos: string[];
+        analysis?: {
+          vehicle?: { licensePlateNumber?: string; licensePlateState?: string };
+          images?: Record<string, unknown>;
+        };
+      };
+      let json: CaseData | undefined;
       for (let i = 0; i < 10; i++) {
         const check = await fetch(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) {
-          json = await check.json();
+          json = (await check.json()) as CaseData;
           break;
         }
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(json).toBeDefined();
+      if (!json) throw new Error("case data not found");
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
       expect(json.analysis?.vehicle?.licensePlateNumber).toBeUndefined();
@@ -93,7 +101,7 @@ describe("reanalysis", () => {
       for (let i = 0; i < 10; i++) {
         const check = await fetch(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) break;
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     }, 30000);
@@ -131,16 +139,23 @@ describe("reanalysis", () => {
       expect(res.status).toBe(200);
       const { caseId } = (await res.json()) as { caseId: string };
 
-      let json: Record<string, unknown> | undefined;
+      type CaseData = {
+        photos: string[];
+        analysis?: {
+          images?: Record<string, unknown>;
+        };
+      };
+      let json: CaseData | undefined;
       for (let i = 0; i < 10; i++) {
         const check = await fetch(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) {
-          json = await check.json();
+          json = (await check.json()) as CaseData;
           break;
         }
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(json).toBeDefined();
+      if (!json) throw new Error("case data not found");
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
       expect(json.analysis?.images?.[photoName]).toBeUndefined();
@@ -155,7 +170,7 @@ describe("reanalysis", () => {
       for (let i = 0; i < 10; i++) {
         const check = await fetch(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) break;
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     }, 30000);
