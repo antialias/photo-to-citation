@@ -14,6 +14,11 @@ const config: StorybookConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
       "@": path.resolve(process.cwd(), "src"),
+      "@/app/components/MapPreview": path.resolve(
+        process.cwd(),
+        ".storybook",
+        "MapPreviewStub.tsx",
+      ),
     };
     return config;
   },
