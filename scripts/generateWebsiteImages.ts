@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import dotenv from "dotenv";
 import OpenAI from "openai";
+import type { ImageGenerateParams } from "openai/resources/images";
 import sharp from "sharp";
 
 dotenv.config();
@@ -12,7 +13,7 @@ const openai = new OpenAI();
 interface ImageSpec {
   file: string;
   prompt: string;
-  size?: string;
+  size?: ImageGenerateParams["size"];
   width?: number;
   height?: number;
 }
@@ -114,9 +115,9 @@ async function generate(spec: ImageSpec): Promise<void> {
     model: "dall-e-3",
     prompt: spec.prompt,
     n: 1,
-    size: spec.size || "1024x1024",
+    size: spec.size ?? "1024x1024",
   });
-  const url = res.data[0]?.url;
+  const url = res.data?.[0]?.url;
   if (!url) throw new Error("Image generation failed");
   const imgRes = await fetch(url);
   const buf = Buffer.from(await imgRes.arrayBuffer());
