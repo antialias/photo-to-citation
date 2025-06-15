@@ -1,4 +1,7 @@
-import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
+import {
+  analyzePhotoInBackground,
+  removePhotoAnalysis,
+} from "@/lib/caseAnalysis";
 import {
   addCasePhoto,
   getCase,
@@ -18,15 +21,7 @@ export async function DELETE(
   if (!updated) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  const p = updateCase(updated.id, {
-    analysisStatus: "pending",
-    analysisProgress: {
-      stage: "upload",
-      index: 0,
-      total: updated.photos.length,
-    },
-  });
-  analyzeCaseInBackground(p || updated);
+  removePhotoAnalysis(id, photo);
   const layered = getCase(id);
   return NextResponse.json(layered);
 }
@@ -47,13 +42,9 @@ export async function POST(
   }
   const p = updateCase(updated.id, {
     analysisStatus: "pending",
-    analysisProgress: {
-      stage: "upload",
-      index: 0,
-      total: updated.photos.length,
-    },
+    analysisProgress: { stage: "upload", index: 0, total: 1 },
   });
-  analyzeCaseInBackground(p || updated);
+  analyzePhotoInBackground(p || updated, photo);
   const layered = getCase(id);
   return NextResponse.json(layered);
 }
