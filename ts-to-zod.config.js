@@ -69,4 +69,11 @@ module.exports = [
     skipValidation: true,
     jsDoc: "extended",
   },
+  {
+    name: "openai",
+    input: "src/lib/openai.ts",
+    output: "src/generated/zod/openai.ts",
+    skipValidation: true,
+    jsDoc: "extended",
+  },
 ];

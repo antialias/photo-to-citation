@@ -35,13 +35,14 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 ## Generating Zod Schemas
 
-When interfaces in `src/lib` change, update the runtime schemas with:
+When interfaces in `src/lib` change, update the runtime schemas and verify the output with:
 
 ```bash
 npm run generate:schemas
 ```
 
 The command uses `ts-to-zod` with `ts-to-zod.config.js` to write schemas under `src/generated/zod`.
+It then type-checks the generated files using `tsc` and fails if any errors are detected.
 
 ## Database Migrations
 

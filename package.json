@@ -18,7 +18,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "storybook:screenshot": "npm run build-storybook && storycap http://localhost:6006 --serverCmd \"http-server storybook-static -p 6006\" --out storybook-screenshots",
-    "generate:schemas": "ts-to-zod --skipValidation --all",
+    "generate:schemas": "ts-to-zod --skipValidation --all && npm run validate:generated",
+    "validate:generated": "tsc --noEmit -p tsconfig.generated.json",
     "generate:migrations": "drizzle-kit generate:sqlite",
     "website": "eleventy",
     "typecheck": "tsc --noEmit"
