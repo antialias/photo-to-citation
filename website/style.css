@@ -85,3 +85,18 @@ main {
   height: auto;
   border-radius: 4px;
 }
+
+.screenshots {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.screenshots img {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}

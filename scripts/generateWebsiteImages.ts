@@ -77,6 +77,21 @@ specs.push({
   width: 180,
 });
 
+const screenshotPrompts = [
+  "dark mode app screenshot showing a list of violation cases with thumbnail photos, status icons and blue highlights, sleek mobile UI",
+  "mobile camera interface screenshot with live preview and large 'Take Picture' button over a car blocking a bike lane",
+  "case detail screen screenshot with big photo marked up with bounding boxes, sidebar with address and license plate fields, map preview and dark UI",
+  "map view screenshot with open street map tiles, blue location pins containing thumbnail images and navigation header",
+];
+
+for (let i = 0; i < screenshotPrompts.length; i++) {
+  specs.push({
+    file: `images/screenshots/${i + 1}.png`,
+    prompt: screenshotPrompts[i],
+    width: 800,
+  });
+}
+
 function fetchRemote(file: string): Buffer | null {
   const paths = [`website/${file}`, `website/dist/${file}`];
   for (const p of paths) {
