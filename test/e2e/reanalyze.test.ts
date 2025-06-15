@@ -90,8 +90,14 @@ describe("reanalysis", () => {
         { method: "POST" },
       );
       expect(re.status).toBe(200);
-      const data = await re.json();
-      expect(data.analysis.vehicle.licensePlateNumber).toBe("ABC123");
+      let final: Record<string, unknown> | undefined;
+      for (let i = 0; i < 10; i++) {
+        const check = await fetch(`${server.url}/api/cases/${caseId}`);
+        final = await check.json();
+        if (final.analysis?.vehicle?.licensePlateNumber) break;
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      expect(final?.analysis?.vehicle?.licensePlateNumber).toBe("ABC123");
       expect(stub.requests.length).toBe(2);
     }, 30000);
   });
@@ -149,9 +155,14 @@ describe("reanalysis", () => {
         { method: "POST" },
       );
       expect(re.status).toBe(200);
-      const data = await re.json();
-      console.log("DATA", JSON.stringify(data));
-      expect(data.analysis.vehicle.licensePlateNumber).toBe("ZZZ111");
+      let final: Record<string, unknown> | undefined;
+      for (let i = 0; i < 10; i++) {
+        const check = await fetch(`${server.url}/api/cases/${caseId}`);
+        final = await check.json();
+        if (final.analysis?.vehicle?.licensePlateNumber) break;
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      expect(final?.analysis?.vehicle?.licensePlateNumber).toBe("ZZZ111");
       expect(stub.requests.length).toBe(4);
     }, 30000);
   });
