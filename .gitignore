@@ -9,3 +9,5 @@ storybook-screenshots
 *.tsbuildinfo
 public/uploads
 
+.terraform/
+terraform.tfstate*
