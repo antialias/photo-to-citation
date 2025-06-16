@@ -3,7 +3,7 @@ version: "3.8"
 services:
   app:
     platform: "linux/amd64"
-    build: .
+    image: ghcr.io/<OWNER>/photo-to-citation:photo-citation
     env_file:
       - .env
     restart: unless-stopped
