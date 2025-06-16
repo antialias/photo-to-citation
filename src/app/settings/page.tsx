@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import { useEffect, useState } from "react";
 
 interface VinSourceStatus {
@@ -20,27 +21,29 @@ export default function SettingsPage() {
   );
 
   useEffect(() => {
-    fetch("/api/vin-sources")
+    apiFetch("/api/vin-sources")
       .then((res) => res.json())
       .then((data) => setSources(data));
-    fetch("/api/snail-mail-providers")
+    apiFetch("/api/snail-mail-providers")
       .then((res) => res.json())
       .then((data) => setMailProviders(data));
   }, []);
 
   async function toggle(id: string, enabled: boolean) {
-    await fetch(`/api/vin-sources/${id}`, {
+    await apiFetch(`/api/vin-sources/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled }),
     });
-    const res = await fetch("/api/vin-sources");
+    const res = await apiFetch("/api/vin-sources");
     if (res.ok) setSources(await res.json());
   }
 
   async function activateProvider(id: string) {
-    await fetch(`/api/snail-mail-providers/${id}`, { method: "PUT" });
-    const res = await fetch("/api/snail-mail-providers");
+    await apiFetch(`/api/snail-mail-providers/${id}`, {
+      method: "PUT",
+    });
+    const res = await apiFetch("/api/snail-mail-providers");
     if (res.ok) setMailProviders(await res.json());
   }
 

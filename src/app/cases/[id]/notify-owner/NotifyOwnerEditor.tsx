@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
@@ -48,7 +49,7 @@ export default function NotifyOwnerEditor({
       Object.fromEntries(methods.map((m) => [m, { status: "sending" }])),
     );
     try {
-      const res = await fetch(`/api/cases/${caseId}/notify-owner`, {
+      const res = await apiFetch(`/api/cases/${caseId}/notify-owner`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, body, attachments, methods }),

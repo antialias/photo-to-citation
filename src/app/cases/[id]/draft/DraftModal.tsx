@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -23,7 +24,7 @@ export default function DraftModal({
 
   useEffect(() => {
     let canceled = false;
-    fetch(`/api/cases/${caseId}/report`)
+    apiFetch(`/api/cases/${caseId}/report`)
       .then(async (res) => {
         if (res.ok) {
           return res.json();

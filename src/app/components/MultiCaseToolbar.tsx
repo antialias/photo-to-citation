@@ -1,4 +1,6 @@
 "use client";
+import { apiFetch } from "@/apiClient";
+import { withBasePath } from "@/basePath";
 import Link from "next/link";
 import { useRef } from "react";
 import useCloseOnOutsideClick from "../useCloseOnOutsideClick";
@@ -28,7 +30,9 @@ export default function MultiCaseToolbar({
             onClick={async () => {
               await Promise.all(
                 caseIds.map((id) =>
-                  fetch(`/api/cases/${id}/reanalyze`, { method: "POST" }),
+                  apiFetch(`/api/cases/${id}/reanalyze`, {
+                    method: "POST",
+                  }),
                 ),
               );
               window.location.reload();
@@ -73,10 +77,12 @@ export default function MultiCaseToolbar({
               if (input === code) {
                 await Promise.all(
                   caseIds.map((id) =>
-                    fetch(`/api/cases/${id}`, { method: "DELETE" }),
+                    apiFetch(`/api/cases/${id}`, {
+                      method: "DELETE",
+                    }),
                   ),
                 );
-                window.location.href = "/cases";
+                window.location.href = withBasePath("/cases");
               }
             }}
             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"

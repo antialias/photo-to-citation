@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import type { OwnershipModule } from "@/lib/ownershipModules";
 import { useState } from "react";
 
@@ -13,7 +14,7 @@ export default function OwnershipEditor({
   const [snailMail, setSnailMail] = useState(false);
 
   async function record() {
-    await fetch(`/api/cases/${caseId}/ownership-request`, {
+    await apiFetch(`/api/cases/${caseId}/ownership-request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

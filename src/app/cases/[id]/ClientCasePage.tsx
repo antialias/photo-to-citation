@@ -1,4 +1,5 @@
 "use client";
+import { apiEventSource, apiFetch } from "@/apiClient";
 import MapPreview from "@/app/components/MapPreview";
 import Image from "next/image";
 import Link from "next/link";
@@ -83,13 +84,13 @@ export default function ClientCasePage({
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
     if (stored) setPreview(stored);
-    fetch(`/api/cases/${caseId}`).then(async (res) => {
+    apiFetch(`/api/cases/${caseId}`).then(async (res) => {
       if (res.ok) {
         const data = (await res.json()) as Case;
         setCaseData(data);
       }
     });
-    const es = new EventSource("/api/cases/stream");
+    const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       if (data.id !== caseId) return;
@@ -125,14 +126,17 @@ export default function ClientCasePage({
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", caseId);
-        return fetch("/api/upload", { method: "POST", body: formData });
+        return apiFetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
       }),
     );
     if (results.some((r) => !r.ok)) {
       alert("Failed to upload one or more files.");
       return;
     }
-    const res = await fetch(`/api/cases/${caseId}`);
+    const res = await apiFetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
       setCaseData(data);
@@ -149,7 +153,7 @@ export default function ClientCasePage({
   }
 
   async function refreshCase() {
-    const res = await fetch(`/api/cases/${caseId}`);
+    const res = await apiFetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
       setCaseData(data);
@@ -159,7 +163,7 @@ export default function ClientCasePage({
   }
 
   async function updateVehicle(plateNum: string, plateSt: string) {
-    const res = await fetch(`/api/cases/${caseId}/override`, {
+    const res = await apiFetch(`/api/cases/${caseId}/override`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -198,7 +202,7 @@ export default function ClientCasePage({
 
   async function updateVinFn(value: string) {
     setVin(value);
-    const res = await fetch(`/api/cases/${caseId}/vin`, {
+    const res = await apiFetch(`/api/cases/${caseId}/vin`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vin: value || null }),
@@ -212,7 +216,9 @@ export default function ClientCasePage({
 
   async function clearVin() {
     setVin("");
-    const res = await fetch(`/api/cases/${caseId}/vin`, { method: "DELETE" });
+    const res = await apiFetch(`/api/cases/${caseId}/vin`, {
+      method: "DELETE",
+    });
     if (!res.ok) {
       alert("Failed to clear VIN.");
       return;
@@ -228,7 +234,7 @@ export default function ClientCasePage({
       photo,
     )}`;
     if (caseData) setCaseData({ ...caseData, analysisStatus: "pending" });
-    const res = await fetch(url, { method: "POST" });
+    const res = await apiFetch(url, { method: "POST" });
     if (res.ok) {
       if (detailsEl) {
         detailsEl.open = false;
@@ -240,7 +246,7 @@ export default function ClientCasePage({
   }
 
   async function removePhoto(photo: string) {
-    const delRes = await fetch(`/api/cases/${caseId}/photos`, {
+    const delRes = await apiFetch(`/api/cases/${caseId}/photos`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ photo }),
@@ -249,7 +255,7 @@ export default function ClientCasePage({
       alert("Failed to remove photo.");
       return;
     }
-    const res = await fetch(`/api/cases/${caseId}`);
+    const res = await apiFetch(`/api/cases/${caseId}`);
     if (res.ok) {
       const data = (await res.json()) as Case;
       setCaseData(data);

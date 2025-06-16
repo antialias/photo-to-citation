@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -26,7 +27,7 @@ export default function FollowUpModal({
   useEffect(() => {
     let canceled = false;
     const url = `/api/cases/${caseId}/followup${replyTo ? `?replyTo=${encodeURIComponent(replyTo)}` : ""}`;
-    fetch(url)
+    apiFetch(url)
       .then((res) => res.json())
       .then((d) => {
         if (!canceled) setData(d as DraftData);
