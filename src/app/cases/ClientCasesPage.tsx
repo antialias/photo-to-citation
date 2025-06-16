@@ -1,4 +1,5 @@
 "use client";
+import { apiEventSource, apiFetch } from "@/apiClient";
 import MapPreview from "@/app/components/MapPreview";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -59,7 +60,7 @@ export default function ClientCasesPage({
     (params.id ? [params.id] : []);
 
   useEffect(() => {
-    const es = new EventSource("/api/cases/stream");
+    const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       setCases((prev) => {
@@ -106,7 +107,10 @@ export default function ClientCasesPage({
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", id);
-        return fetch("/api/upload", { method: "POST", body: formData });
+        return apiFetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
       }),
     );
     if (results.some((r) => !r.ok)) {

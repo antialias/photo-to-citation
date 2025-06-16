@@ -306,6 +306,8 @@ Watchtower at this tag so your Synology NAS automatically pulls updates and rede
 
 Run Traefik separately and it will use the labels in `docker-compose.example.yaml` to route traffic to `https://730op.synology.me/photo-citation`.
 
+Set `NEXT_PUBLIC_BASE_PATH=/photo-citation` in your `.env` (or container environment) and remove the Traefik `stripprefix` middleware so the app serves correctly at that subpath.
+
 ## Marketing Website
 
 This repo includes a simple [Eleventy](https://www.11ty.dev/) setup under the `website` directory for the marketing site. Pages are written in Markdown and compiled to static HTML.

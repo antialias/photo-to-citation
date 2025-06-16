@@ -1,4 +1,5 @@
 "use client";
+import { apiEventSource, apiFetch } from "@/apiClient";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,13 +33,13 @@ export default function ClientThreadPage({
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    fetch(`/api/cases/${caseId}`).then(async (res) => {
+    apiFetch(`/api/cases/${caseId}`).then(async (res) => {
       if (res.ok) {
         const data = (await res.json()) as Case;
         setCaseData(data);
       }
     });
-    const es = new EventSource("/api/cases/stream");
+    const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       if (data.id !== caseId) return;
@@ -58,7 +59,7 @@ export default function ClientThreadPage({
     const form = new FormData();
     form.append("photo", file);
     form.append("replyTo", startId);
-    const uploadRes = await fetch(`/api/cases/${caseId}/thread-images`, {
+    const uploadRes = await apiFetch(`/api/cases/${caseId}/thread-images`, {
       method: "POST",
       body: form,
     });
@@ -67,7 +68,7 @@ export default function ClientThreadPage({
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
-    const res = await fetch(`/api/cases/${caseId}`);
+    const res = await apiFetch(`/api/cases/${caseId}`);
     if (res.ok) {
       setCaseData((await res.json()) as Case);
     } else {
@@ -77,7 +78,7 @@ export default function ClientThreadPage({
   }
 
   async function attachEvidence(url: string) {
-    const res = await fetch(`/api/cases/${caseId}/photos`, {
+    const res = await apiFetch(`/api/cases/${caseId}/photos`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ photo: url }),

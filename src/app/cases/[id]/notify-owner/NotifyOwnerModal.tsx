@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
@@ -27,7 +28,7 @@ export default function NotifyOwnerModal({
 
   useEffect(() => {
     let canceled = false;
-    fetch(`/api/cases/${caseId}/notify-owner`)
+    apiFetch(`/api/cases/${caseId}/notify-owner`)
       .then(async (res) => {
         if (res.ok) {
           return res.json();

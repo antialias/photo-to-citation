@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/apiClient";
 import { useRouter } from "next/navigation";
 
 export default function useNewCaseFromFiles() {
@@ -14,7 +15,10 @@ export default function useNewCaseFromFiles() {
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", id);
-        const upload = fetch("/api/upload", { method: "POST", body: formData });
+        const upload = apiFetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
         if (idx === 0) {
           upload.then(() => {
             sessionStorage.removeItem(`preview-${id}`);

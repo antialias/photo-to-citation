@@ -1,4 +1,6 @@
 "use client";
+import { apiFetch } from "@/apiClient";
+import { withBasePath } from "@/basePath";
 import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
@@ -70,7 +72,7 @@ export default function CaseToolbar({
             <button
               type="button"
               onClick={async () => {
-                await fetch(`/api/cases/${caseId}/reanalyze`, {
+                await apiFetch(`/api/cases/${caseId}/reanalyze`, {
                   method: "POST",
                 });
                 window.location.reload();
@@ -85,7 +87,7 @@ export default function CaseToolbar({
                   <button
                     type="button"
                     onClick={async () => {
-                      await fetch(`/api/cases/${caseId}/cancel-analysis`, {
+                      await apiFetch(`/api/cases/${caseId}/cancel-analysis`, {
                         method: "POST",
                       });
                       window.location.reload();
@@ -127,8 +129,10 @@ export default function CaseToolbar({
                   `Type '${code}' to confirm deleting this case.`,
                 );
                 if (input === code) {
-                  await fetch(`/api/cases/${caseId}`, { method: "DELETE" });
-                  window.location.href = "/cases";
+                  await apiFetch(`/api/cases/${caseId}`, {
+                    method: "DELETE",
+                  });
+                  window.location.href = withBasePath("/cases");
                 }
               }}
               className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"

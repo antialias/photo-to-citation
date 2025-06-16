@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import type { ReportModule } from "@/lib/reportModules";
@@ -49,7 +50,7 @@ export default function DraftEditor({
     if (snailMail) pending.snailMail = { status: "sending" };
     setResults(pending);
     try {
-      const res = await fetch(`/api/cases/${caseId}/${action}`, {
+      const res = await apiFetch(`/api/cases/${caseId}/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
