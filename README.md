@@ -317,7 +317,7 @@ The `docker-build-photo-citation.yml` workflow publishes a second image tagged
 
 Run Traefik separately and it will use the labels in `docker-compose.example.yaml` to route traffic to `https://730op.synology.me/photo-citation`.
 
-Set `NEXT_PUBLIC_BASE_PATH=/photo-citation` in your `.env` (or container environment) and remove the Traefik `stripprefix` middleware so the app serves correctly at that subpath.
+Set `NEXT_PUBLIC_BASE_PATH=/photo-citation` in your `.env` (or container environment) and remove the Traefik `stripprefix` middleware so the app serves correctly at that subpath. The `next.config.ts` file applies this base path to both `basePath` and `assetPrefix` so that the runtime bundle and assets load from `/photo-citation` as well.
 
 ## Marketing Website
 
