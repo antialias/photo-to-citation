@@ -175,6 +175,15 @@ TWILIO_AUTH_TOKEN=your_auth_token
 TWILIO_FROM_NUMBER=+15551234567
 ```
 
+A Terraform module under `terraform/twilio` can create this phone number and output the values above.
+
+```bash
+cd terraform/twilio
+terraform init
+terraform apply
+```
+
+Copy the outputs into `.env.local`.
 If these variables are not set, phone notifications are skipped.
 
 ## Inbox Scanning
