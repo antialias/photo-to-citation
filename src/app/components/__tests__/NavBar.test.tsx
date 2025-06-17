@@ -11,6 +11,11 @@ vi.mock("../useNewCaseFromFiles", () => ({
 }));
 
 import NavBar from "../NavBar";
+vi.mock("../../useSession", () => ({
+  useSession: () => ({ data: null }),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+}));
 
 describe("NavBar", () => {
   it("shows point and shoot link on normal pages", () => {

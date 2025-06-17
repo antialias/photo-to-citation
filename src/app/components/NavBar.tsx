@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
+import { signIn, signOut, useSession } from "../useSession";
 
 export default function NavBar() {
   const pathname = usePathname();
   const uploadCase = useNewCaseFromFiles();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession();
   if (pathname.startsWith("/point")) {
     return (
       <nav className="p-2 flex justify-end bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -66,6 +68,23 @@ export default function NavBar() {
         >
           Settings
         </Link>
+        {session ? (
+          <button
+            type="button"
+            onClick={() => signOut()}
+            className="hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            Sign Out
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => signIn()}
+            className="hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            Sign In
+          </button>
+        )}
       </div>
     </nav>
   );

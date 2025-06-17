@@ -25,6 +25,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.9.1",
     "@faker-js/faker": "^8.4.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-progress": "^1.1.7",
@@ -41,6 +42,7 @@
     "mailparser": "^3.7.3",
     "mermaid": "^10.9.3",
     "next": "15.3.3",
+    "next-auth": "^4.24.11",
     "nodemailer": "^7.0.3",
     "openai": "^5.2.0",
     "pdf-lib": "^1.17.1",
