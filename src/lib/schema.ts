@@ -9,6 +9,7 @@ import {
 export const cases = sqliteTable("cases", {
   id: text("id").primaryKey(),
   data: text("data").notNull(),
+  public: integer("public", { mode: "boolean" }).notNull().default(false),
 });
 
 export const casePhotos = sqliteTable(
@@ -60,3 +61,15 @@ export const casbinRules = sqliteTable("casbin_rules", {
   v4: text("v4"),
   v5: text("v5"),
 });
+
+export const caseMembers = sqliteTable(
+  "case_members",
+  {
+    caseId: text("case_id").notNull(),
+    userId: text("user_id").notNull(),
+    role: text("role").notNull(),
+  },
+  (t) => ({
+    pk: primaryKey(t.caseId, t.userId),
+  }),
+);

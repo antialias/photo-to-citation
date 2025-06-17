@@ -1,6 +1,7 @@
 import path from "node:path";
 import { eq, sql } from "drizzle-orm";
 import { caseEvents } from "./caseEvents";
+import { addCaseMember } from "./caseMembers";
 import { db } from "./db";
 import { orm } from "./orm";
 import { casePhotoAnalysis, casePhotos } from "./schema";
@@ -17,6 +18,7 @@ export interface Case {
   createdAt: string;
   /** @zod.date */
   updatedAt: string;
+  public: boolean;
   gps?: {
     lat: number;
     lon: number;
@@ -67,7 +69,7 @@ export interface ThreadImage {
   ocrInfo?: import("./openai").PaperworkInfo | null;
 }
 
-function rowToCase(row: { id: string; data: string }): Case {
+function rowToCase(row: { id: string; data: string; public: number }): Case {
   const base = JSON.parse(row.data) as Omit<
     Case,
     "photos" | "photoTimes" | "photoGps"
@@ -123,6 +125,7 @@ function rowToCase(row: { id: string; data: string }): Case {
     photos: list,
     photoTimes: times,
     photoGps: gps,
+    public: Boolean(row.public),
   } as Case;
 }
 
@@ -133,9 +136,9 @@ function saveCase(c: Case) {
     (rest.analysis as Partial<ViolationReport>).images = undefined;
   }
   const stmt = db.prepare(
-    "INSERT OR REPLACE INTO cases (id, data) VALUES (?, ?)",
+    "INSERT OR REPLACE INTO cases (id, data, public) VALUES (?, ?, ?)",
   );
-  stmt.run(c.id, JSON.stringify(rest));
+  stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0);
   orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
   orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, c.id)).run();
   for (const url of photos) {
@@ -182,9 +185,9 @@ function saveCase(c: Case) {
 }
 
 function getCaseRow(id: string): Case | undefined {
-  const row = db.prepare("SELECT id, data FROM cases WHERE id = ?").get(id) as
-    | { id: string; data: string }
-    | undefined;
+  const row = db
+    .prepare("SELECT id, data, public FROM cases WHERE id = ?")
+    .get(id) as { id: string; data: string; public: number } | undefined;
   return row ? rowToCase(row) : undefined;
 }
 
@@ -210,9 +213,10 @@ function applyOverrides(caseData: Case): Case {
 }
 
 export function getCases(): Case[] {
-  const rows = db.prepare("SELECT id, data FROM cases").all() as Array<{
+  const rows = db.prepare("SELECT id, data, public FROM cases").all() as Array<{
     id: string;
     data: string;
+    public: number;
   }>;
   return rows
     .map(rowToCase)
@@ -233,6 +237,8 @@ export function createCase(
   gps: Case["gps"] = null,
   id?: string,
   takenAt?: string | null,
+  ownerId?: string | null,
+  isPublic = false,
 ): Case {
   const newCase: Case = {
     id: id ?? Date.now().toString(),
@@ -242,6 +248,7 @@ export function createCase(
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     gps,
+    public: isPublic,
     streetAddress: null,
     intersection: null,
     vin: null,
@@ -257,6 +264,9 @@ export function createCase(
     threadImages: [],
   };
   saveCase(newCase);
+  if (ownerId) {
+    addCaseMember(newCase.id, ownerId, "owner");
+  }
   caseEvents.emit("update", newCase);
   return newCase;
 }
