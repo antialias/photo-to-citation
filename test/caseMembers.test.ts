@@ -19,6 +19,7 @@ beforeEach(async () => {
   schema = await import("../src/lib/schema");
   orm.insert(schema.users).values({ id: "u1" }).run();
   orm.insert(schema.users).values({ id: "u2" }).run();
+  orm.insert(schema.users).values({ id: "u3", role: "admin" }).run();
   caseStore = await import("../src/lib/caseStore");
   members = await import("../src/lib/caseMembers");
 });
@@ -56,5 +57,70 @@ describe("case members", () => {
     );
     const loaded = caseStore.getCase(c.id);
     expect(loaded?.public).toBe(true);
+  });
+
+  it("owner invites collaborator via API", async () => {
+    const c = caseStore.createCase("/d.jpg", null, undefined, null, "u1");
+    const { POST } = await import("../src/app/api/cases/[id]/invite/route");
+    const res = await POST(
+      new Request("http://test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "u2" }),
+      }),
+      {
+        params: Promise.resolve({ id: c.id }),
+        session: { user: { id: "u1", role: "user" } },
+      },
+    );
+    expect(res.status).toBe(200);
+    const list = members.listCaseMembers(c.id);
+    expect(list.some((m) => m.userId === "u2")).toBe(true);
+  });
+
+  it("rejects collaborator invite", async () => {
+    const c = caseStore.createCase("/e.jpg", null, undefined, null, "u1");
+    members.addCaseMember(c.id, "u2", "collaborator");
+    const { POST } = await import("../src/app/api/cases/[id]/invite/route");
+    const res = await POST(
+      new Request("http://test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "u3" }),
+      }),
+      {
+        params: Promise.resolve({ id: c.id }),
+        session: { user: { id: "u2", role: "user" } },
+      },
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it("admin can remove member", async () => {
+    const c = caseStore.createCase("/f.jpg", null, undefined, null, "u1");
+    members.addCaseMember(c.id, "u2", "collaborator");
+    const { DELETE } = await import(
+      "../src/app/api/cases/[id]/members/[uid]/route"
+    );
+    const res = await DELETE(new Request("http://test"), {
+      params: Promise.resolve({ id: c.id, uid: "u2" }),
+      session: { user: { id: "u3", role: "admin" } },
+    });
+    expect(res.status).toBe(200);
+    const list = members.listCaseMembers(c.id);
+    expect(list.some((m) => m.userId === "u2")).toBe(false);
+  });
+
+  it("non-owner cannot remove member", async () => {
+    const c = caseStore.createCase("/g.jpg", null, undefined, null, "u1");
+    members.addCaseMember(c.id, "u2", "collaborator");
+    const { DELETE } = await import(
+      "../src/app/api/cases/[id]/members/[uid]/route"
+    );
+    const res = await DELETE(new Request("http://test"), {
+      params: Promise.resolve({ id: c.id, uid: "u2" }),
+      session: { user: { id: "u2", role: "user" } },
+    });
+    expect(res.status).toBe(403);
   });
 });
