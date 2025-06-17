@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS case_members (
+  case_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  role TEXT NOT NULL,
+  FOREIGN KEY(case_id) REFERENCES cases(id) ON DELETE CASCADE,
+  FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
+  CONSTRAINT case_members_pk PRIMARY KEY (case_id, user_id)
+);
+
+ALTER TABLE cases ADD COLUMN public INTEGER NOT NULL DEFAULT 0;
