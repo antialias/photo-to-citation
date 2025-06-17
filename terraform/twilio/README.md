@@ -18,3 +18,12 @@ account_sid   = "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 auth_token    = "your_auth_token"
 from_number   = "+15551234567"
 ```
+
+## Importing an existing number
+
+If you already have a phone number provisioned in your Twilio account, import it
+into the state with the phone SID. SIDs for phone numbers start with `PN`:
+
+```bash
+terraform import twilio_api_accounts_incoming_phone_numbers.sms PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
