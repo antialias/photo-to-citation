@@ -6,6 +6,7 @@ import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "../../../useSession";
 
 export default function DraftEditor({
   initialDraft,
@@ -34,6 +35,9 @@ export default function DraftEditor({
   >({});
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
   const router = useRouter();
+  const { data: session } = useSession();
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "superadmin";
 
   useEffect(() => {
     if (initialDraft) {
@@ -175,7 +179,7 @@ export default function DraftEditor({
       <button
         type="button"
         onClick={sendEmail}
-        disabled={sending}
+        disabled={!isAdmin || sending}
         className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
         {sending ? "Sending..." : "Send"}

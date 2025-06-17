@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Case } from "../../../lib/caseStore";
 import ClientCasesPage from "../ClientCasesPage";
 import ClientCasePage from "../[id]/ClientCasePage";
+vi.mock("../../useSession", () => ({ useSession: () => ({ data: null }) }));
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({}),
