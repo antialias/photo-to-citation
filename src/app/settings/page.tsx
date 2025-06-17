@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useEffect, useState } from "react";
+import { useSession } from "../useSession";
 
 interface VinSourceStatus {
   id: string;
@@ -19,6 +20,9 @@ export default function SettingsPage() {
   const [mailProviders, setMailProviders] = useState<SnailMailProviderStatus[]>(
     [],
   );
+  const { data: session } = useSession();
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "superadmin";
 
   useEffect(() => {
     apiFetch("/api/vin-sources")
@@ -59,6 +63,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => toggle(s.id, !s.enabled)}
+              disabled={!isAdmin}
               className={
                 s.enabled
                   ? "bg-green-500 text-white px-2 py-1 rounded"
@@ -85,6 +90,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => activateProvider(p.id)}
+                disabled={!isAdmin}
                 className="bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
               >
                 Activate

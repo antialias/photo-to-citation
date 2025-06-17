@@ -23,6 +23,7 @@ import DebugWrapper from "../../components/DebugWrapper";
 import EditableText from "../../components/EditableText";
 import ImageHighlights from "../../components/ImageHighlights";
 import useCloseOnOutsideClick from "../../useCloseOnOutsideClick";
+import { useSession } from "../../useSession";
 import useDragReset from "../useDragReset";
 
 function buildThreads(c: Case): SentEmail[] {
@@ -71,6 +72,9 @@ export default function ClientCasePage({
   const [vin, setVin] = useState<string>(
     initialCase ? getCaseVin(initialCase) || "" : "",
   );
+  const { data: session } = useSession();
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -394,6 +398,7 @@ export default function ClientCasePage({
               disabled={!violationIdentified}
               hasOwner={Boolean(ownerContact)}
               progress={progress}
+              canDelete={isAdmin}
             />
           </div>
         }

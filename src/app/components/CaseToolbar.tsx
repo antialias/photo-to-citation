@@ -12,11 +12,13 @@ export default function CaseToolbar({
   disabled = false,
   hasOwner = false,
   progress,
+  canDelete = false,
 }: {
   caseId: string;
   disabled?: boolean;
   hasOwner?: boolean;
   progress?: LlmProgress | null;
+  canDelete?: boolean;
 }) {
   const reqText = progress
     ? progress.stage === "upload"
@@ -121,24 +123,26 @@ export default function CaseToolbar({
                 ) : null}
               </>
             )}
-            <button
-              type="button"
-              onClick={async () => {
-                const code = Math.random().toString(36).slice(2, 6);
-                const input = prompt(
-                  `Type '${code}' to confirm deleting this case.`,
-                );
-                if (input === code) {
-                  await apiFetch(`/api/cases/${caseId}`, {
-                    method: "DELETE",
-                  });
-                  window.location.href = withBasePath("/cases");
-                }
-              }}
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-            >
-              Delete Case
-            </button>
+            {canDelete ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  const code = Math.random().toString(36).slice(2, 6);
+                  const input = prompt(
+                    `Type '${code}' to confirm deleting this case.`,
+                  );
+                  if (input === code) {
+                    await apiFetch(`/api/cases/${caseId}`, {
+                      method: "DELETE",
+                    });
+                    window.location.href = withBasePath("/cases");
+                  }
+                }}
+                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                Delete Case
+              </button>
+            ) : null}
           </div>
         </details>
       </div>
