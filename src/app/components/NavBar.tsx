@@ -62,6 +62,15 @@ export default function NavBar() {
         >
           Map View
         </Link>
+        {session?.user?.role === "admin" ||
+        session?.user?.role === "superadmin" ? (
+          <Link
+            href="/admin"
+            className="hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            Admin
+          </Link>
+        ) : null}
         <Link
           href="/settings"
           className="hover:text-gray-600 dark:hover:text-gray-300"
