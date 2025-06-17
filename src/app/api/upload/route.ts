@@ -6,12 +6,12 @@ import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
 import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
 import { extractGps, extractTimestamp } from "@/lib/exif";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
   "upload",
   "create",
-  async (req: NextRequest) => {
+  async (req: Request) => {
     const form = await req.formData();
     const file = form.get("photo") as File | null;
     const clientId = form.get("caseId") as string | null;

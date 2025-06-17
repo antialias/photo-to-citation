@@ -9,14 +9,13 @@ import {
   removeCasePhoto,
   updateCase,
 } from "@/lib/caseStore";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const DELETE = withAuthorization(
   "cases",
   "update",
   async (
-    req: NextRequest,
+    req: Request,
     {
       params,
     }: {
@@ -40,7 +39,7 @@ export const POST = withAuthorization(
   "cases",
   "update",
   async (
-    req: NextRequest,
+    req: Request,
     {
       params,
     }: {
