@@ -35,6 +35,7 @@ describe("analyzeCaseInBackground", () => {
       analysisStatusCode: null,
       analysisError: null,
       analysisProgress: null,
+      public: false,
       sentEmails: [],
       ownershipRequests: [],
       threadImages: [],

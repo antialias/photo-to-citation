@@ -39,6 +39,7 @@ const baseCase: Case = {
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   analysisStatus: "pending",
+  public: false,
 };
 
 describe("drag overlays", () => {
