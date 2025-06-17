@@ -183,6 +183,9 @@ terraform init
 terraform apply
 ```
 
+The provider uses your Twilio account SID as the username and the auth token as
+the password.
+
 Copy the outputs into `.env.local`.
 If these variables are not set, phone notifications are skipped.
 

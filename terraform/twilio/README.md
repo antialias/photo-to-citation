@@ -10,7 +10,8 @@ terraform init
 terraform apply
 ```
 
-Pass variables on the command line or in a `terraform.tfvars` file:
+Pass variables on the command line or in a `terraform.tfvars` file. The provider
+uses the account SID as the username and the auth token as the password:
 
 ```hcl
 account_sid   = "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"

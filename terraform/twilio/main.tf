@@ -9,8 +9,8 @@ terraform {
 }
 
 provider "twilio" {
-  account_sid = var.account_sid
-  auth_token  = var.auth_token
+  username = var.account_sid
+  password = var.auth_token
 }
 
 resource "twilio_api_accounts_incoming_phone_numbers" "sms" {
