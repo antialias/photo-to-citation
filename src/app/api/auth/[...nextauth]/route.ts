@@ -4,7 +4,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import NextAuth from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 
-export const authOptions = {
+const authOptions = {
   adapter: DrizzleAdapter(orm),
   providers: [
     EmailProvider({
@@ -19,7 +19,7 @@ export const authOptions = {
     }),
   ],
   pages: { signIn: "/signin" },
-  session: { strategy: "database" },
+  session: { strategy: "database" as const },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
