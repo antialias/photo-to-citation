@@ -1,13 +1,12 @@
 import { withAuthorization } from "@/lib/authz";
 import { getCase, setCaseAnalysisOverrides } from "@/lib/caseStore";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const PUT = withAuthorization(
   "cases",
   "update",
   async (
-    req: NextRequest,
+    req: Request,
     {
       params,
     }: {
@@ -30,7 +29,7 @@ export const DELETE = withAuthorization(
   "cases",
   "update",
   async (
-    _req: NextRequest,
+    _req: Request,
     {
       params,
     }: {

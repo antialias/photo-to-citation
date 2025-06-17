@@ -4,14 +4,13 @@ import path from "node:path";
 import { withAuthorization } from "@/lib/authz";
 import { addCaseThreadImage, getCase } from "@/lib/caseStore";
 import { ocrPaperwork } from "@/lib/openai";
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
   "cases",
   "update",
   async (
-    req: NextRequest,
+    req: Request,
     {
       params,
     }: {
