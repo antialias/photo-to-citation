@@ -78,3 +78,42 @@ A proposed sequence of milestones so each change can be merged and deployed inde
    - Include integration tests for common user flows.
 
 Each milestone is small enough to be reviewed and deployed on its own while steadily building up the full authentication and authorization feature set.
+
+## Permissions Matrix
+
+The repository uses NextAuth for authentication and Casbin for authorization. The roles described above are:
+
+```
+- user (default)
+- admin
+- superadmin
+```
+
+The super admin can promote other users, and Casbin policies determine what each role may do. Case collaboration introduces a `CaseMember` table with `owner` and `collaborator` roles, plus a `public` flag allowing anonymous viewing of a case. An admin interface lets admins manage users, while super admins can edit policies directly.
+
+Below is a consolidated permissions matrix based on the existing code and this plan.
+
+| Resource/Action                                  | Anonymous | User | Collaborator (case) | Admin | Super Admin |
+|--------------------------------------------------|-----------|------|---------------------|-------|-------------|
+| **Authentication**                               | Sign in via NextAuth | ✓ | ✓ | ✓ | ✓ |
+| **Create case (photo upload)**                   | ✓ (no auth check) | ✓ | — | ✓ | ✓ |
+| **View public case**                             | ✓ | ✓ | ✓ | ✓ | ✓ |
+| **View own case**                                | — | ✓ | ✓ (if added as collaborator) | ✓ | ✓ |
+| **Update or delete own case**                    | — | ✓ | — | ✓ | ✓ |
+| **Comment/follow up on assigned case**           | — | ✓ (if owner) | ✓ | ✓ | ✓ |
+| **Reanalyze, override, or cancel analysis**      | — | ✓ (own cases) | — | ✓ | ✓ |
+| **Send case report or owner notifications**      | — | ✓ (own cases) | ✓ (if collaborator) | ✓ | ✓ |
+| **Manage photos (add/remove)**                   | — | ✓ (own cases) | ✓ (if collaborator) | ✓ | ✓ |
+| **Manage VIN/ownership requests**                | — | ✓ (own cases) | — | ✓ | ✓ |
+| **List/modify all cases**                        | — | — | — | ✓ | ✓ |
+| **Manage VIN source modules**                    | — | — | — | ✓ | ✓ |
+| **Activate snail mail providers**                | — | — | — | ✓ | ✓ |
+| **Invite/disable/delete users**                  | — | — | — | ✓ | ✓ |
+| **Modify Casbin policy matrix**                  | — | — | — | — | ✓ |
+
+**Notes**
+
+- Anonymous users can create cases because the upload API lacks authentication checks in the current code.
+- The collaborator role is per-case and allows commenting on an invited case as noted in the docs.
+- Admin and Super Admin roles inherit all user abilities; Super Admin additionally controls policy editing.
+- A case marked `public` is viewable by anyone without authentication.
