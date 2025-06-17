@@ -27,8 +27,9 @@ async function loadEnforcer(): Promise<Enforcer> {
   enforcer = await newEnforcer(model);
   const rules = orm.select().from(casbinRules).all();
   for (const r of rules) {
-    if (r.ptype === "g") enforcer.addGroupingPolicy(r.v0, r.v1);
-    else if (r.ptype === "p") enforcer.addPolicy(r.v0, r.v1, r.v2);
+    if (r.ptype === "g" && r.v0 && r.v1) enforcer.addGroupingPolicy(r.v0, r.v1);
+    else if (r.ptype === "p" && r.v0 && r.v1 && r.v2)
+      enforcer.addPolicy(r.v0, r.v1, r.v2);
   }
   return enforcer;
 }
