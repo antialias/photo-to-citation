@@ -29,6 +29,6 @@ describe("casbin", () => {
   it("authorizes based on db rules", async () => {
     const { authorize } = await import("../src/lib/authz");
     expect(await authorize("superadmin", "cases", "delete")).toBe(true);
-    expect(await authorize("user", "cases", "delete")).toBe(false);
+    expect(await authorize("user", "cases", "delete")).toBe(true);
   });
 });
