@@ -24,6 +24,7 @@ const baseCase: Case = {
   analysisOverrides: null,
   analysisStatus: "complete",
   analysisStatusCode: 200,
+  public: false,
 };
 
 beforeEach(() => {

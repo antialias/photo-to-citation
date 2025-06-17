@@ -24,6 +24,7 @@ const caseBase: Omit<Case, "id"> = {
   analysisOverrides: null,
   analysisStatus: "pending",
   analysisStatusCode: null,
+  public: false,
   sentEmails: [],
   ownershipRequests: [],
 };

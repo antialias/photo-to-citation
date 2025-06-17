@@ -37,6 +37,7 @@ const base: Case = {
   analysisOverrides: null,
   analysisStatus: "complete",
   analysisStatusCode: 200,
+  public: false,
   sentEmails: [],
   ownershipRequests: [],
 };
