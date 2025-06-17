@@ -49,6 +49,7 @@ describe("auth flow", () => {
 
     const session = await api("/api/auth/session").then((r) => r.json());
     expect(session?.user?.email).toBe(email);
+    expect(session?.user?.role).toBe("superadmin");
 
     const csrf2 = await api("/api/auth/csrf").then((r) => r.json());
     await api("/api/auth/signout", {

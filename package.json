@@ -56,7 +56,8 @@
     "ts-node": "^10.9.2",
     "twilio": "^4.23.0",
     "umzug": "^3.8.2",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "casbin": "^5.38.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^2.0.0",
