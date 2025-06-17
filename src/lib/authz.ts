@@ -43,18 +43,14 @@ export async function authorize(
   return e.enforce(sub, obj, act);
 }
 
-export function withAuthorization(
+export function withAuthorization<
+  C extends { session?: { user?: { role?: string } } },
+>(
   obj: string,
   act: string,
-  handler: (
-    req: Request,
-    ctx: { session?: { user?: { role?: string } } },
-  ) => Promise<Response> | Response,
+  handler: (req: Request, ctx: C) => Promise<Response> | Response,
 ) {
-  return async (
-    req: Request,
-    ctx: { session?: { user?: { role?: string } } },
-  ) => {
+  return async (req: Request, ctx: C) => {
     const role = ctx.session?.user?.role ?? "user";
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
