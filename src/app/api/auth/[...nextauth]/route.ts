@@ -1,12 +1,17 @@
 import { authAdapter, seedSuperAdmin } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
-import NextAuth from "next-auth";
+import NextAuth, {
+  type NextAuthOptions,
+  type Session,
+  type User,
+} from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
 
 seedSuperAdmin().catch(() => {});
 
-const authOptions = {
-  adapter: authAdapter(),
+const authOptions: NextAuthOptions = {
+  adapter: authAdapter() as Adapter,
   providers: [
     EmailProvider({
       async sendVerificationRequest({ identifier, url }) {
@@ -22,17 +27,19 @@ const authOptions = {
   pages: { signIn: "/signin" },
   session: { strategy: "database" as const },
   callbacks: {
-    async session({ session, user }) {
+    async session({
+      session,
+      user,
+    }: { session: Session; user: User & { role?: string } }) {
       if (session.user) {
-        // biome-ignore lint/suspicious/noExplicitAny: next-auth types
-        (session.user as any).role = (user as any).role;
+        (session.user as User & { role?: string }).role = user.role;
       }
       return session;
     },
   },
   events: {
     async createUser({ user }) {
-      await seedSuperAdmin({ id: user.id, email: user.email });
+      await seedSuperAdmin({ id: user.id, email: user.email ?? null });
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

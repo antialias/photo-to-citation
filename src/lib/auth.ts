@@ -1,16 +1,11 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import type { DefaultSQLiteSchema } from "@auth/drizzle-adapter";
 import { eq, sql } from "drizzle-orm";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { users } from "./schema";
 
-export const authSchema = {
-  usersTable: users,
-} satisfies Partial<DefaultSQLiteSchema>;
-
 export function authAdapter() {
-  return DrizzleAdapter(orm, authSchema);
+  return DrizzleAdapter(orm);
 }
 
 export async function seedSuperAdmin(newUser?: {
