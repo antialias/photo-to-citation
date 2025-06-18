@@ -1,7 +1,7 @@
 import { getCasbinRules, listUsers } from "@/lib/adminStore";
+import { authOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import AdminPageClient from "./AdminPageClient";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +26,7 @@ const handler = withAuthorization(
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
   return handler(new Request("http://localhost"), {
+    params: Promise.resolve({}),
     session: session ?? undefined,
   });
 }
