@@ -72,6 +72,10 @@ export default function ClientCasePage({
   const [vin, setVin] = useState<string>(
     initialCase ? getCaseVin(initialCase) || "" : "",
   );
+  const [members, setMembers] = useState<
+    Array<{ userId: string; role: string }>
+  >([]);
+  const [inviteUserId, setInviteUserId] = useState("");
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
@@ -93,6 +97,9 @@ export default function ClientCasePage({
         const data = (await res.json()) as Case;
         setCaseData(data);
       }
+    });
+    apiFetch(`/api/cases/${caseId}/members`).then(async (res) => {
+      if (res.ok) setMembers(await res.json());
     });
     const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
@@ -282,6 +289,37 @@ export default function ClientCasePage({
     router.refresh();
   }
 
+  async function refreshMembers() {
+    const res = await apiFetch(`/api/cases/${caseId}/members`);
+    if (res.ok) setMembers(await res.json());
+  }
+
+  async function inviteMember() {
+    if (!inviteUserId) return;
+    const res = await apiFetch(`/api/cases/${caseId}/invite`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: inviteUserId }),
+    });
+    if (!res.ok) {
+      alert("Failed to invite collaborator.");
+      return;
+    }
+    setInviteUserId("");
+    await refreshMembers();
+  }
+
+  async function removeMember(uid: string) {
+    const res = await apiFetch(`/api/cases/${caseId}/members/${uid}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      alert("Failed to remove collaborator.");
+      return;
+    }
+    await refreshMembers();
+  }
+
   if (!caseData) {
     return (
       <div className="p-8 flex flex-col gap-4">
@@ -306,6 +344,10 @@ export default function ClientCasePage({
   const plateStateOverridden =
     caseData.analysisOverrides?.vehicle?.licensePlateState !== undefined;
   const ownerContact = getCaseOwnerContact(caseData);
+  const isOwner = members.some(
+    (m) => m.userId === session?.user?.id && m.role === "owner",
+  );
+  const canManageMembers = isAdmin || isOwner;
 
   const progress =
     caseData.analysisStatus === "pending" && caseData.analysisProgress
@@ -477,6 +519,45 @@ export default function ClientCasePage({
                     placeholder="VIN"
                   />
                 </p>
+                <div>
+                  <span className="font-semibold">Members:</span>
+                  <ul className="ml-2 mt-1 flex flex-col gap-1">
+                    {members.map((m) => (
+                      <li key={m.userId} className="flex items-center gap-2">
+                        <span className="flex-1">
+                          {m.userId} ({m.role})
+                        </span>
+                        {canManageMembers && m.role !== "owner" ? (
+                          <button
+                            type="button"
+                            onClick={() => removeMember(m.userId)}
+                            className="text-red-600"
+                          >
+                            Remove
+                          </button>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                  {canManageMembers ? (
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        value={inviteUserId}
+                        onChange={(e) => setInviteUserId(e.target.value)}
+                        placeholder="User ID"
+                        className="border rounded p-1 flex-1 bg-white dark:bg-gray-900"
+                      />
+                      <button
+                        type="button"
+                        onClick={inviteMember}
+                        className="bg-blue-600 text-white px-2 py-1 rounded"
+                      >
+                        Invite
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </DebugWrapper>
             {selectedPhoto ? (
