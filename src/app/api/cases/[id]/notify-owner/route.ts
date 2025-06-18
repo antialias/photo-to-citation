@@ -1,5 +1,4 @@
-import { withAuthorization } from "@/lib/authz";
-import { isCaseMember } from "@/lib/caseMembers";
+import { withCaseAuthorization } from "@/lib/authz";
 import { draftOwnerNotification } from "@/lib/caseReport";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
 import { getCaseOwnerContactInfo } from "@/lib/caseUtils";
@@ -13,8 +12,7 @@ import { sendEmail } from "@/lib/email";
 import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
 
-export const GET = withAuthorization(
-  "cases",
+export const GET = withCaseAuthorization(
   "read",
   async (
     _req: Request,
@@ -27,15 +25,6 @@ export const GET = withAuthorization(
     },
   ) => {
     const { id } = await params;
-    const userId = session?.user?.id;
-    const role = session?.user?.role ?? "user";
-    if (
-      role !== "admin" &&
-      role !== "superadmin" &&
-      (!userId || !isCaseMember(id, userId))
-    ) {
-      return new Response(null, { status: 403 });
-    }
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const contactInfo = getCaseOwnerContactInfo(c);

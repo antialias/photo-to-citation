@@ -1,5 +1,4 @@
-import { withAuthorization } from "@/lib/authz";
-import { isCaseMember } from "@/lib/caseMembers";
+import { withAuthorization, withCaseAuthorization } from "@/lib/authz";
 import { deleteCase, getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
@@ -24,8 +23,7 @@ export const GET = withAuthorization(
   },
 );
 
-export const DELETE = withAuthorization(
-  "cases",
+export const DELETE = withCaseAuthorization(
   "read",
   async (
     req: Request,
@@ -38,15 +36,6 @@ export const DELETE = withAuthorization(
     },
   ) => {
     const { id } = await params;
-    const userId = session?.user?.id;
-    const role = session?.user?.role ?? "user";
-    if (
-      role !== "admin" &&
-      role !== "superadmin" &&
-      (!userId || !isCaseMember(id, userId))
-    ) {
-      return new Response(null, { status: 403 });
-    }
     const ok = deleteCase(id);
     if (!ok) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });

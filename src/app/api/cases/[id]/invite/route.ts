@@ -1,10 +1,9 @@
-import { withAuthorization } from "@/lib/authz";
+import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseMember, isCaseMember } from "@/lib/caseMembers";
 import { getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
-export const POST = withAuthorization(
-  "cases",
+export const POST = withCaseAuthorization(
   "read",
   async (
     req: Request,

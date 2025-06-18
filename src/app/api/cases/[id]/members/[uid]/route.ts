@@ -1,10 +1,9 @@
-import { withAuthorization } from "@/lib/authz";
+import { withCaseAuthorization } from "@/lib/authz";
 import { isCaseMember, removeCaseMember } from "@/lib/caseMembers";
 import { getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
-export const DELETE = withAuthorization(
-  "cases",
+export const DELETE = withCaseAuthorization(
   "read",
   async (
     _req: Request,

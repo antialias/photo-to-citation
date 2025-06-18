@@ -1,5 +1,4 @@
-import { withAuthorization } from "@/lib/authz";
-import { isCaseMember } from "@/lib/caseMembers";
+import { withCaseAuthorization } from "@/lib/authz";
 import { draftFollowUp } from "@/lib/caseReport";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
@@ -23,8 +22,7 @@ function getThread(c: Case, startId?: string | null): SentEmail[] {
   return chain;
 }
 
-export const GET = withAuthorization(
-  "cases",
+export const GET = withCaseAuthorization(
   "read",
   async (
     req: Request,
@@ -37,15 +35,6 @@ export const GET = withAuthorization(
     },
   ) => {
     const { id } = await params;
-    const userId = session?.user?.id;
-    const role = session?.user?.role ?? "user";
-    if (
-      role !== "admin" &&
-      role !== "superadmin" &&
-      (!userId || !isCaseMember(id, userId))
-    ) {
-      return new Response(null, { status: 403 });
-    }
     const url = new URL(req.url);
     const replyTo = url.searchParams.get("replyTo");
     console.log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);

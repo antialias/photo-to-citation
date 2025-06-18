@@ -1,14 +1,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { withAuthorization } from "@/lib/authz";
-import { isCaseMember } from "@/lib/caseMembers";
+import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseThreadImage, getCase } from "@/lib/caseStore";
 import { ocrPaperwork } from "@/lib/openai";
 import { NextResponse } from "next/server";
 
-export const POST = withAuthorization(
-  "cases",
+export const POST = withCaseAuthorization(
   "read",
   async (
     req: Request,
@@ -21,15 +19,6 @@ export const POST = withAuthorization(
     },
   ) => {
     const { id } = await params;
-    const userId = session?.user?.id;
-    const role = session?.user?.role ?? "user";
-    if (
-      role !== "admin" &&
-      role !== "superadmin" &&
-      (!userId || !isCaseMember(id, userId))
-    ) {
-      return new Response(null, { status: 403 });
-    }
     const form = await req.formData();
     const file = form.get("photo") as File | null;
     const parent = form.get("replyTo") as string | null;
