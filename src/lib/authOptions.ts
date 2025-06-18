@@ -5,7 +5,9 @@ import EmailProvider from "next-auth/providers/email";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { sendEmail } from "./email";
 
-seedSuperAdmin().catch(() => {});
+seedSuperAdmin().catch((err) => {
+  console.error("Failed to seed super admin", err);
+});
 
 export const authOptions: NextAuthOptions = {
   adapter: authAdapter() as Adapter,
@@ -38,7 +40,11 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
-      await seedSuperAdmin({ id: user.id, email: user.email ?? null });
+      try {
+        await seedSuperAdmin({ id: user.id, email: user.email ?? null });
+      } catch (err) {
+        console.error("Failed to assign super admin role", err);
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
