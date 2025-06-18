@@ -69,6 +69,10 @@ npm run generate:migrations
 
 Migrations are stored as SQL files under the `migrations` folder and applied at runtime. The default SQLite database is `data/cases.sqlite`. Per-photo analysis results now live in the `case_photo_analysis` table instead of the JSON `analysis.images` field.
 
+## Administration
+
+Visit `/admin` to manage users and Casbin policies. Admins can invite collaborators by entering an email address. The app creates the user with the `user` role and sends an invitation link. Super admins may edit the Casbin rule list directly in the UI. After saving, the server reloads the policy set so changes take effect immediately.
+
 ## OpenAI Integration
 
 Copy `.env.example` to `.env` and add your API key:

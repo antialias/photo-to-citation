@@ -16,9 +16,10 @@ This document proposes an approach for user login, role management, and access c
 - user (default)
 - admin
 - superadmin
+- anonymous
 ```
 
-Roles are stored on the `User` record. The super admin can promote other users to admin or superadmin.
+Roles are stored on the `User` record. The `anonymous` role represents unauthenticated visitors. The super admin can promote other users to admin or superadmin.
 
 ## 3. Access Control
 
@@ -28,7 +29,8 @@ Roles are stored on the `User` record. The super admin can promote other users t
   - `collaborator` can comment on a case they have been invited to.
   - `admin` can manage any case and manage users.
   - `superadmin` can modify the policy matrix itself.
-- Contextual checks (such as ownership) use Casbin's ABAC support.
+- Contextual checks use Casbin's ABAC support so membership in a `CaseMember`
+  record is enforced even if the policy is broad.
 
 ## 4. Case Collaboration
 
