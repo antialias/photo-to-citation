@@ -80,6 +80,9 @@ fills the screen with two overlays:
 - **Upload Picture** prompts for one or more images from the device.
 - **Take Picture** immediately snaps a photo and starts a new case.
 
+A short message below the shutter button explains that the app will guess the
+license plate or violation type as you aim the camera.
+
 A small "Cases" link leads to the full case list if needed.
 Desktop users can access this page from the "Point & Shoot" link in the header.
 
