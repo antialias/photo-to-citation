@@ -33,6 +33,13 @@ npm run format
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+For local HTTPS, run:
+
+```bash
+npm run https
+```
+Then browse to [https://localhost](https://localhost).
+
 ## Authentication
 
 Copy `.env.example` to `.env` and set `SUPER_ADMIN_EMAIL` to automatically
