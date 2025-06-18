@@ -21,7 +21,7 @@
     "generate:schemas": "ts-to-zod --skipValidation --all && npm run validate:generated",
     "validate:generated": "tsc --noEmit -p tsconfig.generated.json",
     "generate:migrations": "drizzle-kit generate:sqlite",
-    "website": "ts-node --transpile-only scripts/generateWebsiteImages.ts && eleventy",
+    "website": "LD_LIBRARY_PATH=$(pwd)/node_modules/@img/sharp-linux-x64/node_modules/@img/sharp-libvips-linux-x64/lib:$LD_LIBRARY_PATH ts-node --transpile-only scripts/generateWebsiteImages.ts && eleventy",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
