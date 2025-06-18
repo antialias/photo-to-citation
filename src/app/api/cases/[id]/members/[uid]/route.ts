@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export const DELETE = withAuthorization(
   "cases",
-  "update",
+  "read",
   async (
     _req: Request,
     {

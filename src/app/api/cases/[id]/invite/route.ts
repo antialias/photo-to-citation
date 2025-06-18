@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
   "cases",
-  "update",
+  "read",
   async (
     req: Request,
     {

@@ -3,6 +3,7 @@ import {
   analyzePhotoInBackground,
   removePhotoAnalysis,
 } from "@/lib/caseAnalysis";
+import { isCaseMember } from "@/lib/caseMembers";
 import {
   addCasePhoto,
   getCase,
@@ -13,17 +14,27 @@ import { NextResponse } from "next/server";
 
 export const DELETE = withAuthorization(
   "cases",
-  "update",
+  "read",
   async (
     req: Request,
     {
       params,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { role?: string } };
+      session?: { user?: { id?: string; role?: string } };
     },
   ) => {
     const { id } = await params;
+    const userId = session?.user?.id;
+    const role = session?.user?.role ?? "user";
+    if (
+      role !== "admin" &&
+      role !== "superadmin" &&
+      (!userId || !isCaseMember(id, userId))
+    ) {
+      return new Response(null, { status: 403 });
+    }
     const { photo } = (await req.json()) as { photo: string };
     const updated = removeCasePhoto(id, photo);
     if (!updated) {
@@ -37,17 +48,27 @@ export const DELETE = withAuthorization(
 
 export const POST = withAuthorization(
   "cases",
-  "update",
+  "read",
   async (
     req: Request,
     {
       params,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { role?: string } };
+      session?: { user?: { id?: string; role?: string } };
     },
   ) => {
     const { id } = await params;
+    const userId = session?.user?.id;
+    const role = session?.user?.role ?? "user";
+    if (
+      role !== "admin" &&
+      role !== "superadmin" &&
+      (!userId || !isCaseMember(id, userId))
+    ) {
+      return new Response(null, { status: 403 });
+    }
     const { photo, takenAt, gps } = (await req.json()) as {
       photo: string;
       takenAt?: string | null;

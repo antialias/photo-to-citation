@@ -1,4 +1,5 @@
 import { withAuthorization } from "@/lib/authz";
+import { isCaseMember } from "@/lib/caseMembers";
 import { addOwnershipRequest } from "@/lib/caseStore";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
@@ -6,17 +7,27 @@ import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
   "cases",
-  "update",
+  "read",
   async (
     req: Request,
     {
       params,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { role?: string } };
+      session?: { user?: { id?: string; role?: string } };
     },
   ) => {
     const { id } = await params;
+    const userId = session?.user?.id;
+    const role = session?.user?.role ?? "user";
+    if (
+      role !== "admin" &&
+      role !== "superadmin" &&
+      (!userId || !isCaseMember(id, userId))
+    ) {
+      return new Response(null, { status: 403 });
+    }
     const { moduleId, checkNumber, snailMail } = (await req.json()) as {
       moduleId: string;
       checkNumber?: string | null;
