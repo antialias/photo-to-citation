@@ -396,6 +396,10 @@ export function addOwnershipRequest(
   return current;
 }
 
+export function setCasePublic(id: string, isPublic: boolean): Case | undefined {
+  return updateCase(id, { public: isPublic });
+}
+
 export function deleteCase(id: string): boolean {
   const current = getCaseRow(id);
   if (!current) return false;

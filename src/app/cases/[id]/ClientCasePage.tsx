@@ -230,6 +230,19 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
+  async function togglePublic() {
+    const res = await apiFetch(`/api/cases/${caseId}/public`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public: !(caseData?.public ?? false) }),
+    });
+    if (!res.ok) {
+      alert("Failed to update visibility.");
+      return;
+    }
+    await refreshCase();
+  }
+
   async function reanalyzePhoto(
     photo: string,
     detailsEl?: HTMLDetailsElement | null,
@@ -416,6 +429,19 @@ export default function ClientCasePage({
                 <p>
                   <span className="font-semibold">Created:</span>{" "}
                   {new Date(caseData.createdAt).toLocaleString()}
+                </p>
+                <p>
+                  <span className="font-semibold">Visibility:</span>{" "}
+                  {caseData.public ? "Public" : "Private"}
+                  {(isAdmin || session?.user) && (
+                    <button
+                      type="button"
+                      onClick={togglePublic}
+                      className="ml-2 text-blue-500 underline"
+                    >
+                      Make {caseData.public ? "Private" : "Public"}
+                    </button>
+                  )}
                 </p>
                 {caseData.streetAddress ? (
                   <p>
