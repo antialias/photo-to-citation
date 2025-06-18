@@ -52,4 +52,19 @@ describe("case authorization", () => {
     });
     expect(res.status).toBe(403);
   });
+
+  it("rejects public toggle by non-member", async () => {
+    const c = caseStore.createCase("/c.jpg", null, undefined, null, "u1");
+    const { PUT } = await import("../src/app/api/cases/[id]/public/route");
+    const req = new Request("http://test", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public: true }),
+    });
+    const res = await PUT(req, {
+      params: Promise.resolve({ id: c.id }),
+      session: { user: { id: "u2", role: "user" } },
+    });
+    expect(res.status).toBe(403);
+  });
 });

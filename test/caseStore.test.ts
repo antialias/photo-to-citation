@@ -146,4 +146,14 @@ describe("caseStore", () => {
     const c = createCase("/own.jpg", null, undefined, null, "u1");
     expect(members.isCaseMember(c.id, "u1", "owner")).toBe(true);
   });
+
+  it("toggles public flag", () => {
+    const { createCase, setCasePublic, getCase } = caseStore;
+    const c = createCase("/pub.jpg", null);
+    expect(c.public).toBe(false);
+    const updated = setCasePublic(c.id, true);
+    expect(updated?.public).toBe(true);
+    const stored = getCase(c.id);
+    expect(stored?.public).toBe(true);
+  });
 });
