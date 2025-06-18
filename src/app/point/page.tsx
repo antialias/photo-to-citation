@@ -16,7 +16,7 @@ export default function PointAndShootPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const workerRef = useRef<Worker>();
+  const workerRef = useRef<Worker | null>(null);
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const uploadCase = useNewCaseFromFiles();
