@@ -9,11 +9,16 @@ export const GET = withAuthorization(
   "read",
   async (
     req: Request,
-    _ctx: {
+    {
+      session,
+    }: {
       params: Promise<Record<string, string>>;
       session?: { user?: { role?: string } };
     },
   ) => {
+    if (!session?.user) {
+      return new Response(null, { status: 403 });
+    }
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {

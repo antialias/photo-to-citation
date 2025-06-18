@@ -67,4 +67,13 @@ describe("case authorization", () => {
     });
     expect(res.status).toBe(403);
   });
+
+  it("rejects private case read by anonymous user", async () => {
+    const c = caseStore.createCase("/d.jpg", null, undefined, null, "u1");
+    const { GET } = await import("../src/app/api/cases/[id]/route");
+    const res = await GET(new Request("http://test"), {
+      params: Promise.resolve({ id: c.id }),
+    });
+    expect(res.status).toBe(403);
+  });
 });
