@@ -49,7 +49,10 @@ export async function authorize(
 }
 
 export function withAuthorization<
-  C extends { session?: { user?: { role?: string } } },
+  C extends {
+    params: Promise<Record<string, string>>;
+    session?: { user?: { role?: string } };
+  },
   R = Response,
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {

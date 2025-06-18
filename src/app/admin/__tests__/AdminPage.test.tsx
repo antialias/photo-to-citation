@@ -1,12 +1,12 @@
 import { getServerSession } from "next-auth/next";
-import { describe, expect, it, vi } from "vitest";
+import { expect, it, vi } from "vitest";
 import AdminPage from "../page";
 
 vi.mock("next-auth/next", () => ({
   getServerSession: vi.fn(),
 }));
 
-vi.mock("../api/auth/[...nextauth]/route", () => ({
+vi.mock("@/lib/authOptions", () => ({
   authOptions: {},
 }));
 

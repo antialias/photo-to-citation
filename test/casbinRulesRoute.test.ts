@@ -32,6 +32,7 @@ describe("casbin rules API", () => {
   it("allows admins to read", async () => {
     const mod = await import("../src/app/api/casbin-rules/route");
     const res = await mod.GET(new Request("http://test"), {
+      params: Promise.resolve({}),
       session: { user: { role: "admin" } },
     });
     expect(res.status).toBe(200);
@@ -40,6 +41,7 @@ describe("casbin rules API", () => {
   it("rejects regular users", async () => {
     const mod = await import("../src/app/api/casbin-rules/route");
     const res = await mod.GET(new Request("http://test"), {
+      params: Promise.resolve({}),
       session: { user: { role: "user" } },
     });
     expect(res.status).toBe(403);
@@ -52,10 +54,12 @@ describe("casbin rules API", () => {
       body: JSON.stringify([]),
     });
     const ok = await mod.PUT(req, {
+      params: Promise.resolve({}),
       session: { user: { role: "superadmin" } },
     });
     expect(ok.status).toBe(200);
     const fail = await mod.PUT(req, {
+      params: Promise.resolve({}),
       session: { user: { role: "admin" } },
     });
     expect(fail.status).toBe(403);
@@ -74,6 +78,7 @@ describe("casbin rules API", () => {
       ]),
     });
     const res = await mod.PUT(req, {
+      params: Promise.resolve({}),
       session: { user: { role: "superadmin" } },
     });
     expect(res.status).toBe(200);

@@ -6,14 +6,28 @@ import {
 import { withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
-export const GET = withAuthorization("admin", "read", async () =>
-  NextResponse.json(getCasbinRules()),
+export const GET = withAuthorization(
+  "admin",
+  "read",
+  async (
+    _req: Request,
+    _ctx: {
+      params: Promise<Record<string, string>>;
+      session?: { user?: { role?: string } };
+    },
+  ) => NextResponse.json(getCasbinRules()),
 );
 
 export const PUT = withAuthorization(
   "superadmin",
   "update",
-  async (req: Request) => {
+  async (
+    req: Request,
+    _ctx: {
+      params: Promise<Record<string, string>>;
+      session?: { user?: { role?: string } };
+    },
+  ) => {
     const rules = (await req.json()) as CasbinRule[];
     const updated = await replaceCasbinRules(rules);
     return NextResponse.json(updated);

@@ -39,6 +39,7 @@ describe("protected routes", () => {
     form.append("photo", file);
     const req = new Request("http://test", { method: "POST", body: form });
     const res = await mod.POST(req as unknown as NextRequest, {
+      params: Promise.resolve({}),
       session: { user: { role: "guest" } },
     });
     expect(res.status).toBe(403);
