@@ -95,13 +95,22 @@ The system sends each photo to the configured language model with a prompt
 describing the expected fields. The response is validated against a schema
 before being stored in the case record.
 
-### 4.2 Handling Errors
+### 4.2 Local Browser Analysis
+
+The mobile `/point` page performs a quick pass using a lightweight WASM model
+running in a Web Worker. Each captured frame is evaluated locally so the user
+gets instant feedback on the likely violation type or detected license plate
+numbers. These hints appear below the camera view while the image uploads in
+the background. The final server‑side OpenAI workflow refines the results once
+the photo reaches the server.
+
+### 4.3 Handling Errors
 
 If the analysis fails or returns invalid data, the job logs an error and
 continues without blocking the case. Users can review the log and trigger a new
 analysis run if needed.
 
-### 4.3 Reanalyzing Cases
+### 4.4 Reanalyzing Cases
 
 Cases may be reanalyzed at any time. This is useful when analysis logic is
 updated or additional photos are added. Previous results are replaced with the
