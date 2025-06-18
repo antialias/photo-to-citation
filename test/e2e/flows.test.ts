@@ -5,6 +5,38 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
+let cookie = "";
+
+async function api(url: string, opts: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { ...(opts.headers || {}), cookie },
+    redirect: "manual",
+  });
+  const set = res.headers.get("set-cookie");
+  if (set) cookie = set.split(";")[0];
+  return res;
+}
+
+async function signIn(email: string) {
+  const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
+  await api(`${server.url}/api/auth/signin/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      email,
+      callbackUrl: server.url,
+    }),
+  });
+  const ver = await api(`${server.url}/api/test/verification-url`).then((r) =>
+    r.json(),
+  );
+  await api(
+    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
+  );
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -34,6 +66,7 @@ beforeAll(async () => {
     ),
   );
   server = await startServer(3003, env);
+  await signIn("user@example.com");
 }, 120000);
 
 afterAll(async () => {
@@ -47,7 +80,7 @@ describe("e2e flows", () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
-    const res = await fetch(`${server.url}/api/upload`, {
+    const res = await api("/api/upload", {
       method: "POST",
       body: form,
     });
@@ -58,11 +91,11 @@ describe("e2e flows", () => {
 
   async function fetchCase(id: string): Promise<Response> {
     for (let i = 0; i < 10; i++) {
-      const res = await fetch(`${server.url}/api/cases/${id}`);
+      const res = await api(`/api/cases/${id}`);
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));
     }
-    return fetch(`${server.url}/api/cases/${id}`);
+    return api(`/api/cases/${id}`);
   }
 
   async function waitForPhotos(id: string, count: number) {
@@ -80,7 +113,7 @@ describe("e2e flows", () => {
 
   async function putVin(id: string, vin: string): Promise<Response> {
     for (let i = 0; i < 10; i++) {
-      const res = await fetch(`${server.url}/api/cases/${id}/vin`, {
+      const res = await api(`/api/cases/${id}/vin`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vin }),
@@ -88,7 +121,7 @@ describe("e2e flows", () => {
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));
     }
-    return fetch(`${server.url}/api/cases/${id}/vin`, {
+    return api(`/api/cases/${id}/vin`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vin }),
@@ -104,7 +137,7 @@ describe("e2e flows", () => {
     const add = new FormData();
     add.append("photo", second);
     add.append("caseId", caseId);
-    const res2 = await fetch(`${server.url}/api/upload`, {
+    const res2 = await api("/api/upload", {
       method: "POST",
       body: add,
     });
@@ -115,7 +148,7 @@ describe("e2e flows", () => {
     let json = await waitForPhotos(caseId, 2);
     expect(json.photos).toHaveLength(2);
 
-    const delRes = await fetch(`${server.url}/api/cases/${caseId}/photos`, {
+    const delRes = await api(`/api/cases/${caseId}/photos`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ photo: json.photos[0] }),
@@ -124,17 +157,14 @@ describe("e2e flows", () => {
     json = await waitForPhotos(caseId, 1);
     expect(json.photos).toHaveLength(1);
 
-    const overrideRes = await fetch(
-      `${server.url}/api/cases/${caseId}/override`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vehicle: { licensePlateNumber: "ABC123", licensePlateState: "IL" },
-          violationType: "parking",
-        }),
-      },
-    );
+    const overrideRes = await api(`/api/cases/${caseId}/override`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicle: { licensePlateNumber: "ABC123", licensePlateState: "IL" },
+        violationType: "parking",
+      }),
+    });
     expect(overrideRes.status).toBe(200);
     json = await overrideRes.json();
     expect(json.analysis.vehicle.licensePlateNumber).toBe("ABC123");
@@ -144,30 +174,27 @@ describe("e2e flows", () => {
     json = await vinRes.json();
     expect(json.vin).toBe("1HGCM82633A004352");
 
-    const ownRes = await fetch(
-      `${server.url}/api/cases/${caseId}/ownership-request`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ moduleId: "il", checkNumber: "42" }),
-      },
-    );
+    const ownRes = await api(`/api/cases/${caseId}/ownership-request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ moduleId: "il", checkNumber: "42" }),
+    });
     expect(ownRes.status).toBe(200);
     json = await ownRes.json();
     expect(json.ownershipRequests).toHaveLength(1);
 
-    const delCase = await fetch(`${server.url}/api/cases/${caseId}`, {
+    const delCase = await api(`/api/cases/${caseId}`, {
       method: "DELETE",
     });
     expect(delCase.status).toBe(200);
-    const notFound = await fetch(`${server.url}/api/cases/${caseId}`);
+    const notFound = await api(`/api/cases/${caseId}`);
     expect(notFound.status).toBe(404);
   }, 30000);
 
   it("shows summary for multiple cases", async () => {
     const id1 = await createCase();
     const id2 = await createCase();
-    const res = await fetch(`${server.url}/cases?ids=${id1},${id2}`);
+    const res = await api(`/cases?ids=${id1},${id2}`);
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("Case Summary");
@@ -175,11 +202,11 @@ describe("e2e flows", () => {
 
   it("deletes a case", async () => {
     const id = await createCase();
-    const del = await fetch(`${server.url}/api/cases/${id}`, {
+    const del = await api(`/api/cases/${id}`, {
       method: "DELETE",
     });
     expect(del.status).toBe(200);
-    const notFound = await fetch(`${server.url}/api/cases/${id}`);
+    const notFound = await api(`/api/cases/${id}`);
     expect(notFound.status).toBe(404);
   }, 30000);
 
@@ -187,19 +214,19 @@ describe("e2e flows", () => {
     const id1 = await createCase();
     const id2 = await createCase();
     const [r1, r2] = await Promise.all([
-      fetch(`${server.url}/api/cases/${id1}`, { method: "DELETE" }),
-      fetch(`${server.url}/api/cases/${id2}`, { method: "DELETE" }),
+      api(`/api/cases/${id1}`, { method: "DELETE" }),
+      api(`/api/cases/${id2}`, { method: "DELETE" }),
     ]);
     expect(r1.status).toBe(200);
     expect(r2.status).toBe(200);
-    const nf1 = await fetch(`${server.url}/api/cases/${id1}`);
-    const nf2 = await fetch(`${server.url}/api/cases/${id2}`);
+    const nf1 = await api(`/api/cases/${id1}`);
+    const nf2 = await api(`/api/cases/${id2}`);
     expect(nf1.status).toBe(404);
     expect(nf2.status).toBe(404);
   }, 30000);
 
   it("toggles vin source modules", async () => {
-    const listRes = await fetch(`${server.url}/api/vin-sources`);
+    const listRes = await api("/api/vin-sources");
     expect(listRes.status).toBe(200);
     const list = (await listRes.json()) as Array<{
       id: string;
@@ -207,7 +234,7 @@ describe("e2e flows", () => {
     }>;
     expect(Array.isArray(list)).toBe(true);
     const id = list[0].id;
-    const update = await fetch(`${server.url}/api/vin-sources/${id}`, {
+    const update = await api(`/api/vin-sources/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: false }),
