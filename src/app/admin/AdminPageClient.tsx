@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSession } from "../useSession";
 
 export interface UserRecord {
   id: string;
@@ -29,6 +30,15 @@ export default function AdminPageClient({
   const [users, setUsers] = useState(initialUsers);
   const [rules, setRules] = useState(initialRules);
   const [inviteEmail, setInviteEmail] = useState("");
+  const [rulesText, setRulesText] = useState(
+    JSON.stringify(initialRules, null, 2),
+  );
+  const { data: session } = useSession();
+  const isSuperadmin = session?.user?.role === "superadmin";
+
+  useEffect(() => {
+    setRulesText(JSON.stringify(rules, null, 2));
+  }, [rules]);
 
   async function refreshUsers() {
     const res = await apiFetch("/api/users");
@@ -53,6 +63,21 @@ export default function AdminPageClient({
   async function remove(id: string) {
     await apiFetch(`/api/users/${id}`, { method: "DELETE" });
     refreshUsers();
+  }
+
+  async function saveRules() {
+    if (!isSuperadmin) return;
+    try {
+      const parsed = JSON.parse(rulesText) as CasbinRule[];
+      const res = await apiFetch("/api/casbin-rules", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed),
+      });
+      if (res.ok) setRules(await res.json());
+    } catch {
+      alert("Invalid rules JSON");
+    }
   }
 
   return (
@@ -104,6 +129,20 @@ export default function AdminPageClient({
           </li>
         ))}
       </ul>
+      <textarea
+        value={rulesText}
+        onChange={(e) => setRulesText(e.target.value)}
+        rows={10}
+        className="border p-1 w-full my-2 bg-white dark:bg-gray-900"
+      />
+      <button
+        type="button"
+        onClick={saveRules}
+        disabled={!isSuperadmin}
+        className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50"
+      >
+        Save Rules
+      </button>
     </div>
   );
 }

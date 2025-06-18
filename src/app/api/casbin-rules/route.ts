@@ -11,7 +11,7 @@ export const GET = withAuthorization("admin", "read", async () =>
 );
 
 export const PUT = withAuthorization(
-  "admin",
+  "superadmin",
   "update",
   async (req: Request) => {
     const rules = (await req.json()) as CasbinRule[];
