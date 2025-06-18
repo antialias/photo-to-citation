@@ -5,6 +5,38 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
+let cookie = "";
+
+async function api(url: string, opts: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { ...(opts.headers || {}), cookie },
+    redirect: "manual",
+  });
+  const set = res.headers.get("set-cookie");
+  if (set) cookie = set.split(";")[0];
+  return res;
+}
+
+async function signIn(email: string) {
+  const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
+  await api(`${server.url}/api/auth/signin/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      email,
+      callbackUrl: server.url,
+    }),
+  });
+  const ver = await api(`${server.url}/api/test/verification-url`).then((r) =>
+    r.json(),
+  );
+  await api(
+    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
+  );
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -61,6 +93,7 @@ beforeAll(async () => {
     ),
   );
   server = await startServer(3008, env);
+  await signIn("user@example.com");
 }, 120000);
 
 afterAll(async () => {
@@ -74,7 +107,7 @@ describe("snail mail providers", () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
-    const res = await fetch(`${server.url}/api/upload`, {
+    const res = await api(`${server.url}/api/upload`, {
       method: "POST",
       body: form,
     });
@@ -84,7 +117,7 @@ describe("snail mail providers", () => {
   }
 
   it("lists providers", async () => {
-    const res = await fetch(`${server.url}/api/snail-mail-providers`);
+    const res = await api(`${server.url}/api/snail-mail-providers`);
     expect(res.status).toBe(200);
     const list = (await res.json()) as Array<{ id: string; active: boolean }>;
     expect(Array.isArray(list)).toBe(true);
@@ -92,7 +125,7 @@ describe("snail mail providers", () => {
   }, 30000);
 
   it("activates a provider", async () => {
-    const res = await fetch(`${server.url}/api/snail-mail-providers/mock`, {
+    const res = await api(`${server.url}/api/snail-mail-providers/mock`, {
       method: "PUT",
     });
     expect(res.status).toBe(200);
@@ -102,7 +135,7 @@ describe("snail mail providers", () => {
   }, 30000);
 
   it("returns 404 for unknown provider", async () => {
-    const res = await fetch(`${server.url}/api/snail-mail-providers/none`, {
+    const res = await api(`${server.url}/api/snail-mail-providers/none`, {
       method: "PUT",
     });
     expect(res.status).toBe(404);
@@ -110,7 +143,7 @@ describe("snail mail providers", () => {
 
   it("sends snail mail followup", async () => {
     const id = await createCase();
-    const res = await fetch(`${server.url}/api/cases/${id}/followup`, {
+    const res = await api(`${server.url}/api/cases/${id}/followup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

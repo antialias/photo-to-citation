@@ -6,6 +6,38 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
+let cookie = "";
+
+async function api(url: string, opts: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { ...(opts.headers || {}), cookie },
+    redirect: "manual",
+  });
+  const set = res.headers.get("set-cookie");
+  if (set) cookie = set.split(";")[0];
+  return res;
+}
+
+async function signIn(email: string) {
+  const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
+  await api(`${server.url}/api/auth/signin/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      email,
+      callbackUrl: server.url,
+    }),
+  });
+  const ver = await api(`${server.url}/api/test/verification-url`).then((r) =>
+    r.json(),
+  );
+  await api(
+    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
+  );
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -38,6 +70,7 @@ beforeAll(async () => {
     ),
   );
   server = await startServer(3005, env);
+  await signIn("user@example.com");
 }, 120000);
 
 afterAll(async () => {
@@ -52,7 +85,7 @@ describe("follow up", () => {
     const form = new FormData();
     form.append("photo", file);
     for (let i = 0; i < 20; i++) {
-      const res = await fetch(`${server.url}/api/upload`, {
+      const res = await api(`${server.url}/api/upload`, {
         method: "POST",
         body: form,
       });
@@ -62,7 +95,7 @@ describe("follow up", () => {
       }
       await new Promise((r) => setTimeout(r, 500));
     }
-    const final = await fetch(`${server.url}/api/upload`, {
+    const final = await api(`${server.url}/api/upload`, {
       method: "POST",
       body: form,
     });
@@ -72,11 +105,11 @@ describe("follow up", () => {
 
   async function fetchFollowup(id: string): Promise<Response> {
     for (let i = 0; i < 20; i++) {
-      const res = await fetch(`${server.url}/api/cases/${id}/followup`);
+      const res = await api(`${server.url}/api/cases/${id}/followup`);
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));
     }
-    return fetch(`${server.url}/api/cases/${id}/followup`);
+    return api(`${server.url}/api/cases/${id}/followup`);
   }
 
   it("passes prior emails to openai", async () => {

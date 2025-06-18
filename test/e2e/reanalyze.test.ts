@@ -5,6 +5,38 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
+let cookie = "";
+
+async function api(url: string, opts: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { ...(opts.headers || {}), cookie },
+    redirect: "manual",
+  });
+  const set = res.headers.get("set-cookie");
+  if (set) cookie = set.split(";")[0];
+  return res;
+}
+
+async function signIn(email: string) {
+  const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
+  await api(`${server.url}/api/auth/signin/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      email,
+      callbackUrl: server.url,
+    }),
+  });
+  const ver = await api(`${server.url}/api/test/verification-url`).then((r) =>
+    r.json(),
+  );
+  await api(
+    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
+  );
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -30,6 +62,7 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
     ),
   );
   server = await startServer(3010, env);
+  await signIn("user@example.com");
 }
 
 async function teardown() {
@@ -62,7 +95,7 @@ describe("reanalysis", () => {
       });
       const form = new FormData();
       form.append("photo", file);
-      const res = await fetch(`${server.url}/api/upload`, {
+      const res = await api(`${server.url}/api/upload`, {
         method: "POST",
         body: form,
       });
@@ -78,7 +111,7 @@ describe("reanalysis", () => {
       };
       let json: CaseData | undefined;
       for (let i = 0; i < 10; i++) {
-        const check = await fetch(`${server.url}/api/cases/${caseId}`);
+        const check = await api(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) {
           json = (await check.json()) as CaseData;
           break;
@@ -91,7 +124,7 @@ describe("reanalysis", () => {
       photoName = path.basename(photo);
       expect(json.analysis?.vehicle?.licensePlateNumber).toBeUndefined();
 
-      const re = await fetch(
+      const re = await api(
         `${server.url}/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(
           photo,
         )}`,
@@ -99,7 +132,7 @@ describe("reanalysis", () => {
       );
       expect(re.status).toBe(200);
       for (let i = 0; i < 10; i++) {
-        const check = await fetch(`${server.url}/api/cases/${caseId}`);
+        const check = await api(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) break;
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
@@ -132,7 +165,7 @@ describe("reanalysis", () => {
       });
       const form = new FormData();
       form.append("photo", file);
-      const res = await fetch(`${server.url}/api/upload`, {
+      const res = await api(`${server.url}/api/upload`, {
         method: "POST",
         body: form,
       });
@@ -147,7 +180,7 @@ describe("reanalysis", () => {
       };
       let json: CaseData | undefined;
       for (let i = 0; i < 10; i++) {
-        const check = await fetch(`${server.url}/api/cases/${caseId}`);
+        const check = await api(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) {
           json = (await check.json()) as CaseData;
           break;
@@ -160,7 +193,7 @@ describe("reanalysis", () => {
       photoName = path.basename(photo);
       expect(json.analysis?.images?.[photoName]).toBeUndefined();
 
-      const re = await fetch(
+      const re = await api(
         `${server.url}/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(
           photo,
         )}`,
@@ -168,7 +201,7 @@ describe("reanalysis", () => {
       );
       expect(re.status).toBe(200);
       for (let i = 0; i < 10; i++) {
-        const check = await fetch(`${server.url}/api/cases/${caseId}`);
+        const check = await api(`${server.url}/api/cases/${caseId}`);
         if (check.status === 200) break;
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
