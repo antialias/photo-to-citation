@@ -5,6 +5,11 @@ import EmailProvider from "next-auth/providers/email";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { sendEmail } from "./email";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  console.error("NEXTAUTH_SECRET not configured");
+  process.exit(1);
+}
+
 seedSuperAdmin().catch(() => {});
 
 export const authOptions: NextAuthOptions = {
