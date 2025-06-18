@@ -27,7 +27,7 @@ export default function AdminPageClient({
   initialRules: CasbinRule[];
 }) {
   const [users, setUsers] = useState(initialUsers);
-  const [rules, setRules] = useState(initialRules);
+  const [rules] = useState(initialRules);
   const [inviteEmail, setInviteEmail] = useState("");
 
   async function refreshUsers() {
