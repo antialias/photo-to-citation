@@ -195,12 +195,17 @@ export default function ClientCasesPage({
               className="flex items-start gap-4 w-full text-left"
             >
               <div className="relative">
-                <Image
-                  src={getRepresentativePhoto(c)}
-                  alt="case thumbnail"
-                  width={80}
-                  height={60}
-                />
+                {(() => {
+                  const photo = getRepresentativePhoto(c);
+                  return photo ? (
+                    <Image
+                      src={photo}
+                      alt="case thumbnail"
+                      width={80}
+                      height={60}
+                    />
+                  ) : null;
+                })()}
                 {c.photos.length > 1 ? (
                   <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
                     {c.photos.length}

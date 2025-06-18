@@ -12,11 +12,12 @@ export default async function MapPage() {
   const mapped = cases
     .map((c) => {
       const gps = getOfficialCaseGps(c);
-      if (!gps) return null;
+      const photo = getRepresentativePhoto(c);
+      if (!gps || !photo) return null;
       return {
         id: c.id,
         gps,
-        photo: getRepresentativePhoto(c),
+        photo,
       };
     })
     .filter(Boolean) as Array<{

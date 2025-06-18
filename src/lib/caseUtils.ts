@@ -7,7 +7,7 @@ import type { ViolationReport } from "./openai";
 
 export function getRepresentativePhoto(
   caseData: Pick<Case, "photos" | "analysis">,
-): string {
+): string | null {
   if (caseData.analysis?.images) {
     const entries = Object.entries(caseData.analysis.images).sort(
       (a, b) => b[1].representationScore - a[1].representationScore,
@@ -19,7 +19,8 @@ export function getRepresentativePhoto(
       if (file) return file;
     }
   }
-  return [...caseData.photos].sort()[0];
+  const sorted = [...caseData.photos].sort();
+  return sorted.length > 0 ? sorted[0] : null;
 }
 
 export function getOfficialCaseGps(caseData: Case): Case["gps"] {
