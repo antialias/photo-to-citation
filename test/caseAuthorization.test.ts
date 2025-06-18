@@ -76,4 +76,19 @@ describe("case authorization", () => {
     });
     expect(res.status).toBe(403);
   });
+
+  it("allows superadmin to toggle visibility", async () => {
+    const c = caseStore.createCase("/d.jpg", null, undefined, null, "u1");
+    const { PUT } = await import("../src/app/api/cases/[id]/public/route");
+    const req = new Request("http://test", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public: true }),
+    });
+    const res = await PUT(req, {
+      params: Promise.resolve({ id: c.id }),
+      session: { user: { id: "s1", role: "superadmin" } },
+    });
+    expect(res.status).toBe(200);
+  });
 });
