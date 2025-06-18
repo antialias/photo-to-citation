@@ -120,7 +120,7 @@ describe("admin actions", () => {
     await signIn("super2@example.com");
     const rules = (await api("/api/casbin-rules").then((r) =>
       r.json(),
-    )) as Array<{ v2?: string }>;
+    )) as Array<import("@/lib/adminStore").CasbinRule>;
     rules.push({ ptype: "p", v0: "user", v1: "cases", v2: "extra" });
     const res = await api("/api/casbin-rules", {
       method: "PUT",

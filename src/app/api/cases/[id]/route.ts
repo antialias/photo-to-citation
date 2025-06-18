@@ -1,4 +1,5 @@
 import { withAuthorization, withCaseAuthorization } from "@/lib/authz";
+import { isCaseMember } from "@/lib/caseMembers";
 import { deleteCase, getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
