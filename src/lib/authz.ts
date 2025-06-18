@@ -45,12 +45,9 @@ export async function authorize(
 
 export function withAuthorization<
   C extends { session?: { user?: { role?: string } } },
->(
-  obj: string,
-  act: string,
-  handler: (req: Request, ctx: C) => Promise<Response> | Response,
-) {
-  return async (req: Request, ctx: C) => {
+  R = Response,
+>(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
+  return async (req: Request, ctx: C): Promise<R | Response> => {
     const role = ctx.session?.user?.role ?? "user";
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
