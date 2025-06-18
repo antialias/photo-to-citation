@@ -13,6 +13,16 @@ export default function PointAndShootPage() {
 
   useEffect(() => {
     async function startCamera() {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraError(
+          "Camera API not available. Use HTTPS and a compatible browser.",
+        );
+        return;
+      }
+      if (location.protocol !== "https:" && location.hostname !== "localhost") {
+        setCameraError("Camera requires a secure connection (HTTPS).");
+        return;
+      }
       try {
         const constraints = {
           audio: false,
