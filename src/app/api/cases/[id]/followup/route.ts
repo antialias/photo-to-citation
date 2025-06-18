@@ -1,4 +1,5 @@
 import { withAuthorization } from "@/lib/authz";
+import { isCaseMember } from "@/lib/caseMembers";
 import { draftFollowUp } from "@/lib/caseReport";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
@@ -29,12 +30,22 @@ export const GET = withAuthorization(
     req: Request,
     {
       params,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { role?: string } };
+      session?: { user?: { id?: string; role?: string } };
     },
   ) => {
     const { id } = await params;
+    const userId = session?.user?.id;
+    const role = session?.user?.role ?? "user";
+    if (
+      role !== "admin" &&
+      role !== "superadmin" &&
+      (!userId || !isCaseMember(id, userId))
+    ) {
+      return new Response(null, { status: 403 });
+    }
     const url = new URL(req.url);
     const replyTo = url.searchParams.get("replyTo");
     console.log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);
@@ -65,7 +76,7 @@ export const GET = withAuthorization(
 
 export const POST = withAuthorization(
   "cases",
-  "update",
+  "read",
   async (
     req: Request,
     {
