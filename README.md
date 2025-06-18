@@ -45,6 +45,8 @@ Then browse to [https://localhost](https://localhost).
 Copy `.env.example` to `.env` and set `SUPER_ADMIN_EMAIL` to automatically
 promote that user to the `superadmin` role on their first sign in. When the
 variable is omitted, the very first registered user becomes the super admin.
+The `NEXTAUTH_SECRET` variable **must** also be set to keep sessions valid;
+the server exits with an error when it is missing.
 
 NextAuth now integrates with Drizzle using a custom adapter that points to the
 `users` table so the user's role appears in the session object.
