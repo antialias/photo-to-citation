@@ -12,7 +12,11 @@ export interface UserRecord {
 }
 
 export function listUsers(): UserRecord[] {
-  return orm.select().from(users).all();
+  return orm
+    .select()
+    .from(users)
+    .all()
+    .map((u) => ({ ...u }));
 }
 
 export function inviteUser(email: string, role = "user"): UserRecord {
@@ -44,7 +48,11 @@ export interface CasbinRule {
 }
 
 export function getCasbinRules(): CasbinRule[] {
-  return orm.select().from(casbinRules).all();
+  return orm
+    .select()
+    .from(casbinRules)
+    .all()
+    .map((r) => ({ ...r }));
 }
 
 export async function replaceCasbinRules(
