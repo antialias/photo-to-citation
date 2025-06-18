@@ -17,6 +17,10 @@ beforeEach(async () => {
   await db.migrationsReady;
   ({ orm } = await import("../src/lib/orm"));
   schema = await import("../src/lib/schema");
+  orm
+    .insert(schema.casbinRules)
+    .values({ ptype: "p", v0: "user", v1: "cases", v2: "read" })
+    .run();
   orm.insert(schema.users).values({ id: "u1" }).run();
   orm.insert(schema.users).values({ id: "u2" }).run();
   orm.insert(schema.users).values({ id: "u3", role: "admin" }).run();

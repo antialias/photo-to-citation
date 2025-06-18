@@ -17,6 +17,10 @@ beforeEach(async () => {
     .insert(casbinRules)
     .values({ ptype: "p", v0: "superadmin", v1: "cases", v2: "delete" })
     .run();
+  orm
+    .insert(casbinRules)
+    .values({ ptype: "p", v0: "user", v1: "cases", v2: "read" })
+    .run();
   orm.insert(users).values({ id: "u1" }).run();
   orm.insert(users).values({ id: "u2" }).run();
 });
