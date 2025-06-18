@@ -24,7 +24,13 @@ export async function startServer(
 ): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
   const proc = spawn(nextBin, ["dev", "-p", String(port)], {
-    env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1", ...env, CI: "1" },
+    env: {
+      ...process.env,
+      NEXT_TELEMETRY_DISABLED: "1",
+      TEST_APIS: "1",
+      ...env,
+      CI: "1",
+    },
     stdio: ["ignore", "pipe", "pipe"],
   });
   let output = "";
