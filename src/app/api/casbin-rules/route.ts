@@ -15,7 +15,7 @@ export const PUT = withAuthorization(
   "update",
   async (req: Request) => {
     const rules = (await req.json()) as CasbinRule[];
-    const updated = replaceCasbinRules(rules);
+    const updated = await replaceCasbinRules(rules);
     return NextResponse.json(updated);
   },
 );

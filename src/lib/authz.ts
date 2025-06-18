@@ -34,6 +34,11 @@ async function loadEnforcer(): Promise<Enforcer> {
   return enforcer;
 }
 
+export async function reloadEnforcer(): Promise<Enforcer> {
+  enforcer = undefined;
+  return loadEnforcer();
+}
+
 export async function authorize(
   sub: string,
   obj: string,
