@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import type { AdapterUser } from "@auth/core/adapters";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq, sql } from "drizzle-orm";
 import { migrationsReady } from "./db";
@@ -6,11 +7,14 @@ import { orm } from "./orm";
 import { users } from "./schema";
 
 export function authAdapter() {
-  const base = DrizzleAdapter(orm, { usersTable: users });
+  const base = DrizzleAdapter<typeof orm>(orm, {
+    usersTable: users,
+  } as unknown as Parameters<typeof DrizzleAdapter<typeof orm>>[1]);
   return {
     ...base,
-    async createUser(data) {
+    async createUser(data: AdapterUser & { id?: string }) {
       if (!data.id) data.id = crypto.randomUUID();
+      if (!base.createUser) throw new Error("createUser not implemented");
       return base.createUser(data);
     },
   };
