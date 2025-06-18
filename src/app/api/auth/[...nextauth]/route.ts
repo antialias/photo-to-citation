@@ -11,7 +11,7 @@ import EmailProvider from "next-auth/providers/email";
 
 seedSuperAdmin().catch(() => {});
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: authAdapter() as Adapter,
   providers: [
     EmailProvider({
