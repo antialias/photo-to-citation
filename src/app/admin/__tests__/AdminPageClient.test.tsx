@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import AdminPageClient from "../AdminPageClient";
 
 const users = [{ id: "1", email: "a@example.com", name: null, role: "admin" }];
