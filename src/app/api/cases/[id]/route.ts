@@ -9,15 +9,23 @@ export const GET = withAuthorization(
     req: Request,
     {
       params,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { role?: string } };
+      session?: { user?: { id?: string; role?: string } };
     },
   ) => {
     const { id } = await params;
     const c = getCase(id);
     if (!c) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    const userId = session?.user?.id;
+    const role = session?.user?.role ?? "user";
+    if (!c.public && role !== "admin" && role !== "superadmin") {
+      if (!userId || !isCaseMember(id, userId)) {
+        return new Response(null, { status: 403 });
+      }
     }
     return NextResponse.json(c);
   },

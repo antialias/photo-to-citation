@@ -27,7 +27,7 @@ describe("protected routes", () => {
     const mod = await import("../src/app/api/cases/[id]/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({ id: c.id }),
-      session: { user: { role: "guest" } },
+      session: { user: { role: "anonymous" } },
     });
     expect(res.status).toBe(403);
   });
@@ -40,7 +40,7 @@ describe("protected routes", () => {
     const req = new Request("http://test", { method: "POST", body: form });
     const res = await mod.POST(req as unknown as NextRequest, {
       params: Promise.resolve({}),
-      session: { user: { role: "guest" } },
+      session: { user: { role: "anonymous" } },
     });
     expect(res.status).toBe(403);
   });
