@@ -89,14 +89,14 @@ The repository uses NextAuth for authentication and Casbin for authorization. Th
 - superadmin
 ```
 
-The super admin can promote other users, and Casbin policies determine what each role may do. Case collaboration introduces a `CaseMember` table with `owner` and `collaborator` roles, plus a `public` flag allowing anonymous viewing of a case. An admin interface lets admins manage users, while super admins can edit policies directly.
+The super admin can promote other users, and Casbin policies determine what each role may do. Case collaboration introduces a `CaseMember` table with `owner` and `collaborator` roles, plus a `public` flag allowing anonymous viewing of a case. An admin interface lets admins manage users, while super admins can edit policies directly. The policy migration seeds basic rules, including `("user", "upload", "create")` so authenticated users can submit photos by default.
 
 Below is a consolidated permissions matrix based on the existing code and this plan.
 
 | Resource/Action                                  | Anonymous | User | Collaborator (case) | Admin | Super Admin |
 |--------------------------------------------------|-----------|------|---------------------|-------|-------------|
 | **Authentication**                               | Sign in via NextAuth | ✓ | ✓ | ✓ | ✓ |
-| **Create case (photo upload)**                   | ✓ (no auth check) | ✓ | — | ✓ | ✓ |
+| **Create case (photo upload)**                   | — | ✓ | — | ✓ | ✓ |
 | **View public case**                             | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **View own case**                                | — | ✓ | ✓ (if added as collaborator) | ✓ | ✓ |
 | **Update or delete own case**                    | — | ✓ | — | ✓ | ✓ |
@@ -113,7 +113,7 @@ Below is a consolidated permissions matrix based on the existing code and this p
 
 **Notes**
 
-- Anonymous users can create cases because the upload API lacks authentication checks in the current code.
+- The upload API now uses `withAuthorization("upload", "create")`, so only logged-in roles with that permission may create cases. The initial Casbin policy migration seeds this rule for the `user` role.
 - The collaborator role is per-case and allows commenting on an invited case as noted in the docs.
 - Admin and Super Admin roles inherit all user abilities; Super Admin additionally controls policy editing.
 - A case marked `public` is viewable by anyone without authentication.
