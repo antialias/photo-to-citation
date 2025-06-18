@@ -1,11 +1,14 @@
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import {
+  SQLiteDrizzleAdapter,
+  defineTables,
+} from "@auth/drizzle-adapter/lib/sqlite.js";
 import { eq, sql } from "drizzle-orm";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { users } from "./schema";
 
 export function authAdapter() {
-  return DrizzleAdapter(orm, { usersTable: users });
+  return SQLiteDrizzleAdapter(orm, defineTables({ usersTable: users }));
 }
 
 export async function seedSuperAdmin(newUser?: {

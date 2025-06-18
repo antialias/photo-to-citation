@@ -1,4 +1,4 @@
-import { withCaseAuthorization } from "@/lib/authz";
+import { withAuthorization, withCaseAuthorization } from "@/lib/authz";
 import { draftOwnerNotification } from "@/lib/caseReport";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
 import { getCaseOwnerContactInfo } from "@/lib/caseUtils";
