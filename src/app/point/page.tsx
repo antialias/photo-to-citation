@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+
+// Worker for lightweight browser analysis
+const AnalyzerWorker = () =>
+  typeof Worker === "undefined"
+    ? null
+    : new Worker(new URL("./localAnalyzer.worker.ts", import.meta.url), {
+        type: "module",
+      });
 import useNewCaseFromFiles from "../useNewCaseFromFiles";
 
 export default function PointAndShootPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const workerRef = useRef<Worker>();
+  const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const uploadCase = useNewCaseFromFiles();
 
@@ -50,6 +60,38 @@ export default function PointAndShootPage() {
       }
     }
     startCamera();
+
+    const w = AnalyzerWorker();
+    if (w) {
+      workerRef.current = w;
+      w.postMessage({ type: "load", modelUrl: "/models/demo.onnx" });
+      w.onmessage = (e) => {
+        if (e.data.type === "result") {
+          const r = e.data.result as {
+            vehicle?: { licensePlateNumber?: string };
+            violationType?: string;
+          };
+          setAnalysisHint(
+            r.vehicle?.licensePlateNumber ?? r.violationType ?? null,
+          );
+        }
+      };
+    }
+
+    let handle = 0;
+    handle = window.setInterval(() => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      if (!video || !canvas || !w) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      w.postMessage({ type: "analyze", image: data }, [data.data.buffer]);
+    }, 2000);
+
     const v = videoRef.current;
     return () => {
       if (v?.srcObject) {
@@ -57,6 +99,8 @@ export default function PointAndShootPage() {
           t.stop();
         }
       }
+      if (w) w.terminate();
+      clearInterval(handle);
     };
   }, []);
 
@@ -118,6 +162,14 @@ export default function PointAndShootPage() {
         >
           Take Picture
         </button>
+        {analysisHint && (
+          <div
+            className="pointer-events-none text-white text-sm"
+            data-testid="hint"
+          >
+            {analysisHint}
+          </div>
+        )}
         <Link
           href="/cases"
           className="pointer-events-auto text-xs text-white underline mt-2"
