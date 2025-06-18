@@ -56,7 +56,7 @@ export function withAuthorization<
   R = Response,
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
-    const role = ctx.session?.user?.role ?? "user";
+    const role = ctx.session?.user?.role ?? "anonymous";
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
     }
