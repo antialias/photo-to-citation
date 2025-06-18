@@ -52,6 +52,10 @@ super admin.
 NextAuth now integrates with Drizzle using a custom adapter that points to the
 `users` table so the user's role appears in the session object.
 
+The sign‑in flow sends a verification email, so set `SMTP_HOST`, `SMTP_PORT`,
+`SMTP_USER`, `SMTP_PASS`, and `SMTP_FROM` in your environment. Without these
+values login emails cannot be delivered.
+
 ## Generating Zod Schemas
 
 When interfaces in `src/lib` change, update the runtime schemas and verify the output with:
