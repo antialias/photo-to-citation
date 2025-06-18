@@ -8,6 +8,10 @@ let dataDir: string;
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "sources-"));
   process.env.VIN_SOURCE_FILE = path.join(dataDir, "vinSources.json");
+  process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
+  vi.resetModules();
+  const db = await import("../src/lib/db");
+  await db.migrationsReady;
   const { defaultVinSources } = await import("../src/lib/vinSources");
   const statuses = defaultVinSources.map((s: { id: string }) => ({
     id: s.id,
@@ -21,6 +25,7 @@ afterEach(() => {
   fs.rmSync(dataDir, { recursive: true, force: true });
   vi.resetModules();
   process.env.VIN_SOURCE_FILE = undefined;
+  process.env.CASE_STORE_FILE = undefined;
 });
 
 describe("vin source health", () => {
@@ -33,5 +38,29 @@ describe("vin source health", () => {
     const list = store.getVinSourceStatuses();
     const item = list.find((s) => s.id === "edmunds");
     expect(item?.enabled).toBe(false);
+  });
+});
+
+describe("vin source API authorization", () => {
+  it("rejects listing without admin role", async () => {
+    const mod = await import("../src/app/api/vin-sources/route");
+    const res = await mod.GET(new Request("http://test"), {
+      session: { user: { role: "user" } },
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("rejects update without admin role", async () => {
+    const mod = await import("../src/app/api/vin-sources/[id]/route");
+    const req = new Request("http://test", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: false }),
+    });
+    const res = await mod.PUT(req, {
+      params: Promise.resolve({ id: "edmunds" }),
+      session: { user: { role: "user" } },
+    });
+    expect(res.status).toBe(403);
   });
 });

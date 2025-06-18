@@ -8,6 +8,10 @@ let dataDir: string;
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "mailprov-"));
   process.env.SNAIL_MAIL_PROVIDER_FILE = path.join(dataDir, "providers.json");
+  process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
+  vi.resetModules();
+  const db = await import("../src/lib/db");
+  await db.migrationsReady;
   const { snailMailProviders } = await import("../src/lib/snailMail");
   const statuses = Object.keys(snailMailProviders).map((id, idx) => ({
     id,
@@ -24,6 +28,7 @@ afterEach(() => {
   fs.rmSync(dataDir, { recursive: true, force: true });
   vi.resetModules();
   process.env.SNAIL_MAIL_PROVIDER_FILE = undefined;
+  process.env.CASE_STORE_FILE = undefined;
 });
 
 describe("snail mail provider store", () => {
@@ -42,5 +47,25 @@ describe("snail mail provider store", () => {
       .getSnailMailProviderStatuses()
       .find((p) => p.id === "mock");
     expect(item?.failureCount).toBe(1);
+  });
+});
+
+describe("snail mail provider API authorization", () => {
+  it("rejects listing without admin role", async () => {
+    const mod = await import("../src/app/api/snail-mail-providers/route");
+    const res = await mod.GET(new Request("http://test"), {
+      session: { user: { role: "user" } },
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("rejects update without admin role", async () => {
+    const mod = await import("../src/app/api/snail-mail-providers/[id]/route");
+    const req = new Request("http://test", { method: "PUT" });
+    const res = await mod.PUT(req, {
+      params: Promise.resolve({ id: "mock" }),
+      session: { user: { role: "user" } },
+    });
+    expect(res.status).toBe(403);
   });
 });
