@@ -1,15 +1,12 @@
 import crypto from "node:crypto";
-import {
-  SQLiteDrizzleAdapter,
-  defineTables,
-} from "@auth/drizzle-adapter/lib/sqlite.js";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq, sql } from "drizzle-orm";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { users } from "./schema";
 
 export function authAdapter() {
-  const base = SQLiteDrizzleAdapter(orm, defineTables({ usersTable: users }));
+  const base = DrizzleAdapter(orm, { usersTable: users });
   return {
     ...base,
     async createUser(data) {
