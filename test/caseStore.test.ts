@@ -6,6 +6,9 @@ import { getRepresentativePhoto } from "../src/lib/caseUtils";
 
 let dataDir: string;
 let caseStore: typeof import("../src/lib/caseStore");
+let members: typeof import("../src/lib/caseMembers");
+let orm: typeof import("../src/lib/orm").orm;
+let schema: typeof import("../src/lib/schema");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
@@ -13,6 +16,10 @@ beforeEach(async () => {
   vi.resetModules();
   const dbModule = await import("../src/lib/db");
   caseStore = await import("../src/lib/caseStore");
+  members = await import("../src/lib/caseMembers");
+  ({ orm } = await import("../src/lib/orm"));
+  schema = await import("../src/lib/schema");
+  orm.insert(schema.users).values({ id: "u1" }).run();
   await dbModule.migrationsReady;
 });
 
@@ -132,5 +139,11 @@ describe("caseStore", () => {
     expect(ok).toBe(true);
     expect(getCase(c.id)).toBeUndefined();
     expect(getCases()).toHaveLength(0);
+  });
+
+  it("adds owner membership when provided", () => {
+    const { createCase } = caseStore;
+    const c = createCase("/own.jpg", null, undefined, null, "u1");
+    expect(members.isCaseMember(c.id, "u1", "owner")).toBe(true);
   });
 });

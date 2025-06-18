@@ -11,7 +11,10 @@ import { NextResponse } from "next/server";
 export const POST = withAuthorization(
   "upload",
   "create",
-  async (req: Request) => {
+  async (
+    req: Request,
+    { session }: { session?: { user?: { id?: string } } },
+  ) => {
     const form = await req.formData();
     const file = form.get("photo") as File | null;
     const clientId = form.get("caseId") as string | null;
@@ -59,6 +62,7 @@ export const POST = withAuthorization(
       gps,
       clientId || undefined,
       takenAt,
+      session?.user?.id ?? null,
     );
     const p = updateCase(newCase.id, {
       analysisStatus: "pending",
