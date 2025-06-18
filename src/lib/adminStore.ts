@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
+import { reloadEnforcer } from "./authz";
 import { orm } from "./orm";
 import { casbinRules, users } from "./schema";
 
@@ -46,8 +47,11 @@ export function getCasbinRules(): CasbinRule[] {
   return orm.select().from(casbinRules).all();
 }
 
-export function replaceCasbinRules(rules: CasbinRule[]): CasbinRule[] {
+export async function replaceCasbinRules(
+  rules: CasbinRule[],
+): Promise<CasbinRule[]> {
   orm.delete(casbinRules).run();
   if (rules.length) orm.insert(casbinRules).values(rules).run();
+  await reloadEnforcer();
   return getCasbinRules();
 }

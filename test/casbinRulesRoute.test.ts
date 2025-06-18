@@ -60,4 +60,23 @@ describe("casbin rules API", () => {
     });
     expect(fail.status).toBe(403);
   });
+
+  it("applies new policies immediately", async () => {
+    const { authorize } = await import("../src/lib/authz");
+    const mod = await import("../src/app/api/casbin-rules/route");
+    expect(await authorize("admin", "admin", "update")).toBe(false);
+    const req = new Request("http://test", {
+      method: "PUT",
+      body: JSON.stringify([
+        { ptype: "p", v0: "admin", v1: "admin", v2: "read" },
+        { ptype: "p", v0: "superadmin", v1: "superadmin", v2: "update" },
+        { ptype: "p", v0: "admin", v1: "admin", v2: "update" },
+      ]),
+    });
+    const res = await mod.PUT(req, {
+      session: { user: { role: "superadmin" } },
+    });
+    expect(res.status).toBe(200);
+    expect(await authorize("admin", "admin", "update")).toBe(true);
+  });
 });
