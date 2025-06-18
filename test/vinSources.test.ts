@@ -45,6 +45,7 @@ describe("vin source API authorization", () => {
   it("rejects listing without admin role", async () => {
     const mod = await import("../src/app/api/vin-sources/route");
     const res = await mod.GET(new Request("http://test"), {
+      params: Promise.resolve({}),
       session: { user: { role: "user" } },
     });
     expect(res.status).toBe(403);

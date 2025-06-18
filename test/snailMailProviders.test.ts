@@ -54,6 +54,7 @@ describe("snail mail provider API authorization", () => {
   it("rejects listing without admin role", async () => {
     const mod = await import("../src/app/api/snail-mail-providers/route");
     const res = await mod.GET(new Request("http://test"), {
+      params: Promise.resolve({}),
       session: { user: { role: "user" } },
     });
     expect(res.status).toBe(403);

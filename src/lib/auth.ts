@@ -5,7 +5,10 @@ import { orm } from "./orm";
 import { users } from "./schema";
 
 export function authAdapter() {
-  return DrizzleAdapter(orm, { usersTable: users });
+  return DrizzleAdapter(orm, { usersTable: users } as unknown as Record<
+    string,
+    unknown
+  >);
 }
 
 export async function seedSuperAdmin(newUser?: {

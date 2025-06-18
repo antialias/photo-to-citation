@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { CasbinRule } from "@/lib/adminStore";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type TestServer, startServer } from "./startServer";
 
@@ -120,7 +121,7 @@ describe("admin actions", () => {
     await signIn("super2@example.com");
     const rules = (await api("/api/casbin-rules").then((r) =>
       r.json(),
-    )) as Array<{ v2?: string }>;
+    )) as CasbinRule[];
     rules.push({ ptype: "p", v0: "user", v1: "cases", v2: "extra" });
     const res = await api("/api/casbin-rules", {
       method: "PUT",
@@ -128,7 +129,7 @@ describe("admin actions", () => {
       body: JSON.stringify(rules),
     });
     expect(res.status).toBe(200);
-    const updated = (await res.json()) as Array<{ v2?: string }>;
+    const updated = (await res.json()) as CasbinRule[];
     expect(updated.some((r) => r.v2 === "extra")).toBe(true);
   }, 30000);
 
