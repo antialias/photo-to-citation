@@ -50,7 +50,7 @@ describe("change role route", () => {
       .from(schema.users)
       .where(eq(schema.users.id, "u1"))
       .get();
-    expect(row.role).toBe("admin");
+    expect(row?.role).toBe("admin");
   });
 
   it("rejects non-superadmins", async () => {
@@ -72,6 +72,6 @@ describe("change role route", () => {
       .from(schema.users)
       .where(eq(schema.users.id, "u1"))
       .get();
-    expect(row.role).toBe("user");
+    expect(row?.role).toBe("user");
   });
 });

@@ -1,8 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import type { useSession as useSessionFn } from "../../useSession";
 
 vi.mock("../../useSession", () => ({
-  useSession: vi.fn(() => ({ data: { user: { role: "admin" } } })),
+  useSession: vi.fn(
+    () =>
+      ({
+        data: { user: { role: "admin" }, expires: "0" },
+      }) as unknown as ReturnType<typeof useSessionFn>,
+  ),
 }));
 
 import { useSession } from "../../useSession";
@@ -22,7 +28,9 @@ describe("AdminPageClient", () => {
   });
 
   it("enables saving for superadmins", async () => {
-    useSession.mockReturnValueOnce({ data: { user: { role: "superadmin" } } });
+    vi.mocked(useSession).mockReturnValueOnce({
+      data: { user: { role: "superadmin" }, expires: "0" },
+    } as unknown as ReturnType<typeof useSessionFn>);
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
     expect(
       screen.getByRole("button", { name: /save rules/i }),

@@ -25,5 +25,7 @@ const handler = withAuthorization(
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
-  return handler(new Request("http://localhost"), { session });
+  return handler(new Request("http://localhost"), {
+    session: session ?? undefined,
+  });
 }
