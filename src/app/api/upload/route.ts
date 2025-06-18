@@ -13,7 +13,7 @@ export const POST = withAuthorization(
   "create",
   async (
     req: Request,
-    { session }: { session?: { user?: { id?: string } } },
+    { session }: { session?: { user?: { id?: string; role?: string } } },
   ) => {
     const form = await req.formData();
     const file = form.get("photo") as File | null;
