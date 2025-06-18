@@ -256,8 +256,8 @@ enabled and how many times it has failed consecutively.
 
 Successful lookups reset the failure count. Failures increment the count; after
 more than three consecutive failures the module is automatically disabled. The
-settings page (`/settings`) shows each module's failure count and allows
-manually enabling or disabling modules.
+App Configuration tab on the admin page (`/admin`) shows each module's failure
+count and allows manually enabling or disabling modules.
 
 ### Adding a New Module
 
@@ -265,8 +265,8 @@ manually enabling or disabling modules.
    where to find the VIN.
 2. Run the app once (or create the `data/vinSources.json` file) to generate a
    status entry for the new module.
-3. Visit `/settings` to verify the module appears and enable or disable it as
-   desired.
+3. Visit `/admin` and open the App Configuration tab to verify the module
+   appears and enable or disable it as desired.
 
 ## Citation Status Modules
 

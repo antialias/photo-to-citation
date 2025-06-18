@@ -75,7 +75,7 @@ export default function NavBar() {
           href="/settings"
           className="hover:text-gray-600 dark:hover:text-gray-300"
         >
-          Settings
+          User Settings
         </Link>
         {session ? (
           <button
