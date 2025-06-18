@@ -16,6 +16,6 @@ describe("end-to-end", () => {
     const res = await fetch(`${server.url}/`);
     expect(res.status).toBe(200);
     const text = await res.text();
-    expect(text).toContain("Cases");
+    expect(text).toContain("Photo To Citation");
   }, 30000);
 });
