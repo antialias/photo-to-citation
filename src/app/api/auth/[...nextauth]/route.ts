@@ -1,3 +1,4 @@
+import { writeFile } from "node:fs/promises";
 import { authAdapter, seedSuperAdmin } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import NextAuth, {
@@ -15,8 +16,9 @@ const authOptions: NextAuthOptions = {
   providers: [
     EmailProvider({
       async sendVerificationRequest({ identifier, url }) {
-        if (process.env.NODE_ENV === "test") {
+        if (process.env.TEST_APIS) {
           (global as Record<string, unknown>).verificationUrl = url;
+          await writeFile("/tmp/verification-url.txt", url);
           return;
         }
         await sendEmail({ to: identifier, subject: "Sign in", body: url });
