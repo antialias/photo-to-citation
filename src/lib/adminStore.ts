@@ -24,6 +24,10 @@ export function disableUser(id: string): void {
   orm.update(users).set({ role: "disabled" }).where(eq(users.id, id)).run();
 }
 
+export function updateUserRole(id: string, role: string): void {
+  orm.update(users).set({ role }).where(eq(users.id, id)).run();
+}
+
 export function deleteUser(id: string): void {
   orm.delete(users).where(eq(users.id, id)).run();
 }

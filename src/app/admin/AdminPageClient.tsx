@@ -50,6 +50,15 @@ export default function AdminPageClient({
     refreshUsers();
   }
 
+  async function changeRole(id: string, role: string) {
+    await apiFetch(`/api/users/${id}/role`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role }),
+    });
+    refreshUsers();
+  }
+
   async function remove(id: string) {
     await apiFetch(`/api/users/${id}`, { method: "DELETE" });
     refreshUsers();
@@ -76,7 +85,17 @@ export default function AdminPageClient({
       <ul className="grid gap-2">
         {users.map((u) => (
           <li key={u.id} className="flex items-center gap-2">
-            <span className="flex-1">{`${u.email ?? u.id} (${u.role})`}</span>
+            <span className="flex-1">{u.email ?? u.id}</span>
+            <select
+              value={u.role}
+              onChange={(e) => changeRole(u.id, e.target.value)}
+              className="border rounded p-1 bg-white dark:bg-gray-900"
+            >
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+              <option value="superadmin">superadmin</option>
+              <option value="disabled">disabled</option>
+            </select>
             {u.role !== "disabled" && (
               <button
                 type="button"
