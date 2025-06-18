@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import {
   SQLiteDrizzleAdapter,
   defineTables,
@@ -8,7 +9,14 @@ import { orm } from "./orm";
 import { users } from "./schema";
 
 export function authAdapter() {
-  return SQLiteDrizzleAdapter(orm, defineTables({ usersTable: users }));
+  const base = SQLiteDrizzleAdapter(orm, defineTables({ usersTable: users }));
+  return {
+    ...base,
+    async createUser(data) {
+      if (!data.id) data.id = crypto.randomUUID();
+      return base.createUser(data);
+    },
+  };
 }
 
 export async function seedSuperAdmin(newUser?: {
