@@ -1,10 +1,8 @@
-import { withAuthorization } from "@/lib/authz";
-import { isCaseMember } from "@/lib/caseMembers";
+import { withCaseAuthorization } from "@/lib/authz";
 import { getCase, setCasePublic } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
-export const PUT = withAuthorization(
-  "cases",
+export const PUT = withCaseAuthorization(
   "read",
   async (
     req: Request,
@@ -17,15 +15,6 @@ export const PUT = withAuthorization(
     },
   ) => {
     const { id } = await params;
-    const userId = session?.user?.id;
-    const role = session?.user?.role ?? "user";
-    if (
-      role !== "admin" &&
-      role !== "superadmin" &&
-      (!userId || !isCaseMember(id, userId))
-    ) {
-      return new Response(null, { status: 403 });
-    }
     const { public: isPublic } = (await req.json()) as { public: boolean };
     const updated = setCasePublic(id, isPublic);
     if (!updated) {

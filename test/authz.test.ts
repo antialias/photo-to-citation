@@ -12,11 +12,13 @@ beforeEach(async () => {
   const db = await import("../src/lib/db");
   await db.migrationsReady;
   const { orm } = await import("../src/lib/orm");
-  const { casbinRules } = await import("../src/lib/schema");
+  const { casbinRules, users } = await import("../src/lib/schema");
   orm
     .insert(casbinRules)
     .values({ ptype: "p", v0: "superadmin", v1: "cases", v2: "delete" })
     .run();
+  orm.insert(users).values({ id: "u1" }).run();
+  orm.insert(users).values({ id: "u2" }).run();
 });
 
 afterEach(() => {
@@ -30,5 +32,17 @@ describe("casbin", () => {
     const { authorize } = await import("../src/lib/authz");
     expect(await authorize("superadmin", "cases", "delete")).toBe(true);
     expect(await authorize("user", "cases", "delete")).toBe(false);
+  });
+
+  it("checks case membership", async () => {
+    const { authorize } = await import("../src/lib/authz");
+    const caseStore = await import("../src/lib/caseStore");
+    const c = caseStore.createCase("/x.jpg", null, undefined, null, "u1");
+    expect(
+      await authorize("user", "cases", "read", { caseId: c.id, userId: "u1" }),
+    ).toBe(true);
+    expect(
+      await authorize("user", "cases", "read", { caseId: c.id, userId: "u2" }),
+    ).toBe(false);
   });
 });
