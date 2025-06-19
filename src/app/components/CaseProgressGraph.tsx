@@ -10,10 +10,14 @@ import {
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
+import { config } from "@/lib/config";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import tippy from "tippy.js";
-if (typeof window !== "undefined" && !process.env.VITEST) {
+if (
+  typeof window !== "undefined" &&
+  !(config as Record<string, unknown>).VITEST
+) {
   import("tippy.js/dist/tippy.css");
 }
 

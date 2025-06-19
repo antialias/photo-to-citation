@@ -2,6 +2,7 @@
 import Tippy from "@tippyjs/react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
+import { config } from "../../lib/config";
 import useAltKey from "../useAltKey";
 
 function tokenize(json: string): ReactNode[] {
@@ -38,7 +39,7 @@ export default function DebugWrapper({
   data: unknown;
   children: ReactNode;
 }) {
-  const enabled = Boolean(process.env.NEXT_PUBLIC_BROWSER_DEBUG);
+  const enabled = Boolean(config.NEXT_PUBLIC_BROWSER_DEBUG);
   const alt = useAltKey();
   const [refHover, setRefHover] = useState(false);
   const [tipHover, setTipHover] = useState(false);
