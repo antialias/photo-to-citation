@@ -26,7 +26,6 @@ export async function seedSuperAdmin(newUser?: {
   email: string | null;
 }) {
   await migrationsReady;
-  console.log("seeding super admin", newUser?.email);
   const existing = orm
     .select()
     .from(users)
@@ -44,6 +43,7 @@ export async function seedSuperAdmin(newUser?: {
       newUser ?? orm.select().from(users).orderBy(sql`rowid`).limit(1).get();
   }
   if (target) {
+    console.log("seeding super admin", newUser?.email);
     orm
       .update(users)
       .set({ role: "superadmin" })
