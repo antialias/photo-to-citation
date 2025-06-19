@@ -25,7 +25,7 @@ const program = new Command()
   .option(
     "-s, --scenario <prompt>",
     "Scenario prompt (can be repeated)",
-    (v, p: string[]) => {
+    (v: string, p: string[]) => {
       p.push(v);
       return p;
     },
