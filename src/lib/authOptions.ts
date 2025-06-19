@@ -4,6 +4,7 @@ import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { sendEmail } from "./email";
+import { config } from "./config";
 
 seedSuperAdmin().catch((err) => {
   console.error("Failed to seed super admin", err);
@@ -15,7 +16,7 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       async sendVerificationRequest({ identifier, url }) {
         console.log("sendVerificationRequest", identifier);
-        if (process.env.TEST_APIS) {
+        if (config.TEST_APIS) {
           (global as Record<string, unknown>).verificationUrl = url;
           await writeFile("/tmp/verification-url.txt", url);
           return;
@@ -23,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         await sendEmail({ to: identifier, subject: "Sign in", body: url });
         console.log("Verification email sent", identifier);
       },
-      from: process.env.SMTP_FROM,
+      from: config.SMTP_FROM,
     }),
   ],
   pages: { signIn: "/signin" },
@@ -51,5 +52,5 @@ export const authOptions: NextAuthOptions = {
       }
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: config.NEXTAUTH_SECRET,
 };

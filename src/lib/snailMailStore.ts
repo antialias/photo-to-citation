@@ -14,9 +14,10 @@ export interface SentMail {
 
 import fs from "node:fs";
 import path from "node:path";
+import { config } from "./config";
 
-const dataFile = process.env.SNAIL_MAIL_FILE
-  ? path.resolve(process.env.SNAIL_MAIL_FILE)
+const dataFile = config.SNAIL_MAIL_FILE
+  ? path.resolve(config.SNAIL_MAIL_FILE)
   : path.join(process.cwd(), "data", "snailMail.json");
 
 function loadMails(): SentMail[] {

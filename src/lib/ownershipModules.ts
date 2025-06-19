@@ -4,6 +4,7 @@ import path from "node:path";
 import { PDFDocument } from "pdf-lib";
 import type { MailingAddress } from "./snailMail";
 import { sendSnailMail as providerSendSnailMail } from "./snailMail";
+import { config } from "./config";
 
 export interface OwnershipRequestInfo {
   plate: string;
@@ -41,8 +42,8 @@ function parseAddress(text: string): MailingAddress {
 }
 
 async function mailPdf(address: string, pdfPath: string): Promise<void> {
-  const provider = process.env.SNAIL_MAIL_PROVIDER || "mock";
-  const returnAddr = process.env.RETURN_ADDRESS;
+  const provider = config.SNAIL_MAIL_PROVIDER || "mock";
+  const returnAddr = config.RETURN_ADDRESS;
   if (!returnAddr) throw new Error("RETURN_ADDRESS not configured");
   const to = parseAddress(address);
   const from = parseAddress(returnAddr);

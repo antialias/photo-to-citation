@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { config } from "./config";
 import { snailMailProviders } from "./snailMail";
 
 export interface SnailMailProviderStatus {
@@ -8,8 +9,8 @@ export interface SnailMailProviderStatus {
   failureCount: number;
 }
 
-const dataFile = process.env.SNAIL_MAIL_PROVIDER_FILE
-  ? path.resolve(process.env.SNAIL_MAIL_PROVIDER_FILE)
+const dataFile = config.SNAIL_MAIL_PROVIDER_FILE
+  ? path.resolve(config.SNAIL_MAIL_PROVIDER_FILE)
   : path.join(process.cwd(), "data", "snailMailProviders.json");
 
 function defaultStatuses(): SnailMailProviderStatus[] {

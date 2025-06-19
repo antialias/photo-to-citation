@@ -5,6 +5,7 @@ import { eq, sql } from "drizzle-orm";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { users } from "./schema";
+import { config } from "./config";
 
 export function authAdapter() {
   const base = DrizzleAdapter<typeof orm>(orm, {
@@ -34,7 +35,7 @@ export async function seedSuperAdmin(newUser?: {
     .get();
   if (existing) return;
   let target: { id: string } | undefined;
-  const envEmail = process.env.SUPER_ADMIN_EMAIL;
+  const envEmail = config.SUPER_ADMIN_EMAIL;
   if (envEmail) {
     if (newUser && newUser.email === envEmail) target = newUser;
     else

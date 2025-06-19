@@ -1,7 +1,5 @@
-import dotenv from "dotenv";
 import OpenAI from "openai";
-
-dotenv.config();
+import { config } from "./config";
 
 export interface LlmProvider {
   id: string;
@@ -17,7 +15,7 @@ export type LlmFeature =
   | "lookup_code";
 
 function loadProviders(): Record<string, LlmProvider> {
-  const list = (process.env.LLM_PROVIDERS || "openai").split(/[,\s]+/);
+  const list = (config.LLM_PROVIDERS || "openai").split(/[,\s]+/);
   const map: Record<string, LlmProvider> = {};
   for (const name of list) {
     if (!name) continue;
@@ -25,8 +23,8 @@ function loadProviders(): Record<string, LlmProvider> {
     const upper = key.toUpperCase().replace(/-/g, "_");
     map[key] = {
       id: key,
-      apiKey: process.env[`${upper}_API_KEY`] || "",
-      baseURL: process.env[`${upper}_BASE_URL`],
+      apiKey: (config as Record<string, string>)[`${upper}_API_KEY`] || "",
+      baseURL: (config as Record<string, string>)[`${upper}_BASE_URL`],
     };
   }
   return map;
@@ -52,12 +50,12 @@ function toEnvKey(feature: LlmFeature): string {
 }
 
 function getFeatureProvider(feature: LlmFeature): string {
-  const env = process.env[`LLM_${toEnvKey(feature)}_PROVIDER`];
+  const env = (config as Record<string, string>)[`LLM_${toEnvKey(feature)}_PROVIDER`];
   return env || "openai";
 }
 
 function getFeatureModel(feature: LlmFeature): string {
-  const env = process.env[`LLM_${toEnvKey(feature)}_MODEL`];
+  const env = (config as Record<string, string>)[`LLM_${toEnvKey(feature)}_MODEL`];
   return env || "gpt-4o";
 }
 
