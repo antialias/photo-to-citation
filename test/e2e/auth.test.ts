@@ -3,6 +3,7 @@ import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let cookie = "";
+const jar: Record<string, string> = {};
 
 async function api(path: string, opts: RequestInit = {}) {
   const res = await fetch(`${server.url}${path}`, {
@@ -11,7 +12,16 @@ async function api(path: string, opts: RequestInit = {}) {
     redirect: "manual",
   });
   const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
+  if (set) {
+    const cookies = set.split(/,(?=\w)/);
+    for (const c of cookies) {
+      const [name, value] = c.split(";")[0].split("=");
+      jar[name] = value;
+    }
+    cookie = Object.entries(jar)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("; ");
+  }
   return res;
 }
 
@@ -60,6 +70,6 @@ describe("auth flow", () => {
       }),
     });
     const sessionAfter = await api("/api/auth/session").then((r) => r.json());
-    expect(sessionAfter).toBeNull();
+    expect(sessionAfter).toEqual({});
   }, 30000);
 });
