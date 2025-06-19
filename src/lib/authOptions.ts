@@ -5,6 +5,12 @@ import EmailProvider from "next-auth/providers/email";
 import { authAdapter } from "./auth";
 import { sendEmail } from "./email";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  console.error(
+    "NEXTAUTH_SECRET environment variable must be set to preserve sessions",
+  );
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: authAdapter() as Adapter,
   providers: [
