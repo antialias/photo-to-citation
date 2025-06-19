@@ -23,7 +23,7 @@ const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
   { id: "uploaded", label: "Photographs Uploaded" },
-  { id: "analysis", label: "Analysis Complete" },
+  { id: "analysis", label: "Image Analysis" },
   { id: "violation", label: "Violation Identified" },
   { id: "noviol", label: "No Violation Identified" },
   { id: "plate", label: "License Plate Identified" },
@@ -116,7 +116,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     } else {
       edgesList.push(["analysis", "violation", true, "evaluating"]);
       edgesList.push(["violation", "plate", true, "detecting plate"]);
-      edgesList.push(["plate", "vin", true, "decoding VIN"]);
+      edgesList.push(["plate", "vin", false, "decoding VIN"]);
       edgesList.push(["plate", "ownreq", true, "requesting ownership"]);
       edgesList.push(["vin", "ownreq", false, "lookup ownership"]);
       edgesList.push(["ownreq", "own", true, "awaiting ownership info"]);
