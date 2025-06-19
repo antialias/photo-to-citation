@@ -3,27 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type TestServer, startServer } from "./startServer";
+import { createApi } from "./api";
 
 let server: TestServer;
 let tmpDir: string;
-let cookie = "";
-
-async function api(path: string, opts: RequestInit = {}) {
-  const res = await fetch(`${server.url}${path}`, {
-    ...opts,
-    headers: { ...(opts.headers || {}), cookie },
-    redirect: "manual",
-  });
-  const set =
-    res.headers.getSetCookie?.() ??
-    (res.headers.has("set-cookie")
-      ? [res.headers.get("set-cookie") as string]
-      : []);
-  if (set.length > 0) {
-    cookie = set.map((c) => c.split(";")[0]).join("; ");
-  }
-  return res;
-}
+let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
   const csrf = await api("/api/auth/csrf").then((r) => r.json());
@@ -50,6 +34,7 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
+  api = createApi(server);
 }, 120000);
 
 afterAll(async () => {

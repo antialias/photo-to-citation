@@ -3,21 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
-let cookie = "";
-
-async function api(url: string, opts: RequestInit = {}): Promise<Response> {
-  const res = await fetch(url, {
-    ...opts,
-    headers: { ...(opts.headers || {}), cookie },
-    redirect: "manual",
-  });
-  const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
-  return res;
-}
+let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
   const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
@@ -57,6 +47,7 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
+    NEXTAUTH_SECRET: "secret",
   };
   fs.writeFileSync(
     env.VIN_SOURCE_FILE,
@@ -70,6 +61,7 @@ beforeAll(async () => {
     ),
   );
   server = await startServer(3005, env);
+  api = createApi(server);
   await signIn("user@example.com");
 }, 120000);
 

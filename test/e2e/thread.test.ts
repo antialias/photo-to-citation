@@ -9,7 +9,10 @@ let tmpDir: string;
 
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  const env = { CASE_STORE_FILE: path.join(tmpDir, "cases.json") };
+  const env = {
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+    NEXTAUTH_SECRET: "secret",
+  };
   server = await startServer(3006, env);
 }, 120000);
 

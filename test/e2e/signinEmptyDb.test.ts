@@ -3,21 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type TestServer, startServer } from "./startServer";
+import { createApi } from "./api";
 
 let server: TestServer;
 let dataDir: string;
-let cookie = "";
-
-async function api(p: string, opts: RequestInit = {}) {
-  const res = await fetch(`${server.url}${p}`, {
-    ...opts,
-    headers: { ...(opts.headers || {}), cookie },
-    redirect: "manual",
-  });
-  const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
-  return res;
-}
+let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 beforeAll(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
@@ -27,6 +17,7 @@ beforeAll(async () => {
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
   });
+  api = createApi(server);
 }, 120000);
 
 afterAll(async () => {

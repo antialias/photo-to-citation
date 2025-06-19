@@ -1,19 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type TestServer, startServer } from "./startServer";
+import { createApi } from "./api";
 
 let server: TestServer;
-let cookie = "";
-
-async function api(path: string, opts: RequestInit = {}) {
-  const res = await fetch(`${server.url}${path}`, {
-    ...opts,
-    headers: { ...(opts.headers || {}), cookie },
-    redirect: "manual",
-  });
-  const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
-  return res;
-}
+let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 beforeAll(async () => {
   server = await startServer(3010, {
@@ -21,6 +11,7 @@ beforeAll(async () => {
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
   });
+  api = createApi(server);
 }, 120000);
 
 afterAll(async () => {

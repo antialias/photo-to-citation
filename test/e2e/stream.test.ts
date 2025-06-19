@@ -4,7 +4,9 @@ import { type TestServer, startServer } from "./startServer";
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startServer(3004);
+  server = await startServer(3004, {
+    NEXTAUTH_SECRET: "secret",
+  });
 }, 120000);
 
 afterAll(async () => {
