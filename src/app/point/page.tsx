@@ -87,6 +87,7 @@ export default function PointAndShootPage() {
       if (!ctx) return;
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      if (canvas.width === 0 || canvas.height === 0) return;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
       w.postMessage({ type: "analyze", image: data }, [data.data.buffer]);
