@@ -8,6 +8,7 @@ import { analyzeCaseInBackground } from "./caseAnalysis";
 import { fetchCaseLocationInBackground } from "./caseLocation";
 import { addCasePhoto, createCase } from "./caseStore";
 import { extractGps, extractTimestamp } from "./exif";
+import { readJsonFile, writeJsonFile } from "./fileUtils";
 
 dotenv.config();
 
@@ -16,17 +17,12 @@ const stateFile = process.env.INBOX_STATE_FILE
   : path.join(process.cwd(), "data", "inbox.json");
 
 function loadState(): number {
-  try {
-    const val = JSON.parse(fs.readFileSync(stateFile, "utf8"));
-    return typeof val.lastUid === "number" ? val.lastUid : 0;
-  } catch {
-    return 0;
-  }
+  const val = readJsonFile<{ lastUid?: number }>(stateFile, {});
+  return typeof val.lastUid === "number" ? val.lastUid : 0;
 }
 
 function saveState(uid: number): void {
-  fs.mkdirSync(path.dirname(stateFile), { recursive: true });
-  fs.writeFileSync(stateFile, JSON.stringify({ lastUid: uid }, null, 2));
+  writeJsonFile(stateFile, { lastUid: uid });
 }
 
 export async function scanInbox(): Promise<void> {

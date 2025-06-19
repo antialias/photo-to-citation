@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { type TestServer, startServer } from "./startServer";
 import { createApi } from "./api";
+import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;

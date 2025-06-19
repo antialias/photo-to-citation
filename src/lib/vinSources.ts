@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { readJsonFile, writeJsonFile } from "./fileUtils";
 
 export interface VinSource {
   id: string;
@@ -67,20 +68,14 @@ function loadStatuses(): VinSourceStatus[] {
       enabled: true,
       failureCount: 0,
     }));
-    fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-    fs.writeFileSync(dataFile, JSON.stringify(defaults, null, 2));
+    writeJsonFile(dataFile, defaults);
     return defaults;
   }
-  try {
-    return JSON.parse(fs.readFileSync(dataFile, "utf8")) as VinSourceStatus[];
-  } catch {
-    return [];
-  }
+  return readJsonFile<VinSourceStatus[]>(dataFile, []);
 }
 
 function saveStatuses(statuses: VinSourceStatus[]): void {
-  fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-  fs.writeFileSync(dataFile, JSON.stringify(statuses, null, 2));
+  writeJsonFile(dataFile, statuses);
 }
 
 export function getVinSourceStatuses(): VinSourceStatus[] {

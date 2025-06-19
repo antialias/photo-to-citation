@@ -12,25 +12,19 @@ export interface SentMail {
   sentAt: string;
 }
 
-import fs from "node:fs";
 import path from "node:path";
+import { readJsonFile, writeJsonFile } from "./fileUtils";
 
 const dataFile = process.env.SNAIL_MAIL_FILE
   ? path.resolve(process.env.SNAIL_MAIL_FILE)
   : path.join(process.cwd(), "data", "snailMail.json");
 
 function loadMails(): SentMail[] {
-  if (!fs.existsSync(dataFile)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(dataFile, "utf8")) as SentMail[];
-  } catch {
-    return [];
-  }
+  return readJsonFile<SentMail[]>(dataFile, []);
 }
 
 function saveMails(list: SentMail[]): void {
-  fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-  fs.writeFileSync(dataFile, JSON.stringify(list, null, 2));
+  writeJsonFile(dataFile, list);
 }
 
 export function addSentMail(mail: SentMail): SentMail {

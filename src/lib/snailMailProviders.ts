@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { readJsonFile, writeJsonFile } from "./fileUtils";
 import { snailMailProviders } from "./snailMail";
 
 export interface SnailMailProviderStatus {
@@ -23,22 +24,14 @@ function defaultStatuses(): SnailMailProviderStatus[] {
 function loadStatuses(): SnailMailProviderStatus[] {
   if (!fs.existsSync(dataFile)) {
     const defaults = defaultStatuses();
-    fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-    fs.writeFileSync(dataFile, JSON.stringify(defaults, null, 2));
+    writeJsonFile(dataFile, defaults);
     return defaults;
   }
-  try {
-    return JSON.parse(
-      fs.readFileSync(dataFile, "utf8"),
-    ) as SnailMailProviderStatus[];
-  } catch {
-    return defaultStatuses();
-  }
+  return readJsonFile<SnailMailProviderStatus[]>(dataFile, defaultStatuses());
 }
 
 function saveStatuses(list: SnailMailProviderStatus[]): void {
-  fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-  fs.writeFileSync(dataFile, JSON.stringify(list, null, 2));
+  writeJsonFile(dataFile, list);
 }
 
 export function getSnailMailProviderStatuses(): SnailMailProviderStatus[] {
