@@ -18,6 +18,7 @@ export default function SignInPage() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          console.log("Submitting sign in", email);
           signIn("email", { email, callbackUrl: withBasePath("/") });
         }}
         className="p-4 flex flex-col gap-2"

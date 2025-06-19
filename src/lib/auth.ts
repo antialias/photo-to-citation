@@ -13,6 +13,7 @@ export function authAdapter() {
   return {
     ...base,
     async createUser(data: AdapterUser & { id?: string }) {
+      console.log("authAdapter.createUser", data.email);
       if (!data.id) data.id = crypto.randomUUID();
       if (!base.createUser) throw new Error("createUser not implemented");
       return base.createUser(data);
@@ -25,6 +26,7 @@ export async function seedSuperAdmin(newUser?: {
   email: string | null;
 }) {
   await migrationsReady;
+  console.log("seeding super admin", newUser?.email);
   const existing = orm
     .select()
     .from(users)

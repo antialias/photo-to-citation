@@ -14,6 +14,7 @@ const handler = withAuthorization(
     { session }: { session?: { user?: { role?: string } } },
   ) => {
     const s = session ?? (await getServerSession(authOptions));
+    console.log("admin page session", s?.user?.role);
     if (s?.user?.role !== "admin" && s?.user?.role !== "superadmin") {
       return new Response(null, { status: 403 });
     }

@@ -18,6 +18,7 @@ export async function sendEmail({
   body,
   attachments = [],
 }: EmailOptions): Promise<void> {
+  console.log("sendEmail", to, subject);
   const missing: string[] = [];
   if (!process.env.SMTP_HOST) missing.push("SMTP_HOST");
   if (!process.env.SMTP_USER) missing.push("SMTP_USER");
@@ -54,4 +55,5 @@ export async function sendEmail({
       path: path.join(process.cwd(), "public", p.replace(/^\//, "")),
     })),
   });
+  console.log("email sent", to);
 }
