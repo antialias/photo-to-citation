@@ -326,6 +326,21 @@ export const citationStatusModules: Record<string, CitationStatusModule> = {
 Add new modules to this record and run `npm run generate:schemas` to update the
 runtime schema.
 
+## Testing
+
+Run all unit tests with:
+
+```bash
+npm test
+```
+
+Generate a coverage report and fail if coverage drops below the configured
+thresholds with:
+
+```bash
+npm run test:coverage
+```
+
 ## Docker
 
 To run the app in containers, install Docker and Docker Compose then build the stack:
