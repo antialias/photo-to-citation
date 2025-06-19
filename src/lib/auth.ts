@@ -5,7 +5,7 @@ import { orm } from "./orm";
 import { users } from "./schema";
 
 export function authAdapter() {
-  return DrizzleAdapter(orm);
+  return DrizzleAdapter(orm, { usersTable: users });
 }
 
 export async function seedSuperAdmin(newUser?: {

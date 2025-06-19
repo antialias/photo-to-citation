@@ -20,6 +20,10 @@ beforeEach(async () => {
   orm.insert(schema.users).values({ id: "u1" }).run();
   orm.insert(schema.users).values({ id: "u2" }).run();
   orm.insert(schema.users).values({ id: "u3", role: "admin" }).run();
+  orm
+    .insert(schema.casbinRules)
+    .values({ ptype: "p", v0: "user", v1: "cases", v2: "read" })
+    .run();
   caseStore = await import("../src/lib/caseStore");
   members = await import("../src/lib/caseMembers");
 });
