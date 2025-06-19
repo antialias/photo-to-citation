@@ -6,6 +6,7 @@ import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let cookie = "";
+const cookieJar: Record<string, string> = {};
 
 async function api(path: string, opts: RequestInit = {}) {
   const res = await fetch(`${server.url}${path}`, {
@@ -13,8 +14,25 @@ async function api(path: string, opts: RequestInit = {}) {
     headers: { ...(opts.headers || {}), cookie },
     redirect: "manual",
   });
-  const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
+  const sets = res.headers.getSetCookie();
+  if (sets.length > 0) {
+    for (const c of sets) {
+      const [nameValue] = c.split(";");
+      const [name, ...rest] = nameValue.split("=");
+      const value = rest.join("=");
+      if (
+        name.includes("session-token") ||
+        name.includes("csrf-token") ||
+        name.includes("callback-url")
+      ) {
+        if (value) cookieJar[name] = value;
+        else delete cookieJar[name];
+      }
+    }
+    cookie = Object.entries(cookieJar)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("; ");
+  }
   return res;
 }
 
