@@ -1,5 +1,5 @@
 import { updateUserRole } from "@/lib/adminStore";
-import { withAuthorization } from "@/lib/authz";
+import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
 export const PUT = withAuthorization(
@@ -15,7 +15,8 @@ export const PUT = withAuthorization(
       session?: { user?: { role?: string } };
     },
   ) => {
-    if (session?.user?.role !== "superadmin") {
+    const { role: requesterRole } = getSessionDetails({ session });
+    if (requesterRole !== "superadmin") {
       return new Response(null, { status: 403 });
     }
     const { id } = await params;

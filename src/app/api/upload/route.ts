@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { withAuthorization } from "@/lib/authz";
+import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
 import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
@@ -63,12 +63,13 @@ export const POST = withAuthorization(
       analyzeCaseInBackground(p || updated);
       return NextResponse.json({ caseId: updated.id });
     }
+    const { userId } = getSessionDetails({ session }, "user");
     const newCase = createCase(
       `/uploads/${filename}`,
       gps,
       clientId || undefined,
       takenAt,
-      session?.user?.id ?? null,
+      userId ?? null,
     );
     const p = updateCase(newCase.id, {
       analysisStatus: "pending",
