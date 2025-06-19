@@ -378,7 +378,12 @@ The output is written to `website/dist`.
 
 The build step uses OpenAI to generate marketing images when they are missing in the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the GitHub Action can access the API.
 
+
 The `scripts/generateWebsiteImages.ts` script defines prompts for each PNG used on the site. When new pages reference additional graphics, add a spec in that file so GitHub Actions can render them with GPT‑4o during the main-branch build. The **community**, **mission**, and **ethos** illustrations on the about page are produced this way.
+
+## Privacy and Data Use
+
+All photos, contact details and analysis results are stored only to generate the corresponding citation reports. The app relies on external services such as OpenAI for image analysis and third‑party mail providers for physical letters. No uploaded content is sold or shared outside of those providers. You can delete any case to permanently remove the associated data.
 
 ## Browser Debugging
 Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images or details to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
