@@ -1,10 +1,23 @@
 import { type Enforcer, newEnforcer, newModelFromString } from "casbin";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./authOptions";
 import { isCaseMember } from "./caseMembers";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { casbinRules } from "./schema";
 
 let enforcer: Enforcer | undefined;
+
+async function loadSession(ctx: {
+  session?: { user?: { id?: string; role?: string } };
+}) {
+  if (ctx.session) return ctx.session;
+  try {
+    return await getServerSession(authOptions);
+  } catch {
+    return null;
+  }
+}
 
 async function loadEnforcer(): Promise<Enforcer> {
   if (enforcer) return enforcer;
@@ -74,12 +87,13 @@ export function withAuthorization<
   R = Response,
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
-    const { role } = getSessionDetails(ctx);
+    const session = await loadSession(ctx);
+    const { role } = getSessionDetails({ session });
     console.log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
     }
-    return handler(req, ctx);
+    return handler(req, { ...ctx, session } as C);
   };
 }
 
@@ -92,11 +106,12 @@ export function withCaseAuthorization<
 >(act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
-    const { role, userId } = getSessionDetails(ctx, "user");
+    const session = await loadSession(ctx);
+    const { role, userId } = getSessionDetails({ session }, "user");
     console.log("withCaseAuthorization", role, act, id, userId);
     if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
       return new Response(null, { status: 403 });
     }
-    return handler(req, ctx);
+    return handler(req, { ...ctx, session } as C);
   };
 }
