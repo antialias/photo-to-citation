@@ -382,7 +382,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
               const small = info.preview.length > 1;
               const imgClass = small ? "max-h-24 my-1" : "max-h-40";
               const imgs = info.preview
-                .map((p) => `<img src="${p}" class="${imgClass}" />`)
+                .map(
+                  (p) =>
+                    `<img src="${p}" class="${imgClass}" alt="case preview" />`,
+                )
                 .join("");
               const extra =
                 info.count && info.count > info.preview.length
@@ -399,7 +402,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
                   info.caption,
                 )}</div>`
               : "";
-            return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" />${caption}</div>`;
+            return `<div class="flex flex-col items-center"><img src="${info.preview}" class="max-h-40" alt="case preview" />${caption}</div>`;
           }
           return `<div class="max-w-xs whitespace-pre-wrap">${escapeHtml(
             info.preview as string,

@@ -597,11 +597,24 @@ export default function ClientCasePage({
                   <details
                     ref={photoMenuRef}
                     className="absolute top-1 right-1 text-white"
+                    onToggle={() => {
+                      if (photoMenuRef.current?.open) {
+                        photoMenuRef.current
+                          .querySelector<HTMLElement>("button, a")
+                          ?.focus();
+                      }
+                    }}
                   >
-                    <summary className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70">
+                    <summary
+                      className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
+                      aria-label="Photo actions menu"
+                    >
                       ⋮
                     </summary>
-                    <div className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white">
+                    <div
+                      className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
+                      role="menu"
+                    >
                       <button
                         type="button"
                         onClick={(e) =>
