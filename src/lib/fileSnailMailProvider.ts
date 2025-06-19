@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { config } from "./config";
 import type {
   SnailMailOptions,
   SnailMailProvider,
@@ -18,7 +19,7 @@ const provider: SnailMailProvider = {
   ): Promise<SnailMailStatus> {
     const dir =
       (config?.dir as string) ||
-      process.env.SNAIL_MAIL_OUT_DIR ||
+      config.SNAIL_MAIL_OUT_DIR ||
       path.join(process.cwd(), "data", "snailmail_out");
     fs.mkdirSync(dir, { recursive: true });
     const id = crypto.randomUUID();

@@ -3,9 +3,10 @@ import type { NextAuthOptions, Session, User } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
 import { authAdapter, seedSuperAdmin } from "./auth";
+import { config } from "./config";
 import { sendEmail } from "./email";
 
-if (!process.env.NEXTAUTH_SECRET) {
+if (!config.NEXTAUTH_SECRET) {
   console.error(
     "NEXTAUTH_SECRET environment variable must be set to preserve sessions",
   );
@@ -17,7 +18,7 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       async sendVerificationRequest({ identifier, url }) {
         console.log("sendVerificationRequest", identifier);
-        if (process.env.TEST_APIS) {
+        if (config.TEST_APIS) {
           (global as Record<string, unknown>).verificationUrl = url;
           await writeFile("/tmp/verification-url.txt", url);
           return;
@@ -25,7 +26,7 @@ export const authOptions: NextAuthOptions = {
         await sendEmail({ to: identifier, subject: "Sign in", body: url });
         console.log("Verification email sent", identifier);
       },
-      from: process.env.SMTP_FROM,
+      from: config.SMTP_FROM,
     }),
   ],
   pages: { signIn: "/signin" },
@@ -53,5 +54,5 @@ export const authOptions: NextAuthOptions = {
       }
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: config.NEXTAUTH_SECRET,
 };

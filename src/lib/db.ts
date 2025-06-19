@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
+import { config } from "./config";
 import { runMigrations } from "./migrate";
 
-const dbFile = process.env.CASE_STORE_FILE
-  ? path.resolve(process.env.CASE_STORE_FILE)
+const dbFile = config.CASE_STORE_FILE
+  ? path.resolve(config.CASE_STORE_FILE)
   : path.join(process.cwd(), "data", "cases.sqlite");
 
 fs.mkdirSync(path.dirname(dbFile), { recursive: true });

@@ -1,8 +1,6 @@
 import path from "node:path";
-import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-
-dotenv.config();
+import { config } from "./config";
 
 export interface EmailOptions {
   /** @zod.email */
@@ -20,10 +18,10 @@ export async function sendEmail({
 }: EmailOptions): Promise<void> {
   console.log("sendEmail", to, subject);
   const missing: string[] = [];
-  if (!process.env.SMTP_HOST) missing.push("SMTP_HOST");
-  if (!process.env.SMTP_USER) missing.push("SMTP_USER");
-  if (!process.env.SMTP_PASS) missing.push("SMTP_PASS");
-  if (!process.env.SMTP_FROM) missing.push("SMTP_FROM");
+  if (!config.SMTP_HOST) missing.push("SMTP_HOST");
+  if (!config.SMTP_USER) missing.push("SMTP_USER");
+  if (!config.SMTP_PASS) missing.push("SMTP_PASS");
+  if (!config.SMTP_FROM) missing.push("SMTP_FROM");
   if (missing.length) {
     throw new Error(`Missing SMTP configuration: ${missing.join(", ")}`);
   }
@@ -31,12 +29,12 @@ export async function sendEmail({
   let transporter: ReturnType<typeof nodemailer.createTransport>;
   try {
     transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
-      secure: process.env.SMTP_SECURE === "true",
+      host: config.SMTP_HOST,
+      port: config.SMTP_PORT ? Number(config.SMTP_PORT) : 587,
+      secure: config.SMTP_SECURE === true,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: config.SMTP_USER,
+        pass: config.SMTP_PASS,
       },
     });
   } catch (err) {
@@ -44,9 +42,9 @@ export async function sendEmail({
     throw err;
   }
 
-  const override = process.env.MOCK_EMAIL_TO;
+  const override = config.MOCK_EMAIL_TO;
   await transporter.sendMail({
-    from: process.env.SMTP_FROM,
+    from: config.SMTP_FROM,
     to: override || to,
     subject,
     text: body,

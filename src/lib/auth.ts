@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import type { AdapterUser } from "@auth/core/adapters";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq, sql } from "drizzle-orm";
+import { config } from "./config";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { users } from "./schema";
@@ -33,7 +34,7 @@ export async function seedSuperAdmin(newUser?: {
     .get();
   if (existing) return;
   let target: { id: string } | undefined;
-  const envEmail = process.env.SUPER_ADMIN_EMAIL;
+  const envEmail = config.SUPER_ADMIN_EMAIL;
   if (envEmail) {
     if (newUser && newUser.email === envEmail) target = newUser;
     else
