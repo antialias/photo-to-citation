@@ -1,6 +1,6 @@
-import fs from "node:fs";
 import path from "node:path";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { readJsonFile, writeJsonFile } from "./fileUtils";
 import { getLlm } from "./llm";
 
 export interface ViolationCodeMap {
@@ -12,17 +12,11 @@ const dataFile = process.env.VIOLATION_CODE_FILE
   : path.join(process.cwd(), "data", "violationCodes.json");
 
 function loadCodes(): ViolationCodeMap {
-  if (!fs.existsSync(dataFile)) return {};
-  try {
-    return JSON.parse(fs.readFileSync(dataFile, "utf8")) as ViolationCodeMap;
-  } catch {
-    return {};
-  }
+  return readJsonFile<ViolationCodeMap>(dataFile, {});
 }
 
 function saveCodes(map: ViolationCodeMap): void {
-  fs.mkdirSync(path.dirname(dataFile), { recursive: true });
-  fs.writeFileSync(dataFile, JSON.stringify(map, null, 2));
+  writeJsonFile(dataFile, map);
 }
 
 function getStoredCode(municipality: string, violation: string): string | null {
