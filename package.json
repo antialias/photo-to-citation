@@ -9,6 +9,7 @@
     "lint": "biome check .",
     "format": "biome format . --write",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "e2e": "vitest run -c vitest.e2e.config.ts",
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
     "poll:snailmail": "ts-node --transpile-only scripts/pollSnailMail.ts",
