@@ -66,11 +66,27 @@ export default function CaseToolbar({
         </div>
       ) : null}
       <div className="flex justify-end">
-        <details ref={detailsRef} className="relative">
-          <summary className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded">
+        <details
+          ref={detailsRef}
+          className="relative"
+          onToggle={() => {
+            if (detailsRef.current?.open) {
+              detailsRef.current
+                .querySelector<HTMLElement>("button, a")
+                ?.focus();
+            }
+          }}
+        >
+          <summary
+            className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+            aria-label="Case actions menu"
+          >
             Actions
           </summary>
-          <div className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow">
+          <div
+            className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
+            role="menu"
+          >
             <button
               type="button"
               onClick={async () => {

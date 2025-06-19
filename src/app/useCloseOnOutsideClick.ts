@@ -11,9 +11,17 @@ export default function useCloseOnOutsideClick(
         el.removeAttribute("open");
       }
     }
+    function handleKey(e: KeyboardEvent) {
+      const el = ref.current;
+      if (e.key === "Escape" && el?.open) {
+        el.removeAttribute("open");
+      }
+    }
     document.addEventListener("click", handleClick);
+    document.addEventListener("keydown", handleKey);
     return () => {
       document.removeEventListener("click", handleClick);
+      document.removeEventListener("keydown", handleKey);
     };
   }, [ref]);
 }
