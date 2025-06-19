@@ -2,12 +2,8 @@ import { writeFile } from "node:fs/promises";
 import type { NextAuthOptions, Session, User } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
-import { authAdapter, seedSuperAdmin } from "./auth";
+import { authAdapter } from "./auth";
 import { sendEmail } from "./email";
-
-seedSuperAdmin().catch((err) => {
-  console.error("Failed to seed super admin", err);
-});
 
 export const authOptions: NextAuthOptions = {
   adapter: authAdapter() as Adapter,
