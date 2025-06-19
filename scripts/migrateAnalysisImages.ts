@@ -18,7 +18,7 @@ async function run() {
       | undefined;
     if (!analysisImages) continue;
     const photos = orm
-      .select({ url: casePhotos.url })
+      .select()
       .from(casePhotos)
       .where(eq(casePhotos.caseId, row.id))
       .all();

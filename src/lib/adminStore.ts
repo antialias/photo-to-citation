@@ -16,7 +16,7 @@ export function listUsers(): UserRecord[] {
     .select()
     .from(users)
     .all()
-    .map((u) => ({ ...u }));
+    .map((u: typeof users.$inferSelect) => ({ ...u }));
 }
 
 export function inviteUser(email: string, role = "user"): UserRecord {
@@ -52,7 +52,7 @@ export function getCasbinRules(): CasbinRule[] {
     .select()
     .from(casbinRules)
     .all()
-    .map((r) => ({ ...r }));
+    .map((r: typeof casbinRules.$inferSelect) => ({ ...r }));
 }
 
 export async function replaceCasbinRules(
