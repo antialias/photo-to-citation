@@ -15,5 +15,16 @@ export default defineConfig({
     globals: true,
     setupFiles: "./vitest.setup.ts",
     exclude: [...configDefaults.exclude, "test/e2e/**"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      all: true,
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
+    },
   },
 });
