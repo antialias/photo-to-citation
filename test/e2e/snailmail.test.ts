@@ -2,25 +2,15 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
-let cookie = "";
-
-async function api(url: string, opts: RequestInit = {}): Promise<Response> {
-  const res = await fetch(url, {
-    ...opts,
-    headers: { ...(opts.headers || {}), cookie },
-    redirect: "manual",
-  });
-  const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
-  return res;
-}
+let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
-  const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
-  await api(`${server.url}/api/auth/signin/email`, {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signin/email", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -29,9 +19,7 @@ async function signIn(email: string) {
       callbackUrl: server.url,
     }),
   });
-  const ver = await api(`${server.url}/api/test/verification-url`).then((r) =>
-    r.json(),
-  );
+  const ver = await api("/api/test/verification-url").then((r) => r.json());
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
@@ -59,6 +47,7 @@ beforeAll(async () => {
     RETURN_ADDRESS: string;
     SNAIL_MAIL_PROVIDER: string;
     NODE_ENV: string;
+    NEXTAUTH_SECRET: string;
   } = {
     CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
@@ -69,6 +58,7 @@ beforeAll(async () => {
     RETURN_ADDRESS: "Me\n1 A St\nTown, ST 12345",
     SNAIL_MAIL_PROVIDER: "file",
     NODE_ENV: "test",
+    NEXTAUTH_SECRET: "secret",
   };
   fs.writeFileSync(
     env.VIN_SOURCE_FILE,
@@ -93,6 +83,7 @@ beforeAll(async () => {
     ),
   );
   server = await startServer(3008, env);
+  api = createApi(server);
   await signIn("user@example.com");
 }, 120000);
 
@@ -107,7 +98,7 @@ describe("snail mail providers", () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
-    const res = await api(`${server.url}/api/upload`, {
+    const res = await api("/api/upload", {
       method: "POST",
       body: form,
     });
@@ -117,7 +108,7 @@ describe("snail mail providers", () => {
   }
 
   it("lists providers", async () => {
-    const res = await api(`${server.url}/api/snail-mail-providers`);
+    const res = await api("/api/snail-mail-providers");
     expect(res.status).toBe(200);
     const list = (await res.json()) as Array<{ id: string; active: boolean }>;
     expect(Array.isArray(list)).toBe(true);
@@ -125,7 +116,7 @@ describe("snail mail providers", () => {
   }, 30000);
 
   it("activates a provider", async () => {
-    const res = await api(`${server.url}/api/snail-mail-providers/mock`, {
+    const res = await api("/api/snail-mail-providers/mock", {
       method: "PUT",
     });
     expect(res.status).toBe(200);
@@ -135,7 +126,7 @@ describe("snail mail providers", () => {
   }, 30000);
 
   it("returns 404 for unknown provider", async () => {
-    const res = await api(`${server.url}/api/snail-mail-providers/none`, {
+    const res = await api("/api/snail-mail-providers/none", {
       method: "PUT",
     });
     expect(res.status).toBe(404);
@@ -143,7 +134,7 @@ describe("snail mail providers", () => {
 
   it("sends snail mail followup", async () => {
     const id = await createCase();
-    const res = await api(`${server.url}/api/cases/${id}/followup`, {
+    const res = await api(`/api/cases/${id}/followup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
