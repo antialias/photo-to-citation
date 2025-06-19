@@ -10,8 +10,8 @@ import { type TestServer, startServer } from "./startServer";
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
-  const csrf = await api(`${server.url}/api/auth/csrf`).then((r) => r.json());
-  await api(`${server.url}/api/auth/signin/email`, {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signin/email", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -20,9 +20,7 @@ async function signIn(email: string) {
       callbackUrl: server.url,
     }),
   });
-  const ver = await api(`${server.url}/api/test/verification-url`).then((r) =>
-    r.json(),
-  );
+  const ver = await api("/api/test/verification-url").then((r) => r.json());
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
@@ -77,7 +75,7 @@ describe("follow up", () => {
     const form = new FormData();
     form.append("photo", file);
     for (let i = 0; i < 20; i++) {
-      const res = await api(`${server.url}/api/upload`, {
+      const res = await api("/api/upload", {
         method: "POST",
         body: form,
       });
@@ -87,7 +85,7 @@ describe("follow up", () => {
       }
       await new Promise((r) => setTimeout(r, 500));
     }
-    const final = await api(`${server.url}/api/upload`, {
+    const final = await api("/api/upload", {
       method: "POST",
       body: form,
     });
@@ -97,11 +95,11 @@ describe("follow up", () => {
 
   async function fetchFollowup(id: string): Promise<Response> {
     for (let i = 0; i < 20; i++) {
-      const res = await api(`${server.url}/api/cases/${id}/followup`);
+      const res = await api(`/api/cases/${id}/followup`);
       if (res.status === 200) return res;
       await new Promise((r) => setTimeout(r, 500));
     }
-    return api(`${server.url}/api/cases/${id}/followup`);
+    return api(`/api/cases/${id}/followup`);
   }
 
   it("passes prior emails to openai", async () => {
