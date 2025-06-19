@@ -75,7 +75,7 @@ describe("permissions", () => {
   }, 30000);
 
   it("shows admin actions for admins", async () => {
-    cookie = "";
+    await signOut();
     await signIn("admin@example.com");
     const id = await createCase();
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
