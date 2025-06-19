@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
-
-dotenv.config();
+import { getConfig } from "./config";
 
 export interface Coordinates {
   lat: number;
@@ -9,7 +7,7 @@ export interface Coordinates {
 
 async function fetchGeocode(params: Record<string, string>): Promise<unknown> {
   const query = new URLSearchParams({
-    key: process.env.GOOGLE_MAPS_API_KEY || "",
+    key: getConfig().GOOGLE_MAPS_API_KEY || "",
     ...params,
   });
   const res = await fetch(

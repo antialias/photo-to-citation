@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { getConfig } from "./config";
 import { readJsonFile, writeJsonFile } from "./fileUtils";
 import { getLlm } from "./llm";
 
@@ -7,8 +8,9 @@ export interface ViolationCodeMap {
   [municipality: string]: Record<string, string>;
 }
 
-const dataFile = process.env.VIOLATION_CODE_FILE
-  ? path.resolve(process.env.VIOLATION_CODE_FILE)
+const cfg = getConfig();
+const dataFile = cfg.VIOLATION_CODE_FILE
+  ? path.resolve(cfg.VIOLATION_CODE_FILE)
   : path.join(process.cwd(), "data", "violationCodes.json");
 
 function loadCodes(): ViolationCodeMap {

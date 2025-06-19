@@ -1,38 +1,40 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import dotenv from "dotenv";
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { analyzeCaseInBackground } from "./caseAnalysis";
 import { fetchCaseLocationInBackground } from "./caseLocation";
 import { addCasePhoto, createCase } from "./caseStore";
+import { getConfig } from "./config";
 import { extractGps, extractTimestamp } from "./exif";
 import { readJsonFile, writeJsonFile } from "./fileUtils";
 
-dotenv.config();
-
-const stateFile = process.env.INBOX_STATE_FILE
-  ? path.resolve(process.env.INBOX_STATE_FILE)
-  : path.join(process.cwd(), "data", "inbox.json");
+function stateFilePath(): string {
+  const cfg = getConfig();
+  return cfg.INBOX_STATE_FILE
+    ? path.resolve(cfg.INBOX_STATE_FILE)
+    : path.join(process.cwd(), "data", "inbox.json");
+}
 
 function loadState(): number {
-  const val = readJsonFile<{ lastUid?: number }>(stateFile, {});
+  const val = readJsonFile<{ lastUid?: number }>(stateFilePath(), {});
   return typeof val.lastUid === "number" ? val.lastUid : 0;
 }
 
 function saveState(uid: number): void {
-  writeJsonFile(stateFile, { lastUid: uid });
+  writeJsonFile(stateFilePath(), { lastUid: uid });
 }
 
 export async function scanInbox(): Promise<void> {
+  const cfg = getConfig();
   const client = new ImapFlow({
-    host: process.env.IMAP_HOST,
-    port: process.env.IMAP_PORT ? Number(process.env.IMAP_PORT) : 993,
-    secure: process.env.IMAP_TLS !== "false",
+    host: cfg.IMAP_HOST,
+    port: cfg.IMAP_PORT ?? 993,
+    secure: cfg.IMAP_TLS !== false,
     auth: {
-      user: process.env.IMAP_USER,
-      pass: process.env.IMAP_PASS,
+      user: cfg.IMAP_USER,
+      pass: cfg.IMAP_PASS,
     },
   });
 

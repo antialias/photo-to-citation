@@ -13,10 +13,11 @@ export interface SentMail {
 }
 
 import path from "node:path";
+import { getConfig } from "./config";
 import { readJsonFile, writeJsonFile } from "./fileUtils";
 
-const dataFile = process.env.SNAIL_MAIL_FILE
-  ? path.resolve(process.env.SNAIL_MAIL_FILE)
+const dataFile = getConfig().SNAIL_MAIL_FILE
+  ? path.resolve(getConfig().SNAIL_MAIL_FILE)
   : path.join(process.cwd(), "data", "snailMail.json");
 
 function loadMails(): SentMail[] {

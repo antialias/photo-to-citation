@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { getConfig } from "./config";
 import { readJsonFile, writeJsonFile } from "./fileUtils";
 
 export interface VinSource {
@@ -57,8 +58,9 @@ export interface VinSourceStatus {
   failureCount: number;
 }
 
-const dataFile = process.env.VIN_SOURCE_FILE
-  ? path.resolve(process.env.VIN_SOURCE_FILE)
+const cfg = getConfig();
+const dataFile = cfg.VIN_SOURCE_FILE
+  ? path.resolve(cfg.VIN_SOURCE_FILE)
   : path.join(process.cwd(), "data", "vinSources.json");
 
 function loadStatuses(): VinSourceStatus[] {

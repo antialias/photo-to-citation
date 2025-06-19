@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
+import { getConfig } from "@/lib/config";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  if (!process.env.TEST_APIS) {
+  if (!getConfig().TEST_APIS) {
     return new NextResponse(null, { status: 404 });
   }
   let url: string | undefined;

@@ -7,15 +7,13 @@ export interface OwnerContactInfo {
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import dotenv from "dotenv";
 import twilio from "twilio";
 
+import { getConfig } from "./config";
 import {
   type MailingAddress,
   sendSnailMail as providerSendSnailMail,
 } from "./snailMail";
-
-dotenv.config();
 
 function parseAddress(text: string): MailingAddress {
   const lines = text.trim().split(/\n+/);
@@ -34,9 +32,10 @@ function parseAddress(text: string): MailingAddress {
 }
 
 export async function sendSms(to: string, message: string): Promise<void> {
-  const sid = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_FROM_NUMBER;
+  const config = getConfig();
+  const sid = config.TWILIO_ACCOUNT_SID;
+  const token = config.TWILIO_AUTH_TOKEN;
+  const from = config.TWILIO_FROM_NUMBER;
   if (!sid || !token || !from) {
     throw new Error("Twilio SMS not configured");
   }
@@ -49,9 +48,10 @@ export async function sendSms(to: string, message: string): Promise<void> {
 }
 
 export async function sendWhatsapp(to: string, message: string): Promise<void> {
-  const sid = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_FROM_NUMBER;
+  const config = getConfig();
+  const sid = config.TWILIO_ACCOUNT_SID;
+  const token = config.TWILIO_AUTH_TOKEN;
+  const from = config.TWILIO_FROM_NUMBER;
   if (!sid || !token || !from) {
     throw new Error("Twilio WhatsApp not configured");
   }
@@ -64,9 +64,10 @@ export async function sendWhatsapp(to: string, message: string): Promise<void> {
 }
 
 export async function makeRobocall(to: string, message: string): Promise<void> {
-  const sid = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_FROM_NUMBER;
+  const config = getConfig();
+  const sid = config.TWILIO_ACCOUNT_SID;
+  const token = config.TWILIO_AUTH_TOKEN;
+  const from = config.TWILIO_FROM_NUMBER;
   if (!sid || !token || !from) {
     throw new Error("Twilio voice not configured");
   }
@@ -84,8 +85,9 @@ export async function sendSnailMail(options: {
   body: string;
   attachments: string[];
 }): Promise<void> {
-  const provider = process.env.SNAIL_MAIL_PROVIDER || "mock";
-  const returnAddr = process.env.RETURN_ADDRESS;
+  const config = getConfig();
+  const provider = config.SNAIL_MAIL_PROVIDER || "mock";
+  const returnAddr = config.RETURN_ADDRESS;
   if (!returnAddr) {
     throw new Error("RETURN_ADDRESS not configured");
   }

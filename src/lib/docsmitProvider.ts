@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import dotenv from "dotenv";
 import FormData from "form-data";
+import { getConfig } from "./config";
 import type {
   MailingAddress,
   SnailMailOptions,
@@ -10,8 +10,6 @@ import type {
   SnailMailStatus,
 } from "./snailMail";
 import { addSentMail } from "./snailMailStore";
-
-dotenv.config();
 
 let cachedToken: { token: string; fetchedAt: number } | null = null;
 
@@ -103,11 +101,12 @@ const provider: SnailMailProvider = {
   label: "Docsmit",
   docs: "https://docs.docsmit.com",
   async send(opts: SnailMailOptions): Promise<SnailMailStatus> {
+    const config = getConfig();
     const base =
-      process.env.DOCSMIT_BASE_URL || "https://secure.tracksmit.com/api/v1";
-    const email = process.env.DOCSMIT_EMAIL || "";
-    const password = process.env.DOCSMIT_PASSWORD || "";
-    const softwareID = process.env.DOCSMIT_SOFTWARE_ID || "";
+      config.DOCSMIT_BASE_URL || "https://secure.tracksmit.com/api/v1";
+    const email = config.DOCSMIT_EMAIL || "";
+    const password = config.DOCSMIT_PASSWORD || "";
+    const softwareID = config.DOCSMIT_SOFTWARE_ID || "";
     if (!email || !password || !softwareID)
       throw new Error("Docsmit env vars not set");
     const createBody = {

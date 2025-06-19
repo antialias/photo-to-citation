@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { PDFDocument } from "pdf-lib";
+import { getConfig } from "./config";
 import type { MailingAddress } from "./snailMail";
 import { sendSnailMail as providerSendSnailMail } from "./snailMail";
 
@@ -41,8 +42,9 @@ function parseAddress(text: string): MailingAddress {
 }
 
 async function mailPdf(address: string, pdfPath: string): Promise<void> {
-  const provider = process.env.SNAIL_MAIL_PROVIDER || "mock";
-  const returnAddr = process.env.RETURN_ADDRESS;
+  const cfg = getConfig();
+  const provider = cfg.SNAIL_MAIL_PROVIDER || "mock";
+  const returnAddr = cfg.RETURN_ADDRESS;
   if (!returnAddr) throw new Error("RETURN_ADDRESS not configured");
   const to = parseAddress(address);
   const from = parseAddress(returnAddr);

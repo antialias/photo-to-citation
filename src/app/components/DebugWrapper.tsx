@@ -1,4 +1,5 @@
 "use client";
+import { getConfig } from "@/lib/config";
 import Tippy from "@tippyjs/react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -38,7 +39,7 @@ export default function DebugWrapper({
   data: unknown;
   children: ReactNode;
 }) {
-  const enabled = Boolean(process.env.NEXT_PUBLIC_BROWSER_DEBUG);
+  const enabled = Boolean(getConfig().NEXT_PUBLIC_BROWSER_DEBUG);
   const alt = useAltKey();
   const [refHover, setRefHover] = useState(false);
   const [tipHover, setTipHover] = useState(false);
