@@ -269,6 +269,17 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
+  async function retryAnalysis() {
+    if (caseData) setCaseData({ ...caseData, analysisStatus: "pending" });
+    const res = await apiFetch(`/api/cases/${caseId}/reanalyze`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      alert("Failed to retry analysis.");
+    }
+    await refreshCase();
+  }
+
   async function removePhoto(photo: string) {
     const delRes = await apiFetch(`/api/cases/${caseId}/photos`, {
       method: "DELETE",
@@ -370,6 +381,17 @@ export default function ClientCasePage({
       : caseData.analysisStatus === "canceled"
         ? "Analysis canceled."
         : "Analysis failed.";
+  const failureReason = caseData.analysisError
+    ? caseData.analysisError === "truncated"
+      ? "Analysis failed because the AI response was cut off."
+      : caseData.analysisError === "parse"
+        ? "Analysis failed due to invalid JSON from the AI."
+        : caseData.analysisError === "images"
+          ? "Analysis failed because no images were provided or some photo files were missing."
+          : "Analysis failed because the AI response did not match the expected format."
+    : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400
+      ? "Analysis failed. Please try again later."
+      : "Analysis failed.";
   const analysisBlock = caseData.analysis ? (
     <>
       <AnalysisInfo
@@ -380,20 +402,6 @@ export default function ClientCasePage({
         onClearState={plateStateOverridden ? clearPlateState : undefined}
       />
     </>
-  ) : caseData.analysisError ? (
-    <p className="text-sm text-red-600">
-      {caseData.analysisError === "truncated"
-        ? "Analysis failed because the AI response was cut off. Please try again."
-        : caseData.analysisError === "parse"
-          ? "Analysis failed due to invalid JSON from the AI. Please try again."
-          : caseData.analysisError === "images"
-            ? "Analysis failed because no images were provided or some photo files were missing."
-            : "Analysis failed because the AI response did not match the expected format. Please retry."}
-    </p>
-  ) : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400 ? (
-    <p className="text-sm text-red-600">
-      Analysis failed. Please try again later.
-    </p>
   ) : caseData.analysisStatus === "canceled" ? (
     <p className="text-sm text-red-600">Analysis canceled.</p>
   ) : caseData.analysisStatus === "pending" && progress ? (
@@ -401,7 +409,24 @@ export default function ClientCasePage({
       {progressDescription}
     </p>
   ) : (
-    <p className="text-sm text-red-600">Analysis failed.</p>
+    <div className="text-sm text-red-600 flex flex-col gap-1">
+      <p>{failureReason}</p>
+      <button type="button" onClick={retryAnalysis} className="underline w-fit">
+        Retry
+      </button>
+      <details>
+        <summary className="cursor-pointer underline">More info</summary>
+        <p className="mt-1">
+          Last attempt: {new Date(caseData.updatedAt).toLocaleString()}
+        </p>
+        <p className="mt-1">Possible causes:</p>
+        <ul className="list-disc ml-4">
+          <li>Missing photo files</li>
+          <li>Invalid JSON response</li>
+          <li>Server error</li>
+        </ul>
+      </details>
+    </div>
   );
 
   const analysisImages = caseData.analysis?.images ?? {};
