@@ -8,6 +8,7 @@ import LoggedOutLanding from "./LoggedOutLanding";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
+  console.log("home session", !!session);
   if (!session) {
     return <LoggedOutLanding />;
   }

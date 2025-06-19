@@ -9,6 +9,7 @@ let enforcer: Enforcer | undefined;
 async function loadEnforcer(): Promise<Enforcer> {
   if (enforcer) return enforcer;
   await migrationsReady;
+  console.log("loading casbin enforcer");
   const model = newModelFromString(`
   [request_definition]
   r = sub, obj, act, caseId, userId
@@ -50,6 +51,7 @@ export async function authorize(
   act: string,
   ctx?: { caseId?: string; userId?: string },
 ): Promise<boolean> {
+  console.log("authorize", sub, obj, act, ctx);
   const e = await loadEnforcer();
   return e.enforce(sub, obj, act, ctx?.caseId ?? "", ctx?.userId ?? "");
 }
@@ -63,6 +65,7 @@ export function withAuthorization<
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const role = ctx.session?.user?.role ?? "anonymous";
+    console.log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
     }
@@ -81,6 +84,7 @@ export function withCaseAuthorization<
     const { id } = await ctx.params;
     const role = ctx.session?.user?.role ?? "user";
     const userId = ctx.session?.user?.id;
+    console.log("withCaseAuthorization", role, act, id, userId);
     if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
       return new Response(null, { status: 403 });
     }

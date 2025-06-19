@@ -14,12 +14,14 @@ export const authOptions: NextAuthOptions = {
   providers: [
     EmailProvider({
       async sendVerificationRequest({ identifier, url }) {
+        console.log("sendVerificationRequest", identifier);
         if (process.env.TEST_APIS) {
           (global as Record<string, unknown>).verificationUrl = url;
           await writeFile("/tmp/verification-url.txt", url);
           return;
         }
         await sendEmail({ to: identifier, subject: "Sign in", body: url });
+        console.log("Verification email sent", identifier);
       },
       from: process.env.SMTP_FROM,
     }),
@@ -31,6 +33,7 @@ export const authOptions: NextAuthOptions = {
       session,
       user,
     }: { session: Session; user: User & { role?: string } }) {
+      console.log("session callback", user.id);
       if (session.user) {
         (session.user as User & { role?: string }).role = user.role;
         (session.user as User & { id: string }).id = user.id;
@@ -40,6 +43,7 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
+      console.log("new user", user.id);
       try {
         await seedSuperAdmin({ id: user.id, email: user.email ?? null });
       } catch (err) {
