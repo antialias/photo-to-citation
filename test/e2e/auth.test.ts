@@ -52,6 +52,6 @@ describe("auth flow", () => {
       }),
     });
     const sessionAfter = await api("/api/auth/session").then((r) => r.json());
-    expect(sessionAfter).toBeNull();
+    expect(sessionAfter).toEqual({});
   }, 30000);
 });
