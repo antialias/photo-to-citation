@@ -8,11 +8,19 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const params = useSearchParams();
   const error = params.get("error");
+  const errorMessages: Record<string, string> = {
+    Configuration:
+      "Configuration error. NEXTAUTH_URL must match the site URL including any base path.",
+    Verification: "Sign-in failed. The link may have expired.",
+  };
+  const message = error
+    ? (errorMessages[error] ?? errorMessages.Verification)
+    : null;
   return (
     <>
-      {error ? (
+      {message ? (
         <div className="bg-red-100 border border-red-300 text-red-700 p-2 mb-2">
-          Sign-in failed. The link may have expired.
+          {message}
         </div>
       ) : null}
       <form
