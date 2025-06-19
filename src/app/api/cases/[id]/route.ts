@@ -1,4 +1,8 @@
-import { withAuthorization, withCaseAuthorization } from "@/lib/authz";
+import {
+  getSessionDetails,
+  withAuthorization,
+  withCaseAuthorization,
+} from "@/lib/authz";
 import { isCaseMember } from "@/lib/caseMembers";
 import { deleteCase, getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
@@ -21,8 +25,7 @@ export const GET = withAuthorization(
     if (!c) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    const userId = session?.user?.id;
-    const role = session?.user?.role ?? "user";
+    const { userId, role } = getSessionDetails({ session }, "user");
     if (!c.public && role !== "admin" && role !== "superadmin") {
       if (!userId || !isCaseMember(id, userId)) {
         return new Response(null, { status: 403 });

@@ -1,4 +1,4 @@
-import { withAuthorization } from "@/lib/authz";
+import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import { caseEvents } from "@/lib/caseEvents";
 import { NextResponse } from "next/server";
 
@@ -16,7 +16,8 @@ export const GET = withAuthorization(
       session?: { user?: { role?: string } };
     },
   ) => {
-    if (!session?.user) {
+    const { userId } = getSessionDetails({ session });
+    if (!userId) {
       return new Response(null, { status: 403 });
     }
     const encoder = new TextEncoder();

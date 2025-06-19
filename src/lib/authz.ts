@@ -56,6 +56,16 @@ export async function authorize(
   return e.enforce(sub, obj, act, ctx?.caseId ?? "", ctx?.userId ?? "");
 }
 
+export function getSessionDetails(
+  ctx: { session?: { user?: { id?: string; role?: string } } },
+  defaultRole = "anonymous",
+) {
+  return {
+    role: ctx.session?.user?.role ?? defaultRole,
+    userId: ctx.session?.user?.id,
+  };
+}
+
 export function withAuthorization<
   C extends {
     params: Promise<Record<string, string>>;
@@ -64,7 +74,7 @@ export function withAuthorization<
   R = Response,
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
-    const role = ctx.session?.user?.role ?? "anonymous";
+    const { role } = getSessionDetails(ctx);
     console.log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
@@ -82,8 +92,7 @@ export function withCaseAuthorization<
 >(act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
-    const role = ctx.session?.user?.role ?? "user";
-    const userId = ctx.session?.user?.id;
+    const { role, userId } = getSessionDetails(ctx, "user");
     console.log("withCaseAuthorization", role, act, id, userId);
     if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
       return new Response(null, { status: 403 });
