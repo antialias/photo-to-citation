@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises";
 import type { NextAuthOptions, Session, User } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
-import { authAdapter } from "./auth";
+import { authAdapter, seedSuperAdmin } from "./auth";
 import { sendEmail } from "./email";
 
 export const authOptions: NextAuthOptions = {
