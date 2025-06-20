@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import type * as snailMail from "@/lib/snailMail";
 import { describe, expect, it, vi } from "vitest";
 
 describe("ownershipModules.il.requestVin", () => {

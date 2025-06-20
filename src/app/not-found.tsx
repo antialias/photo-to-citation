@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="p-8 text-center">
       <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
-      <p className="mb-4">Sorry, we couldn't find that page.</p>
+      <p className="mb-4">Sorry, we couldn&apos;t find that page.</p>
       <Link href={withBasePath("/")} className="underline">
         Back to home
       </Link>

@@ -2,9 +2,9 @@
 import { signIn } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState("");
   const params = useSearchParams();
   const error = params.get("error");
@@ -44,5 +44,13 @@ export default function SignInPage() {
         </button>
       </form>
     </>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }

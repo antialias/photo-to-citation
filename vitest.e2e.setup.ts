@@ -27,9 +27,13 @@ function waitForServer(port: number): Promise<void> {
   });
 }
 
-async function run(cmd: string, args: string[]): Promise<void> {
+async function run(
+  cmd: string,
+  args: string[],
+  env?: NodeJS.ProcessEnv,
+): Promise<void> {
   await new Promise<void>((resolve, reject) => {
-    const proc = spawn(cmd, args, { stdio: "inherit" });
+    const proc = spawn(cmd, args, { stdio: "inherit", env });
     proc.on("exit", (code) => {
       if (code === 0) resolve();
       else reject(new Error(`${cmd} ${args.join(" ")} exited with ${code}`));
@@ -40,7 +44,16 @@ async function run(cmd: string, args: string[]): Promise<void> {
 beforeAll(async () => {
   if (global.__E2E_SERVER__) return;
   if (!fs.existsSync(".next")) {
-    await run(path.join("node_modules", ".bin", "next"), ["build"]);
+    await run(
+      path.join("node_modules", ".bin", "next"),
+      ["build", "--no-lint"],
+      {
+        NEXT_TELEMETRY_DISABLED: "1",
+        NEXTAUTH_SECRET: "secret",
+        NODE_ENV: "production",
+        ...process.env,
+      },
+    );
   }
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
@@ -50,6 +63,7 @@ beforeAll(async () => {
     TEST_APIS: "1",
     NODE_ENV: "test",
     NEXTAUTH_URL: "http://localhost",
+    NEXTAUTH_SECRET: "secret",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     CI: "1",
   } as NodeJS.ProcessEnv;
