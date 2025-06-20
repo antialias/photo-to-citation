@@ -53,5 +53,14 @@ const envSchema = z
   })
   .passthrough();
 
-export const config = envSchema.parse(process.env);
-export type Config = typeof config;
+export type Config = z.infer<typeof envSchema>;
+
+function parseEnv(): Config {
+  return envSchema.parse(process.env);
+}
+
+export const config: Config = new Proxy({} as Config, {
+  get(_target, prop: keyof Config) {
+    return parseEnv()[prop];
+  },
+});

@@ -1,5 +1,5 @@
 "use client";
-import { useSession } from "../useSession";
+import { useSession } from "@/app/useSession";
 
 export default function UserSettingsPage() {
   const { data: session } = useSession();

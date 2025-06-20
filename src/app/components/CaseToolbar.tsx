@@ -1,11 +1,11 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
 import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 import { useRef } from "react";
-import useCloseOnOutsideClick from "../useCloseOnOutsideClick";
 
 export default function CaseToolbar({
   caseId,

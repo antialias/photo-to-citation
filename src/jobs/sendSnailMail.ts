@@ -1,6 +1,6 @@
 import { parentPort, workerData } from "node:worker_threads";
-import { sendSnailMail } from "../lib/snailMail";
-import type { SnailMailOptions } from "../lib/snailMail";
+import { sendSnailMail } from "@/lib/snailMail";
+import type { SnailMailOptions } from "@/lib/snailMail";
 
 (async () => {
   const { jobData } = workerData as {

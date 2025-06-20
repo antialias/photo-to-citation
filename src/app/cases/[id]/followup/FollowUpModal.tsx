@@ -1,10 +1,10 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import DraftEditor from "@/app/cases/[id]/draft/DraftEditor";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
-import DraftEditor from "../draft/DraftEditor";
 
 interface DraftData {
   email: EmailDraft;

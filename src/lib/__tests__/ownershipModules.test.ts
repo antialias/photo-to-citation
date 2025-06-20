@@ -1,7 +1,7 @@
 import fs from "node:fs";
+import { ownershipModules } from "@/lib/ownershipModules";
+import * as snailMail from "@/lib/snailMail";
 import { describe, expect, it, vi } from "vitest";
-import { ownershipModules } from "../ownershipModules";
-import * as snailMail from "../snailMail";
 
 describe("ownershipModules.il.requestVin", () => {
   it("generates a PDF and mails it", async () => {

@@ -1,7 +1,7 @@
 import { parentPort, workerData } from "node:worker_threads";
-import type { Case } from "../lib/caseStore";
-import { migrationsReady } from "../lib/db";
-import { fetchCaseVin } from "../lib/vinLookup";
+import type { Case } from "@/lib/caseStore";
+import { migrationsReady } from "@/lib/db";
+import { fetchCaseVin } from "@/lib/vinLookup";
 
 (async () => {
   await migrationsReady;

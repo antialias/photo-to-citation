@@ -1,8 +1,8 @@
 "use client";
+import { signIn } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { signIn } from "../useSession";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");

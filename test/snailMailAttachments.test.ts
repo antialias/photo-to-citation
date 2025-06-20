@@ -3,8 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { sendSnailMail } from "../src/lib/contactMethods";
-import { snailMailProviders } from "../src/lib/snailMail";
+import { sendSnailMail } from "@/lib/contactMethods";
+import { snailMailProviders } from "@/lib/snailMail";
 
 let tmpDir: string;
 let root: string;

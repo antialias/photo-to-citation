@@ -1,9 +1,9 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
 import Link from "next/link";
 import { useRef } from "react";
-import useCloseOnOutsideClick from "../useCloseOnOutsideClick";
 
 export default function MultiCaseToolbar({
   caseIds,

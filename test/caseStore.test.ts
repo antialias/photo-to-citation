@@ -1,24 +1,24 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { getRepresentativePhoto } from "@/lib/caseUtils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getRepresentativePhoto } from "../src/lib/caseUtils";
 
 let dataDir: string;
-let caseStore: typeof import("../src/lib/caseStore");
-let members: typeof import("../src/lib/caseMembers");
-let orm: typeof import("../src/lib/orm").orm;
-let schema: typeof import("../src/lib/schema");
+let caseStore: typeof import("@/lib/caseStore");
+let members: typeof import("@/lib/caseMembers");
+let orm: typeof import("@/lib/orm").orm;
+let schema: typeof import("@/lib/schema");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const dbModule = await import("../src/lib/db");
-  caseStore = await import("../src/lib/caseStore");
-  members = await import("../src/lib/caseMembers");
-  ({ orm } = await import("../src/lib/orm"));
-  schema = await import("../src/lib/schema");
+  const dbModule = await import("@/lib/db");
+  caseStore = await import("@/lib/caseStore");
+  members = await import("@/lib/caseMembers");
+  ({ orm } = await import("@/lib/orm"));
+  schema = await import("@/lib/schema");
   orm.insert(schema.users).values({ id: "u1" }).run();
   await dbModule.migrationsReady;
 });

@@ -1,5 +1,5 @@
+import { getBestViolationPhoto, hasViolation } from "@/lib/caseUtils";
 import { describe, expect, it } from "vitest";
-import { getBestViolationPhoto, hasViolation } from "../src/lib/caseUtils";
 
 describe("hasViolation", () => {
   it("detects violation from image flags", () => {

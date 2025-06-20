@@ -1,6 +1,6 @@
 import fs from "node:fs";
+import { extractGps, extractTimestamp } from "@/lib/exif";
 import { describe, expect, it } from "vitest";
-import { extractGps, extractTimestamp } from "../src/lib/exif";
 
 const starfish = fs.readFileSync("node_modules/exif-parser/test/starfish.jpg");
 

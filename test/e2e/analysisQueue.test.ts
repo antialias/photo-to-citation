@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { Case } from "@/lib/caseStore";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { Case } from "../../src/lib/caseStore";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
