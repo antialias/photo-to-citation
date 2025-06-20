@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { config } from "@/lib/config";
 import { NextResponse } from "next/server";
-import { config } from "../../../lib/config";
 
 const verFile = path.join(os.tmpdir(), "verification-url.txt");
 
