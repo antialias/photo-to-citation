@@ -76,10 +76,10 @@ export function withAuthorization<
   R = Response,
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
-    const session =
-      process.env.NODE_ENV === "test"
-        ? ctx.session
-        : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
+    const skipSessionLoad = process.env.VITEST && !process.env.TEST_APIS;
+    const session = skipSessionLoad
+      ? ctx.session
+      : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
     const { role } = getSessionDetails({ session });
     console.log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
@@ -98,10 +98,10 @@ export function withCaseAuthorization<
 >(act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
-    const session =
-      process.env.NODE_ENV === "test"
-        ? ctx.session
-        : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
+    const skipSessionLoad = process.env.VITEST && !process.env.TEST_APIS;
+    const session = skipSessionLoad
+      ? ctx.session
+      : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
     const { role, userId } = getSessionDetails({ session }, "user");
     console.log("withCaseAuthorization", role, act, id, userId);
     if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
