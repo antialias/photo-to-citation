@@ -12,7 +12,7 @@ let schema: typeof import("../src/lib/schema");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
-  process.env.CASE_STORE_FILE = path.join(dataDir, "cases.json");
+  process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
   const dbModule = await import("../src/lib/db");
   caseStore = await import("../src/lib/caseStore");

@@ -10,7 +10,7 @@ let tmpDir: string;
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
   };
   server = await startServer(3006, env);

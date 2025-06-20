@@ -8,7 +8,7 @@ let dataDir: string;
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
-  process.env.CASE_STORE_FILE = path.join(dataDir, "cases.json");
+  process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   process.env.VIN_SOURCE_FILE = path.join(dataDir, "vinSources.json");
   const { defaultVinSources } = await import("../src/lib/vinSources");
   const statuses = defaultVinSources.map((s) => ({
