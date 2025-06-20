@@ -1,6 +1,6 @@
+import useDragReset from "@/app/cases/useDragReset";
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import useDragReset from "../useDragReset";
 
 describe("useDragReset", () => {
   it("invokes reset on dragleave with no relatedTarget", () => {

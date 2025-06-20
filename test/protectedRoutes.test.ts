@@ -10,7 +10,7 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("../src/lib/db");
+  const db = await import("@/lib/db");
   await db.migrationsReady;
 });
 
@@ -22,9 +22,9 @@ afterEach(() => {
 
 describe("protected routes", () => {
   it("returns 403 when unauthorized", async () => {
-    const store = await import("../src/lib/caseStore");
+    const store = await import("@/lib/caseStore");
     const c = store.createCase("/a.jpg", null);
-    const mod = await import("../src/app/api/cases/[id]/route");
+    const mod = await import("@/app/api/cases/[id]/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({ id: c.id }),
       session: { user: { role: "anonymous" } },
@@ -33,7 +33,7 @@ describe("protected routes", () => {
   });
 
   it("protects upload", async () => {
-    const mod = await import("../src/app/api/upload/route");
+    const mod = await import("@/app/api/upload/route");
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);

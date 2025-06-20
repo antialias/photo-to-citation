@@ -10,9 +10,9 @@ beforeEach(async () => {
   process.env.VIN_SOURCE_FILE = path.join(dataDir, "vinSources.json");
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("../src/lib/db");
+  const db = await import("@/lib/db");
   await db.migrationsReady;
-  const { defaultVinSources } = await import("../src/lib/vinSources");
+  const { defaultVinSources } = await import("@/lib/vinSources");
   const statuses = defaultVinSources.map((s: { id: string }) => ({
     id: s.id,
     enabled: true,
@@ -30,7 +30,7 @@ afterEach(() => {
 
 describe("vin source health", () => {
   it("disables after three failures", async () => {
-    const store = await import("../src/lib/vinSources");
+    const store = await import("@/lib/vinSources");
     store.recordVinSourceFailure("edmunds");
     store.recordVinSourceFailure("edmunds");
     store.recordVinSourceFailure("edmunds");
@@ -43,7 +43,7 @@ describe("vin source health", () => {
 
 describe("vin source API authorization", () => {
   it("rejects listing without admin role", async () => {
-    const mod = await import("../src/app/api/vin-sources/route");
+    const mod = await import("@/app/api/vin-sources/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({}) as Promise<Record<string, string>>,
       session: { user: { role: "user" } },
@@ -52,7 +52,7 @@ describe("vin source API authorization", () => {
   });
 
   it("rejects update without admin role", async () => {
-    const mod = await import("../src/app/api/vin-sources/[id]/route");
+    const mod = await import("@/app/api/vin-sources/[id]/route");
     const req = new Request("http://test", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

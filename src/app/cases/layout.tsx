@@ -1,5 +1,5 @@
+import { getCases } from "@/lib/caseStore";
 import type { ReactNode } from "react";
-import { getCases } from "../../lib/caseStore";
 import CasesLayoutClient from "./CasesLayoutClient";
 
 export const dynamic = "force-dynamic";

@@ -1,10 +1,10 @@
+import { draftEmail, draftOwnerNotification } from "@/lib/caseReport";
+import type { Case } from "@/lib/caseStore";
+import { getLlm } from "@/lib/llm";
+import { reportModules } from "@/lib/reportModules";
+import * as violationCodes from "@/lib/violationCodes";
 import type { ChatCompletion } from "openai/resources/chat/completions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { draftEmail, draftOwnerNotification } from "../caseReport";
-import type { Case } from "../caseStore";
-import { getLlm } from "../llm";
-import { reportModules } from "../reportModules";
-import * as violationCodes from "../violationCodes";
 
 const baseCase: Case = {
   id: "1",

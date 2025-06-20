@@ -32,7 +32,7 @@ afterEach(() => {
 
 describe("change role route", () => {
   it("allows superadmins", async () => {
-    const { PUT } = await import("../../api/users/[id]/role/route");
+    const { PUT } = await import("@/app/api/users/[id]/role/route");
     const res = await PUT(
       new Request("http://test", {
         method: "PUT",
@@ -54,7 +54,7 @@ describe("change role route", () => {
   });
 
   it("rejects non-superadmins", async () => {
-    const { PUT } = await import("../../api/users/[id]/role/route");
+    const { PUT } = await import("@/app/api/users/[id]/role/route");
     const res = await PUT(
       new Request("http://test", {
         method: "PUT",

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 describe("citationStatusModules", () => {
   it("returns a mock status", async () => {
     const { citationStatusModules } = await import(
-      "../src/lib/citationStatusModules"
+      "@/lib/citationStatusModules"
     );
     const result = await citationStatusModules.mock.lookupCitationStatus(
       "IL",

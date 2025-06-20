@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { Case } from "@/lib/caseStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Case } from "../src/lib/caseStore";
 
 let dataDir: string;
 
@@ -10,7 +10,7 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   process.env.VIN_SOURCE_FILE = path.join(dataDir, "vinSources.json");
-  const { defaultVinSources } = await import("../src/lib/vinSources");
+  const { defaultVinSources } = await import("@/lib/vinSources");
   const statuses = defaultVinSources.map((s) => ({
     id: s.id,
     enabled: true,
@@ -18,7 +18,7 @@ beforeEach(async () => {
   }));
   fs.writeFileSync(process.env.VIN_SOURCE_FILE, JSON.stringify(statuses));
   vi.resetModules();
-  const dbModule = await import("../src/lib/db");
+  const dbModule = await import("@/lib/db");
   await dbModule.migrationsReady;
 });
 
@@ -31,7 +31,7 @@ afterEach(() => {
 
 describe("vinLookup", () => {
   it("parses vin from html", async () => {
-    const { parseVinFromHtml } = await import("../src/lib/vinLookup");
+    const { parseVinFromHtml } = await import("@/lib/vinLookup");
     const html = "<div><span id='v'>VIN: 1HGCM82633A004352</span></div>";
     expect(parseVinFromHtml(html, "#v")).toBe("1HGCM82633A004352");
   });
@@ -46,7 +46,7 @@ describe("vinLookup", () => {
     const globalAny: any = global;
     const originalFetch = globalAny.fetch;
     globalAny.fetch = fetchMock;
-    const { lookupVin } = await import("../src/lib/vinLookup");
+    const { lookupVin } = await import("@/lib/vinLookup");
     const vin = await lookupVin("ABC123", "IL");
     expect(fetchMock).toHaveBeenCalled();
     const callArgs = fetchMock.mock.calls[0];
@@ -66,8 +66,8 @@ describe("vinLookup", () => {
     const originalFetch = globalAny.fetch;
     globalAny.fetch = fetchMock;
     const logSpy = vi.spyOn(console, "log");
-    const { fetchCaseVin } = await import("../src/lib/vinLookup");
-    const caseStore = await import("../src/lib/caseStore");
+    const { fetchCaseVin } = await import("@/lib/vinLookup");
+    const caseStore = await import("@/lib/caseStore");
     const c = caseStore.createCase("/x.jpg");
     caseStore.updateCase(c.id, {
       analysis: {
@@ -88,9 +88,9 @@ describe("vinLookup", () => {
   });
 
   it("updates a case with the fetched vin", async () => {
-    const caseStore = await import("../src/lib/caseStore");
+    const caseStore = await import("@/lib/caseStore");
     const { createCase, updateCase, getCase } = caseStore;
-    const vinLookup = await import("../src/lib/vinLookup");
+    const vinLookup = await import("@/lib/vinLookup");
     const { fetchCaseVin } = vinLookup;
     const json = JSON.stringify({ vins: ["1HGCM82633A004352"] });
     const fetchMock = vi.fn().mockResolvedValue({
@@ -130,7 +130,7 @@ describe("vinLookup", () => {
     const globalAny: any = global;
     const originalFetch = globalAny.fetch;
     globalAny.fetch = fetchMock;
-    const { lookupVin } = await import("../src/lib/vinLookup");
+    const { lookupVin } = await import("@/lib/vinLookup");
     const vin = await lookupVin("A", "B");
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(vin).toBe("1HGCM82633A004352");

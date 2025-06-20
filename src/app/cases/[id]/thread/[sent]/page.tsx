@@ -1,5 +1,5 @@
+import ThreadWrapper from "@/app/cases/[id]/ThreadWrapper";
 import { getCase } from "@/lib/caseStore";
-import ThreadWrapper from "../../ThreadWrapper";
 
 export const dynamic = "force-dynamic";
 

@@ -1,17 +1,14 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
+import AnalysisInfo from "@/app/components/AnalysisInfo";
 import MapPreview from "@/app/components/MapPreview";
+import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import type { Case } from "@/lib/caseStore";
+import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
+import { distanceBetween } from "@/lib/distance";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Case } from "../../lib/caseStore";
-import {
-  getOfficialCaseGps,
-  getRepresentativePhoto,
-} from "../../lib/caseUtils";
-import { distanceBetween } from "../../lib/distance";
-import AnalysisInfo from "../components/AnalysisInfo";
-import useNewCaseFromFiles from "../useNewCaseFromFiles";
 import useDragReset from "./useDragReset";
 
 type Order = "createdAt" | "updatedAt" | "distance";

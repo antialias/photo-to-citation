@@ -4,15 +4,15 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let dataDir: string;
-let caseStore: typeof import("../src/lib/caseStore");
+let caseStore: typeof import("@/lib/caseStore");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("../src/lib/db");
+  const db = await import("@/lib/db");
   await db.migrationsReady;
-  caseStore = await import("../src/lib/caseStore");
+  caseStore = await import("@/lib/caseStore");
 });
 
 afterEach(() => {
@@ -31,7 +31,7 @@ describe("public cases API", () => {
       undefined,
       true,
     );
-    const mod = await import("../src/app/api/public/cases/[id]/route");
+    const mod = await import("@/app/api/public/cases/[id]/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({ id: c.id }),
     });
@@ -42,7 +42,7 @@ describe("public cases API", () => {
 
   it("rejects private cases", async () => {
     const c = caseStore.createCase("/b.jpg", null);
-    const mod = await import("../src/app/api/public/cases/[id]/route");
+    const mod = await import("@/app/api/public/cases/[id]/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({ id: c.id }),
     });
