@@ -43,7 +43,7 @@ function envFiles() {
     ),
   );
   return {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",

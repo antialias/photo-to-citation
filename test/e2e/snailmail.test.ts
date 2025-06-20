@@ -49,7 +49,7 @@ beforeAll(async () => {
     NODE_ENV: string;
     NEXTAUTH_SECRET: string;
   } = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     SNAIL_MAIL_PROVIDER_FILE: path.join(tmpDir, "providers.json"),

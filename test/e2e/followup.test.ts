@@ -42,7 +42,7 @@ beforeAll(async () => {
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
@@ -104,7 +104,7 @@ describe("follow up", () => {
 
   it("passes prior emails to openai", async () => {
     const id = await createCase();
-    const caseFile = path.join(tmpDir, "cases.json");
+    const caseFile = path.join(tmpDir, "cases.sqlite");
     const db = new Database(caseFile);
     const row = db.prepare("SELECT data FROM cases WHERE id = ?").get(id) as {
       data: string;
