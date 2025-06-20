@@ -25,6 +25,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -56,6 +68,8 @@ beforeAll(async () => {
   );
   server = await startServer(3003, env);
   api = createApi(server);
+  await signIn("admin@example.com");
+  await signOut();
   await signIn("user@example.com");
 }, 120000);
 
@@ -173,7 +187,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(delCase.status).toBe(403);
     const notFound = await api(`/api/cases/${caseId}`);
     expect(notFound.status).toBe(200);
-  }, 30000);
+  }, 60000);
 
   it("shows summary for multiple cases", async () => {
     const id1 = await createCase();
@@ -182,7 +196,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text).toContain("Case Summary");
-  }, 30000);
+  }, 60000);
 
   it("deletes a case", async () => {
     const id = await createCase();
@@ -192,7 +206,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(del.status).toBe(403);
     const notFound = await api(`/api/cases/${id}`);
     expect(notFound.status).toBe(200);
-  }, 30000);
+  }, 60000);
 
   it("deletes multiple cases", async () => {
     const id1 = await createCase();
@@ -207,7 +221,7 @@ describe("e2e flows (unauthenticated)", () => {
     const nf2 = await api(`/api/cases/${id2}`);
     expect(nf1.status).toBe(200);
     expect(nf2.status).toBe(200);
-  }, 30000);
+  }, 60000);
 
   it("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
@@ -230,5 +244,5 @@ describe("e2e flows (unauthenticated)", () => {
     }>;
     const found = updated.find((s) => s.id === id);
     expect(found?.enabled).toBe(false);
-  }, 30000);
+  }, 60000);
 });

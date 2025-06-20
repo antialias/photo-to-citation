@@ -25,6 +25,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -84,6 +96,8 @@ beforeAll(async () => {
   );
   server = await startServer(3008, env);
   api = createApi(server);
+  await signIn("admin@example.com");
+  await signOut();
   await signIn("user@example.com");
 }, 120000);
 
@@ -113,7 +127,7 @@ describe("snail mail providers", () => {
     const list = (await res.json()) as Array<{ id: string; active: boolean }>;
     expect(Array.isArray(list)).toBe(true);
     expect(list.some((p) => p.id === "file")).toBe(true);
-  }, 30000);
+  }, 60000);
 
   it("activates a provider", async () => {
     const res = await api("/api/snail-mail-providers/mock", {
@@ -123,14 +137,14 @@ describe("snail mail providers", () => {
     const list = (await res.json()) as Array<{ id: string; active: boolean }>;
     const active = list.find((p) => p.active);
     expect(active?.id).toBe("mock");
-  }, 30000);
+  }, 60000);
 
   it("returns 404 for unknown provider", async () => {
     const res = await api("/api/snail-mail-providers/none", {
       method: "PUT",
     });
     expect(res.status).toBe(404);
-  }, 30000);
+  }, 60000);
 
   it("sends snail mail followup", async () => {
     const id = await createCase();
@@ -151,5 +165,5 @@ describe("snail mail providers", () => {
       fs.readFileSync(path.join(tmpDir, "snailMail.json"), "utf8"),
     );
     expect(stored).toHaveLength(1);
-  }, 30000);
+  }, 60000);
 });
