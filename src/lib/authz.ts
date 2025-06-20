@@ -92,7 +92,8 @@ export function withCaseAuthorization<
 >(act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
-    const { role, userId } = getSessionDetails(ctx, "user");
+    const { session } = ctx;
+    const { role, userId } = getSessionDetails({ session }, "anonymous");
     console.log("withCaseAuthorization", role, act, id, userId);
     if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
       return new Response(null, { status: 403 });

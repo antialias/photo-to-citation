@@ -1,12 +1,13 @@
 import fs from "node:fs";
-import { ownershipModules } from "@/lib/ownershipModules";
-import * as snailMail from "@/lib/snailMail";
 import { describe, expect, it, vi } from "vitest";
 
 describe("ownershipModules.il.requestVin", () => {
   it("generates a PDF and mails it", async () => {
     process.env.RETURN_ADDRESS = "1 A St\nCity, IL 12345";
     process.env.SNAIL_MAIL_PROVIDER = "mock";
+    vi.resetModules();
+    const snailMail = await import("@/lib/snailMail");
+    const { ownershipModules } = await import("@/lib/ownershipModules");
     const sendMock = vi
       .spyOn(snailMail, "sendSnailMail")
       .mockResolvedValue({ id: "1", status: "saved" });
