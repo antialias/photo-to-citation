@@ -4,10 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
-
-interface TestServer {
-  url: string;
-}
+import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -37,7 +34,7 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
   stub = await startOpenAIStub(responses);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
@@ -53,12 +50,13 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
       2,
     ),
   );
-  server = global.__E2E_SERVER__ as TestServer;
+  server = await startServer(3010, env);
   api = createApi(server);
   await signIn("user@example.com");
 }
 
 async function teardown() {
+  await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }

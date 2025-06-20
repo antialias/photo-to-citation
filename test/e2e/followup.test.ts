@@ -5,10 +5,7 @@ import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
-
-interface TestServer {
-  url: string;
-}
+import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -45,7 +42,7 @@ beforeAll(async () => {
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
@@ -61,12 +58,13 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = global.__E2E_SERVER__ as TestServer;
+  server = await startServer(3005, env);
   api = createApi(server);
   await signIn("user@example.com");
 }, 120000);
 
 afterAll(async () => {
+  await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }, 120000);
@@ -106,7 +104,7 @@ describe("follow up", () => {
 
   it("passes prior emails to openai", async () => {
     const id = await createCase();
-    const caseFile = path.join(tmpDir, "cases.sqlite");
+    const caseFile = path.join(tmpDir, "cases.json");
     const db = new Database(caseFile);
     const row = db.prepare("SELECT data FROM cases WHERE id = ?").get(id) as {
       data: string;

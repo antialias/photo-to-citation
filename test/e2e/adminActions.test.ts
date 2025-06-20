@@ -1,12 +1,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-
-interface TestServer {
-  url: string;
-}
+import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -49,10 +46,20 @@ async function createCase(): Promise<string> {
   return data.caseId;
 }
 
-beforeAll(() => {
-  server = global.__E2E_SERVER__ as TestServer;
+beforeAll(async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-admin-"));
+  server = await startServer(3021, {
+    NEXTAUTH_SECRET: "secret",
+    NODE_ENV: "test",
+    SMTP_FROM: "test@example.com",
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
+  });
   api = createApi(server);
-});
+}, 120000);
+
+afterAll(async () => {
+  await server.close();
+}, 120000);
 
 describe("admin actions", () => {
   it("promotes and demotes users", async () => {

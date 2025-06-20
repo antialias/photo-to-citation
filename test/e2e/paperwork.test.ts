@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 
-let ocrPaperwork: typeof import("@/lib/openai").ocrPaperwork;
+let ocrPaperwork: typeof import("../../src/lib/openai").ocrPaperwork;
 
 let stub: OpenAIStub;
 
@@ -9,7 +9,7 @@ beforeAll(async () => {
   stub = await startOpenAIStub(["owner joe", { callsToAction: ["pay"] }]);
   process.env.OPENAI_BASE_URL = stub.url;
   process.env.OPENAI_API_KEY = "test";
-  const mod = await import("@/lib/openai");
+  const mod = await import("../../src/lib/openai");
   ocrPaperwork = mod.ocrPaperwork;
 });
 
