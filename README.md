@@ -157,6 +157,8 @@ SMTP_PASS=password
 SMTP_FROM=from@example.com
 # Send all mail to this address instead of the real authority
 MOCK_EMAIL_TO=test@example.com
+# Save sent emails to a JSON file instead of sending
+EMAIL_FILE=emails.json
 ```
 
 If `MOCK_EMAIL_TO` is set, all outgoing email will be directed there instead of

@@ -25,6 +25,7 @@ const envSchema = z
     SMTP_PASS: z.string().optional(),
     SMTP_FROM: z.string().optional(),
     MOCK_EMAIL_TO: z.string().optional(),
+    EMAIL_FILE: z.string().optional(),
     SUPER_ADMIN_EMAIL: z.string().optional(),
     NEXTAUTH_SECRET: z.string().optional(),
     NEXTAUTH_URL: z.string().optional(),

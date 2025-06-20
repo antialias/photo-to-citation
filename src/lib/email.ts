@@ -1,6 +1,7 @@
 import path from "node:path";
 import nodemailer from "nodemailer";
 import { config } from "./config";
+import { addSentEmail } from "./emailStore";
 
 export interface EmailOptions {
   /** @zod.email */
@@ -17,6 +18,20 @@ export async function sendEmail({
   attachments = [],
 }: EmailOptions): Promise<void> {
   console.log("sendEmail", to, subject);
+
+  const finalTo = config.MOCK_EMAIL_TO || to;
+  if (config.EMAIL_FILE) {
+    addSentEmail({
+      to: finalTo,
+      subject,
+      body,
+      attachments,
+      sentAt: new Date().toISOString(),
+    });
+    console.log("mock email stored", finalTo);
+    return;
+  }
+
   const missing: string[] = [];
   if (!config.SMTP_HOST) missing.push("SMTP_HOST");
   if (!config.SMTP_USER) missing.push("SMTP_USER");
@@ -42,10 +57,9 @@ export async function sendEmail({
     throw err;
   }
 
-  const override = config.MOCK_EMAIL_TO;
   await transporter.sendMail({
     from: config.SMTP_FROM,
-    to: override || to,
+    to: finalTo,
     subject,
     text: body,
     attachments: attachments.map((p) => ({
