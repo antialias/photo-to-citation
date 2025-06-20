@@ -1,9 +1,9 @@
 "use client";
+import useAltKey from "@/app/useAltKey";
+import { config } from "@/lib/config";
 import Tippy from "@tippyjs/react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import { config } from "../../lib/config";
-import useAltKey from "../useAltKey";
 
 function tokenize(json: string): ReactNode[] {
   const tokens: ReactNode[] = [];

@@ -1,8 +1,8 @@
+import type { useSession as useSessionFn } from "@/app/useSession";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { useSession as useSessionFn } from "../../useSession";
 
-vi.mock("../../useSession", () => ({
+vi.mock("@/app/useSession", () => ({
   useSession: vi.fn(
     () =>
       ({
@@ -11,14 +11,14 @@ vi.mock("../../useSession", () => ({
   ),
 }));
 
-import { useSession } from "../../useSession";
+import { useSession } from "@/app/useSession";
 
 vi.mock("@/apiClient", () => ({
   apiFetch: vi.fn(),
 }));
 
 import { apiFetch } from "@/apiClient";
-import AdminPageClient from "../AdminPageClient";
+import AdminPageClient from "@/app/admin/AdminPageClient";
 
 const users = [{ id: "1", email: "a@example.com", name: null, role: "admin" }];
 const rules = [{ ptype: "p", v0: "admin", v1: "users", v2: "read" }];

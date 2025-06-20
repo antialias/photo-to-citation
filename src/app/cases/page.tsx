@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
-import type { Case } from "../../lib/caseStore";
-import { getCase } from "../../lib/caseStore";
-import CaseSummary from "../components/CaseSummary";
+import CaseSummary from "@/app/components/CaseSummary";
+import type { Case } from "@/lib/caseStore";
+import { getCase } from "@/lib/caseStore";
 
 export default async function CasesPage({
   searchParams,

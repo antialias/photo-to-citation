@@ -1,6 +1,6 @@
 "use client";
 
-import useNewCaseFromFiles from "../useNewCaseFromFiles";
+import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 
 export default function UploadPage() {
   const uploadCase = useNewCaseFromFiles();

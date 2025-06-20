@@ -1,5 +1,5 @@
+import { sendSnailMail, snailMailProviders } from "@/lib/snailMail";
 import { describe, expect, it, vi } from "vitest";
-import { sendSnailMail, snailMailProviders } from "../snailMail";
 
 const opts = {
   to: { address1: "1 A St", city: "Nowhere", state: "IL", postalCode: "12345" },

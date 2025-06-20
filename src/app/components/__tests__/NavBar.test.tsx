@@ -6,12 +6,12 @@ vi.mock("next/navigation", () => ({
   usePathname: () => mockedUsePathname(),
   useRouter: () => ({ push: vi.fn() }),
 }));
-vi.mock("../useNewCaseFromFiles", () => ({
+vi.mock("@/app/useNewCaseFromFiles", () => ({
   default: () => async () => {},
 }));
 
-import NavBar from "../NavBar";
-vi.mock("../../useSession", () => ({
+import NavBar from "@/app/components/NavBar";
+vi.mock("@/app/useSession", () => ({
   useSession: () => ({ data: null }),
   signIn: vi.fn(),
   signOut: vi.fn(),

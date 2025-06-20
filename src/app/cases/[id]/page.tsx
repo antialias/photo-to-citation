@@ -1,4 +1,4 @@
-import { getCase } from "../../../lib/caseStore";
+import { getCase } from "@/lib/caseStore";
 import ClientCasePage from "./ClientCasePage";
 
 export const dynamic = "force-dynamic";
