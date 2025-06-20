@@ -6,6 +6,7 @@ let server: TestServer;
 beforeAll(async () => {
   server = await startServer(3004, {
     NEXTAUTH_SECRET: "secret",
+    NODE_ENV: "test",
   });
 }, 120000);
 

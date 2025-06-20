@@ -12,6 +12,7 @@ beforeAll(async () => {
   const env = {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
+    NODE_ENV: "test",
   };
   server = await startServer(3006, env);
 }, 120000);

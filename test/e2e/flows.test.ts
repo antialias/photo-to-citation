@@ -42,6 +42,7 @@ beforeAll(async () => {
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
+    NODE_ENV: "test",
   };
   fs.writeFileSync(
     env.VIN_SOURCE_FILE,
