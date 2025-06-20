@@ -154,6 +154,7 @@ export default function CaseToolbar({
                     window.location.href = withBasePath("/cases");
                   }
                 }}
+                data-testid="delete-case-button"
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
               >
                 Delete Case

@@ -180,6 +180,7 @@ export default function DraftEditor({
         type="button"
         onClick={sendEmail}
         disabled={!isAdmin || sending}
+        data-testid="send-button"
         className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
         {sending ? "Sending..." : "Send"}
