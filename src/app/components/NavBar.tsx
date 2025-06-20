@@ -1,10 +1,10 @@
 "use client";
 
+import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import { signIn, signOut, useSession } from "@/app/useSession";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
-import useNewCaseFromFiles from "../useNewCaseFromFiles";
-import { signIn, signOut, useSession } from "../useSession";
 
 export default function NavBar() {
   const pathname = usePathname();

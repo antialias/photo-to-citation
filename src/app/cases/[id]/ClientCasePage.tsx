@@ -1,11 +1,17 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
+import useDragReset from "@/app/cases/useDragReset";
+import AnalysisInfo from "@/app/components/AnalysisInfo";
+import CaseLayout from "@/app/components/CaseLayout";
+import CaseProgressGraph from "@/app/components/CaseProgressGraph";
+import CaseToolbar from "@/app/components/CaseToolbar";
+import DebugWrapper from "@/app/components/DebugWrapper";
+import EditableText from "@/app/components/EditableText";
+import ImageHighlights from "@/app/components/ImageHighlights";
 import MapPreview from "@/app/components/MapPreview";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import type { Case, SentEmail } from "../../../lib/caseStore";
+import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
+import { useSession } from "@/app/useSession";
+import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
   getCasePlateNumber,
@@ -14,17 +20,11 @@ import {
   getOfficialCaseGps,
   getRepresentativePhoto,
   hasViolation,
-} from "../../../lib/caseUtils";
-import AnalysisInfo from "../../components/AnalysisInfo";
-import CaseLayout from "../../components/CaseLayout";
-import CaseProgressGraph from "../../components/CaseProgressGraph";
-import CaseToolbar from "../../components/CaseToolbar";
-import DebugWrapper from "../../components/DebugWrapper";
-import EditableText from "../../components/EditableText";
-import ImageHighlights from "../../components/ImageHighlights";
-import useCloseOnOutsideClick from "../../useCloseOnOutsideClick";
-import { useSession } from "../../useSession";
-import useDragReset from "../useDragReset";
+} from "@/lib/caseUtils";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];

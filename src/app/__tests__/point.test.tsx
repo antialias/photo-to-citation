@@ -1,12 +1,12 @@
+import PointAndShootPage from "@/app/point/page";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import PointAndShootPage from "../point/page";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-vi.mock("../useNewCaseFromFiles", () => ({
+vi.mock("@/app/useNewCaseFromFiles", () => ({
   default: () => async () => {},
 }));
 

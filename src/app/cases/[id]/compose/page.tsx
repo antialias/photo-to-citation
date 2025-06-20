@@ -1,5 +1,5 @@
+import ComposeWrapper from "@/app/cases/[id]/ComposeWrapper";
 import { getCase } from "@/lib/caseStore";
-import ComposeWrapper from "../ComposeWrapper";
 
 export const dynamic = "force-dynamic";
 

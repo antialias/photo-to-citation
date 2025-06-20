@@ -1,8 +1,5 @@
-import { getCases } from "../../lib/caseStore";
-import {
-  getOfficialCaseGps,
-  getRepresentativePhoto,
-} from "../../lib/caseUtils";
+import { getCases } from "@/lib/caseStore";
+import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import MapPageClient from "./MapPageClient";
 
 export const dynamic = "force-dynamic";

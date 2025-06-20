@@ -1,6 +1,6 @@
+import ServerComponent from "@/app/components/ServerComponent";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import ServerComponent from "../ServerComponent";
 
 describe("ServerComponent", () => {
   it("renders text", async () => {

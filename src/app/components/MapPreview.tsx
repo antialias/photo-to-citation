@@ -1,5 +1,5 @@
+import { config } from "@/lib/config";
 import Image from "next/image";
-import { config } from "../../lib/config";
 
 export default function MapPreview({
   lat,

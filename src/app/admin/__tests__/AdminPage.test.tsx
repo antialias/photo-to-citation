@@ -1,6 +1,6 @@
+import AdminPage from "@/app/admin/page";
 import { getServerSession } from "next-auth/next";
 import { expect, it, vi } from "vitest";
-import AdminPage from "../page";
 
 vi.mock("next-auth/next", () => ({
   getServerSession: vi.fn(),

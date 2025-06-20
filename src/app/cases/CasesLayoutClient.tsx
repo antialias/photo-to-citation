@@ -1,7 +1,7 @@
 "use client";
+import type { Case } from "@/lib/caseStore";
 import { useParams } from "next/navigation";
 import type { ReactNode } from "react";
-import type { Case } from "../../lib/caseStore";
 import ClientCasesPage from "./ClientCasesPage";
 
 export default function CasesLayoutClient({

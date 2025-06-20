@@ -1,7 +1,7 @@
 import { parentPort, workerData } from "node:worker_threads";
-import { reanalyzePhoto } from "../lib/caseAnalysis";
-import type { Case } from "../lib/caseStore";
-import { migrationsReady } from "../lib/db";
+import { reanalyzePhoto } from "@/lib/caseAnalysis";
+import type { Case } from "@/lib/caseStore";
+import { migrationsReady } from "@/lib/db";
 
 (async () => {
   await migrationsReady;
