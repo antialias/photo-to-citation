@@ -1,5 +1,5 @@
+import FollowUpWrapper from "@/app/cases/[id]/FollowUpWrapper";
 import { getCase } from "@/lib/caseStore";
-import FollowUpWrapper from "../FollowUpWrapper";
 
 export const dynamic = "force-dynamic";
 

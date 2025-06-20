@@ -9,10 +9,10 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("../src/lib/db");
+  const db = await import("@/lib/db");
   await db.migrationsReady;
-  const { orm } = await import("../src/lib/orm");
-  const { casbinRules } = await import("../src/lib/schema");
+  const { orm } = await import("@/lib/orm");
+  const { casbinRules } = await import("@/lib/schema");
   orm
     .insert(casbinRules)
     .values([
@@ -30,7 +30,7 @@ afterEach(() => {
 
 describe("casbin rules API", () => {
   it("allows admins to read", async () => {
-    const mod = await import("../src/app/api/casbin-rules/route");
+    const mod = await import("@/app/api/casbin-rules/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({}),
       session: { user: { role: "admin" } },
@@ -39,7 +39,7 @@ describe("casbin rules API", () => {
   });
 
   it("rejects regular users", async () => {
-    const mod = await import("../src/app/api/casbin-rules/route");
+    const mod = await import("@/app/api/casbin-rules/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({}),
       session: { user: { role: "user" } },
@@ -48,7 +48,7 @@ describe("casbin rules API", () => {
   });
 
   it("allows only superadmin to update", async () => {
-    const mod = await import("../src/app/api/casbin-rules/route");
+    const mod = await import("@/app/api/casbin-rules/route");
     const req = new Request("http://test", {
       method: "PUT",
       body: JSON.stringify([]),
@@ -66,8 +66,8 @@ describe("casbin rules API", () => {
   });
 
   it("applies new policies immediately", async () => {
-    const { authorize } = await import("../src/lib/authz");
-    const mod = await import("../src/app/api/casbin-rules/route");
+    const { authorize } = await import("@/lib/authz");
+    const mod = await import("@/app/api/casbin-rules/route");
     expect(await authorize("admin", "admin", "update")).toBe(false);
     const req = new Request("http://test", {
       method: "PUT",

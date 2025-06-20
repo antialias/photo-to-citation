@@ -1,8 +1,8 @@
+import SignInPage from "@/app/signin/page";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import SignInPage from "../page";
 
-vi.mock("../../useSession", () => ({
+vi.mock("@/app/useSession", () => ({
   signIn: vi.fn(),
 }));
 

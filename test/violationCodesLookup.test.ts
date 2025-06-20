@@ -20,8 +20,8 @@ afterEach(() => {
 
 describe("getViolationCode", () => {
   it("uses llm when missing and caches result", async () => {
-    const mod = await import("../src/lib/violationCodes");
-    const { client } = (await import("../src/lib/llm")).getLlm("lookup_code");
+    const mod = await import("@/lib/violationCodes");
+    const { client } = (await import("@/lib/llm")).getLlm("lookup_code");
     vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [{ message: { content: JSON.stringify({ code: "A1" }) } }],
     } as unknown as ChatCompletion);
@@ -38,8 +38,8 @@ describe("getViolationCode", () => {
       process.env.VIOLATION_CODE_FILE ?? "",
       JSON.stringify({ "oak-park": { parking: "B2" } }, null, 2),
     );
-    const mod = await import("../src/lib/violationCodes");
-    const { client } = (await import("../src/lib/llm")).getLlm("lookup_code");
+    const mod = await import("@/lib/violationCodes");
+    const { client } = (await import("@/lib/llm")).getLlm("lookup_code");
     const spy = vi.spyOn(client.chat.completions, "create");
     const code = await mod.getViolationCode("oak-park", "parking");
     expect(code).toBe("B2");

@@ -1,7 +1,7 @@
+import Home from "@/app/page";
 import { getServerSession } from "next-auth/next";
 import { headers } from "next/headers";
 import { type Mock, beforeAll, describe, expect, it, vi } from "vitest";
-import Home from "../page";
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(),

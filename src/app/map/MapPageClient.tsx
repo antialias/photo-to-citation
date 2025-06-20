@@ -23,7 +23,7 @@ const TooltipAny = Tooltip as unknown as React.ComponentType<
   Record<string, unknown>
 >;
 
-import "../globals.css";
+import "@/app/globals.css";
 
 const markerSvg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">

@@ -10,7 +10,7 @@ const AnalyzerWorker = () =>
     : new Worker(new URL("./localAnalyzer.worker.ts", import.meta.url), {
         type: "module",
       });
-import useNewCaseFromFiles from "../useNewCaseFromFiles";
+import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 
 export default function PointAndShootPage() {
   const videoRef = useRef<HTMLVideoElement>(null);

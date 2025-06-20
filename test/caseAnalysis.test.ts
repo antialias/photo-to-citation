@@ -1,13 +1,13 @@
 // @vitest-environment node
 import { EventEmitter } from "node:events";
 import type { Worker } from "node:worker_threads";
+import type { Case } from "@/lib/caseStore";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Case } from "../src/lib/caseStore";
 
 const worker = new EventEmitter() as unknown as Worker;
 
 const runJobMock = vi.fn(() => worker);
-vi.mock("../src/lib/jobScheduler", () => ({ runJob: runJobMock }));
+vi.mock("@/lib/jobScheduler", () => ({ runJob: runJobMock }));
 
 describe("analyzeCaseInBackground", () => {
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe("analyzeCaseInBackground", () => {
   });
 
   it("does not start a new worker when analysis is active", async () => {
-    const mod = await import("../src/lib/caseAnalysis");
+    const mod = await import("@/lib/caseAnalysis");
     const { analyzeCaseInBackground, isCaseAnalysisActive } = mod;
     const c: Case = {
       id: "1",

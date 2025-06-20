@@ -9,10 +9,10 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("../src/lib/db");
+  const db = await import("@/lib/db");
   await db.migrationsReady;
-  const { orm } = await import("../src/lib/orm");
-  const { casbinRules, users } = await import("../src/lib/schema");
+  const { orm } = await import("@/lib/orm");
+  const { casbinRules, users } = await import("@/lib/schema");
   orm
     .insert(casbinRules)
     .values({ ptype: "p", v0: "superadmin", v1: "cases", v2: "delete" })
@@ -33,14 +33,14 @@ afterEach(() => {
 
 describe("casbin", () => {
   it("authorizes based on db rules", async () => {
-    const { authorize } = await import("../src/lib/authz");
+    const { authorize } = await import("@/lib/authz");
     expect(await authorize("superadmin", "cases", "delete")).toBe(true);
     expect(await authorize("user", "cases", "delete")).toBe(false);
   });
 
   it("checks case membership", async () => {
-    const { authorize } = await import("../src/lib/authz");
-    const caseStore = await import("../src/lib/caseStore");
+    const { authorize } = await import("@/lib/authz");
+    const caseStore = await import("@/lib/caseStore");
     const c = caseStore.createCase("/x.jpg", null, undefined, null, "u1");
     expect(
       await authorize("user", "cases", "read", { caseId: c.id, userId: "u1" }),

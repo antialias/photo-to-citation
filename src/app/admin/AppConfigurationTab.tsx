@@ -1,7 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import { useSession } from "@/app/useSession";
 import { useEffect, useState } from "react";
-import { useSession } from "../useSession";
 
 interface VinSourceStatus {
   id: string;

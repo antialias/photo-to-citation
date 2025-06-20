@@ -1,5 +1,5 @@
+import { makeRobocall, sendSms, sendWhatsapp } from "@/lib/contactMethods";
 import { describe, expect, it, vi } from "vitest";
-import { makeRobocall, sendSms, sendWhatsapp } from "../contactMethods";
 
 const callCreateMock = vi.fn();
 const messageCreateMock = vi.fn();

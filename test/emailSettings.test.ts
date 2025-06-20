@@ -23,7 +23,7 @@ describe("sendEmail", () => {
     process.env.SMTP_USER = "";
     process.env.SMTP_PASS = "";
     process.env.SMTP_FROM = "";
-    const { sendEmail } = await import("../src/lib/email");
+    const { sendEmail } = await import("@/lib/email");
     await expect(
       sendEmail({ to: "x@example.com", subject: "a", body: "b" }),
     ).rejects.toThrow(/SMTP/);
@@ -37,7 +37,7 @@ describe("sendEmail", () => {
     process.env.SMTP_USER = "user";
     process.env.SMTP_PASS = "pass";
     process.env.SMTP_FROM = "from@example.com";
-    const { sendEmail } = await import("../src/lib/email");
+    const { sendEmail } = await import("@/lib/email");
     await sendEmail({ to: "x@example.com", subject: "a", body: "b" });
     expect(createTransport).toHaveBeenCalled();
     expect(sendMail).toHaveBeenCalled();

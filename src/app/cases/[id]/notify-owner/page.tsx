@@ -1,5 +1,5 @@
+import NotifyOwnerWrapper from "@/app/cases/[id]/NotifyOwnerWrapper";
 import { getCase } from "@/lib/caseStore";
-import NotifyOwnerWrapper from "../NotifyOwnerWrapper";
 
 export const dynamic = "force-dynamic";
 

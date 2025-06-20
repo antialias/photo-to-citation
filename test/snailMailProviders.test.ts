@@ -10,9 +10,9 @@ beforeEach(async () => {
   process.env.SNAIL_MAIL_PROVIDER_FILE = path.join(dataDir, "providers.json");
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("../src/lib/db");
+  const db = await import("@/lib/db");
   await db.migrationsReady;
-  const { snailMailProviders } = await import("../src/lib/snailMail");
+  const { snailMailProviders } = await import("@/lib/snailMail");
   const statuses = Object.keys(snailMailProviders).map((id, idx) => ({
     id,
     active: idx === 0,
@@ -33,7 +33,7 @@ afterEach(() => {
 
 describe("snail mail provider store", () => {
   it("activates the selected provider", async () => {
-    const store = await import("../src/lib/snailMailProviders");
+    const store = await import("@/lib/snailMailProviders");
     store.setActiveSnailMailProvider("docsmit");
     const list = store.getSnailMailProviderStatuses();
     const active = list.find((p) => p.active);
@@ -41,7 +41,7 @@ describe("snail mail provider store", () => {
   });
 
   it("records failures", async () => {
-    const store = await import("../src/lib/snailMailProviders");
+    const store = await import("@/lib/snailMailProviders");
     store.recordProviderFailure("mock");
     const item = store
       .getSnailMailProviderStatuses()
@@ -52,7 +52,7 @@ describe("snail mail provider store", () => {
 
 describe("snail mail provider API authorization", () => {
   it("rejects listing without admin role", async () => {
-    const mod = await import("../src/app/api/snail-mail-providers/route");
+    const mod = await import("@/app/api/snail-mail-providers/route");
     const res = await mod.GET(new Request("http://test"), {
       params: Promise.resolve({}) as Promise<Record<string, string>>,
       session: { user: { role: "user" } },
@@ -61,7 +61,7 @@ describe("snail mail provider API authorization", () => {
   });
 
   it("rejects update without admin role", async () => {
-    const mod = await import("../src/app/api/snail-mail-providers/[id]/route");
+    const mod = await import("@/app/api/snail-mail-providers/[id]/route");
     const req = new Request("http://test", { method: "PUT" });
     const res = await mod.PUT(req, {
       params: Promise.resolve({ id: "mock" }) as Promise<{ id: string }>,
