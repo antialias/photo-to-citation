@@ -192,7 +192,7 @@ export default function ClientCasesPage({
                   router.push(`/cases/${c.id}`);
                 }
               }}
-              className="flex items-start gap-4 w-full text-left"
+              className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
             >
               <div className="relative">
                 {(() => {
