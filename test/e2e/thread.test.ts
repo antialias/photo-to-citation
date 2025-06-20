@@ -2,22 +2,20 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { type TestServer, startServer } from "./startServer";
+
+interface TestServer {
+  url: string;
+}
 
 let server: TestServer;
 let tmpDir: string;
 
-beforeAll(async () => {
+beforeAll(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
-    NEXTAUTH_SECRET: "secret",
-  };
-  server = await startServer(3006, env);
-}, 120000);
+  server = global.__E2E_SERVER__ as TestServer;
+});
 
 afterAll(async () => {
-  await server.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }, 120000);
 

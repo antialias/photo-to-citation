@@ -3,25 +3,22 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
+
+interface TestServer {
+  url: string;
+}
 
 let server: TestServer;
 let dataDir: string;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
-beforeAll(async () => {
+beforeAll(() => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
-  server = await startServer(3013, {
-    CASE_STORE_FILE: path.join(dataDir, "cases.sqlite"),
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-  });
+  server = global.__E2E_SERVER__ as TestServer;
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
-  await server.close();
   fs.rmSync(dataDir, { recursive: true, force: true });
 }, 120000);
 

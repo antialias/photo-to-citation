@@ -5,7 +5,10 @@ import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
-import { type TestServer, startServer } from "./startServer";
+
+interface TestServer {
+  url: string;
+}
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -58,13 +61,12 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3005, env);
+  server = global.__E2E_SERVER__ as TestServer;
   api = createApi(server);
   await signIn("user@example.com");
 }, 120000);
 
 afterAll(async () => {
-  await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }, 120000);

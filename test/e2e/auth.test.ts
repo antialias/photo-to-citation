@@ -1,22 +1,17 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
+
+interface TestServer {
+  url: string;
+}
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
-beforeAll(async () => {
-  server = await startServer(3010, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-  });
+beforeAll(() => {
+  server = global.__E2E_SERVER__ as TestServer;
   api = createApi(server);
-}, 120000);
-
-afterAll(async () => {
-  await server.close();
-}, 120000);
+});
 
 describe("auth flow", () => {
   it("logs in and out", async () => {

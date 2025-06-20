@@ -3,7 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
+
+interface TestServer {
+  url: string;
+}
 
 let server: TestServer;
 let tmpDir: string;
@@ -26,19 +29,13 @@ async function signIn(email: string) {
   );
 }
 
-beforeAll(async () => {
+beforeAll(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-auth-"));
-  server = await startServer(3022, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
-  });
+  server = global.__E2E_SERVER__ as TestServer;
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
-  await server.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }, 120000);
 
