@@ -14,13 +14,13 @@ export default function CasesLayoutClient({
   const params = useParams<{ id?: string }>();
   const hasCase = Boolean(params.id);
   return (
-    <div className="md:grid md:grid-cols-[20%_80%] h-[calc(100vh-4rem)]">
+    <div className="lg:grid lg:grid-cols-[20%_80%] h-[calc(100vh-4rem)]">
       <div
-        className={`${hasCase ? "hidden md:block" : ""} border-r overflow-y-auto`}
+        className={`${hasCase ? "hidden lg:block" : ""} border-r overflow-y-auto`}
       >
         <ClientCasesPage initialCases={initialCases} />
       </div>
-      <div className={`${hasCase ? "" : "hidden md:block"} overflow-y-auto`}>
+      <div className={`${hasCase ? "" : "hidden lg:block"} overflow-y-auto`}>
         {children}
       </div>
     </div>

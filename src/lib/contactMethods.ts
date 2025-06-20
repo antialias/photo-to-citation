@@ -8,7 +8,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import twilio from "twilio";
-import { config } from "./config";
+import { getConfig } from "./config";
 
 import {
   type MailingAddress,
@@ -32,9 +32,11 @@ function parseAddress(text: string): MailingAddress {
 }
 
 export async function sendSms(to: string, message: string): Promise<void> {
-  const sid = config.TWILIO_ACCOUNT_SID;
-  const token = config.TWILIO_AUTH_TOKEN;
-  const from = config.TWILIO_FROM_NUMBER;
+  const {
+    TWILIO_ACCOUNT_SID: sid,
+    TWILIO_AUTH_TOKEN: token,
+    TWILIO_FROM_NUMBER: from,
+  } = getConfig();
   if (!sid || !token || !from) {
     throw new Error("Twilio SMS not configured");
   }
@@ -47,9 +49,11 @@ export async function sendSms(to: string, message: string): Promise<void> {
 }
 
 export async function sendWhatsapp(to: string, message: string): Promise<void> {
-  const sid = config.TWILIO_ACCOUNT_SID;
-  const token = config.TWILIO_AUTH_TOKEN;
-  const from = config.TWILIO_FROM_NUMBER;
+  const {
+    TWILIO_ACCOUNT_SID: sid,
+    TWILIO_AUTH_TOKEN: token,
+    TWILIO_FROM_NUMBER: from,
+  } = getConfig();
   if (!sid || !token || !from) {
     throw new Error("Twilio WhatsApp not configured");
   }
@@ -62,9 +66,11 @@ export async function sendWhatsapp(to: string, message: string): Promise<void> {
 }
 
 export async function makeRobocall(to: string, message: string): Promise<void> {
-  const sid = config.TWILIO_ACCOUNT_SID;
-  const token = config.TWILIO_AUTH_TOKEN;
-  const from = config.TWILIO_FROM_NUMBER;
+  const {
+    TWILIO_ACCOUNT_SID: sid,
+    TWILIO_AUTH_TOKEN: token,
+    TWILIO_FROM_NUMBER: from,
+  } = getConfig();
   if (!sid || !token || !from) {
     throw new Error("Twilio voice not configured");
   }
@@ -82,8 +88,8 @@ export async function sendSnailMail(options: {
   body: string;
   attachments: string[];
 }): Promise<void> {
-  const provider = config.SNAIL_MAIL_PROVIDER || "mock";
-  const returnAddr = config.RETURN_ADDRESS;
+  const { SNAIL_MAIL_PROVIDER: provider = "mock", RETURN_ADDRESS: returnAddr } =
+    getConfig();
   if (!returnAddr) {
     throw new Error("RETURN_ADDRESS not configured");
   }
