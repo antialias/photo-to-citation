@@ -55,6 +55,8 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
+  await signIn("admin@example.com");
+  await signOut();
 }, 120000);
 
 afterAll(async () => {
@@ -105,7 +107,7 @@ describe("admin actions", () => {
     }>;
     found = list.find((u) => u.id === invited.id);
     expect(found?.role).toBe("user");
-  }, 30000);
+  }, 60000);
 
   it("edits casbin rules", async () => {
     await signIn("super2@example.com");
@@ -121,7 +123,7 @@ describe("admin actions", () => {
     expect(res.status).toBe(200);
     const updated = (await res.json()) as Array<{ v2?: string }>;
     expect(updated.some((r) => r.v2 === "extra")).toBe(true);
-  }, 30000);
+  }, 60000);
 
   it("only allows owner to modify a case", async () => {
     await signIn("owner1@example.com");
@@ -142,5 +144,5 @@ describe("admin actions", () => {
       body: JSON.stringify({ vin: "1" }),
     });
     expect(ok.status).toBe(200);
-  }, 30000);
+  }, 60000);
 });

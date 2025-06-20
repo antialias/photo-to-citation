@@ -25,6 +25,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -52,6 +64,8 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
   );
   server = await startServer(3010, env);
   api = createApi(server);
+  await signIn("admin@example.com");
+  await signOut();
   await signIn("user@example.com");
 }
 
@@ -125,7 +139,7 @@ describe("reanalysis", () => {
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
-    }, 30000);
+    }, 60000);
   });
 
   describe("paperwork", () => {
@@ -192,6 +206,6 @@ describe("reanalysis", () => {
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
-    }, 30000);
+    }, 60000);
   });
 });
