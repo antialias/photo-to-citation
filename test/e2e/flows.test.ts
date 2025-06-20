@@ -80,36 +80,36 @@ describe("e2e flows (unauthenticated)", () => {
   }
 
   async function fetchCase(id: string): Promise<Response> {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const res = await api(`/api/cases/${id}`);
       if (res.status === 200) return res;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 50));
     }
     return api(`/api/cases/${id}`);
   }
 
   async function waitForPhotos(id: string, count: number) {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const res = await fetchCase(id);
       if (res.status === 200) {
         const json = await res.json();
         if (json.photos.length === count) return json;
       }
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 50));
     }
     const res = await fetchCase(id);
     return res.json();
   }
 
   async function putVin(id: string, vin: string): Promise<Response> {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const res = await api(`/api/cases/${id}/vin`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vin }),
       });
       if (res.status === 200) return res;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 50));
     }
     return api(`/api/cases/${id}/vin`, {
       method: "PUT",

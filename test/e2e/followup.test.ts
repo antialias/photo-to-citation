@@ -74,7 +74,7 @@ describe("follow up", () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const res = await api("/api/upload", {
         method: "POST",
         body: form,
@@ -83,7 +83,7 @@ describe("follow up", () => {
         const data = (await res.json()) as { caseId: string };
         return data.caseId;
       }
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 50));
     }
     const final = await api("/api/upload", {
       method: "POST",
@@ -94,10 +94,10 @@ describe("follow up", () => {
   }
 
   async function fetchFollowup(id: string): Promise<Response> {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const res = await api(`/api/cases/${id}/followup`);
       if (res.status === 200) return res;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 50));
     }
     return api(`/api/cases/${id}/followup`);
   }
