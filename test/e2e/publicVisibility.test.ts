@@ -31,7 +31,7 @@ beforeAll(async () => {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
   });
   api = createApi(server);
 }, 120000);

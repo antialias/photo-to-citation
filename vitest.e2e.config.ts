@@ -10,6 +10,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/e2e/*.test.ts"],
+    setupFiles: "./vitest.e2e.setup.ts",
     testTimeout: 30000,
     hookTimeout: 30000,
     maxConcurrency: 1,

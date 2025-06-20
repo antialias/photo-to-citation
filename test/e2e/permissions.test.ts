@@ -52,7 +52,7 @@ beforeAll(async () => {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    CASE_STORE_FILE: path.join(tmpDir, "cases.json"),
   });
   api = createApi(server);
 }, 120000);
@@ -75,7 +75,7 @@ describe("permissions", () => {
   }, 30000);
 
   it("shows admin actions for admins", async () => {
-    await signOut();
+    cookie = "";
     await signIn("admin@example.com");
     const id = await createCase();
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
