@@ -125,7 +125,7 @@ describe("admin actions", () => {
     expect(updated.some((r) => r.v2 === "extra")).toBe(true);
   }, 60000);
 
-  it.skip("only allows owner to modify a case", async () => {
+  it.skip("requires admin role to modify a case", async () => {
     await signIn("owner1@example.com");
     const id = await createCase();
     await signOut();
@@ -137,7 +137,7 @@ describe("admin actions", () => {
     });
     expect(denied.status).toBe(403);
     await signOut();
-    await signIn("owner1@example.com");
+    await signIn("super@example.com");
     const ok = await api(`/api/cases/${id}/vin`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

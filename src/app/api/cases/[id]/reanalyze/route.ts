@@ -7,7 +7,7 @@ import { getCase, updateCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export const POST = withCaseAuthorization(
-  "read",
+  "update",
   async (
     _req: Request,
     {

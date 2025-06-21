@@ -3,7 +3,7 @@ import { getCase, setCaseVinOverride } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export const PUT = withCaseAuthorization(
-  "read",
+  "update",
   async (
     req: Request,
     {
@@ -26,7 +26,7 @@ export const PUT = withCaseAuthorization(
 );
 
 export const DELETE = withCaseAuthorization(
-  "read",
+  "update",
   async (
     _req: Request,
     {
