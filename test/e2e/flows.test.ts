@@ -229,20 +229,29 @@ describe("e2e flows (unauthenticated)", () => {
     expect(nf2.status).toBe(404);
   }, 60000);
 
-  it.skip("toggles vin source modules", async () => {
+  it("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
     expect(listRes.status).toBe(200);
-    const list = (await listRes.json()) as Array<{
-      id: string;
-      enabled: boolean;
-    }>;
-    expect(Array.isArray(list)).toBe(true);
-    const id = list[0].id;
-    const update = await api(`/api/vin-sources/${id}`, {
+    const update = await api("/api/vin-sources/edmunds", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: false }),
     });
     expect(update.status).toBe(403);
+  }, 60000);
+
+  it("allows admin to toggle vin source modules", async () => {
+    await signOut();
+    await signIn("admin@example.com");
+    const listRes = await api("/api/vin-sources");
+    expect(listRes.status).toBe(200);
+    const update = await api("/api/vin-sources/edmunds", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: true }),
+    });
+    expect(update.status).toBe(200);
+    await signOut();
+    await signIn("user@example.com");
   }, 60000);
 });
