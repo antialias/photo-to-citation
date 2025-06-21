@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { getByTestId } from "@testing-library/dom";
+import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
@@ -76,11 +78,15 @@ describe("permissions", () => {
 
     const id = await createCase();
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    expect(casePage).not.toContain('data-testid="delete-case-button"');
-    const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    expect(draft).toMatch(
-      /<button[^>]*(data-testid="send-button"[^>]*\sdisabled(?!:)|\sdisabled(?!:)\b[^>]*data-testid="send-button")[^>]*>/,
+    const caseDom = new JSDOM(casePage);
+    const delButton = caseDom.window.document.querySelector(
+      '[data-testid="delete-case-button"]',
     );
+    expect(delButton).toBeNull();
+    const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
+    const draftDom = new JSDOM(draft);
+    const sendButton = getByTestId(draftDom.window.document, "send-button");
+    expect(sendButton.hasAttribute("disabled")).toBe(true);
   }, 60000);
 
   it("shows admin actions for admins", async () => {
@@ -88,10 +94,15 @@ describe("permissions", () => {
     await signIn("admin@example.com");
     const id = await createCase();
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    expect(casePage).toContain('data-testid="delete-case-button"');
-    const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    expect(draft).not.toMatch(
-      /<button[^>]*(data-testid="send-button"[^>]*\sdisabled(?!:)|\sdisabled(?!:)\b[^>]*data-testid="send-button")[^>]*>/,
+    const caseDom = new JSDOM(casePage);
+    const delButton = getByTestId(
+      caseDom.window.document,
+      "delete-case-button",
     );
+    expect(delButton).toBeTruthy();
+    const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
+    const draftDom = new JSDOM(draft);
+    const sendButton = getByTestId(draftDom.window.document, "send-button");
+    expect(sendButton.hasAttribute("disabled")).toBe(false);
   }, 60000);
 });

@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { getByTestId } from "@testing-library/dom";
+import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
@@ -50,6 +52,8 @@ describe("case visibility", () => {
     const { caseId } = (await upload.json()) as { caseId: string };
 
     const page = await api(`/cases/${caseId}`).then((r) => r.text());
-    expect(page).toContain('data-testid="toggle-public-button"');
+    const dom = new JSDOM(page);
+    const toggle = getByTestId(dom.window.document, "toggle-public-button");
+    expect(toggle).toBeTruthy();
   }, 30000);
 });
