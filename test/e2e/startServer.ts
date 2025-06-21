@@ -27,6 +27,8 @@ export async function startServer(
     env: {
       ...process.env,
       NEXT_TELEMETRY_DISABLED: "1",
+      NEXT_DISABLE_ESLINT: "1",
+      NODE_ENV: env.NODE_ENV ?? "test",
       TEST_APIS: "1",
       NEXTAUTH_URL: `http://localhost:${port}`,
       ...env,
