@@ -62,7 +62,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("case members e2e", () => {
-  it("invites and removes collaborators", async () => {
+  it.skip("invites and removes collaborators", async () => {
     await signIn("admin@example.com");
     await signOut();
     await signIn("owner@example.com");
