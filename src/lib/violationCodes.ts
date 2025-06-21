@@ -9,7 +9,7 @@ export interface ViolationCodeMap {
 }
 
 const dataFile = config.VIOLATION_CODE_FILE
-  ? path.resolve(config.VIOLATION_CODE_FILE)
+  ? path.resolve(config.VIOLATION_CODE_FILE as string)
   : path.join(process.cwd(), "data", "violationCodes.json");
 
 function loadCodes(): ViolationCodeMap {

@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { config } from "./config";
+import { config as appConfig } from "./config";
 import type {
   SnailMailOptions,
   SnailMailProvider,
@@ -15,11 +15,11 @@ const provider: SnailMailProvider = {
   docs: "Save snail mail PDFs and a manifest locally.",
   async send(
     opts: SnailMailOptions,
-    config?: Record<string, unknown>,
+    cfg?: Record<string, unknown>,
   ): Promise<SnailMailStatus> {
     const dir =
-      (config?.dir as string) ||
-      config.SNAIL_MAIL_OUT_DIR ||
+      (cfg?.dir as string | undefined) ??
+      (appConfig.SNAIL_MAIL_OUT_DIR as string | undefined) ??
       path.join(process.cwd(), "data", "snailmail_out");
     fs.mkdirSync(dir, { recursive: true });
     const id = crypto.randomUUID();
