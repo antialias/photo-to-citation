@@ -55,7 +55,25 @@ const envSchema = z
   .passthrough();
 
 export type Config = z.infer<typeof envSchema>;
+
 export function getConfig(): Config {
   return envSchema.parse(process.env);
 }
-export const config = getConfig();
+
+const baseConfig = getConfig();
+
+// Next.js only inlines variables prefixed with NEXT_PUBLIC_ when they are
+// referenced literally. These assignments ensure the client bundle receives the
+// current values. A page reload may be needed to see updates while the dev
+// server is running.
+export const config: Config = {
+  ...baseConfig,
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ??
+    baseConfig.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  NEXT_PUBLIC_BROWSER_DEBUG: process.env.NEXT_PUBLIC_BROWSER_DEBUG
+    ? process.env.NEXT_PUBLIC_BROWSER_DEBUG === "true"
+    : baseConfig.NEXT_PUBLIC_BROWSER_DEBUG,
+  NEXT_PUBLIC_BASE_PATH:
+    process.env.NEXT_PUBLIC_BASE_PATH ?? baseConfig.NEXT_PUBLIC_BASE_PATH,
+};
