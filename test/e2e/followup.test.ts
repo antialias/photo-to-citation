@@ -60,6 +60,7 @@ beforeAll(async () => {
   );
   server = await startServer(3005, env);
   api = createApi(server);
+  await api("/");
   await signIn("user@example.com");
 }, 120000);
 

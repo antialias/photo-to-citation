@@ -18,6 +18,7 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
   });
   api = createApi(server);
+  await api("/");
 }, 120000);
 
 afterAll(async () => {
