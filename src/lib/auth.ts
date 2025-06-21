@@ -35,7 +35,7 @@ export async function seedSuperAdmin(newUser?: {
   if (existing) return;
   let target: { id: string } | undefined;
   const envEmail = config.SUPER_ADMIN_EMAIL;
-  if (envEmail) {
+  if (envEmail?.length && envEmail.length > 0) {
     if (newUser && newUser.email === envEmail) target = newUser;
     else
       target = orm.select().from(users).where(eq(users.email, envEmail)).get();

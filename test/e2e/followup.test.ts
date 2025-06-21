@@ -10,7 +10,11 @@ import { type TestServer, startServer } from "./startServer";
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  const csrfRequest = await api("/api/auth/csrf");
+  if (csrfRequest.status !== 200) {
+    throw new Error("Failed to get CSRF token");
+  }
+  const csrf = await csrfRequest.json();
   await api("/api/auth/signin/email", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

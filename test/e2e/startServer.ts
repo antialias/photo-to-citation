@@ -32,6 +32,7 @@ export async function startServer(
       TEST_APIS: "1",
       NEXTAUTH_URL: `http://localhost:${port}`,
       ...env,
+      SUPER_ADMIN_EMAIL: "",
       CI: "1",
     },
     stdio: ["ignore", "pipe", "pipe"],
