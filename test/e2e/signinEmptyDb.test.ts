@@ -29,7 +29,7 @@ describe("sign in with empty db @smoke", () => {
   it.skip("creates the first user and signs in", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "first@example.com";
-    await api("/api/auth/signin/email", {
+    expect((await api("/api/auth/signin/email", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
@@ -37,7 +37,7 @@ describe("sign in with empty db @smoke", () => {
         email,
         callbackUrl: server.url,
       }),
-    });
+    })).status).toBe(302);
 
     const ver = await api("/api/test/verification-url").then((r) => r.json());
     expect(ver.url).toBeTruthy();
