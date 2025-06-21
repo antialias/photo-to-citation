@@ -138,6 +138,10 @@ describe("reanalysis", () => {
         if (check.status === 200) break;
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
+      for (let i = 0; i < 20; i++) {
+        if (stub.requests.length >= 1) break;
+        await new Promise((r) => setTimeout(() => r(undefined), 500));
+      }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     }, 60000);
   });
@@ -203,6 +207,10 @@ describe("reanalysis", () => {
       for (let i = 0; i < 10; i++) {
         const check = await api(`/api/cases/${caseId}`);
         if (check.status === 200) break;
+        await new Promise((r) => setTimeout(() => r(undefined), 500));
+      }
+      for (let i = 0; i < 20; i++) {
+        if (stub.requests.length >= 1) break;
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
