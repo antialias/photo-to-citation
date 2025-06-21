@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { getByRole } from "@testing-library/dom";
+import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
@@ -194,8 +196,12 @@ describe("e2e flows (unauthenticated)", () => {
     const id2 = await createCase();
     const res = await api(`/cases?ids=${id1},${id2}`);
     expect(res.status).toBe(200);
-    const text = await res.text();
-    expect(text).toContain("Case Summary");
+    const html = await res.text();
+    const dom = new JSDOM(html);
+    const heading = getByRole(dom.window.document, "heading", {
+      name: /case summary/i,
+    });
+    expect(heading).toBeTruthy();
   }, 60000);
 
   it.skip("deletes a case", async () => {

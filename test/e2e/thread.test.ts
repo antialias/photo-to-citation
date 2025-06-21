@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { getByRole } from "@testing-library/dom";
+import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { type TestServer, startServer } from "./startServer";
 
@@ -40,7 +42,11 @@ describe("thread page", () => {
     const id = await createCase();
     const res = await fetch(`${server.url}/cases/${id}/thread/start`);
     expect(res.status).toBe(200);
-    const text = await res.text();
-    expect(text).toContain("Thread");
+    const html = await res.text();
+    const dom = new JSDOM(html);
+    const heading = getByRole(dom.window.document, "heading", {
+      name: /thread/i,
+    });
+    expect(heading).toBeTruthy();
   }, 30000);
 });
