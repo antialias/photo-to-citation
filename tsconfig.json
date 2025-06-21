@@ -14,6 +14,7 @@
     "jsx": "preserve",
     "incremental": true,
     "allowImportingTsExtensions": true,
+    "baseUrl": ".",
     "typeRoots": ["./types", "./node_modules/@types", "./node_modules/vitest"],
     "plugins": [
       {
