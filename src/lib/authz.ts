@@ -83,6 +83,16 @@ export function withAuthorization<
   };
 }
 
+/**
+ * Authorize a request for a case-specific action.
+ *
+ * Sessions created via the email provider often omit a `role` field. We
+ * default to `"anonymous"` so that a missing role does not grant unintended
+ * privileges while still retrieving the `userId` for membership checks.
+ *
+ * @param act - The action to authorize on the `cases` object.
+ * @param handler - Route handler to invoke after authorization succeeds.
+ */
 export function withCaseAuthorization<
   C extends {
     params: Promise<{ id: string } & Record<string, string>>;
