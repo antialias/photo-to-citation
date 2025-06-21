@@ -50,6 +50,6 @@ describe("case visibility", () => {
     const { caseId } = (await upload.json()) as { caseId: string };
 
     const page = await api(`/cases/${caseId}`).then((r) => r.text());
-    expect(page).toContain("Make Public");
+    expect(page).toContain('data-testid="toggle-public-button"');
   }, 30000);
 });

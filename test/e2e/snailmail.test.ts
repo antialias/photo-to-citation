@@ -25,6 +25,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -84,7 +96,19 @@ beforeAll(async () => {
   );
   server = await startServer(3008, env);
   api = createApi(server);
-  await signIn("user@example.com");
+  await signIn("super@example.com");
+  const rules = (await api("/api/casbin-rules").then((r) => r.json())) as Array<
+    import("@/lib/adminStore").CasbinRule
+  >;
+  rules.push({ ptype: "p", v0: "admin", v1: "admin", v2: "read" });
+  rules.push({ ptype: "p", v0: "admin", v1: "admin", v2: "update" });
+  await api("/api/casbin-rules", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(rules),
+  });
+  await signOut();
+  await signIn("admin@example.com");
 }, 120000);
 
 afterAll(async () => {
