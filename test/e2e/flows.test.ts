@@ -11,8 +11,10 @@ import { type TestServer, startServer } from "./startServer";
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signin/email", {
+  const csrfRes = await api("/api/auth/csrf");
+  expect(csrfRes.status).toBe(200);
+  const csrf = (await csrfRes.json()) as { csrfToken: string };
+  const signInRes = await api("/api/auth/signin/email", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -21,15 +23,21 @@ async function signIn(email: string) {
       callbackUrl: server.url,
     }),
   });
-  const ver = await api("/api/test/verification-url").then((r) => r.json());
-  await api(
+  expect(signInRes.status).toBeLessThan(400);
+  const verRes = await api("/api/test/verification-url");
+  expect(verRes.status).toBe(200);
+  const ver = (await verRes.json()) as { url: string };
+  const verifyRes = await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  expect(verifyRes.status).toBeLessThan(400);
 }
 
 async function signOut() {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signout", {
+  const csrfRes = await api("/api/auth/csrf");
+  expect(csrfRes.status).toBe(200);
+  const csrf = (await csrfRes.json()) as { csrfToken: string };
+  const res = await api("/api/auth/signout", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -37,6 +45,7 @@ async function signOut() {
       callbackUrl: server.url,
     }),
   });
+  expect(res.status).toBeLessThan(400);
 }
 
 let server: TestServer;
@@ -229,7 +238,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(nf2.status).toBe(404);
   }, 60000);
 
-  it.skip("toggles vin source modules", async () => {
+  it("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
     expect(listRes.status).toBe(200);
     const list = (await listRes.json()) as Array<{
@@ -244,5 +253,32 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ enabled: false }),
     });
     expect(update.status).toBe(403);
+  }, 60000);
+
+  it.skip("allows admin to toggle vin source modules", async () => {
+    await signOut();
+    await signIn("admin@example.com");
+    const listRes = await api("/api/vin-sources");
+    expect(listRes.status).toBe(200);
+    const list = (await listRes.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const id = list[0].id;
+    const before = list[0].enabled;
+    const update = await api(`/api/vin-sources/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: !before }),
+    });
+    expect(update.status).toBe(200);
+    const afterList = (await update.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const updated = afterList.find((s) => s.id === id);
+    expect(updated?.enabled).toBe(!before);
+    await signOut();
+    await signIn("user@example.com");
   }, 60000);
 });
