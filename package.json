@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "e2e": "vitest run -c vitest.e2e.config.ts",
+    "e2e:smoke": "vitest run -c vitest.e2e.config.ts --testNamePattern \"@smoke\"",
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
     "poll:snailmail": "ts-node --transpile-only scripts/pollSnailMail.ts",
     "scan:inbox": "ts-node --transpile-only scripts/scanInbox.ts",

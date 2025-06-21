@@ -343,6 +343,12 @@ thresholds with:
 npm run test:coverage
 ```
 
+Run just the essential end-to-end smoke tests with:
+
+```bash
+npm run e2e:smoke
+```
+
 ## Docker
 
 To run the app in containers, install Docker and Docker Compose then build the stack:
