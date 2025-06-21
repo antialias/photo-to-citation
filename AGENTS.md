@@ -17,6 +17,9 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
   as a whole.
 - Re-run the end-to-end tests whenever you modify the codebase to catch
   regressions early.
+- When tests fail, fix the application code if it contains a real bug.
+  Do not adjust the application just to satisfy a faulty test, and do not
+  modify test code to accept incorrect behavior from the app.
 
 ## Code Style
 - Use 2‑space indentation and double quotes for strings.
