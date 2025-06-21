@@ -34,6 +34,7 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     EMAIL_FILE: path.join(tmpDir, "emails.json"),
+    MOCK_EMAIL_TO: "",
   });
   api = createApi(server);
   await signIn("user@example.com");
@@ -54,7 +55,7 @@ describe("email sending", () => {
     return data.caseId;
   }
 
-  it.skip("stores emails instead of sending", async () => {
+  it("stores emails instead of sending", async () => {
     const id = await createCase();
     const res = await api(`/api/cases/${id}/report`, {
       method: "POST",
