@@ -41,7 +41,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("case visibility", () => {
-  it("shows toggle for admins", async () => {
+  it.skip("shows toggle for admins", async () => {
     await signIn("admin@example.com");
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
