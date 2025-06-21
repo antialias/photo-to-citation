@@ -27,6 +27,11 @@ async function signIn(email: string) {
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  for (let i = 0; i < 20; i++) {
+    const session = await api("/api/auth/session").then((r) => r.json());
+    if (session?.user?.email === email) break;
+    await new Promise((r) => setTimeout(r, 250));
+  }
 }
 
 async function signOut() {
@@ -61,6 +66,7 @@ beforeAll(async () => {
     OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);
+  await api("/");
   await signIn("admin@example.com");
   await signOut();
 }, 120000);
@@ -89,7 +95,7 @@ describe("permissions", () => {
     expect(sendButton.hasAttribute("disabled")).toBe(true);
   }, 60000);
 
-  it.skip("shows admin actions for admins", async () => {
+  it("shows admin actions for admins", async () => {
     await signOut();
     await signIn("admin@example.com");
     const id = await createCase();

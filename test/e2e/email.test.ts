@@ -24,6 +24,11 @@ async function signIn(email: string) {
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  for (let i = 0; i < 20; i++) {
+    const session = await api("/api/auth/session").then((r) => r.json());
+    if (session?.user?.email === email) break;
+    await new Promise((r) => setTimeout(r, 250));
+  }
 }
 
 beforeAll(async () => {
@@ -36,6 +41,7 @@ beforeAll(async () => {
     EMAIL_FILE: path.join(tmpDir, "emails.json"),
   });
   api = createApi(server);
+  await api("/");
   await signIn("user@example.com");
 }, 120000);
 
@@ -54,7 +60,7 @@ describe("email sending", () => {
     return data.caseId;
   }
 
-  it.skip("stores emails instead of sending", async () => {
+  it("stores emails instead of sending", async () => {
     const id = await createCase();
     const res = await api(`/api/cases/${id}/report`, {
       method: "POST",

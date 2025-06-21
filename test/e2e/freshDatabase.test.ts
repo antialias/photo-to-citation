@@ -24,6 +24,11 @@ async function signIn(email: string) {
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  for (let i = 0; i < 20; i++) {
+    const session = await api("/api/auth/session").then((r) => r.json());
+    if (session?.user?.email === email) break;
+    await new Promise((r) => setTimeout(r, 250));
+  }
 }
 
 beforeAll(async () => {
@@ -35,6 +40,7 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
+  await api("/");
 }, 120000);
 
 afterAll(async () => {
@@ -43,7 +49,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("fresh database @smoke", () => {
-  it.skip("grants superadmin to first user", async () => {
+  it("grants superadmin to first user", async () => {
     await signIn("first@example.com");
     const session = await api("/api/auth/session").then((r) => r.json());
     expect(session?.user?.email).toBe("first@example.com");
