@@ -55,10 +55,10 @@ async function createPhoto(name: string): Promise<File> {
 }
 
 async function fetchCase(id: string): Promise<Case> {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 10; i++) {
     const res = await api(`/api/cases/${id}`);
     if (res.status === 200) return (await res.json()) as Case;
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 75));
   }
   const res = await api(`/api/cases/${id}`);
   return (await res.json()) as Case;
@@ -111,10 +111,10 @@ describe("analysis queue", () => {
     });
     expect(addRes.status).toBe(200);
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       data = await fetchCase(caseId);
       if (data.photos.length === 2) break;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 75));
     }
     expect(data.photos).toHaveLength(2);
   }, 30000);
@@ -139,10 +139,10 @@ describe("analysis queue", () => {
     add.append("caseId", caseId);
     await api("/api/upload", { method: "POST", body: add });
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       data = await fetchCase(caseId);
       if (data.photos.length === 2) break;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 75));
     }
 
     const del = await api(`/api/cases/${caseId}/photos`, {
