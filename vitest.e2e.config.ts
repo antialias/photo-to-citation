@@ -10,6 +10,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/e2e/*.test.ts"],
+    globalSetup: "./test/e2e/serverLifecycle.ts",
+    globalTeardown: "./test/e2e/serverLifecycle.ts",
     testTimeout: 30000,
     hookTimeout: 30000,
     maxConcurrency: 1,
