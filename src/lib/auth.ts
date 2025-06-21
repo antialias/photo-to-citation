@@ -17,7 +17,9 @@ export function authAdapter() {
       console.log("authAdapter.createUser", data.email);
       if (!data.id) data.id = crypto.randomUUID();
       if (!base.createUser) throw new Error("createUser not implemented");
-      return base.createUser(data);
+      const user = await base.createUser(data);
+      await seedSuperAdmin({ id: user.id, email: user.email ?? null });
+      return user;
     },
   };
 }
