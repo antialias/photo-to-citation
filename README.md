@@ -340,6 +340,14 @@ runtime schema.
 
 ## Testing
 
+### Test Philosophy
+
+When you need to get unit or end-to-end tests running, it's fine to modify the
+application code as long as you're actually correcting a bug. Avoid rewriting
+the implementation just so the tests pass, and don't update the tests to accept
+incorrect behavior from the app. Let failing tests reveal real issues so fixes
+improve both the code and the coverage.
+
 Run all unit tests with:
 
 ```bash
