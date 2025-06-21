@@ -72,7 +72,7 @@ describe("anonymous access", () => {
     });
     await signOut();
 
-    const res = await api(`/api/cases/${id}`);
+    const res = await api(`/api/public/cases/${id}`);
     expect(res.status).toBe(200);
   }, 30000);
 
