@@ -63,6 +63,7 @@ export const POST = withAuthorization(
       analyzeCaseInBackground(p || updated);
       return NextResponse.json({ caseId: updated.id });
     }
+    console.log("upload session", session);
     const { userId } = getSessionDetails({ session }, "user");
     const newCase = createCase(
       `/uploads/${filename}`,

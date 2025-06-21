@@ -21,6 +21,10 @@ export function createApi(server: { url: string }): (
         : []);
     if (set.length > 0) {
       cookie = set.map((c) => c.split(";")[0]).join("; ");
+      console.log("stored cookie", cookie);
+    }
+    if (cookie) {
+      console.log("using cookie", cookie);
     }
     return res;
   };
