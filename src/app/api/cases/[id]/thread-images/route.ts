@@ -7,7 +7,7 @@ import { ocrPaperwork } from "@/lib/openai";
 import { NextResponse } from "next/server";
 
 export const POST = withCaseAuthorization(
-  "read",
+  "update",
   async (
     req: Request,
     {

@@ -5,7 +5,7 @@ import { ownershipModules } from "@/lib/ownershipModules";
 import { NextResponse } from "next/server";
 
 export const POST = withCaseAuthorization(
-  "read",
+  "update",
   async (
     req: Request,
     {

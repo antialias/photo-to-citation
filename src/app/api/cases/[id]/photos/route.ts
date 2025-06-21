@@ -12,7 +12,7 @@ import {
 import { NextResponse } from "next/server";
 
 export const DELETE = withCaseAuthorization(
-  "read",
+  "update",
   async (
     req: Request,
     {
@@ -36,7 +36,7 @@ export const DELETE = withCaseAuthorization(
 );
 
 export const POST = withCaseAuthorization(
-  "read",
+  "update",
   async (
     req: Request,
     {

@@ -36,7 +36,7 @@ export const GET = withAuthorization(
 );
 
 export const DELETE = withCaseAuthorization(
-  "read",
+  "delete",
   async (
     req: Request,
     {
