@@ -62,7 +62,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("anonymous access", () => {
-  it.skip("allows access to public case", async () => {
+  it("allows access to public case", async () => {
     await signIn("user@example.com");
     const id = await createCase();
     expect(
