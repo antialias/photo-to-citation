@@ -13,7 +13,7 @@ afterAll(async () => {
   await server.close();
 }, 120000);
 
-describe("end-to-end", () => {
+describe("end-to-end @smoke", () => {
   it("serves the homepage", async () => {
     const res = await fetch(`${server.url}/`);
     expect(res.status).toBe(200);

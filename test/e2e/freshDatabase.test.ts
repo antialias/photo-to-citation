@@ -42,7 +42,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }, 120000);
 
-describe("fresh database", () => {
+describe("fresh database @smoke", () => {
   it("grants superadmin to first user", async () => {
     await signIn("first@example.com");
     const session = await api("/api/auth/session").then((r) => r.json());

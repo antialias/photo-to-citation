@@ -40,7 +40,7 @@ afterAll(async () => {
   await server.close();
 }, 120000);
 
-describe("case visibility", () => {
+describe("case visibility @smoke", () => {
   it("shows toggle for admins", async () => {
     await signIn("admin@example.com");
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
