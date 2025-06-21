@@ -102,7 +102,7 @@ describe("follow up", () => {
     return api(`/api/cases/${id}/followup`);
   }
 
-  it.skip("passes prior emails to openai", async () => {
+  it("passes prior emails to openai", async () => {
     const id = await createCase();
     const caseFile = path.join(tmpDir, "cases.sqlite");
     const db = new Database(caseFile);
