@@ -65,11 +65,12 @@ describe("anonymous access", () => {
   it.skip("allows access to public case", async () => {
     await signIn("user@example.com");
     const id = await createCase();
-    await api(`/api/cases/${id}/public`, {
+    expect((await api(`/api/cases/${id}/public`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ public: true }),
-    });
+    })).status).toBe(200);
+    expect(makePublicResponse.status).toBe(200);
     await signOut();
 
     const res = await api(`/api/public/cases/${id}`);
