@@ -136,7 +136,13 @@ function saveCase(c: Case) {
     (rest.analysis as Partial<ViolationReport>).images = undefined;
   }
   const stmt = db.prepare(
-    "INSERT OR REPLACE INTO cases (id, data, public) VALUES (?, ?, ?)",
+    [
+      "INSERT INTO cases (id, data, public)",
+      "VALUES (?, ?, ?)",
+      "ON CONFLICT(id) DO UPDATE SET",
+      "  data = excluded.data,",
+      "  public = excluded.public",
+    ].join(" "),
   );
   stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0);
   orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
