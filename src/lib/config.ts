@@ -58,4 +58,12 @@ export type Config = z.infer<typeof envSchema>;
 export function getConfig(): Config {
   return envSchema.parse(process.env);
 }
-export const config = getConfig();
+// For NEXT_PUBLIC_* variables we must reference them directly so Next.js can
+// inline them for client-side usage. When using the dev server a full page
+// reload may be required to pick up changes.
+export const config: Config = {
+  ...getConfig(),
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  NEXT_PUBLIC_BROWSER_DEBUG: process.env.NEXT_PUBLIC_BROWSER_DEBUG === "true",
+  NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH || "",
+};
