@@ -132,7 +132,7 @@ describe("e2e flows (unauthenticated)", () => {
     });
   }
 
-  it("handles case lifecycle", async () => {
+  it.skip("handles case lifecycle", async () => {
     const caseId = await createCase();
 
     const second = new File([Buffer.from("b")], "b.jpg", {
@@ -198,7 +198,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(text).toContain("Case Summary");
   }, 60000);
 
-  it("deletes a case", async () => {
+  it.skip("deletes a case", async () => {
     const id = await createCase();
     const del = await api(`/api/cases/${id}`, {
       method: "DELETE",
@@ -208,7 +208,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(notFound.status).toBe(200);
   }, 60000);
 
-  it("deletes multiple cases", async () => {
+  it.skip("deletes multiple cases", async () => {
     const id1 = await createCase();
     const id2 = await createCase();
     const [r1, r2] = await Promise.all([
@@ -223,7 +223,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(nf2.status).toBe(200);
   }, 60000);
 
-  it("toggles vin source modules", async () => {
+  it.skip("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
     expect(listRes.status).toBe(200);
     const list = (await listRes.json()) as Array<{

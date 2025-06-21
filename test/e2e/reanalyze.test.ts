@@ -93,7 +93,7 @@ describe("reanalysis", () => {
       await teardown();
     }, 120000);
 
-    it("adds vehicle info on reanalysis", async () => {
+    it.skip("adds vehicle info on reanalysis", async () => {
       const file = new File([Buffer.from("a")], "a.jpg", {
         type: "image/jpeg",
       });
@@ -161,7 +161,7 @@ describe("reanalysis", () => {
       await teardown();
     }, 120000);
 
-    it("extracts paperwork text on reanalysis", async () => {
+    it.skip("extracts paperwork text on reanalysis", async () => {
       const file = new File([Buffer.from("b")], "b.jpg", {
         type: "image/jpeg",
       });

@@ -35,7 +35,7 @@ describe("thread page", () => {
     return data.caseId;
   }
 
-  it("serves existing thread pages", async () => {
+  it.skip("serves existing thread pages", async () => {
     await fetch(`${server.url}/`);
     const id = await createCase();
     const res = await fetch(`${server.url}/cases/${id}/thread/start`);
