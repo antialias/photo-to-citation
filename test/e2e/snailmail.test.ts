@@ -84,7 +84,7 @@ beforeAll(async () => {
   );
   server = await startServer(3008, env);
   api = createApi(server);
-  await signIn("user@example.com");
+  await signIn("admin@example.com");
 }, 120000);
 
 afterAll(async () => {

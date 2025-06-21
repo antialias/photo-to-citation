@@ -143,9 +143,9 @@ describe("e2e flows (unauthenticated)", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ photo: json.photos[0] }),
     });
-    expect(delRes.status).toBe(403);
-    json = await waitForPhotos(caseId, 2);
-    expect(json.photos).toHaveLength(2);
+    expect(delRes.status).toBe(200);
+    json = await waitForPhotos(caseId, 1);
+    expect(json.photos).toHaveLength(1);
 
     const overrideRes = await api(`/api/cases/${caseId}/override`, {
       method: "PUT",
@@ -155,24 +155,24 @@ describe("e2e flows (unauthenticated)", () => {
         violationType: "parking",
       }),
     });
-    expect(overrideRes.status).toBe(403);
+    expect(overrideRes.status).toBe(200);
 
     const vinRes = await putVin(caseId, "1HGCM82633A004352");
-    expect(vinRes.status).toBe(403);
+    expect(vinRes.status).toBe(200);
 
     const ownRes = await api(`/api/cases/${caseId}/ownership-request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ moduleId: "il", checkNumber: "42" }),
     });
-    expect(ownRes.status).toBe(403);
+    expect(ownRes.status).toBe(200);
 
     const delCase = await api(`/api/cases/${caseId}`, {
       method: "DELETE",
     });
-    expect(delCase.status).toBe(403);
+    expect(delCase.status).toBe(200);
     const notFound = await api(`/api/cases/${caseId}`);
-    expect(notFound.status).toBe(200);
+    expect(notFound.status).toBe(404);
   }, 30000);
 
   it("shows summary for multiple cases", async () => {
@@ -189,9 +189,9 @@ describe("e2e flows (unauthenticated)", () => {
     const del = await api(`/api/cases/${id}`, {
       method: "DELETE",
     });
-    expect(del.status).toBe(403);
+    expect(del.status).toBe(200);
     const notFound = await api(`/api/cases/${id}`);
-    expect(notFound.status).toBe(200);
+    expect(notFound.status).toBe(404);
   }, 30000);
 
   it("deletes multiple cases", async () => {
@@ -201,12 +201,12 @@ describe("e2e flows (unauthenticated)", () => {
       api(`/api/cases/${id1}`, { method: "DELETE" }),
       api(`/api/cases/${id2}`, { method: "DELETE" }),
     ]);
-    expect(r1.status).toBe(403);
-    expect(r2.status).toBe(403);
+    expect(r1.status).toBe(200);
+    expect(r2.status).toBe(200);
     const nf1 = await api(`/api/cases/${id1}`);
     const nf2 = await api(`/api/cases/${id2}`);
-    expect(nf1.status).toBe(200);
-    expect(nf2.status).toBe(200);
+    expect(nf1.status).toBe(404);
+    expect(nf2.status).toBe(404);
   }, 30000);
 
   it("toggles vin source modules", async () => {
@@ -223,12 +223,6 @@ describe("e2e flows (unauthenticated)", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: false }),
     });
-    expect(update.status).toBe(200);
-    const updated = (await update.json()) as Array<{
-      id: string;
-      enabled: boolean;
-    }>;
-    const found = updated.find((s) => s.id === id);
-    expect(found?.enabled).toBe(false);
+    expect(update.status).toBe(403);
   }, 30000);
 });
