@@ -232,7 +232,13 @@ describe("e2e flows (unauthenticated)", () => {
   it("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
     expect(listRes.status).toBe(200);
-    const update = await api("/api/vin-sources/edmunds", {
+    const list = (await listRes.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    expect(Array.isArray(list)).toBe(true);
+    const id = list[0].id;
+    const update = await api(`/api/vin-sources/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: false }),
@@ -245,12 +251,24 @@ describe("e2e flows (unauthenticated)", () => {
     await signIn("admin@example.com");
     const listRes = await api("/api/vin-sources");
     expect(listRes.status).toBe(200);
-    const update = await api("/api/vin-sources/edmunds", {
+    const list = (await listRes.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const id = list[0].id;
+    const before = list[0].enabled;
+    const update = await api(`/api/vin-sources/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: true }),
+      body: JSON.stringify({ enabled: !before }),
     });
     expect(update.status).toBe(200);
+    const afterList = (await update.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const updated = afterList.find((s) => s.id === id);
+    expect(updated?.enabled).toBe(!before);
     await signOut();
     await signIn("user@example.com");
   }, 60000);
