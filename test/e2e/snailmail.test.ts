@@ -25,6 +25,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
@@ -58,6 +70,7 @@ beforeAll(async () => {
     RETURN_ADDRESS: "Me\n1 A St\nTown, ST 12345",
     SNAIL_MAIL_PROVIDER: "file",
     NODE_ENV: "test",
+    SUPER_ADMIN_EMAIL: "admin@example.com",
     NEXTAUTH_SECRET: "secret",
   };
   fs.writeFileSync(
@@ -84,7 +97,9 @@ beforeAll(async () => {
   );
   server = await startServer(3008, env);
   api = createApi(server);
-  await signIn("user@example.com");
+  await signIn("admin@example.com");
+  await signOut();
+  await signIn("admin@example.com");
 }, 120000);
 
 afterAll(async () => {

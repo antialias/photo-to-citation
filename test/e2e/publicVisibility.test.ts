@@ -25,6 +25,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 beforeAll(async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3020, {
@@ -32,6 +44,7 @@ beforeAll(async () => {
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    SUPER_ADMIN_EMAIL: "admin@example.com",
   });
   api = createApi(server);
 }, 120000);
@@ -42,6 +55,8 @@ afterAll(async () => {
 
 describe("case visibility", () => {
   it("shows toggle for admins", async () => {
+    await signIn("admin@example.com");
+    await signOut();
     await signIn("admin@example.com");
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

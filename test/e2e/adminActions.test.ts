@@ -53,6 +53,7 @@ beforeAll(async () => {
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    SUPER_ADMIN_EMAIL: "super@example.com",
   });
   api = createApi(server);
 }, 120000);
@@ -63,6 +64,8 @@ afterAll(async () => {
 
 describe("admin actions", () => {
   it("promotes and demotes users", async () => {
+    await signIn("super@example.com");
+    await signOut();
     await signIn("super@example.com");
     const invite = await api("/api/users/invite", {
       method: "POST",
@@ -108,6 +111,8 @@ describe("admin actions", () => {
   }, 30000);
 
   it("edits casbin rules", async () => {
+    await signIn("super2@example.com");
+    await signOut();
     await signIn("super2@example.com");
     const rules = (await api("/api/casbin-rules").then((r) =>
       r.json(),
