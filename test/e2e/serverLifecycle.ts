@@ -12,3 +12,8 @@ export async function globalTeardown() {
     await server.close();
   }
 }
+
+export async function setup() {
+  await globalSetup();
+  return globalTeardown;
+}
