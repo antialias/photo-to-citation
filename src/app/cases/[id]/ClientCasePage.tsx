@@ -505,6 +505,7 @@ export default function ClientCasePage({
                       type="button"
                       onClick={togglePublic}
                       className="ml-2 text-blue-500 underline"
+                      data-testid="toggle-public-button"
                     >
                       Make {caseData.public ? "Private" : "Public"}
                     </button>
