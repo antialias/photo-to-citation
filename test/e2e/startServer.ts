@@ -38,9 +38,11 @@ export async function startServer(
   });
   let output = "";
   proc.stdout.on("data", (c) => {
+    console.log(String(c));
     output += String(c);
   });
   proc.stderr.on("data", (c) => {
+    console.log(String(c));
     output += String(c);
   });
   await waitForServer(port);
