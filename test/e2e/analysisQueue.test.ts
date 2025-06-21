@@ -87,7 +87,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("analysis queue", () => {
-  it.skip("processes additional photos sequentially", async () => {
+  it("processes additional photos sequentially", async () => {
     const file = await createPhoto("a");
     const form = new FormData();
     form.append("photo", file);
