@@ -11,8 +11,10 @@ import { type TestServer, startServer } from "./startServer";
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signin/email", {
+  const csrfRes = await api("/api/auth/csrf");
+  expect(csrfRes.status).toBe(200);
+  const csrf = (await csrfRes.json()) as { csrfToken: string };
+  const signInRes = await api("/api/auth/signin/email", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -21,15 +23,21 @@ async function signIn(email: string) {
       callbackUrl: server.url,
     }),
   });
-  const ver = await api("/api/test/verification-url").then((r) => r.json());
-  await api(
+  expect(signInRes.status).toBeLessThan(400);
+  const verRes = await api("/api/test/verification-url");
+  expect(verRes.status).toBe(200);
+  const ver = (await verRes.json()) as { url: string };
+  const verifyRes = await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  expect(verifyRes.status).toBeLessThan(400);
 }
 
 async function signOut() {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signout", {
+  const csrfRes = await api("/api/auth/csrf");
+  expect(csrfRes.status).toBe(200);
+  const csrf = (await csrfRes.json()) as { csrfToken: string };
+  const res = await api("/api/auth/signout", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -37,6 +45,7 @@ async function signOut() {
       callbackUrl: server.url,
     }),
   });
+  expect(res.status).toBeLessThan(400);
 }
 
 let server: TestServer;
