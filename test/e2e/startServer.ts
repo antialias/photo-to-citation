@@ -23,7 +23,7 @@ export async function startServer(
   env: Partial<NodeJS.ProcessEnv> = {},
 ): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
-  const proc = spawn(nextBin, ["dev", "-p", String(port)], {
+  const proc = spawn(nextBin, ["dev", "-p", String(port), "--turbo"], {
     env: {
       ...process.env,
       NEXT_TELEMETRY_DISABLED: "1",
