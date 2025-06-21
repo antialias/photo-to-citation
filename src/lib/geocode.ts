@@ -6,10 +6,10 @@ export interface Coordinates {
 }
 
 async function fetchGeocode(params: Record<string, string>): Promise<unknown> {
-  const query = new URLSearchParams({
-    key: config.GOOGLE_MAPS_API_KEY,
-    ...params,
-  });
+  const query = new URLSearchParams(params);
+  if (config.GOOGLE_MAPS_API_KEY) {
+    query.set("key", config.GOOGLE_MAPS_API_KEY);
+  }
   const res = await fetch(
     `https://maps.googleapis.com/maps/api/geocode/json?${query}`,
   );
