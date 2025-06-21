@@ -81,6 +81,16 @@ Generate new migration files from the Drizzle schema with:
 npm run generate:migrations
 ```
 
+To consolidate old migrations into a single baseline, keep only the most recent
+files using:
+
+```bash
+npm run squash:migrations -- --keep 5
+```
+
+Omit the `--keep` option to retain the latest 10 migrations. Pass `--help` for
+usage details.
+
 Migrations are stored as SQL files under the `migrations` folder and applied at runtime. The default SQLite database is `data/cases.sqlite`. Per-photo analysis results now live in the `case_photo_analysis` table instead of the JSON `analysis.images` field.
 
 ## Administration
