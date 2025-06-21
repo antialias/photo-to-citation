@@ -68,6 +68,24 @@ export function getSessionDetails(
   };
 }
 
+export async function loadAuthContext(
+  ctx: { session?: { user?: { id?: string; role?: string } } },
+  defaultRole = "anonymous",
+) {
+  const skipSessionLoad = process.env.VITEST && !process.env.TEST_APIS;
+  const session = skipSessionLoad
+    ? ctx.session
+    : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
+  const { role, userId } = getSessionDetails({ session }, defaultRole);
+  return { session, role, userId };
+}
+
+/**
+ * Wraps an API handler with a generic authorization check.
+ *
+ * Loads the current session, retrieves the user role, and verifies the
+ * `(obj, act)` pair using Casbin before executing the handler.
+ */
 export function withAuthorization<
   C extends {
     params: Promise<Record<string, string>>;
@@ -76,11 +94,7 @@ export function withAuthorization<
   R = Response,
 >(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
-    const skipSessionLoad = process.env.VITEST && !process.env.TEST_APIS;
-    const session = skipSessionLoad
-      ? ctx.session
-      : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
-    const { role } = getSessionDetails({ session });
+    const { session, role } = await loadAuthContext(ctx);
     console.log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
@@ -89,6 +103,13 @@ export function withAuthorization<
   };
 }
 
+/**
+ * Wraps an API handler with case-specific authorization logic.
+ *
+ * Ensures the user is authenticated, verifies membership of the case, and
+ * checks the provided action against the "cases" resource before executing
+ * the handler.
+ */
 export function withCaseAuthorization<
   C extends {
     params: Promise<{ id: string } & Record<string, string>>;
@@ -98,11 +119,7 @@ export function withCaseAuthorization<
 >(act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
-    const skipSessionLoad = process.env.VITEST && !process.env.TEST_APIS;
-    const session = skipSessionLoad
-      ? ctx.session
-      : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
-    const { role, userId } = getSessionDetails({ session }, "user");
+    const { session, role, userId } = await loadAuthContext(ctx, "user");
     console.log("withCaseAuthorization", role, act, id, userId);
     if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
       return new Response(null, { status: 403 });
