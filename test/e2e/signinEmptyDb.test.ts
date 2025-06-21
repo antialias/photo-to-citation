@@ -18,6 +18,7 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
   });
   api = createApi(server);
+  await api("/");
 }, 120000);
 
 afterAll(async () => {
@@ -26,7 +27,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("sign in with empty db @smoke", () => {
-  it.skip("creates the first user and signs in", async () => {
+  it("creates the first user and signs in", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "first@example.com";
     await api("/api/auth/signin/email", {
@@ -44,8 +45,16 @@ describe("sign in with empty db @smoke", () => {
     await api(
       `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
     );
-
-    const session = await api("/api/auth/session").then((r) => r.json());
+    let session: { user?: { email?: string; role?: string } } | null;
+    for (let i = 0; i < 20; i++) {
+      session = await api("/api/auth/session").then((r) => r.json());
+      if (
+        session?.user?.email === email &&
+        session?.user?.role === "superadmin"
+      )
+        break;
+      await new Promise((r) => setTimeout(r, 250));
+    }
     expect(session?.user?.email).toBe(email);
     expect(session?.user?.role).toBe("superadmin");
   }, 30000);

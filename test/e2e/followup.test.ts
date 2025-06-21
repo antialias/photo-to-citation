@@ -24,6 +24,11 @@ async function signIn(email: string) {
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  for (let i = 0; i < 20; i++) {
+    const session = await api("/api/auth/session").then((r) => r.json());
+    if (session?.user?.email === email) break;
+    await new Promise((r) => setTimeout(r, 250));
+  }
 }
 
 let server: TestServer;
@@ -60,6 +65,7 @@ beforeAll(async () => {
   );
   server = await startServer(3005, env);
   api = createApi(server);
+  await api("/");
   await signIn("user@example.com");
 }, 120000);
 
@@ -102,7 +108,7 @@ describe("follow up", () => {
     return api(`/api/cases/${id}/followup`);
   }
 
-  it.skip("passes prior emails to openai", async () => {
+  it("passes prior emails to openai", async () => {
     const id = await createCase();
     const caseFile = path.join(tmpDir, "cases.sqlite");
     const db = new Database(caseFile);
