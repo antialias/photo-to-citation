@@ -114,13 +114,13 @@ describe("reanalysis", () => {
         };
       };
       let json: CaseData | undefined;
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 5; i++) {
         const check = await api(`/api/cases/${caseId}`);
         if (check.status === 200) {
           json = (await check.json()) as CaseData;
           break;
         }
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 75));
       }
       expect(json).toBeDefined();
       if (!json) throw new Error("case data not found");
@@ -133,10 +133,10 @@ describe("reanalysis", () => {
         { method: "POST" },
       );
       expect(re.status).toBe(200);
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 5; i++) {
         const check = await api(`/api/cases/${caseId}`);
         if (check.status === 200) break;
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 75));
       }
       for (let i = 0; i < 20; i++) {
         if (stub.requests.length >= 1) break;
@@ -185,13 +185,13 @@ describe("reanalysis", () => {
         };
       };
       let json: CaseData | undefined;
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 5; i++) {
         const check = await api(`/api/cases/${caseId}`);
         if (check.status === 200) {
           json = (await check.json()) as CaseData;
           break;
         }
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 75));
       }
       expect(json).toBeDefined();
       if (!json) throw new Error("case data not found");
@@ -204,10 +204,10 @@ describe("reanalysis", () => {
         { method: "POST" },
       );
       expect(re.status).toBe(200);
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 5; i++) {
         const check = await api(`/api/cases/${caseId}`);
         if (check.status === 200) break;
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
+        await new Promise((r) => setTimeout(() => r(undefined), 75));
       }
       for (let i = 0; i < 20; i++) {
         if (stub.requests.length >= 1) break;
