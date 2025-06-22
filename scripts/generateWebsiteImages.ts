@@ -139,6 +139,25 @@ async function saveResized(
   fs.writeFileSync(localPath, output);
 }
 
+async function createPlaceholder(
+  localPath: string,
+  spec: ImageSpec,
+): Promise<void> {
+  const width = spec.width ?? 1;
+  const height = spec.height ?? 1;
+  const buf = await sharp({
+    create: {
+      width,
+      height,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .png()
+    .toBuffer();
+  await saveResized(localPath, buf, spec);
+}
+
 async function generate(spec: ImageSpec): Promise<void> {
   const localPath = path.join("website", spec.file);
   if (fs.existsSync(localPath)) return;
@@ -147,17 +166,29 @@ async function generate(spec: ImageSpec): Promise<void> {
     await saveResized(localPath, data, spec);
     return;
   }
-  const res = await openai.images.generate({
-    model: "dall-e-3",
-    prompt: spec.prompt,
-    n: 1,
-    size: spec.size ?? "1024x1024",
-  });
-  const url = res.data?.[0]?.url;
-  if (!url) throw new Error("Image generation failed");
-  const imgRes = await fetch(url);
-  const buf = Buffer.from(await imgRes.arrayBuffer());
-  await saveResized(localPath, buf, spec);
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn(
+      `OPENAI_API_KEY not set; creating placeholder for ${spec.file}`,
+    );
+    await createPlaceholder(localPath, spec);
+    return;
+  }
+  try {
+    const res = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: spec.prompt,
+      n: 1,
+      size: spec.size ?? "1024x1024",
+    });
+    const url = res.data?.[0]?.url;
+    if (!url) throw new Error("Image generation failed");
+    const imgRes = await fetch(url);
+    const buf = Buffer.from(await imgRes.arrayBuffer());
+    await saveResized(localPath, buf, spec);
+  } catch (err) {
+    console.error(`Image generation failed for ${spec.file}`, err);
+    await createPlaceholder(localPath, spec);
+  }
 }
 
 (async () => {
