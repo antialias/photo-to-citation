@@ -5,6 +5,7 @@ import type { Case } from "@/lib/caseStore";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -55,12 +56,11 @@ async function createPhoto(name: string): Promise<File> {
 }
 
 async function fetchCase(id: string): Promise<Case> {
-  for (let i = 0; i < 20; i++) {
-    const res = await api(`/api/cases/${id}`);
-    if (res.status === 200) return (await res.json()) as Case;
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  const res = await api(`/api/cases/${id}`);
+  const res = await poll(
+    () => api(`/api/cases/${id}`),
+    (r) => r.status === 200,
+    20,
+  );
   return (await res.json()) as Case;
 }
 
@@ -111,11 +111,11 @@ describe("analysis queue", () => {
     });
     expect(addRes.status).toBe(200);
 
-    for (let i = 0; i < 20; i++) {
-      data = await fetchCase(caseId);
-      if (data.photos.length === 2) break;
-      await new Promise((r) => setTimeout(r, 500));
-    }
+    data = await poll(
+      () => fetchCase(caseId),
+      (d) => d.photos.length === 2,
+      20,
+    );
     expect(data.photos).toHaveLength(2);
   }, 30000);
 
@@ -139,11 +139,11 @@ describe("analysis queue", () => {
     add.append("caseId", caseId);
     await api("/api/upload", { method: "POST", body: add });
 
-    for (let i = 0; i < 20; i++) {
-      data = await fetchCase(caseId);
-      if (data.photos.length === 2) break;
-      await new Promise((r) => setTimeout(r, 500));
-    }
+    data = await poll(
+      () => fetchCase(caseId),
+      (d) => d.photos.length === 2,
+      20,
+    );
 
     const del = await api(`/api/cases/${caseId}/photos`, {
       method: "DELETE",

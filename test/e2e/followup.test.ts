@@ -5,6 +5,7 @@ import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -78,32 +79,25 @@ describe("follow up", () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
-    for (let i = 0; i < 20; i++) {
-      const res = await api("/api/upload", {
-        method: "POST",
-        body: form,
-      });
-      if (res.status === 200) {
-        const data = (await res.json()) as { caseId: string };
-        return data.caseId;
-      }
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    const final = await api("/api/upload", {
-      method: "POST",
-      body: form,
-    });
-    const data = (await final.json()) as { caseId: string };
+    const res = await poll(
+      () =>
+        api("/api/upload", {
+          method: "POST",
+          body: form,
+        }),
+      (r) => r.status === 200,
+      20,
+    );
+    const data = (await res.json()) as { caseId: string };
     return data.caseId;
   }
 
   async function fetchFollowup(id: string): Promise<Response> {
-    for (let i = 0; i < 20; i++) {
-      const res = await api(`/api/cases/${id}/followup`);
-      if (res.status === 200) return res;
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    return api(`/api/cases/${id}/followup`);
+    return poll(
+      () => api(`/api/cases/${id}/followup`),
+      (res) => res.status === 200,
+      20,
+    );
   }
 
   it("passes prior emails to openai", async () => {

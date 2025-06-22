@@ -3,8 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
+import { createAuthHelpers } from "./authHelpers";
 import { type TestServer, startServer } from "./startServer";
-import { createAuthHelpers} from "./authHelpers";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -18,12 +18,16 @@ async function createCase(): Promise<string> {
   return data.caseId;
 }
 
-let setUserRoleAndLogIn;
-let signIn;
-let signOut;
+let setUserRoleAndLogIn: (opts: {
+  email: string;
+  role: string;
+  promoted_by: string;
+}) => Promise<void>;
+let signIn: (email: string) => Promise<Response>;
+let signOut: () => Promise<void>;
 beforeAll(async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-admin-"));
-  const case_store_file = path.join(tmpDir, "cases.sqlite")
+  const case_store_file = path.join(tmpDir, "cases.sqlite");
   server = await startServer(3021, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
@@ -32,7 +36,7 @@ beforeAll(async () => {
     SUPER_ADMIN_EMAIL: "super@example.com",
   });
   api = createApi(server);
-  ({ setUserRoleAndLogIn , signIn, signOut} = createAuthHelpers(api, server));
+  ({ setUserRoleAndLogIn, signIn, signOut } = createAuthHelpers(api, server));
   await signIn("super@example.com");
   await signOut();
 }, 120000);
@@ -47,7 +51,7 @@ describe("admin actions", () => {
     const adminUser = await setUserRoleAndLogIn({
       email: "admin@example.com",
       role: "admin",
-      promoted_by: "super@example.com"
+      promoted_by: "super@example.com",
     });
     const invite = await api("/api/users/invite", {
       method: "POST",
@@ -66,7 +70,7 @@ describe("admin actions", () => {
     let found = list.find((u) => u.id === invited.id);
     expect(found?.role).toBe("user");
 
-    const signInResponse = await signIn("super@example.com")
+    const signInResponse = await signIn("super@example.com");
     expect(signInResponse.status).toBe(302);
     const promote = await api(`/api/users/${invited.id}/role`, {
       method: "PUT",
