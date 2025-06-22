@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { getByTestId } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
@@ -12,7 +12,7 @@ let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let stub: OpenAIStub;
 
-test.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 async function signIn(email: string) {
   const csrf = await api("/api/auth/csrf").then((r) => r.json());
