@@ -7,46 +7,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
+import { createAuthHelpers } from "./authHelpers";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
-
-async function signIn(email: string) {
-  const csrfRes = await api("/api/auth/csrf");
-  expect(csrfRes.status).toBe(200);
-  const csrf = (await csrfRes.json()) as { csrfToken: string };
-  const signInRes = await api("/api/auth/signin/email", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      email,
-      callbackUrl: server.url,
-    }),
-  });
-  expect(signInRes.status).toBeLessThan(400);
-  const verRes = await api("/api/test/verification-url");
-  expect(verRes.status).toBe(200);
-  const ver = (await verRes.json()) as { url: string };
-  const verifyRes = await api(
-    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
-  );
-  expect(verifyRes.status).toBeLessThan(400);
-}
-
-async function signOut() {
-  const csrfRes = await api("/api/auth/csrf");
-  expect(csrfRes.status).toBe(200);
-  const csrf = (await csrfRes.json()) as { csrfToken: string };
-  const res = await api("/api/auth/signout", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      callbackUrl: server.url,
-    }),
-  });
-  expect(res.status).toBeLessThan(400);
-}
+let signIn: (email: string) => Promise<Response>;
+let signOut: () => Promise<void>;
 
 let server: TestServer;
 let stub: OpenAIStub;
@@ -79,6 +44,7 @@ beforeAll(async () => {
   );
   server = await startServer(3003, env);
   api = createApi(server);
+  ({ signIn, signOut } = createAuthHelpers(api, server));
   await signIn("admin@example.com");
   await signOut();
   await signIn("user@example.com");

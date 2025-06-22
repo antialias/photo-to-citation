@@ -4,27 +4,13 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
+import { createAuthHelpers } from "./authHelpers";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let tmpDir: string;
-
-async function signIn(email: string) {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signin/email", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      email,
-      callbackUrl: server.url,
-    }),
-  });
-  const ver = await api("/api/test/verification-url").then((r) => r.json());
-  await api(
-    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
-  );
-}
+let signIn: (email: string) => Promise<Response>;
+let signOut: () => Promise<void>;
 
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-email-"));
@@ -37,6 +23,7 @@ beforeAll(async () => {
     MOCK_EMAIL_TO: "",
   });
   api = createApi(server);
+  ({ signIn, signOut } = createAuthHelpers(api, server));
   await signIn("user@example.com");
 }, 120000);
 
