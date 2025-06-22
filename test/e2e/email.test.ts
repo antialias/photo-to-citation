@@ -1,13 +1,15 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let tmpDir: string;
+
+test.setTimeout(60000);
 
 async function signIn(email: string) {
   const csrf = await api("/api/auth/csrf").then((r) => r.json());
@@ -68,5 +70,5 @@ describe("email sending", () => {
     );
     expect(emails).toHaveLength(1);
     expect(emails[0].to).toBe("police@oak-park.us");
-  }, 60000);
+  });
 });
