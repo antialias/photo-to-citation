@@ -6,7 +6,7 @@ import {
 import { NextResponse } from "next/server";
 
 export const PUT = withAuthorization(
-  { obj: "admin" },
+  { obj: "snail_mail_providers", act: "update" },
   async (
     _req: Request,
     {
