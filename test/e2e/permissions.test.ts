@@ -55,7 +55,7 @@ async function createCase(): Promise<string> {
 beforeAll(async () => {
   stub = await startOpenAIStub({ subject: "", body: "" });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3011, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",

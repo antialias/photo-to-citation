@@ -1,12 +1,12 @@
 import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startServer(3002, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
   });
 });

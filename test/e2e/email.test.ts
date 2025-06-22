@@ -30,7 +30,7 @@ async function signIn(email: string) {
 
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-email-"));
-  server = await startServer(3016, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",

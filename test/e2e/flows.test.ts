@@ -80,7 +80,7 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3003, env);
+  server = await startServer(0, env);
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();

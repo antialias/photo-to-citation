@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 
 let ocrPaperwork: typeof import("@/lib/openai").ocrPaperwork;

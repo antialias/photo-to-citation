@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import Database from "better-sqlite3";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
@@ -63,7 +63,7 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3005, env);
+  server = await startServer(0, env);
   api = createApi(server);
   await signIn("user@example.com");
 });

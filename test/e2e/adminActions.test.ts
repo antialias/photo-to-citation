@@ -30,7 +30,7 @@ let signOut: () => Promise<void>;
 beforeAll(async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-admin-"));
   const case_store_file = path.join(tmpDir, "cases.sqlite");
-  server = await startServer(3021, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { Case } from "@/lib/caseStore";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
@@ -75,7 +75,7 @@ beforeAll(async () => {
     }),
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3007, envFiles());
+  server = await startServer(0, envFiles());
   api = createApi(server);
   await signIn("user@example.com");
 });

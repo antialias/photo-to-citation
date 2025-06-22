@@ -65,7 +65,7 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
       2,
     ),
   );
-  server = await startServer(3010, env);
+  server = await startServer(0, env);
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
