@@ -6,6 +6,7 @@ import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -105,42 +106,37 @@ describe("e2e flows (unauthenticated)", () => {
   }
 
   async function fetchCase(id: string): Promise<Response> {
-    for (let i = 0; i < 10; i++) {
-      const res = await api(`/api/cases/${id}`);
-      if (res.status === 200) return res;
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    return api(`/api/cases/${id}`);
+    return poll(
+      () => api(`/api/cases/${id}`),
+      (res) => res.status === 200,
+      10,
+    );
   }
 
   async function waitForPhotos(id: string, count: number) {
-    for (let i = 0; i < 20; i++) {
-      const res = await fetchCase(id);
-      if (res.status === 200) {
-        const json = await res.json();
-        if (json.photos.length === count) return json;
-      }
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    const res = await fetchCase(id);
+    const res = await poll(
+      () => fetchCase(id),
+      async (r) => {
+        if (r.status !== 200) return false;
+        const json = await r.clone().json();
+        return Array.isArray(json.photos) && json.photos.length === count;
+      },
+      20,
+    );
     return res.json();
   }
 
   async function putVin(id: string, vin: string): Promise<Response> {
-    for (let i = 0; i < 10; i++) {
-      const res = await api(`/api/cases/${id}/vin`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vin }),
-      });
-      if (res.status === 200) return res;
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    return api(`/api/cases/${id}/vin`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vin }),
-    });
+    return poll(
+      () =>
+        api(`/api/cases/${id}/vin`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin }),
+        }),
+      (res) => res.status === 200,
+      10,
+    );
   }
 
   it("handles case lifecycle", async () => {

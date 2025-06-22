@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -113,17 +114,12 @@ describe("reanalysis", () => {
           images?: Record<string, unknown>;
         };
       };
-      let json: CaseData | undefined;
-      for (let i = 0; i < 10; i++) {
-        const check = await api(`/api/cases/${caseId}`);
-        if (check.status === 200) {
-          json = (await check.json()) as CaseData;
-          break;
-        }
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
-      }
-      expect(json).toBeDefined();
-      if (!json) throw new Error("case data not found");
+      const first = await poll(
+        () => api(`/api/cases/${caseId}`),
+        (res) => res.status === 200,
+        10,
+      );
+      const json = (await first.json()) as CaseData;
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
       expect(json.analysis?.vehicle?.licensePlateNumber).toBeUndefined();
@@ -133,15 +129,16 @@ describe("reanalysis", () => {
         { method: "POST" },
       );
       expect(re.status).toBe(200);
-      for (let i = 0; i < 10; i++) {
-        const check = await api(`/api/cases/${caseId}`);
-        if (check.status === 200) break;
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
-      }
-      for (let i = 0; i < 20; i++) {
-        if (stub.requests.length >= 1) break;
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
-      }
+      await poll(
+        () => api(`/api/cases/${caseId}`),
+        (c) => c.status === 200,
+        10,
+      );
+      await poll(
+        () => Promise.resolve(stub.requests.length),
+        (len) => len >= 1,
+        20,
+      );
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     }, 60000);
   });
@@ -184,17 +181,12 @@ describe("reanalysis", () => {
           images?: Record<string, unknown>;
         };
       };
-      let json: CaseData | undefined;
-      for (let i = 0; i < 10; i++) {
-        const check = await api(`/api/cases/${caseId}`);
-        if (check.status === 200) {
-          json = (await check.json()) as CaseData;
-          break;
-        }
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
-      }
-      expect(json).toBeDefined();
-      if (!json) throw new Error("case data not found");
+      const firstRes = await poll(
+        () => api(`/api/cases/${caseId}`),
+        (r) => r.status === 200,
+        10,
+      );
+      const json = (await firstRes.json()) as CaseData;
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
       expect(json.analysis?.images?.[photoName]).toBeUndefined();
@@ -204,15 +196,16 @@ describe("reanalysis", () => {
         { method: "POST" },
       );
       expect(re.status).toBe(200);
-      for (let i = 0; i < 10; i++) {
-        const check = await api(`/api/cases/${caseId}`);
-        if (check.status === 200) break;
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
-      }
-      for (let i = 0; i < 20; i++) {
-        if (stub.requests.length >= 1) break;
-        await new Promise((r) => setTimeout(() => r(undefined), 500));
-      }
+      await poll(
+        () => api(`/api/cases/${caseId}`),
+        (c) => c.status === 200,
+        10,
+      );
+      await poll(
+        () => Promise.resolve(stub.requests.length),
+        (len) => len >= 1,
+        20,
+      );
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     }, 60000);
   });
