@@ -44,7 +44,7 @@ afterEach(() => {
 describe("withAuthorization", () => {
   it("calls handler when authorized", async () => {
     const handler = vi.fn(async () => new Response("ok"));
-    const wrapped = authz.withAuthorization("cases", "read", handler);
+    const wrapped = authz.withAuthorization({ obj: "cases" }, handler);
     const ctx: {
       params: Promise<Record<string, string>>;
       session: { user: { role: string } };
@@ -60,7 +60,7 @@ describe("withAuthorization", () => {
 
   it("returns 403 when unauthorized", async () => {
     const handler = vi.fn();
-    const wrapped = authz.withAuthorization("cases", "read", handler);
+    const wrapped = authz.withAuthorization({ obj: "cases" }, handler);
     const ctx: {
       params: Promise<Record<string, string>>;
       session: { user: { role: string } };
@@ -79,7 +79,7 @@ describe("withCaseAuthorization", () => {
   it("passes case and user to authorize", async () => {
     const c = caseStore.createCase("/a.jpg", null, undefined, null, "u1");
     const handler = vi.fn(async () => new Response("done"));
-    const wrapped = authz.withCaseAuthorization("read", handler);
+    const wrapped = authz.withCaseAuthorization({ obj: "cases" }, handler);
     const ctx: {
       params: Promise<{ id: string } & Record<string, string>>;
       session: { user: { id: string; role: string } };
@@ -96,7 +96,7 @@ describe("withCaseAuthorization", () => {
   it("returns 403 when case access denied", async () => {
     const c = caseStore.createCase("/b.jpg", null, undefined, null, "u1");
     const handler = vi.fn();
-    const wrapped = authz.withCaseAuthorization("read", handler);
+    const wrapped = authz.withCaseAuthorization({ obj: "cases" }, handler);
     const ctx: {
       params: Promise<{ id: string } & Record<string, string>>;
       session: { user: { id: string; role: string } };

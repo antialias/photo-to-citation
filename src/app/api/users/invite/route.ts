@@ -3,8 +3,7 @@ import { withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
-  "admin",
-  "create",
+  { obj: "users" },
   async (
     req: Request,
     _ctx: {

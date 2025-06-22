@@ -5,8 +5,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export const GET = withAuthorization(
-  "cases",
-  "read",
+  { obj: "cases" },
   async (
     req: Request,
     {

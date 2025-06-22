@@ -3,7 +3,7 @@ import { getCase, setCasePublic } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export const PUT = withCaseAuthorization(
-  "update",
+  { obj: "cases" },
   async (
     req: Request,
     {

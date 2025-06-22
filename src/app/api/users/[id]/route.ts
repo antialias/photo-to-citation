@@ -3,8 +3,7 @@ import { withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
 export const DELETE = withAuthorization(
-  "admin",
-  "delete",
+  { obj: "users" },
   async (
     _req: Request,
     {

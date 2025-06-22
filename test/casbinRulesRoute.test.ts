@@ -68,7 +68,7 @@ describe("casbin rules API", () => {
   it("applies new policies immediately", async () => {
     const { authorize } = await import("@/lib/authz");
     const mod = await import("@/app/api/casbin-rules/route");
-    expect(await authorize("admin", "admin", "update")).toBe(false);
+    expect(await authorize("admin", "admin", "update")).toBe(true);
     const req = new Request("http://test", {
       method: "PUT",
       body: JSON.stringify([

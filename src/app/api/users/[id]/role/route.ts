@@ -3,8 +3,7 @@ import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
 export const PUT = withAuthorization(
-  "admin",
-  "update",
+  { obj: "users" },
   async (
     req: Request,
     {

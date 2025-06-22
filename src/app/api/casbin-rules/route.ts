@@ -7,8 +7,7 @@ import { withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
 export const GET = withAuthorization(
-  "admin",
-  "read",
+  { obj: "admin" },
   async (
     _req: Request,
     _ctx: {
@@ -19,8 +18,7 @@ export const GET = withAuthorization(
 );
 
 export const PUT = withAuthorization(
-  "superadmin",
-  "update",
+  { obj: "superadmin" },
   async (
     req: Request,
     _ctx: {

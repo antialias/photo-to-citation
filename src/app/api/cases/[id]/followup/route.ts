@@ -23,7 +23,7 @@ function getThread(c: Case, startId?: string | null): SentEmail[] {
 }
 
 export const GET = withCaseAuthorization(
-  "read",
+  { obj: "cases" },
   async (
     req: Request,
     {
@@ -64,8 +64,7 @@ export const GET = withCaseAuthorization(
 );
 
 export const POST = withAuthorization(
-  "cases",
-  "read",
+  { obj: "cases", act: "read" },
   async (
     req: Request,
     {

@@ -9,8 +9,7 @@ import { extractGps, extractTimestamp } from "@/lib/exif";
 import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
-  "upload",
-  "create",
+  { obj: "upload" },
   async (
     req: Request,
     {

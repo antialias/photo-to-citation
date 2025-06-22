@@ -3,8 +3,7 @@ import { getVinSourceStatuses, setVinSourceEnabled } from "@/lib/vinSources";
 import { NextResponse } from "next/server";
 
 export const PUT = withAuthorization(
-  "cases",
-  "read",
+  { obj: "cases" },
   async (
     req: Request,
     {

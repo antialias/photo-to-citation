@@ -86,15 +86,28 @@ export async function loadAuthContext(
  * Loads the current session, retrieves the user role, and verifies the
  * `(obj, act)` pair using Casbin before executing the handler.
  */
+const methodToAct = {
+  GET: "read",
+  POST: "create",
+  PUT: "update",
+  PATCH: "update",
+  DELETE: "delete",
+} as const;
+
 export function withAuthorization<
   C extends {
     params: Promise<Record<string, string>>;
     session?: { user?: { role?: string } };
   },
   R = Response,
->(obj: string, act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
+>(
+  opts: { obj: string; act?: string },
+  handler: (req: Request, ctx: C) => Promise<R> | R,
+) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { session, role } = await loadAuthContext(ctx);
+    const { obj } = opts;
+    const act = opts.act ?? methodToAct[req.method as keyof typeof methodToAct];
     console.log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
@@ -116,12 +129,17 @@ export function withCaseAuthorization<
     session?: { user?: { id?: string; role?: string } };
   },
   R = Response,
->(act: string, handler: (req: Request, ctx: C) => Promise<R> | R) {
+>(
+  opts: { obj: string; act?: string },
+  handler: (req: Request, ctx: C) => Promise<R> | R,
+) {
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
     const { session, role, userId } = await loadAuthContext(ctx, "user");
-    console.log("withCaseAuthorization", role, act, id, userId);
-    if (!(await authorize(role, "cases", act, { caseId: id, userId }))) {
+    const { obj } = opts;
+    const act = opts.act ?? methodToAct[req.method as keyof typeof methodToAct];
+    console.log("withCaseAuthorization", role, obj, act, id, userId);
+    if (!(await authorize(role, obj, act, { caseId: id, userId }))) {
       return new Response(null, { status: 403 });
     }
     return handler(req, { ...ctx, session } as C);
