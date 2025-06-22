@@ -143,7 +143,7 @@ describe("e2e flows (unauthenticated)", () => {
     });
   }
 
-  it.skip("handles case lifecycle", async () => {
+  it("handles case lifecycle", async () => {
     const caseId = await createCase();
 
     const second = new File([Buffer.from("b")], "b.jpg", {
@@ -213,7 +213,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(heading).toBeTruthy();
   }, 60000);
 
-  it.skip("deletes a case", async () => {
+  it("deletes a case", async () => {
     const id = await createCase();
     const del = await api(`/api/cases/${id}`, {
       method: "DELETE",
