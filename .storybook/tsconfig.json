@@ -1,5 +1,10 @@
 {
   "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/lib/stats": ["./StatsStub.ts"]
+    }
+  },
   "include": ["../src/**/*.ts", "../src/**/*.tsx", "./**/*.ts"],
   "exclude": ["../node_modules"]
 }
