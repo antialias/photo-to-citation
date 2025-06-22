@@ -89,7 +89,7 @@ describe("permissions", () => {
     expect(sendButton.hasAttribute("disabled")).toBe(true);
   }, 60000);
 
-  it.skip("shows admin actions for admins", async () => {
+  it("shows admin actions for admins", async () => {
     await signOut();
     await signIn("admin@example.com");
     const id = await createCase();
