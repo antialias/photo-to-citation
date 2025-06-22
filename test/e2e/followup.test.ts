@@ -7,6 +7,7 @@ import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
+import { waitForTask } from "./waitForTask";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -89,15 +90,13 @@ describe("follow up", () => {
       20,
     );
     const data = (await res.json()) as { caseId: string };
-    return data.caseId;
+    const id = data.caseId;
+    await waitForTask(api, "analyzeCase", id);
+    return id;
   }
 
   async function fetchFollowup(id: string): Promise<Response> {
-    return poll(
-      () => api(`/api/cases/${id}/followup`),
-      (res) => res.status === 200,
-      20,
-    );
+    return api(`/api/cases/${id}/followup`);
   }
 
   it("passes prior emails to openai", async () => {
