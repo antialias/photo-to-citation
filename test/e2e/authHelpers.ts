@@ -14,7 +14,7 @@ export function createAuthHelpers(
       }),
     });
     const ver = await api("/api/test/verification-url").then((r) => r.json());
-    await api(
+    return await api(
       `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
     );
   }

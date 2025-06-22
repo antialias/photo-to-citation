@@ -119,7 +119,7 @@ describe("analysis queue", () => {
     expect(data.photos).toHaveLength(2);
   }, 30000);
 
-  it.skip("removes analysis when photo is deleted", async () => {
+  it("removes analysis when photo is deleted", async () => {
     const file = await createPhoto("c");
     const form = new FormData();
     form.append("photo", file);

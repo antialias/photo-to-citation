@@ -4,42 +4,10 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
+import { createAuthHelpers} from "./authHelpers";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
-
-async function signIn(email: string) {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signin/email", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      email,
-      callbackUrl: server.url,
-    }),
-  });
-  const ver = await api("/api/test/verification-url").then((r) => r.json());
-  await api(
-    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
-  );
-  if (email === "super@example.com") {
-    const session = await api("/api/auth/session").then((r) => r.json());
-    expect(session?.user?.role).toBe("superadmin");
-  }
-}
-
-async function signOut() {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signout", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      callbackUrl: server.url,
-    }),
-  });
-}
 
 async function createCase(): Promise<string> {
   const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
@@ -50,17 +18,22 @@ async function createCase(): Promise<string> {
   return data.caseId;
 }
 
+let setUserRoleAndLogIn;
+let signIn;
+let signOut;
 beforeAll(async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-admin-"));
+  const case_store_file = path.join(tmpDir, "cases.sqlite")
   server = await startServer(3021, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    CASE_STORE_FILE: case_store_file,
     SUPER_ADMIN_EMAIL: "super@example.com",
   });
   api = createApi(server);
-  await signIn("admin@example.com");
+  ({ setUserRoleAndLogIn , signIn, signOut} = createAuthHelpers(api, server));
+  await signIn("super@example.com");
   await signOut();
 }, 120000);
 
@@ -69,8 +42,13 @@ afterAll(async () => {
 }, 120000);
 
 describe("admin actions", () => {
-  it.skip("promotes and demotes users", async () => {
-    await signIn("super@example.com");
+  it("promotes and demotes users", async () => {
+    await signIn("admin@example.com");
+    const adminUser = await setUserRoleAndLogIn({
+      email: "admin@example.com",
+      role: "admin",
+      promoted_by: "super@example.com"
+    });
     const invite = await api("/api/users/invite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,6 +57,7 @@ describe("admin actions", () => {
     expect(invite.status).toBe(200);
     const invited = (await invite.json()) as { id: string; role: string };
     expect(invited.role).toBe("user");
+    expect(invited.email).toBe("user1@example.com");
 
     let list = (await api("/api/users").then((r) => r.json())) as Array<{
       id: string;
@@ -87,6 +66,8 @@ describe("admin actions", () => {
     let found = list.find((u) => u.id === invited.id);
     expect(found?.role).toBe("user");
 
+    const signInResponse = await signIn("super@example.com")
+    expect(signInResponse.status).toBe(302);
     const promote = await api(`/api/users/${invited.id}/role`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -114,8 +95,8 @@ describe("admin actions", () => {
     expect(found?.role).toBe("user");
   }, 60000);
 
-  it.skip("edits casbin rules", async () => {
-    await signIn("super2@example.com");
+  it("edits casbin rules", async () => {
+    await signIn("super@example.com");
     const rules = (await api("/api/casbin-rules").then((r) =>
       r.json(),
     )) as Array<import("@/lib/adminStore").CasbinRule>;
@@ -130,7 +111,7 @@ describe("admin actions", () => {
     expect(updated.some((r) => r.v2 === "extra")).toBe(true);
   }, 60000);
 
-  it.skip("requires admin role to modify a case", async () => {
+  it("requires admin role to modify a case", async () => {
     await signIn("owner1@example.com");
     const id = await createCase();
     await signOut();
@@ -142,7 +123,12 @@ describe("admin actions", () => {
     });
     expect(denied.status).toBe(403);
     await signOut();
-    await signIn("super@example.com");
+    signIn("admin@example.com");
+    await setUserRoleAndLogIn({
+      role: "admin",
+      email: "admin@example.com",
+      promoted_by: "super@example.com",
+    });
     const ok = await api(`/api/cases/${id}/vin`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
