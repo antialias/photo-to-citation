@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
@@ -51,6 +51,8 @@ async function signOut() {
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
+
+test.setTimeout(60000);
 
 beforeAll(async () => {
   stub = await startOpenAIStub({
@@ -198,7 +200,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(delCase.status).toBe(200);
     const notFound = await api(`/api/cases/${caseId}`);
     expect(notFound.status).toBe(404);
-  }, 60000);
+  });
 
   it("shows summary for multiple cases", async () => {
     const id1 = await createCase();
@@ -211,7 +213,7 @@ describe("e2e flows (unauthenticated)", () => {
       name: /case summary/i,
     });
     expect(heading).toBeTruthy();
-  }, 60000);
+  });
 
   it("deletes a case", async () => {
     const id = await createCase();
@@ -221,7 +223,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(del.status).toBe(200);
     const notFound = await api(`/api/cases/${id}`);
     expect(notFound.status).toBe(404);
-  }, 60000);
+  });
 
   it("deletes multiple cases", async () => {
     const id1 = await createCase();
@@ -236,7 +238,7 @@ describe("e2e flows (unauthenticated)", () => {
     const nf2 = await api(`/api/cases/${id2}`);
     expect(nf1.status).toBe(404);
     expect(nf2.status).toBe(404);
-  }, 60000);
+  });
 
   it("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
@@ -253,7 +255,7 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ enabled: false }),
     });
     expect(update.status).toBe(403);
-  }, 60000);
+  });
 
   it("allows admin to toggle vin source modules", async () => {
     await signOut();
@@ -280,5 +282,5 @@ describe("e2e flows (unauthenticated)", () => {
     expect(updated?.enabled).toBe(!before);
     await signOut();
     await signIn("user@example.com");
-  }, 60000);
+  });
 });

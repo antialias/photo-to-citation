@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
@@ -40,6 +40,8 @@ async function signOut() {
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
+
+test.setTimeout(60000);
 
 beforeAll(async () => {
   stub = await startOpenAIStub({
@@ -125,7 +127,7 @@ describe("snail mail providers", () => {
     const list = (await res.json()) as Array<{ id: string; active: boolean }>;
     expect(Array.isArray(list)).toBe(true);
     expect(list.some((p) => p.id === "file")).toBe(true);
-  }, 60000);
+  });
 
   it("activates a provider", async () => {
     const res = await api("/api/snail-mail-providers/mock", {
@@ -135,14 +137,14 @@ describe("snail mail providers", () => {
     const list = (await res.json()) as Array<{ id: string; active: boolean }>;
     const active = list.find((p) => p.active);
     expect(active?.id).toBe("mock");
-  }, 60000);
+  });
 
   it("returns 404 for unknown provider", async () => {
     const res = await api("/api/snail-mail-providers/none", {
       method: "PUT",
     });
     expect(res.status).toBe(404);
-  }, 60000);
+  });
 
   it("sends snail mail followup", async () => {
     const id = await createCase();
@@ -163,5 +165,5 @@ describe("snail mail providers", () => {
       fs.readFileSync(path.join(tmpDir, "snailMail.json"), "utf8"),
     );
     expect(stored).toHaveLength(1);
-  }, 60000);
+  });
 });

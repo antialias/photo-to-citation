@@ -1,13 +1,15 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
+
+test.setTimeout(60000);
 
 async function createCase(): Promise<string> {
   const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
@@ -97,7 +99,7 @@ describe("admin actions", () => {
     }>;
     found = list.find((u) => u.id === invited.id);
     expect(found?.role).toBe("user");
-  }, 60000);
+  });
 
   it("edits casbin rules", async () => {
     await signIn("super@example.com");
@@ -113,7 +115,7 @@ describe("admin actions", () => {
     expect(res.status).toBe(200);
     const updated = (await res.json()) as Array<{ v2?: string }>;
     expect(updated.some((r) => r.v2 === "extra")).toBe(true);
-  }, 60000);
+  });
 
   it("requires admin role to modify a case", async () => {
     await signIn("owner1@example.com");
@@ -139,5 +141,5 @@ describe("admin actions", () => {
       body: JSON.stringify({ vin: "1" }),
     });
     expect(ok.status).toBe(200);
-  }, 60000);
+  });
 });

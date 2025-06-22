@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
@@ -41,6 +41,8 @@ let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
 let photoName = "";
+
+test.setTimeout(60000);
 
 async function setup(responses: Array<import("./openaiStub").StubResponse>) {
   stub = await startOpenAIStub(responses);
@@ -143,7 +145,7 @@ describe("reanalysis", () => {
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
-    }, 60000);
+    });
   });
 
   describe("paperwork", () => {
@@ -214,6 +216,6 @@ describe("reanalysis", () => {
         await new Promise((r) => setTimeout(() => r(undefined), 500));
       }
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
-    }, 60000);
+    });
   });
 });
