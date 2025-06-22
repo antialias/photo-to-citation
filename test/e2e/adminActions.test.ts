@@ -39,13 +39,14 @@ beforeAll(async () => {
   ({ setUserRoleAndLogIn, signIn, signOut } = createAuthHelpers(api, server));
   await signIn("super@example.com");
   await signOut();
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("admin actions", () => {
+  test.setTimeout(60000);
   it("promotes and demotes users", async () => {
     await signIn("admin@example.com");
     const adminUser = await setUserRoleAndLogIn({
@@ -97,7 +98,7 @@ describe("admin actions", () => {
     }>;
     found = list.find((u) => u.id === invited.id);
     expect(found?.role).toBe("user");
-  }, 60000);
+  });
 
   it("edits casbin rules", async () => {
     await signIn("super@example.com");
@@ -113,7 +114,7 @@ describe("admin actions", () => {
     expect(res.status).toBe(200);
     const updated = (await res.json()) as Array<{ v2?: string }>;
     expect(updated.some((r) => r.v2 === "extra")).toBe(true);
-  }, 60000);
+  });
 
   it("requires admin role to modify a case", async () => {
     await signIn("owner1@example.com");
@@ -139,5 +140,5 @@ describe("admin actions", () => {
       body: JSON.stringify({ vin: "1" }),
     });
     expect(ok.status).toBe(200);
-  }, 60000);
+  });
 });

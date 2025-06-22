@@ -20,6 +20,7 @@ afterAll(async () => {
 });
 
 describe("paperwork info", () => {
+  test.setTimeout(60000);
   it("extracts calls to action", async () => {
     const result = await ocrPaperwork({ url: "data:image/png;base64,foo" });
     expect(result).toEqual({

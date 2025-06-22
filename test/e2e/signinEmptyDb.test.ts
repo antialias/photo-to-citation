@@ -18,14 +18,15 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
   });
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   fs.rmSync(dataDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("sign in with empty db @smoke", () => {
+  test.setTimeout(60000);
   it("creates the first user and signs in", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "first@example.com";
@@ -52,5 +53,5 @@ describe("sign in with empty db @smoke", () => {
     const session = await api("/api/auth/session").then((r) => r.json());
     expect(session?.user?.email).toBe(email);
     expect(session?.user?.role).toBe("superadmin");
-  }, 30000);
+  });
 });

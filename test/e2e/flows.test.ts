@@ -83,15 +83,16 @@ beforeAll(async () => {
   await signIn("admin@example.com");
   await signOut();
   await signIn("user@example.com");
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("e2e flows (unauthenticated)", () => {
+  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
@@ -156,7 +157,7 @@ describe("e2e flows (unauthenticated)", () => {
     const data2 = (await res2.json()) as { caseId: string };
     expect(data2.caseId).toBe(caseId);
 
-    let json = await waitForPhotos(caseId, 2);
+    let json = await waitForPhotos(caseId);
     expect(json.photos).toHaveLength(2);
 
     const delRes = await api(`/api/cases/${caseId}/photos`, {
@@ -165,7 +166,7 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ photo: json.photos[0] }),
     });
     expect(delRes.status).toBe(200);
-    json = await waitForPhotos(caseId, 1);
+    json = await waitForPhotos(caseId);
     expect(json.photos).toHaveLength(1);
 
     const overrideRes = await api(`/api/cases/${caseId}/override`, {
@@ -194,7 +195,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(delCase.status).toBe(200);
     const notFound = await api(`/api/cases/${caseId}`);
     expect(notFound.status).toBe(404);
-  }, 60000);
+  });
 
   it("shows summary for multiple cases", async () => {
     const id1 = await createCase();
@@ -207,7 +208,7 @@ describe("e2e flows (unauthenticated)", () => {
       name: /case summary/i,
     });
     expect(heading).toBeTruthy();
-  }, 60000);
+  });
 
   it("deletes a case", async () => {
     const id = await createCase();
@@ -217,7 +218,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(del.status).toBe(200);
     const notFound = await api(`/api/cases/${id}`);
     expect(notFound.status).toBe(404);
-  }, 60000);
+  });
 
   it("deletes multiple cases", async () => {
     const id1 = await createCase();
@@ -232,7 +233,7 @@ describe("e2e flows (unauthenticated)", () => {
     const nf2 = await api(`/api/cases/${id2}`);
     expect(nf1.status).toBe(404);
     expect(nf2.status).toBe(404);
-  }, 60000);
+  });
 
   it("toggles vin source modules", async () => {
     const listRes = await api("/api/vin-sources");
@@ -249,7 +250,7 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ enabled: false }),
     });
     expect(update.status).toBe(403);
-  }, 60000);
+  });
 
   it("allows admin to toggle vin source modules", async () => {
     await signOut();
@@ -276,5 +277,5 @@ describe("e2e flows (unauthenticated)", () => {
     expect(updated?.enabled).toBe(!before);
     await signOut();
     await signIn("user@example.com");
-  }, 60000);
+  });
 });

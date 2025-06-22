@@ -63,14 +63,15 @@ beforeAll(async () => {
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
-}, 120000);
+});
 
 describe("permissions", () => {
+  test.setTimeout(60000);
   it("hides admin actions for regular users", async () => {
     await signIn("admin@example.com");
     await signOut();
@@ -87,7 +88,7 @@ describe("permissions", () => {
     const draftDom = new JSDOM(draft);
     const sendButton = getByTestId(draftDom.window.document, "send-button");
     expect(sendButton.hasAttribute("disabled")).toBe(true);
-  }, 60000);
+  });
 
   it("shows admin actions for admins", async () => {
     await signOut();
@@ -104,5 +105,5 @@ describe("permissions", () => {
     const draftDom = new JSDOM(draft);
     const sendButton = getByTestId(draftDom.window.document, "send-button");
     expect(sendButton.hasAttribute("disabled")).toBe(false);
-  }, 60000);
+  });
 });
