@@ -20,6 +20,13 @@ const config: StorybookConfig = {
         "MapPreviewStub.tsx",
       ),
     };
+    config.resolve.fallback = {
+      ...(config.resolve.fallback ?? {}),
+      net: false,
+      tls: false,
+      http: false,
+      https: false,
+    };
     return config;
   },
 };
