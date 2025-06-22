@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
 
@@ -6,7 +6,7 @@ let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 beforeAll(async () => {
-  server = await startServer(3010, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
@@ -19,7 +19,6 @@ afterAll(async () => {
 });
 
 describe("auth flow", () => {
-  test.setTimeout(60000);
   it.skip("logs in and out", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "user@example.com";

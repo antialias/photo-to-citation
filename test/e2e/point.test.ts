@@ -1,12 +1,12 @@
 import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startServer(3005, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
   });
 });
@@ -16,7 +16,6 @@ afterAll(async () => {
 });
 
 describe("point and shoot", () => {
-  test.setTimeout(60000);
   it("serves the point page", async () => {
     const res = await fetch(`${server.url}/point`);
     expect(res.status).toBe(200);

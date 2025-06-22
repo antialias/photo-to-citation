@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
 
@@ -48,7 +48,7 @@ async function createCase(): Promise<string> {
 
 beforeAll(async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3021, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
@@ -62,7 +62,6 @@ afterAll(async () => {
 });
 
 describe("anonymous access", () => {
-  test.setTimeout(60000);
   it("allows access to public case", async () => {
     await signIn("user@example.com");
     const id = await createCase();

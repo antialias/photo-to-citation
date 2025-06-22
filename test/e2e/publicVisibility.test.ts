@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { getByTestId } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
 
@@ -29,7 +29,7 @@ async function signIn(email: string) {
 
 beforeAll(async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3020, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
@@ -43,7 +43,6 @@ afterAll(async () => {
 });
 
 describe("case visibility @smoke", () => {
-  test.setTimeout(60000);
   it("shows toggle for admins", async () => {
     await signIn("admin@example.com");
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });

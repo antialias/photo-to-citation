@@ -80,7 +80,7 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3003, env);
+  server = await startServer(0, env);
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
@@ -94,7 +94,6 @@ afterAll(async () => {
 });
 
 describe("e2e flows (unauthenticated)", () => {
-  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

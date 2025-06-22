@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
 
@@ -11,7 +11,7 @@ let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 beforeAll(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
-  server = await startServer(3013, {
+  server = await startServer(0, {
     CASE_STORE_FILE: path.join(dataDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
@@ -26,7 +26,6 @@ afterAll(async () => {
 });
 
 describe("sign in with empty db @smoke", () => {
-  test.setTimeout(60000);
   it("creates the first user and signs in", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "first@example.com";

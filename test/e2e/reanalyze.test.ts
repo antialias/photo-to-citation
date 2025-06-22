@@ -65,7 +65,7 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
       2,
     ),
   );
-  server = await startServer(3010, env);
+  server = await startServer(0, env);
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
@@ -79,9 +79,7 @@ async function teardown() {
 }
 
 describe("reanalysis", () => {
-  test.setTimeout(60000);
   describe("photo", () => {
-    test.setTimeout(60000);
     beforeAll(async () => {
       await setup([
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
@@ -148,7 +146,6 @@ describe("reanalysis", () => {
   });
 
   describe("paperwork", () => {
-    test.setTimeout(60000);
     beforeAll(async () => {
       await setup([
         { violationType: "parking", details: "d", vehicle: {}, images: {} },

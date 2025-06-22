@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
@@ -20,14 +21,14 @@ function waitForServer(port: number): Promise<void> {
 }
 
 export async function startServer(
-  port = 3002,
+  port = 0,
   env: Partial<NodeJS.ProcessEnv> = {},
 ): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
   // Using EMAIL_FILE activates the mock email store defined in src/lib/email.ts
   // so no real messages are sent during tests.
   const emailFile =
-    env.EMAIL_FILE ?? path.join(os.tmpdir(), `e2e-emails-${port}.json`);
+    env.EMAIL_FILE ?? path.join(os.tmpdir(), `e2e-emails-${randomUUID()}.json`);
   const proc = spawn(nextBin, ["dev", "-p", String(port), "--turbo"], {
     env: {
       ...process.env,
@@ -59,9 +60,24 @@ export async function startServer(
     console.log(String(c));
     output += String(c);
   });
-  await waitForServer(port);
+
+  const actualPort = await (async () => {
+    if (port !== 0) return port;
+    return await new Promise<number>((resolve) => {
+      const check = (chunk: Buffer) => {
+        const match = /localhost:(\d+)/.exec(String(chunk));
+        if (match) {
+          proc.stdout.off("data", check);
+          resolve(Number(match[1]));
+        }
+      };
+      proc.stdout.on("data", check);
+    });
+  })();
+
+  await waitForServer(actualPort);
   return {
-    url: `http://localhost:${port}`,
+    url: `http://localhost:${actualPort}`,
     close: () =>
       new Promise((resolve) => {
         proc.once("exit", (code) => {

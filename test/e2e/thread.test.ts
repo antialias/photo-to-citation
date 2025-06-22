@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { type TestServer, startServer } from "./startServer";
 
@@ -34,7 +34,7 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
   };
-  server = await startServer(3006, env);
+  server = await startServer(0, env);
   api = createApi(server);
   await signIn("user@example.com");
 });
@@ -45,7 +45,6 @@ afterAll(async () => {
 });
 
 describe("thread page", () => {
-  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

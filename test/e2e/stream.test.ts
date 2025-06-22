@@ -1,10 +1,10 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startServer(3004, {
+  server = await startServer(0, {
     NEXTAUTH_SECRET: "secret",
   });
 });
@@ -14,7 +14,6 @@ afterAll(async () => {
 });
 
 describe("case events", () => {
-  test.setTimeout(60000);
   it.skip("streams updates", async () => {
     // warm up the server to ensure the route is compiled
     await fetch(`${server.url}/`);

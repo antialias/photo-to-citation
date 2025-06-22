@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 
 let ocrPaperwork: typeof import("@/lib/openai").ocrPaperwork;
@@ -20,7 +20,6 @@ afterAll(async () => {
 });
 
 describe("paperwork info", () => {
-  test.setTimeout(60000);
   it("extracts calls to action", async () => {
     const result = await ocrPaperwork({ url: "data:image/png;base64,foo" });
     expect(result).toEqual({

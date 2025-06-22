@@ -10,11 +10,10 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/e2e/*.test.ts"],
-    testTimeout: 30000,
-    hookTimeout: 30000,
-    maxConcurrency: 1,
+    testTimeout: 60000,
+    hookTimeout: 60000,
     isolate: false,
-    sequence: { concurrent: false },
-    fileParallelism: false,
+    globals: true,
+    sequence: { concurrent: true },
   },
 });
