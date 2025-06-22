@@ -223,7 +223,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(notFound.status).toBe(404);
   }, 60000);
 
-  it.skip("deletes multiple cases", async () => {
+  it("deletes multiple cases", async () => {
     const id1 = await createCase();
     const id2 = await createCase();
     const [r1, r2] = await Promise.all([
@@ -255,7 +255,7 @@ describe("e2e flows (unauthenticated)", () => {
     expect(update.status).toBe(403);
   }, 60000);
 
-  it.skip("allows admin to toggle vin source modules", async () => {
+  it("allows admin to toggle vin source modules", async () => {
     await signOut();
     await signIn("admin@example.com");
     const listRes = await api("/api/vin-sources");
