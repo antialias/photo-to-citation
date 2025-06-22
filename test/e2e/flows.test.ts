@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
@@ -94,7 +94,6 @@ afterAll(async () => {
 });
 
 describe("e2e flows (unauthenticated)", () => {
-  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
@@ -159,7 +158,7 @@ describe("e2e flows (unauthenticated)", () => {
     const data2 = (await res2.json()) as { caseId: string };
     expect(data2.caseId).toBe(caseId);
 
-    let json = await waitForPhotos(caseId);
+    let json = await waitForPhotos(caseId, 2);
     expect(json.photos).toHaveLength(2);
 
     const delRes = await api(`/api/cases/${caseId}/photos`, {
@@ -168,7 +167,7 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ photo: json.photos[0] }),
     });
     expect(delRes.status).toBe(200);
-    json = await waitForPhotos(caseId);
+    json = await waitForPhotos(caseId, 1);
     expect(json.photos).toHaveLength(1);
 
     const overrideRes = await api(`/api/cases/${caseId}/override`, {

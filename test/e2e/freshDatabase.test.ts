@@ -43,7 +43,6 @@ afterAll(async () => {
 });
 
 describe("fresh database @smoke", () => {
-  test.setTimeout(60000);
   it("grants superadmin to first user", async () => {
     await signIn("first@example.com");
     const session = await api("/api/auth/session").then((r) => r.json());

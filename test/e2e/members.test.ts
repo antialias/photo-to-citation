@@ -62,7 +62,6 @@ afterAll(async () => {
 });
 
 describe("case members e2e", () => {
-  test.setTimeout(60000);
   it.skip("invites and removes collaborators", async () => {
     await signIn("admin@example.com");
     await signOut();

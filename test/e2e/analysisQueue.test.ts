@@ -87,7 +87,6 @@ afterAll(async () => {
 });
 
 describe("analysis queue", () => {
-  test.setTimeout(60000);
   it("processes additional photos sequentially", async () => {
     const file = await createPhoto("a");
     const form = new FormData();
