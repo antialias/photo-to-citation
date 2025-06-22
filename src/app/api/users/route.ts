@@ -3,8 +3,7 @@ import { withAuthorization } from "@/lib/authz";
 import { NextResponse } from "next/server";
 
 export const GET = withAuthorization(
-  "admin",
-  "read",
+  { obj: "users" },
   async (
     _req: Request,
     _ctx: {

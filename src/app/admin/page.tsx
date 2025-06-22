@@ -7,8 +7,7 @@ import AdminPageClient from "./AdminPageClient";
 export const dynamic = "force-dynamic";
 
 const handler = withAuthorization(
-  "admin",
-  "read",
+  { obj: "admin" },
   async (
     _req: Request,
     { session }: { session?: { user?: { role?: string } } },

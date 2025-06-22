@@ -7,7 +7,7 @@ import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
 
 export const GET = withCaseAuthorization(
-  "read",
+  { obj: "cases" },
   async (
     _req: Request,
     {
@@ -32,8 +32,7 @@ export const GET = withCaseAuthorization(
 );
 
 export const POST = withAuthorization(
-  "cases",
-  "read",
+  { obj: "cases", act: "read" },
   async (
     req: Request,
     {

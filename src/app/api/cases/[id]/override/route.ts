@@ -3,7 +3,7 @@ import { getCase, setCaseAnalysisOverrides } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export const PUT = withCaseAuthorization(
-  "update",
+  { obj: "cases", act: "update" },
   async (
     req: Request,
     {
@@ -26,7 +26,7 @@ export const PUT = withCaseAuthorization(
 );
 
 export const DELETE = withCaseAuthorization(
-  "update",
+  { obj: "cases", act: "update" },
   async (
     _req: Request,
     {

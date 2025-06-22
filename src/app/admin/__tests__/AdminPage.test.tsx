@@ -11,7 +11,7 @@ vi.mock("@/lib/authOptions", () => ({
 }));
 
 vi.mock("@/lib/authz", () => ({
-  withAuthorization: (_o: string, _a: string, h: unknown) => h,
+  withAuthorization: (_opts: unknown, h: unknown) => h,
 }));
 
 it("returns 403 for non-admin", async () => {

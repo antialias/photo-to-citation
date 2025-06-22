@@ -4,8 +4,7 @@ import { getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export const GET = withAuthorization(
-  "cases",
-  "read",
+  { obj: "cases" },
   async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
     const c = getCase(id);

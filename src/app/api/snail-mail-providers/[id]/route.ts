@@ -6,8 +6,7 @@ import {
 import { NextResponse } from "next/server";
 
 export const PUT = withAuthorization(
-  "admin",
-  "update",
+  { obj: "admin" },
   async (
     _req: Request,
     {

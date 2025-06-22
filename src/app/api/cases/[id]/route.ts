@@ -8,8 +8,7 @@ import { deleteCase, getCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
 
 export const GET = withAuthorization(
-  "cases",
-  "read",
+  { obj: "cases" },
   async (
     req: Request,
     {
@@ -36,7 +35,7 @@ export const GET = withAuthorization(
 );
 
 export const DELETE = withCaseAuthorization(
-  "delete",
+  { obj: "cases" },
   async (
     req: Request,
     {
