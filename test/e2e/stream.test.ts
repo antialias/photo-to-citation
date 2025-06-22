@@ -14,7 +14,7 @@ afterAll(async () => {
 }, 120000);
 
 describe("case events", () => {
-  it.skip("streams updates", async () => {
+  it("streams updates", async () => {
     // warm up the server to ensure the route is compiled
     await fetch(`${server.url}/`);
     const res = await fetch(`${server.url}/api/cases/stream`);
