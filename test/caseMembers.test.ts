@@ -123,4 +123,35 @@ describe("case members", () => {
     });
     expect(res.status).toBe(403);
   });
+
+  it("rejects listing members for non-member", async () => {
+    const c = caseStore.createCase("/h.jpg", null, undefined, null, "u1");
+    const { GET } = await import("@/app/api/cases/[id]/members/route");
+    const res = await GET(new Request("http://test"), {
+      params: Promise.resolve({ id: c.id }),
+      session: { user: { id: "u2", role: "user" } },
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("allows case member to list members", async () => {
+    const c = caseStore.createCase("/i.jpg", null, undefined, null, "u1");
+    members.addCaseMember(c.id, "u2", "collaborator");
+    const { GET } = await import("@/app/api/cases/[id]/members/route");
+    const res = await GET(new Request("http://test"), {
+      params: Promise.resolve({ id: c.id }),
+      session: { user: { id: "u2", role: "user" } },
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it("allows admin to list members", async () => {
+    const c = caseStore.createCase("/j.jpg", null, undefined, null, "u1");
+    const { GET } = await import("@/app/api/cases/[id]/members/route");
+    const res = await GET(new Request("http://test"), {
+      params: Promise.resolve({ id: c.id }),
+      session: { user: { id: "u3", role: "admin" } },
+    });
+    expect(res.status).toBe(200);
+  });
 });
