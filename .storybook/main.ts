@@ -13,12 +13,13 @@ const config: StorybookConfig = {
     config.resolve = config.resolve ?? { alias: {}, modules: [] };
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
-      "@": path.resolve(process.cwd(), "src"),
+      "@/lib/stats": path.resolve(process.cwd(), ".storybook", "StatsStub.ts"),
       "@/app/components/MapPreview": path.resolve(
         process.cwd(),
         ".storybook",
         "MapPreviewStub.tsx",
       ),
+      "@": path.resolve(process.cwd(), "src"),
     };
     config.resolve.fallback = {
       ...(config.resolve.fallback ?? {}),
