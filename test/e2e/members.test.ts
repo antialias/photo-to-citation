@@ -3,9 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
+import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
+let stub: OpenAIStub;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
@@ -47,18 +49,21 @@ async function createCase(): Promise<string> {
 }
 
 beforeAll(async () => {
+  stub = await startOpenAIStub({});
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3012, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);
 }, 120000);
 
 afterAll(async () => {
   await server.close();
+  await stub.close();
 }, 120000);
 
 describe("case members e2e", () => {
