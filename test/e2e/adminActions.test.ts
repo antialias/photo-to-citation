@@ -23,6 +23,10 @@ async function signIn(email: string) {
   await api(
     `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
   );
+  if (email === "super@example.com") {
+    const session = await api("/api/auth/session").then((r) => r.json());
+    expect(session?.user?.role).toBe("superadmin");
+  }
 }
 
 async function signOut() {
@@ -53,6 +57,7 @@ beforeAll(async () => {
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
+    SUPER_ADMIN_EMAIL: "super@example.com",
   });
   api = createApi(server);
   await signIn("admin@example.com");
