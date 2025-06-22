@@ -168,8 +168,8 @@ export default function PointAndShootPage() {
             className="pointer-events-none text-white text-sm text-center"
             data-testid="instructions"
           >
-            Point your camera at the vehicle. We'll guess the plate or violation
-            below.
+            Point your camera at the vehicle. We&apos;ll guess the plate or
+            violation below.
           </div>
         )}
         {analysisHint && (
