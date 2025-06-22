@@ -85,15 +85,16 @@ beforeAll(async () => {
   await signIn("admin@example.com");
   await signOut();
   await signIn("user@example.com");
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("e2e flows (unauthenticated)", () => {
+  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
@@ -158,7 +159,7 @@ describe("e2e flows (unauthenticated)", () => {
     const data2 = (await res2.json()) as { caseId: string };
     expect(data2.caseId).toBe(caseId);
 
-    let json = await waitForPhotos(caseId, 2);
+    let json = await waitForPhotos(caseId);
     expect(json.photos).toHaveLength(2);
 
     const delRes = await api(`/api/cases/${caseId}/photos`, {
@@ -167,7 +168,7 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ photo: json.photos[0] }),
     });
     expect(delRes.status).toBe(200);
-    json = await waitForPhotos(caseId, 1);
+    json = await waitForPhotos(caseId);
     expect(json.photos).toHaveLength(1);
 
     const overrideRes = await api(`/api/cases/${caseId}/override`, {

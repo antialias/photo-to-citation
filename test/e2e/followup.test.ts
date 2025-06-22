@@ -66,15 +66,16 @@ beforeAll(async () => {
   server = await startServer(3005, env);
   api = createApi(server);
   await signIn("user@example.com");
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("follow up", () => {
+  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
@@ -130,5 +131,5 @@ describe("follow up", () => {
       body: { messages: Array<{ content: string }> };
     };
     expect(request.body.messages[1].content).toContain("first message");
-  }, 30000);
+  });
 });

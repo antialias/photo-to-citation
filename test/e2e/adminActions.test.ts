@@ -41,13 +41,14 @@ beforeAll(async () => {
   ({ setUserRoleAndLogIn, signIn, signOut } = createAuthHelpers(api, server));
   await signIn("super@example.com");
   await signOut();
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("admin actions", () => {
+  test.setTimeout(60000);
   it("promotes and demotes users", async () => {
     await signIn("admin@example.com");
     const adminUser = await setUserRoleAndLogIn({

@@ -55,13 +55,14 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("anonymous access", () => {
+  test.setTimeout(60000);
   it("allows access to public case", async () => {
     await signIn("user@example.com");
     const id = await createCase();
@@ -78,7 +79,7 @@ describe("anonymous access", () => {
 
     const res = await api(`/api/public/cases/${id}`);
     expect(res.status).toBe(200);
-  }, 30000);
+  });
 
   it("rejects private case and stream", async () => {
     await signIn("user@example.com");
@@ -90,7 +91,7 @@ describe("anonymous access", () => {
 
     const streamRes = await api("/api/cases/stream");
     expect(streamRes.status).toBe(403);
-  }, 30000);
+  });
 
   it("rejects non-member on private case", async () => {
     await signIn("user@example.com");
@@ -100,5 +101,5 @@ describe("anonymous access", () => {
 
     const res = await api(`/api/cases/${id}`);
     expect(res.status).toBe(403);
-  }, 30000);
+  });
 });

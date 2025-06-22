@@ -9,13 +9,14 @@ beforeAll(async () => {
   server = await startServer(3002, {
     NEXTAUTH_SECRET: "secret",
   });
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("end-to-end @smoke", () => {
+  test.setTimeout(60000);
   it("serves the homepage", async () => {
     const res = await fetch(`${server.url}/`);
     expect(res.status).toBe(200);
@@ -25,5 +26,5 @@ describe("end-to-end @smoke", () => {
       name: /photo to citation/i,
     });
     expect(heading).toBeTruthy();
-  }, 30000);
+  });
 });

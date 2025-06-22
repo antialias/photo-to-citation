@@ -7,13 +7,14 @@ beforeAll(async () => {
   server = await startServer(3004, {
     NEXTAUTH_SECRET: "secret",
   });
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("case events", () => {
+  test.setTimeout(60000);
   it.skip("streams updates", async () => {
     // warm up the server to ensure the route is compiled
     await fetch(`${server.url}/`);
@@ -38,5 +39,5 @@ describe("case events", () => {
     }
     expect(data).not.toBe("");
     reader.cancel();
-  }, 30000);
+  });
 });

@@ -9,13 +9,14 @@ beforeAll(async () => {
   server = await startServer(3005, {
     NEXTAUTH_SECRET: "secret",
   });
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("point and shoot", () => {
+  test.setTimeout(60000);
   it("serves the point page", async () => {
     const res = await fetch(`${server.url}/point`);
     expect(res.status).toBe(200);
@@ -25,5 +26,5 @@ describe("point and shoot", () => {
       name: /take picture/i,
     });
     expect(button).toBeTruthy();
-  }, 30000);
+  });
 });

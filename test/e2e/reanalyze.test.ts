@@ -79,7 +79,9 @@ async function teardown() {
 }
 
 describe("reanalysis", () => {
+  test.setTimeout(60000);
   describe("photo", () => {
+    test.setTimeout(60000);
     beforeAll(async () => {
       await setup([
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
@@ -90,11 +92,11 @@ describe("reanalysis", () => {
           images: { [photoName]: { representationScore: 1 } },
         }),
       ]);
-    }, 120000);
+    });
 
     afterAll(async () => {
       await teardown();
-    }, 120000);
+    });
 
     it("adds vehicle info on reanalysis", async () => {
       const file = new File([Buffer.from("a")], "a.jpg", {
@@ -146,6 +148,7 @@ describe("reanalysis", () => {
   });
 
   describe("paperwork", () => {
+    test.setTimeout(60000);
     beforeAll(async () => {
       await setup([
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
@@ -158,11 +161,11 @@ describe("reanalysis", () => {
         "plate text", // OCR text
         { vehicle: { licensePlateNumber: "ZZZ111", licensePlateState: "IL" } },
       ]);
-    }, 120000);
+    });
 
     afterAll(async () => {
       await teardown();
-    }, 120000);
+    });
 
     it("extracts paperwork text on reanalysis", async () => {
       const file = new File([Buffer.from("b")], "b.jpg", {

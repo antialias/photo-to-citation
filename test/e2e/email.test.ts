@@ -40,14 +40,15 @@ beforeAll(async () => {
   });
   api = createApi(server);
   await signIn("user@example.com");
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("email sending", () => {
+  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

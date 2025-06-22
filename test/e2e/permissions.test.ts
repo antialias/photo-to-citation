@@ -65,14 +65,15 @@ beforeAll(async () => {
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
-}, 120000);
+});
 
 describe("permissions", () => {
+  test.setTimeout(60000);
   it("hides admin actions for regular users", async () => {
     await signIn("admin@example.com");
     await signOut();

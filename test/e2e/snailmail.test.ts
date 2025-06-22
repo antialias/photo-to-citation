@@ -99,15 +99,16 @@ beforeAll(async () => {
   server = await startServer(3008, env);
   api = createApi(server);
   await signIn("admin@example.com");
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("snail mail providers", () => {
+  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

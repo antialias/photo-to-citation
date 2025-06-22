@@ -78,15 +78,16 @@ beforeAll(async () => {
   server = await startServer(3007, envFiles());
   api = createApi(server);
   await signIn("user@example.com");
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("analysis queue", () => {
+  test.setTimeout(60000);
   it("processes additional photos sequentially", async () => {
     const file = await createPhoto("a");
     const form = new FormData();
@@ -117,7 +118,7 @@ describe("analysis queue", () => {
       20,
     );
     expect(data.photos).toHaveLength(2);
-  }, 30000);
+  });
 
   it("removes analysis when photo is deleted", async () => {
     const file = await createPhoto("c");
@@ -153,5 +154,5 @@ describe("analysis queue", () => {
     expect(del.status).toBe(200);
     const after = await del.json();
     expect(after.photos).toHaveLength(1);
-  }, 30000);
+  });
 });

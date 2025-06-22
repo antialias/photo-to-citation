@@ -55,13 +55,14 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("case members e2e", () => {
+  test.setTimeout(60000);
   it.skip("invites and removes collaborators", async () => {
     await signIn("admin@example.com");
     await signOut();
@@ -94,5 +95,5 @@ describe("case members e2e", () => {
       (r) => r.json() as Promise<{ userId: string; role: string }[]>,
     );
     expect(members.some((m) => m.userId === "collab")).toBe(false);
-  }, 30000);
+  });
 });

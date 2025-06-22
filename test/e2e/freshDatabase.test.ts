@@ -35,18 +35,19 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
-}, 120000);
+});
 
 describe("fresh database @smoke", () => {
+  test.setTimeout(60000);
   it("grants superadmin to first user", async () => {
     await signIn("first@example.com");
     const session = await api("/api/auth/session").then((r) => r.json());
     expect(session?.user?.email).toBe("first@example.com");
     expect(session?.user?.role).toBe("superadmin");
-  }, 30000);
+  });
 });

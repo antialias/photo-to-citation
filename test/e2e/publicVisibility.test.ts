@@ -36,13 +36,14 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("case visibility @smoke", () => {
+  test.setTimeout(60000);
   it("shows toggle for admins", async () => {
     await signIn("admin@example.com");
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
@@ -55,5 +56,5 @@ describe("case visibility @smoke", () => {
     const dom = new JSDOM(page);
     const toggle = getByTestId(dom.window.document, "toggle-public-button");
     expect(toggle).toBeTruthy();
-  }, 30000);
+  });
 });

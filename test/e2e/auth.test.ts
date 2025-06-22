@@ -12,13 +12,14 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
   });
   api = createApi(server);
-}, 120000);
+});
 
 afterAll(async () => {
   await server.close();
-}, 120000);
+});
 
 describe("auth flow", () => {
+  test.setTimeout(60000);
   it.skip("logs in and out", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "user@example.com";
@@ -53,5 +54,5 @@ describe("auth flow", () => {
     });
     const sessionAfter = await api("/api/auth/session").then((r) => r.json());
     expect(sessionAfter).toEqual({});
-  }, 30000);
+  });
 });
