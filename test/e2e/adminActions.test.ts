@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
 import { type TestServer, startServer } from "./startServer";
@@ -9,7 +9,7 @@ import { type TestServer, startServer } from "./startServer";
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
-test.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 async function createCase(): Promise<string> {
   const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
@@ -62,7 +62,11 @@ describe("admin actions", () => {
       body: JSON.stringify({ email: "user1@example.com" }),
     });
     expect(invite.status).toBe(200);
-    const invited = (await invite.json()) as { id: string; role: string };
+    const invited = (await invite.json()) as {
+      id: string;
+      role: string;
+      email: string;
+    };
     expect(invited.role).toBe("user");
     expect(invited.email).toBe("user1@example.com");
 
