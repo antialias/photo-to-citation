@@ -45,7 +45,6 @@ afterAll(async () => {
 });
 
 describe("thread page", () => {
-  test.setTimeout(60000);
   async function createCase(): Promise<string> {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();

@@ -26,7 +26,6 @@ afterAll(async () => {
 });
 
 describe("sign in with empty db @smoke", () => {
-  test.setTimeout(60000);
   it("creates the first user and signs in", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "first@example.com";

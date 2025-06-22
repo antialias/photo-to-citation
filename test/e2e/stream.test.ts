@@ -14,7 +14,6 @@ afterAll(async () => {
 });
 
 describe("case events", () => {
-  test.setTimeout(60000);
   it.skip("streams updates", async () => {
     // warm up the server to ensure the route is compiled
     await fetch(`${server.url}/`);

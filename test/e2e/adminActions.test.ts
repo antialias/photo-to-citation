@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
 import { type TestServer, startServer } from "./startServer";
@@ -48,7 +48,6 @@ afterAll(async () => {
 });
 
 describe("admin actions", () => {
-  test.setTimeout(60000);
   it("promotes and demotes users", async () => {
     await signIn("admin@example.com");
     const adminUser = await setUserRoleAndLogIn({

@@ -62,7 +62,6 @@ afterAll(async () => {
 });
 
 describe("anonymous access", () => {
-  test.setTimeout(60000);
   it("allows access to public case", async () => {
     await signIn("user@example.com");
     const id = await createCase();

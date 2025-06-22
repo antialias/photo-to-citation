@@ -16,7 +16,6 @@ afterAll(async () => {
 });
 
 describe("point and shoot", () => {
-  test.setTimeout(60000);
   it("serves the point page", async () => {
     const res = await fetch(`${server.url}/point`);
     expect(res.status).toBe(200);

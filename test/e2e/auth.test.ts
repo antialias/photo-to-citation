@@ -19,7 +19,6 @@ afterAll(async () => {
 });
 
 describe("auth flow", () => {
-  test.setTimeout(60000);
   it.skip("logs in and out", async () => {
     const csrf = await api("/api/auth/csrf").then((r) => r.json());
     const email = "user@example.com";

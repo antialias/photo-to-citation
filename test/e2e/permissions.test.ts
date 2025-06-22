@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { getByTestId } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
@@ -73,7 +73,6 @@ afterAll(async () => {
 });
 
 describe("permissions", () => {
-  test.setTimeout(60000);
   it("hides admin actions for regular users", async () => {
     await signIn("admin@example.com");
     await signOut();

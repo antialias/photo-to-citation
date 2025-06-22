@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it, test, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
@@ -79,9 +79,7 @@ async function teardown() {
 }
 
 describe("reanalysis", () => {
-  test.setTimeout(60000);
   describe("photo", () => {
-    test.setTimeout(60000);
     beforeAll(async () => {
       await setup([
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
@@ -148,7 +146,6 @@ describe("reanalysis", () => {
   });
 
   describe("paperwork", () => {
-    test.setTimeout(60000);
     beforeAll(async () => {
       await setup([
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
