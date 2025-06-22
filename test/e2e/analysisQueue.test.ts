@@ -6,25 +6,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
+import { createAuthHelpers } from "./authHelpers";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
-
-async function signIn(email: string) {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signin/email", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      email,
-      callbackUrl: server.url,
-    }),
-  });
-  const ver = await api("/api/test/verification-url").then((r) => r.json());
-  await api(
-    `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
-  );
-}
+let signIn: (email: string) => Promise<Response>;
+let signOut: () => Promise<void>;
 
 let server: TestServer;
 let stub: OpenAIStub;
@@ -77,6 +63,7 @@ beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3007, envFiles());
   api = createApi(server);
+  ({ signIn, signOut } = createAuthHelpers(api, server));
   await signIn("user@example.com");
 }, 120000);
 
