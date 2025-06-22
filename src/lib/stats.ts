@@ -45,9 +45,11 @@ function parseAuthorityAddress(text?: string | null) {
 export function getLandingStats(): LandingStats {
   const cases = getCases();
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const module = reportModules["oak-park"];
-  const authorityEmail = module.authorityEmail;
-  const authorityAddress = parseAuthorityAddress(module.authorityAddress);
+  const oakParkModule = reportModules["oak-park"];
+  const authorityEmail = oakParkModule.authorityEmail;
+  const authorityAddress = parseAuthorityAddress(
+    oakParkModule.authorityAddress,
+  );
 
   let casesLastWeek = 0;
   let authorityNotifications = 0;
