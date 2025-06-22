@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import http from "node:http";
+import os from "node:os";
 import path from "node:path";
 
 export interface TestServer {
@@ -23,6 +24,10 @@ export async function startServer(
   env: Partial<NodeJS.ProcessEnv> = {},
 ): Promise<TestServer> {
   const nextBin = path.join("node_modules", ".bin", "next");
+  // Using EMAIL_FILE activates the mock email store defined in src/lib/email.ts
+  // so no real messages are sent during tests.
+  const emailFile =
+    env.EMAIL_FILE ?? path.join(os.tmpdir(), `e2e-emails-${port}.json`);
   const proc = spawn(nextBin, ["dev", "-p", String(port), "--turbo"], {
     env: {
       ...process.env,
@@ -32,6 +37,14 @@ export async function startServer(
       TEST_APIS: "1",
       NEXTAUTH_URL: `http://localhost:${port}`,
       SUPER_ADMIN_EMAIL: "",
+      SMTP_HOST: "",
+      SMTP_PORT: "",
+      SMTP_SECURE: "",
+      SMTP_USER: "",
+      SMTP_PASS: "",
+      SMTP_FROM: "",
+      EMAIL_FILE: emailFile,
+      MOCK_EMAIL_TO: "",
       ...env,
       CI: "1",
     },
