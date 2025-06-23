@@ -38,6 +38,8 @@ export interface Case {
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
   threadImages?: ThreadImage[];
+  note?: string | null;
+  photoNotes?: Record<string, string | null>;
 }
 
 export interface SentEmail {
@@ -72,7 +74,7 @@ export interface ThreadImage {
 function rowToCase(row: { id: string; data: string; public: number }): Case {
   const base = JSON.parse(row.data) as Omit<
     Case,
-    "photos" | "photoTimes" | "photoGps"
+    "photos" | "photoTimes" | "photoGps" | "photoNotes"
   >;
   if (!("updatedAt" in base)) {
     (base as Partial<Case>).updatedAt = (base as Partial<Case>).createdAt;
@@ -86,6 +88,7 @@ function rowToCase(row: { id: string; data: string; public: number }): Case {
   const list: string[] = [];
   const times: Record<string, string | null> = {};
   const gps: Record<string, { lat: number; lon: number } | null> = {};
+  const notes: Record<string, string | null> = base.photoNotes || {};
   for (const p of photos) {
     list.push(p.url);
     times[p.url] = p.takenAt ?? null;
@@ -96,6 +99,7 @@ function rowToCase(row: { id: string; data: string; public: number }): Case {
       p.gpsLon !== undefined
         ? { lat: p.gpsLat, lon: p.gpsLon }
         : null;
+    if (!(p.url in notes)) notes[p.url] = null;
   }
   const analysisRows = orm
     .select()
@@ -125,13 +129,17 @@ function rowToCase(row: { id: string; data: string; public: number }): Case {
     photos: list,
     photoTimes: times,
     photoGps: gps,
+    photoNotes: notes,
     public: Boolean(row.public),
   } as Case;
 }
 
 function saveCase(c: Case) {
-  const { photos, photoTimes, photoGps, ...rest } = c;
+  const { photos, photoTimes, photoGps, photoNotes, ...rest } = c;
   const images = rest.analysis?.images ?? {};
+  if (photoNotes) {
+    (rest as Partial<Case>).photoNotes = photoNotes;
+  }
   if (rest.analysis && "images" in rest.analysis) {
     (rest.analysis as Partial<ViolationReport>).images = undefined;
   }
@@ -265,6 +273,8 @@ export function createCase(
     analysisStatusCode: null,
     analysisError: null,
     analysisProgress: null,
+    note: null,
+    photoNotes: { [photo]: null },
     sentEmails: [],
     ownershipRequests: [],
     threadImages: [],
@@ -308,6 +318,8 @@ export function addCasePhoto(
   current.photoTimes[photo] = takenAt ?? null;
   if (!current.photoGps) current.photoGps = {};
   current.photoGps[photo] = gps;
+  if (!current.photoNotes) current.photoNotes = {};
+  current.photoNotes[photo] = null;
   current.analysisStatus = "pending";
   current.updatedAt = new Date().toISOString();
   saveCase(current);
@@ -323,6 +335,7 @@ export function removeCasePhoto(id: string, photo: string): Case | undefined {
   current.photos.splice(idx, 1);
   delete current.photoTimes[photo];
   if (current.photoGps) delete current.photoGps[photo];
+  if (current.photoNotes) delete current.photoNotes[photo];
   current.analysisStatus = "pending";
   current.updatedAt = new Date().toISOString();
   saveCase(current);
@@ -361,6 +374,26 @@ export function setCaseVinOverride(
   vin: string | null,
 ): Case | undefined {
   return updateCase(id, { vinOverride: vin });
+}
+
+export function setCaseNote(id: string, note: string | null): Case | undefined {
+  return updateCase(id, { note });
+}
+
+export function setPhotoNote(
+  id: string,
+  photo: string,
+  note: string | null,
+): Case | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  if (!current.photos.includes(photo)) return undefined;
+  if (!current.photoNotes) current.photoNotes = {};
+  current.photoNotes[photo] = note;
+  current.updatedAt = new Date().toISOString();
+  saveCase(current);
+  caseEvents.emit("update", current);
+  return current;
 }
 
 export function addCaseEmail(id: string, email: SentEmail): Case | undefined {

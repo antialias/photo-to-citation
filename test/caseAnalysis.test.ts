@@ -39,6 +39,8 @@ describe("analyzeCaseInBackground", () => {
       sentEmails: [],
       ownershipRequests: [],
       threadImages: [],
+      note: null,
+      photoNotes: { "/a.jpg": null },
     };
     analyzeCaseInBackground(c);
     expect(runJobMock).toHaveBeenCalledTimes(1);

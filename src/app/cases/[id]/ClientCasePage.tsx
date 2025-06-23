@@ -26,8 +26,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useNotify } from "../../components/NotificationProvider";
 import { FaShare } from "react-icons/fa";
+import { useNotify } from "../../components/NotificationProvider";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -75,6 +75,8 @@ export default function ClientCasePage({
   const [vin, setVin] = useState<string>(
     initialCase ? getCaseVin(initialCase) || "" : "",
   );
+  const [note, setNote] = useState<string>(initialCase?.note || "");
+  const [photoNote, setPhotoNote] = useState<string>("");
   const [members, setMembers] = useState<
     Array<{ userId: string; role: string }>
   >([]);
@@ -125,6 +127,7 @@ export default function ClientCasePage({
       setPlate(getCasePlateNumber(caseData) || "");
       setPlateState(getCasePlateState(caseData) || "");
       setVin(getCaseVin(caseData) || "");
+      setNote(caseData.note || "");
       setSelectedPhoto((prev) => {
         const all = new Set<string>([
           ...caseData.photos,
@@ -134,6 +137,12 @@ export default function ClientCasePage({
       });
     }
   }, [caseData]);
+
+  useEffect(() => {
+    if (caseData && selectedPhoto) {
+      setPhotoNote(caseData.photoNotes?.[selectedPhoto] || "");
+    }
+  }, [caseData, selectedPhoto]);
 
   async function uploadFiles(files: FileList) {
     if (!files || files.length === 0) return;
@@ -237,6 +246,35 @@ export default function ClientCasePage({
     });
     if (!res.ok) {
       notify("Failed to clear VIN.");
+      return;
+    }
+    await refreshCase();
+  }
+
+  async function updateCaseNoteFn(value: string) {
+    setNote(value);
+    const res = await apiFetch(`/api/cases/${caseId}/note`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ note: value || null }),
+    });
+    if (!res.ok) {
+      notify("Failed to update note.");
+      return;
+    }
+    await refreshCase();
+  }
+
+  async function updatePhotoNoteFn(value: string) {
+    if (!selectedPhoto) return;
+    setPhotoNote(value);
+    const res = await apiFetch(`/api/cases/${caseId}/photo-note`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo: selectedPhoto, note: value || null }),
+    });
+    if (!res.ok) {
+      notify("Failed to update note.");
       return;
     }
     await refreshCase();
@@ -572,6 +610,15 @@ export default function ClientCasePage({
                     placeholder="VIN"
                   />
                 </p>
+                <p>
+                  <span className="font-semibold">Note:</span>{" "}
+                  <EditableText
+                    value={note}
+                    onSubmit={updateCaseNoteFn}
+                    onClear={note ? () => updateCaseNoteFn("") : undefined}
+                    placeholder="Add note"
+                  />
+                </p>
                 <div>
                   <span className="font-semibold">Members:</span>
                   <ul className="ml-2 mt-1 flex flex-col gap-1">
@@ -686,6 +733,17 @@ export default function ClientCasePage({
                     </p>
                   ) : null;
                 })()}
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="font-semibold">Note:</span>{" "}
+                  <EditableText
+                    value={photoNote}
+                    onSubmit={updatePhotoNoteFn}
+                    onClear={
+                      photoNote ? () => updatePhotoNoteFn("") : undefined
+                    }
+                    placeholder="Add note"
+                  />
+                </p>
               </>
             ) : null}
             <div className="flex gap-2 flex-wrap">
