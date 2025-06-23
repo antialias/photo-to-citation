@@ -77,6 +77,16 @@ describe("case authorization", () => {
     expect(res.status).toBe(403);
   });
 
+  it("allows access when session cookie matches", async () => {
+    const c = caseStore.createCase("/e.jpg");
+    caseStore.setCaseSessionId(c.id, "abc");
+    const { GET } = await import("@/app/api/cases/[id]/route");
+    const req = new Request("http://test");
+    req.headers.set("cookie", "anon_session_id=abc");
+    const res = await GET(req, { params: Promise.resolve({ id: c.id }) });
+    expect(res.status).toBe(200);
+  });
+
   it("allows superadmin to toggle visibility", async () => {
     const c = caseStore.createCase("/d.jpg", null, undefined, null, "u1");
     const { PUT } = await import("@/app/api/cases/[id]/public/route");
