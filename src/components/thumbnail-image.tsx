@@ -2,9 +2,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export interface ThumbnailImageProps
-  extends React.ComponentPropsWithoutRef<typeof Image> {
+  extends Omit<
+    React.ComponentPropsWithoutRef<typeof Image>,
+    "width" | "height" | "className"
+  > {
   width: number;
   height: number;
+  className?: string;
+  imageClassName?: string;
 }
 
 export default function ThumbnailImage({
@@ -13,6 +18,7 @@ export default function ThumbnailImage({
   width,
   height,
   className,
+  imageClassName,
   ...props
 }: ThumbnailImageProps) {
   const [ready, setReady] = useState(false);
@@ -38,7 +44,7 @@ export default function ThumbnailImage({
         height={height}
         onLoad={() => setReady(true)}
         onError={() => setReady(false)}
-        className={`object-cover ${ready ? "" : "invisible"}`}
+        className={`object-cover ${imageClassName ?? ""} ${ready ? "" : "invisible"}`}
         {...props}
       />
     </div>

@@ -150,7 +150,7 @@ export default function DraftEditor({
             alt="email attachment"
             width={120}
             height={90}
-            className="object-contain"
+            imageClassName="object-contain"
           />
         ))}
       </div>
