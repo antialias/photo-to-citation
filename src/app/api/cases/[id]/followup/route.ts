@@ -28,10 +28,12 @@ export const GET = withCaseAuthorization(
     req: Request,
     {
       params,
-      session: _session,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { id?: string; role?: string } };
+      session?: {
+        user?: { id?: string; role?: string; name?: string; email?: string };
+      };
     },
   ) => {
     const { id } = await params;
@@ -51,7 +53,10 @@ export const GET = withCaseAuthorization(
     console.log(
       `drafting followup for ${recipient} with ${thread.length} emails`,
     );
-    const email = await draftFollowUp(c, recipient, thread);
+    const sender = session?.user
+      ? { name: session.user.name ?? null, email: session.user.email ?? null }
+      : undefined;
+    const email = await draftFollowUp(c, recipient, thread, sender);
     console.log(`drafted email subject: ${email.subject}`);
     return NextResponse.json({
       email,

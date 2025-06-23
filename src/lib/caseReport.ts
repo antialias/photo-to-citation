@@ -31,6 +31,7 @@ export type EmailDraft = z.infer<typeof emailDraftSchema>;
 export async function draftEmail(
   caseData: Case,
   mod: ReportModule,
+  sender?: { name?: string | null; email?: string | null },
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -64,6 +65,10 @@ export async function draftEmail(
         .join("\n\n")
     : "";
   const code = await getViolationCode(mod.id, analysis?.violationType || "");
+  const contactLine =
+    sender && (sender.name || sender.email)
+      ? `The sender's information is:\n${sender.name ?? ""}\n${sender.email ?? ""}`
+      : "";
   const prompt = `Draft a short, professional email to ${mod.authorityName} reporting a vehicle violation.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
@@ -73,6 +78,7 @@ Include these details if available:
  - Time: ${new Date(time).toISOString()}
 ${code ? `Applicable code: ${code}` : ""}
 ${paperworkTexts ? `Attached paperwork:\n${paperworkTexts}` : ""}
+${contactLine}
 Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
@@ -115,6 +121,7 @@ export async function draftFollowUp(
   caseData: Case,
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
+  sender?: { name?: string | null; email?: string | null },
 ): Promise<EmailDraft> {
   console.log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
@@ -141,6 +148,10 @@ export async function draftFollowUp(
     "oak-park",
     analysis?.violationType || "",
   );
+  const contactLine =
+    sender && (sender.name || sender.email)
+      ? `The sender's information is:\n${sender.name ?? ""}\n${sender.email ?? ""}`
+      : "";
   const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
@@ -148,6 +159,7 @@ Include these details if available:
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
 ${code ? `Applicable code: ${code}` : ""}
+${contactLine}
 Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
