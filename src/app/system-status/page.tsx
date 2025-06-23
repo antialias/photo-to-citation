@@ -1,21 +1,16 @@
 import { authOptions } from "@/lib/authOptions";
-import { withAuthorization } from "@/lib/authz";
+import { authorize, getSessionDetails } from "@/lib/authz";
 import { getServerSession } from "next-auth/next";
+import type { ReactElement } from "react";
 import SystemStatusClient from "./SystemStatusClient";
 
 export const dynamic = "force-dynamic";
 
-const handler = withAuthorization(
-  { obj: "superadmin" },
-  async (_req: Request, _ctx: { session?: { user?: { role?: string } } }) => {
-    return <SystemStatusClient />;
-  },
-);
-
-export default async function SystemStatusPage() {
+export default async function SystemStatusPage(): Promise<ReactElement> {
   const session = await getServerSession(authOptions);
-  return handler(new Request("http://localhost"), {
-    params: Promise.resolve({}),
-    session: session ?? undefined,
-  });
+  const { role, userId } = getSessionDetails({ session });
+  if (!(await authorize(role, "superadmin", "read", { userId }))) {
+    return <p>Access denied</p>;
+  }
+  return <SystemStatusClient />;
 }
