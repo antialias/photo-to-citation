@@ -434,5 +434,6 @@ Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overla
 
 - [**GitHub Repository**](https://github.com/antialias/photo-to-citation) — star the project or submit a pull request.
 - [**Documentation Outline**](docs/feature-outline.md) — discover planned features and architecture.
+- [**Credit System**](docs/credit-system.md) — how users purchase credits and how balances update.
 - [**Releases**](https://github.com/antialias/photo-to-citation/releases) — download the latest packaged version.
 - [**Live Demo**](https://730op.synology.me/photo-citation) — try the hosted web app.
