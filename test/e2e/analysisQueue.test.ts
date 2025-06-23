@@ -6,7 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
-import { type TestServer, startServer } from "./startServer";
+
+declare const server: import("./startServer").TestServer;
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -27,7 +28,6 @@ async function signIn(email: string) {
   );
 }
 
-let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
 
@@ -75,13 +75,11 @@ beforeAll(async () => {
     }),
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3007, envFiles());
   api = createApi(server);
   await signIn("user@example.com");
 });
 
 afterAll(async () => {
-  await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });

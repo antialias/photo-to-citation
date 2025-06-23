@@ -3,11 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { getByTestId } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
 
-let server: TestServer;
+declare const server: import("./startServer").TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 async function signIn(email: string) {
@@ -27,19 +26,8 @@ async function signIn(email: string) {
   );
 }
 
-beforeAll(async () => {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3020, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
-  });
+beforeAll(() => {
   api = createApi(server);
-});
-
-afterAll(async () => {
-  await server.close();
 });
 
 describe("case visibility @smoke", () => {

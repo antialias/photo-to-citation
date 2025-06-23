@@ -1,17 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { type TestServer, startServer } from "./startServer";
+import { describe, expect, it } from "vitest";
 
-let server: TestServer;
-
-beforeAll(async () => {
-  server = await startServer(3004, {
-    NEXTAUTH_SECRET: "secret",
-  });
-});
-
-afterAll(async () => {
-  await server.close();
-});
+declare const server: import("./startServer").TestServer;
 
 describe("case events", () => {
   it.skip("streams updates", async () => {

@@ -5,7 +5,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { poll } from "./poll";
-import { type TestServer, startServer } from "./startServer";
+
+declare const server: import("./startServer").TestServer;
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -38,7 +39,6 @@ async function signOut() {
   });
 }
 
-let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
 let photoName = "";
@@ -65,7 +65,6 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
       2,
     ),
   );
-  server = await startServer(3010, env);
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
@@ -73,7 +72,6 @@ async function setup(responses: Array<import("./openaiStub").StubResponse>) {
 }
 
 async function teardown() {
-  await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 }

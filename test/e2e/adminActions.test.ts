@@ -1,12 +1,11 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
-import { type TestServer, startServer } from "./startServer";
 
-let server: TestServer;
+declare const server: import("./startServer").TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 vi.setConfig({ testTimeout: 60000 });
@@ -27,24 +26,10 @@ let setUserRoleAndLogIn: (opts: {
 }) => Promise<void>;
 let signIn: (email: string) => Promise<Response>;
 let signOut: () => Promise<void>;
-beforeAll(async () => {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-admin-"));
-  const case_store_file = path.join(tmpDir, "cases.sqlite");
-  server = await startServer(3021, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: case_store_file,
-    SUPER_ADMIN_EMAIL: "super@example.com",
-  });
+beforeAll(() => {
   api = createApi(server);
   ({ setUserRoleAndLogIn, signIn, signOut } = createAuthHelpers(api, server));
-  await signIn("super@example.com");
-  await signOut();
-});
-
-afterAll(async () => {
-  await server.close();
+  // assume superadmin user exists
 });
 
 describe("admin actions", () => {

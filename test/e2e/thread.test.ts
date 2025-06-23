@@ -5,9 +5,9 @@ import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
 
-let server: TestServer;
+declare const server: import("./startServer").TestServer;
+
 let tmpDir: string;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -34,13 +34,11 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
   };
-  server = await startServer(3006, env);
   api = createApi(server);
   await signIn("user@example.com");
 });
 
-afterAll(async () => {
-  await server.close();
+afterAll(() => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 

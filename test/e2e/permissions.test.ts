@@ -6,9 +6,9 @@ import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
-import { type TestServer, startServer } from "./startServer";
 
-let server: TestServer;
+declare const server: import("./startServer").TestServer;
+
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let stub: OpenAIStub;
 
@@ -55,20 +55,12 @@ async function createCase(): Promise<string> {
 beforeAll(async () => {
   stub = await startOpenAIStub({ subject: "", body: "" });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
-  server = await startServer(3011, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
-    OPENAI_BASE_URL: stub.url,
-  });
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
 });
 
 afterAll(async () => {
-  await server.close();
   await stub.close();
 });
 
