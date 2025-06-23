@@ -1,9 +1,55 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useNotify } from "../components/NotificationProvider";
 import { useState } from "react";
+import { useNotify } from "../components/NotificationProvider";
 import AppConfigurationTab from "./AppConfigurationTab";
+
+const policyOptions = {
+  anonymous: { public_cases: ["read"] },
+  user: {
+    upload: ["create"],
+    cases: ["read", "update", "delete"],
+    snail_mail_providers: ["read"],
+    vin_sources: ["read"],
+  },
+  admin: {
+    admin: ["read", "update"],
+    users: ["create", "read", "update", "delete"],
+    cases: ["update", "delete"],
+    snail_mail_providers: ["update"],
+    vin_sources: ["update"],
+  },
+  superadmin: { superadmin: ["update"] },
+} as const;
+
+const groupOptions = {
+  admin: ["user"],
+  superadmin: ["admin"],
+} as const;
+
+function normalizeRule(rule: RuleInput): RuleInput {
+  if (rule.ptype === "p") {
+    const v0s = Object.keys(policyOptions);
+    if (!rule.v0 || !v0s.includes(rule.v0)) rule.v0 = v0s[0];
+    const v1s = Object.keys(
+      policyOptions[rule.v0 as keyof typeof policyOptions],
+    );
+    if (!rule.v1 || !v1s.includes(rule.v1)) rule.v1 = v1s[0];
+    const v2s =
+      policyOptions[rule.v0 as keyof typeof policyOptions][
+        rule.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions]
+      ];
+    if (!rule.v2 || !v2s.includes(rule.v2)) rule.v2 = v2s[0];
+  } else {
+    const v0s = Object.keys(groupOptions);
+    if (!rule.v0 || !v0s.includes(rule.v0)) rule.v0 = v0s[0];
+    const v1s = groupOptions[rule.v0 as keyof typeof groupOptions];
+    if (!rule.v1 || !v1s.includes(rule.v1)) rule.v1 = v1s[0];
+    rule.v2 = null;
+  }
+  return rule;
+}
 
 export interface UserRecord {
   id: string;
@@ -34,7 +80,7 @@ export default function AdminPageClient({
 }) {
   const [users, setUsers] = useState(initialUsers);
   const [rules, setRules] = useState(() =>
-    initialRules.map((r) => ({ ...r, id: crypto.randomUUID() })),
+    initialRules.map((r) => ({ ...normalizeRule(r), id: crypto.randomUUID() })),
   );
   const [tab, setTab] = useState<"users" | "config">("users");
   const [inviteEmail, setInviteEmail] = useState("");
@@ -83,15 +129,15 @@ export default function AdminPageClient({
     value: string,
   ) {
     setRules((curr) =>
-      curr.map((r) => (r.id === id ? { ...r, [field]: value } : r)),
+      curr.map((r) =>
+        r.id === id ? normalizeRule({ ...r, [field]: value }) : r,
+      ),
     );
   }
 
   function addRule() {
-    setRules((curr) => [
-      ...curr,
-      { id: crypto.randomUUID(), ptype: "p", v0: "", v1: "", v2: "" },
-    ]);
+    const base = normalizeRule({ ptype: "p" });
+    setRules((curr) => [...curr, { ...base, id: crypto.randomUUID() }]);
   }
 
   function removeRule(id: string) {
@@ -207,70 +253,118 @@ export default function AdminPageClient({
               </tr>
             </thead>
             <tbody>
-              {rules.map((r) => (
-                <tr key={r.id}>
-                  <td className="border">
-                    <input
-                      value={r.ptype}
-                      onChange={(e) =>
-                        updateRule(r.id, "ptype", e.target.value)
-                      }
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <input
-                      value={r.v0 ?? ""}
-                      onChange={(e) => updateRule(r.id, "v0", e.target.value)}
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <input
-                      value={r.v1 ?? ""}
-                      onChange={(e) => updateRule(r.id, "v1", e.target.value)}
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <input
-                      value={r.v2 ?? ""}
-                      onChange={(e) => updateRule(r.id, "v2", e.target.value)}
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <input
-                      value={r.v3 ?? ""}
-                      onChange={(e) => updateRule(r.id, "v3", e.target.value)}
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <input
-                      value={r.v4 ?? ""}
-                      onChange={(e) => updateRule(r.id, "v4", e.target.value)}
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <input
-                      value={r.v5 ?? ""}
-                      onChange={(e) => updateRule(r.id, "v5", e.target.value)}
-                      className="w-full p-1 bg-white dark:bg-gray-900"
-                    />
-                  </td>
-                  <td className="border">
-                    <button
-                      type="button"
-                      onClick={() => removeRule(r.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {rules.map((r) => {
+                const ptypeOptions = ["p", "g"];
+                const v0Options =
+                  r.ptype === "p"
+                    ? Object.keys(policyOptions)
+                    : Object.keys(groupOptions);
+                const v1Options =
+                  r.ptype === "p"
+                    ? r.v0
+                      ? Object.keys(
+                          policyOptions[r.v0 as keyof typeof policyOptions] ??
+                            {},
+                        )
+                      : []
+                    : r.v0
+                      ? (groupOptions[r.v0 as keyof typeof groupOptions] ?? [])
+                      : [];
+                const v2Options =
+                  r.ptype === "p" && r.v0 && r.v1
+                    ? (policyOptions[r.v0 as keyof typeof policyOptions][
+                        r.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions]
+                      ] ?? [])
+                    : [];
+                return (
+                  <tr key={r.id}>
+                    <td className="border">
+                      <select
+                        value={r.ptype}
+                        onChange={(e) =>
+                          updateRule(r.id, "ptype", e.target.value)
+                        }
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      >
+                        {ptypeOptions.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="border">
+                      <select
+                        value={r.v0 ?? ""}
+                        onChange={(e) => updateRule(r.id, "v0", e.target.value)}
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      >
+                        {v0Options.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="border">
+                      <select
+                        value={r.v1 ?? ""}
+                        onChange={(e) => updateRule(r.id, "v1", e.target.value)}
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      >
+                        {v1Options.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="border">
+                      <select
+                        value={r.v2 ?? ""}
+                        onChange={(e) => updateRule(r.id, "v2", e.target.value)}
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      >
+                        {v2Options.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="border">
+                      <input
+                        value={r.v3 ?? ""}
+                        onChange={(e) => updateRule(r.id, "v3", e.target.value)}
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      />
+                    </td>
+                    <td className="border">
+                      <input
+                        value={r.v4 ?? ""}
+                        onChange={(e) => updateRule(r.id, "v4", e.target.value)}
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      />
+                    </td>
+                    <td className="border">
+                      <input
+                        value={r.v5 ?? ""}
+                        onChange={(e) => updateRule(r.id, "v5", e.target.value)}
+                        className="w-full p-1 bg-white dark:bg-gray-900"
+                      />
+                    </td>
+                    <td className="border">
+                      <button
+                        type="button"
+                        onClick={() => removeRule(r.id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           <div className="flex gap-2 mb-2">
