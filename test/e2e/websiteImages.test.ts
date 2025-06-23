@@ -34,6 +34,7 @@ describe("generateWebsiteImages", () => {
       WEBSITE_DIR: site,
       OPENAI_API_KEY: "x",
       OPENAI_BASE_URL: stub.url,
+      NODE_ENV: "test",
     });
     expect(res.status).toBe(0);
     expect(stub.requests.length).toBe(1);

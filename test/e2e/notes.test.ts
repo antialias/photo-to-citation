@@ -58,7 +58,7 @@ describe("notes e2e", () => {
       body: JSON.stringify({ note: "hello" }),
     });
     expect(res.status).toBe(200);
-    let data = (await res.json()) as {
+    const data = (await res.json()) as {
       note?: string;
       photos: string[];
       photoNotes?: Record<string, string | null>;
@@ -71,7 +71,11 @@ describe("notes e2e", () => {
       body: JSON.stringify({ photo, note: "img" }),
     });
     expect(res.status).toBe(200);
-    data = (await res.json()) as { photoNotes?: Record<string, string | null> };
-    expect(data.photoNotes?.[photo]).toBe("img");
+    const data2 = (await res.json()) as {
+      photoNotes?: Record<string, string | null>;
+      photos: string[];
+      note?: string;
+    };
+    expect(data2.photoNotes?.[photo]).toBe("img");
   });
 });
