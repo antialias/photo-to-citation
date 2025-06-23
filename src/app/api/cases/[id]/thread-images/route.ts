@@ -4,6 +4,7 @@ import path from "node:path";
 import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseThreadImage, getCase } from "@/lib/caseStore";
 import { ocrPaperwork } from "@/lib/openai";
+import { generateThumbnails } from "@/lib/thumbnails";
 import { NextResponse } from "next/server";
 
 export const POST = withCaseAuthorization(
@@ -32,6 +33,7 @@ export const POST = withCaseAuthorization(
     fs.mkdirSync(uploadDir, { recursive: true });
     const filename = `${crypto.randomUUID()}${ext}`;
     fs.writeFileSync(path.join(uploadDir, filename), buffer);
+    await generateThumbnails(buffer, filename);
     const mime =
       ext === ".png"
         ? "image/png"
