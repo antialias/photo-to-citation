@@ -13,7 +13,7 @@ export const GET = withAuthorization(
     req: Request,
     {
       params,
-      session: _session,
+      session,
     }: {
       params: Promise<{ id: string }>;
       session?: { user?: { id?: string; role?: string } };
