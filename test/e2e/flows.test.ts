@@ -6,6 +6,7 @@ import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
@@ -95,7 +96,7 @@ afterAll(async () => {
 
 describe("e2e flows (unauthenticated)", () => {
   async function createCase(): Promise<string> {
-    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
+    const file = createPhoto("a");
     const form = new FormData();
     form.append("photo", file);
     const res = await api("/api/upload", {
@@ -144,9 +145,7 @@ describe("e2e flows (unauthenticated)", () => {
   it("handles case lifecycle", async () => {
     const caseId = await createCase();
 
-    const second = new File([Buffer.from("b")], "b.jpg", {
-      type: "image/jpeg",
-    });
+    const second = createPhoto("b");
     const add = new FormData();
     add.append("photo", second);
     add.append("caseId", caseId);

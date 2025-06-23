@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
@@ -97,9 +98,7 @@ describe("reanalysis", () => {
     });
 
     it("adds vehicle info on reanalysis", async () => {
-      const file = new File([Buffer.from("a")], "a.jpg", {
-        type: "image/jpeg",
-      });
+      const file = createPhoto("a");
       const form = new FormData();
       form.append("photo", file);
       const res = await api("/api/upload", {
@@ -165,9 +164,7 @@ describe("reanalysis", () => {
     });
 
     it("extracts paperwork text on reanalysis", async () => {
-      const file = new File([Buffer.from("b")], "b.jpg", {
-        type: "image/jpeg",
-      });
+      const file = createPhoto("b");
       const form = new FormData();
       form.append("photo", file);
       const res = await api("/api/upload", {

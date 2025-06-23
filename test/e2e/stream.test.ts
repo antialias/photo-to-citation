@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createPhoto } from "./photo";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -24,7 +25,7 @@ describe("case events", () => {
     if (!reader) throw new Error("no reader");
     const decoder = new TextDecoder();
 
-    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
+    const file = createPhoto("a");
     const form = new FormData();
     form.append("photo", file);
     await fetch(`${server.url}/api/upload`, { method: "POST", body: form });

@@ -6,6 +6,7 @@ import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -44,7 +45,7 @@ async function signOut() {
 }
 
 async function createCase(): Promise<string> {
-  const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
+  const file = createPhoto("a");
   const form = new FormData();
   form.append("photo", file);
   const res = await api("/api/upload", { method: "POST", body: form });
