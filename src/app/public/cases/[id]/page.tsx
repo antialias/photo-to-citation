@@ -15,5 +15,5 @@ export default async function PublicCasePage({
   if (!c || !c.public) {
     notFound();
   }
-  return <ClientCasePage caseId={id} initialCase={c} />;
+  return <ClientCasePage caseId={id} initialCase={c} readOnly />;
 }
