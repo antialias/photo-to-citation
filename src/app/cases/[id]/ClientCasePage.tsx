@@ -10,12 +10,12 @@ import DebugWrapper from "@/app/components/DebugWrapper";
 import EditableText from "@/app/components/EditableText";
 import ImageHighlights from "@/app/components/ImageHighlights";
 import MapPreview from "@/app/components/MapPreview";
+import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { Progress } from "@/components/ui/progress";
-import { isCaseAnalysisActive } from "@/lib/caseAnalysis";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
@@ -71,6 +71,10 @@ export default function ClientCasePage({
   readOnly?: boolean;
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
+  const analysisActive = useCaseAnalysisActive(
+    caseId,
+    caseData?.public ?? false,
+  );
   const [preview, setPreview] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(
     initialCase ? getRepresentativePhoto(initialCase) : null,
@@ -839,7 +843,7 @@ export default function ClientCasePage({
                           className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                           disabled={
                             caseData.analysisStatus === "pending" &&
-                            isCaseAnalysisActive(caseId)
+                            analysisActive
                           }
                         >
                           Reanalyze Photo
