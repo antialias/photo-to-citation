@@ -1,5 +1,6 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
+import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Image from "next/image";
@@ -140,7 +141,7 @@ export default function ClientThreadPage({
         ))}
         {images.map((img) => (
           <li key={img.id} className="border p-2 rounded flex gap-2">
-            <Image
+            <ThumbnailImage
               src={getThumbnailUrl(img.url, 256)}
               alt="scan"
               width={150}

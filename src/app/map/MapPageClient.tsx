@@ -1,6 +1,7 @@
 "use client";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -89,7 +90,7 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
                 router.push(`/cases/${c.id}`);
               }}
             >
-              <Image
+              <ThumbnailImage
                 src={getThumbnailUrl(c.photo, 256)}
                 alt={`Case ${c.id}`}
                 width={160}
