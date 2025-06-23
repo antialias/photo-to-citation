@@ -4,8 +4,8 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
-import { createPhoto } from "./photo";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
