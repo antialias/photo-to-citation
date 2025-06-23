@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { Geist, Geist_Mono } from "next/font/google";
 import AuthProvider from "./auth-provider";
 import NavBar from "./components/NavBar";
+import NotificationProvider from "./components/NotificationProvider";
 import "./globals.css";
 
 export const runtime = "nodejs";
@@ -34,10 +35,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider session={session}>
-          <NavBar />
-          {children}
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider session={session}>
+            <NavBar />
+            {children}
+          </AuthProvider>
+        </NotificationProvider>
       </body>
     </html>
   );
