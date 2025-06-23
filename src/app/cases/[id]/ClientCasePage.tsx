@@ -81,7 +81,12 @@ export default function ClientCasePage({
   const [note, setNote] = useState<string>(initialCase?.note || "");
   const [photoNote, setPhotoNote] = useState<string>("");
   const [members, setMembers] = useState<
-    Array<{ userId: string; role: string }>
+    Array<{
+      userId: string;
+      role: string;
+      name: string | null;
+      email: string | null;
+    }>
   >([]);
   const [inviteUserId, setInviteUserId] = useState("");
   const [copied, setCopied] = useState(false);
@@ -666,7 +671,7 @@ export default function ClientCasePage({
                     {members.map((m) => (
                       <li key={m.userId} className="flex items-center gap-2">
                         <span className="flex-1">
-                          {m.userId} ({m.role})
+                          {m.name ?? m.email ?? m.userId} ({m.role})
                         </span>
                         {canManageMembers && m.role !== "owner" ? (
                           <button

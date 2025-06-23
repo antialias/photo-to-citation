@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { orm } from "./orm";
-import { caseMembers } from "./schema";
+import { caseMembers, users } from "./schema";
 
 export type CaseMemberRole = "owner" | "collaborator";
 
@@ -21,8 +21,14 @@ export function removeCaseMember(caseId: string, userId: string): void {
 
 export function listCaseMembers(caseId: string) {
   return orm
-    .select()
+    .select({
+      userId: caseMembers.userId,
+      role: caseMembers.role,
+      name: users.name,
+      email: users.email,
+    })
     .from(caseMembers)
+    .leftJoin(users, eq(caseMembers.userId, users.id))
     .where(eq(caseMembers.caseId, caseId))
     .all();
 }
