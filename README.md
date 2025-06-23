@@ -252,6 +252,20 @@ one or more photo attachments becomes a new case. Multiple photos in the same
 email are added to that case before analysis and geocoding run in the
 background.
 
+## Automated Cleanup
+
+Remove abandoned anonymous cases by running:
+
+```bash
+npm run cleanup:anon-cases
+```
+
+Add this command to cron or another scheduler to run daily, e.g.:
+
+```cron
+0 3 * * * cd /path/to/app && npm run cleanup:anon-cases >> cleanup.log 2>&1
+```
+
 ## Folder Structure
 
 ```text

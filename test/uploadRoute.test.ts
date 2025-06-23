@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("next/headers", () => ({ cookies: () => ({ get: vi.fn() }) }));
 
 let dataDir: string;
 let tmpDir: string;
@@ -35,6 +36,15 @@ beforeEach(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "uploads-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
+  vi.doMock("next/headers", () => ({
+    cookies: () => ({
+      get: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
+      getAll: () => [],
+      has: vi.fn(),
+    }),
+  }));
   const db = await import("@/lib/db");
   await db.migrationsReady;
   caseStore = await import("@/lib/caseStore");
