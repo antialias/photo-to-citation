@@ -1,8 +1,13 @@
 import crypto from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { type AnyColumn, and, eq } from "drizzle-orm";
+import { isNull } from "drizzle-orm/sql";
 import { reloadEnforcer } from "./authz";
 import { orm } from "./orm";
 import { casbinRules, users } from "./schema";
+
+function eqMaybeNull(column: AnyColumn, value: string | null | undefined) {
+  return value == null ? isNull(column) : eq(column, value);
+}
 
 export interface UserRecord {
   id: string;
@@ -99,12 +104,12 @@ export async function updateCasbinRule(
     .where(
       and(
         eq(casbinRules.ptype, oldRule.ptype),
-        eq(casbinRules.v0, oldRule.v0 ?? null),
-        eq(casbinRules.v1, oldRule.v1 ?? null),
-        eq(casbinRules.v2, oldRule.v2 ?? null),
-        eq(casbinRules.v3, oldRule.v3 ?? null),
-        eq(casbinRules.v4, oldRule.v4 ?? null),
-        eq(casbinRules.v5, oldRule.v5 ?? null),
+        eqMaybeNull(casbinRules.v0, oldRule.v0),
+        eqMaybeNull(casbinRules.v1, oldRule.v1),
+        eqMaybeNull(casbinRules.v2, oldRule.v2),
+        eqMaybeNull(casbinRules.v3, oldRule.v3),
+        eqMaybeNull(casbinRules.v4, oldRule.v4),
+        eqMaybeNull(casbinRules.v5, oldRule.v5),
       ),
     )
     .run();
@@ -120,12 +125,12 @@ export async function deleteCasbinRule(
     .where(
       and(
         eq(casbinRules.ptype, rule.ptype),
-        eq(casbinRules.v0, rule.v0 ?? null),
-        eq(casbinRules.v1, rule.v1 ?? null),
-        eq(casbinRules.v2, rule.v2 ?? null),
-        eq(casbinRules.v3, rule.v3 ?? null),
-        eq(casbinRules.v4, rule.v4 ?? null),
-        eq(casbinRules.v5, rule.v5 ?? null),
+        eqMaybeNull(casbinRules.v0, rule.v0),
+        eqMaybeNull(casbinRules.v1, rule.v1),
+        eqMaybeNull(casbinRules.v2, rule.v2),
+        eqMaybeNull(casbinRules.v3, rule.v3),
+        eqMaybeNull(casbinRules.v4, rule.v4),
+        eqMaybeNull(casbinRules.v5, rule.v5),
       ),
     )
     .run();

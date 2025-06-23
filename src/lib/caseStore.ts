@@ -76,7 +76,7 @@ export interface ThreadImage {
 function rowToCase(row: { id: string; data: string; public: number }): Case {
   const base = JSON.parse(row.data) as Omit<
     Case,
-    "photos" | "photoTimes" | "photoGps" | "photoNotes"
+    "photos" | "photoTimes" | "photoGps"
   >;
   if (!("updatedAt" in base)) {
     (base as Partial<Case>).updatedAt = (base as Partial<Case>).createdAt;
