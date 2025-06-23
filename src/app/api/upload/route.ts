@@ -6,6 +6,7 @@ import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
 import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
 import { extractGps, extractTimestamp } from "@/lib/exif";
+import { generateThumbnailsInBackground } from "@/lib/thumbnails";
 import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
@@ -36,6 +37,7 @@ export const POST = withAuthorization(
     const ext = path.extname(file.name || "jpg") || ".jpg";
     const filename = `${crypto.randomUUID()}${ext}`;
     fs.writeFileSync(path.join(uploadDir, filename), buffer);
+    generateThumbnailsInBackground(buffer, filename);
     const existing = clientId ? getCase(clientId) : null;
     if (existing) {
       const updated = addCasePhoto(

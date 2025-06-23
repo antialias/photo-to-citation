@@ -4,6 +4,7 @@ import { useSession } from "@/app/useSession";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import type { ReportModule } from "@/lib/reportModules";
+import { getThumbnailUrl } from "@/lib/thumbnails";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -144,7 +145,7 @@ export default function DraftEditor({
         {attachments.map((p) => (
           <Image
             key={p}
-            src={p}
+            src={getThumbnailUrl(p, 128)}
             alt="email attachment"
             width={120}
             height={90}

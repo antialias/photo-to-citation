@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
+import { getThumbnailUrl } from "@/lib/thumbnails";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -336,7 +337,7 @@ export default function NotifyOwnerEditor({
         {attachments.map((p) => (
           <Image
             key={p}
-            src={p}
+            src={getThumbnailUrl(p, 128)}
             alt="email attachment"
             width={120}
             height={90}
