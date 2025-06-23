@@ -184,4 +184,17 @@ describe("caseStore", () => {
     const stored = getCase(c.id);
     expect(stored?.photoNotes?.["/p.jpg"]).toBe("foo");
   });
+
+  it("handles session-based cases", () => {
+    const { createCase, getCasesBySession, claimCasesForSession, getCase } =
+      caseStore;
+    const c1 = createCase("/s1.jpg", null, undefined, null, null, false, "s1");
+    const c2 = createCase("/s2.jpg", null, undefined, null, null, false, "s1");
+    const list = getCasesBySession("s1");
+    expect(list.map((c) => c.id).sort()).toEqual([c1.id, c2.id].sort());
+    claimCasesForSession("u1", "s1");
+    const claimed1 = getCase(c1.id);
+    expect(claimed1?.sessionId).toBeNull();
+    expect(members.isCaseMember(c1.id, "u1", "owner")).toBe(true);
+  });
 });

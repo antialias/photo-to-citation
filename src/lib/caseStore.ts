@@ -1,7 +1,7 @@
 import path from "node:path";
 import { eq, sql } from "drizzle-orm";
 import { caseEvents } from "./caseEvents";
-import { addCaseMember } from "./caseMembers";
+import { addCaseMember, isCaseMember } from "./caseMembers";
 import { db } from "./db";
 import { orm } from "./orm";
 import { casePhotoAnalysis, casePhotos } from "./schema";
@@ -19,6 +19,7 @@ export interface Case {
   /** @zod.date */
   updatedAt: string;
   public: boolean;
+  sessionId?: string | null;
   gps?: {
     lat: number;
     lon: number;
@@ -73,7 +74,12 @@ export interface ThreadImage {
   ocrInfo?: import("./openai").PaperworkInfo | null;
 }
 
-function rowToCase(row: { id: string; data: string; public: number }): Case {
+function rowToCase(row: {
+  id: string;
+  data: string;
+  public: number;
+  session_id?: string | null;
+}): Case {
   const base = JSON.parse(row.data) as Omit<
     Case,
     "photos" | "photoTimes" | "photoGps"
@@ -139,11 +145,12 @@ function rowToCase(row: { id: string; data: string; public: number }): Case {
     photoGps: gps,
     photoNotes: notes,
     public: Boolean(row.public),
+    sessionId: row.session_id ?? (base as Partial<Case>).sessionId ?? null,
   } as Case;
 }
 
 function saveCase(c: Case) {
-  const { photos, photoTimes, photoGps, photoNotes, ...rest } = c;
+  const { photos, photoTimes, photoGps, photoNotes, sessionId, ...rest } = c;
   const images = rest.analysis?.images ?? {};
   if (photoNotes) {
     (rest as Partial<Case>).photoNotes = photoNotes;
@@ -153,15 +160,16 @@ function saveCase(c: Case) {
   }
   const stmt = db.prepare(
     [
-      "INSERT INTO cases (id, data, public)",
-      "VALUES (?, ?, ?)",
+      "INSERT INTO cases (id, data, public, session_id)",
+      "VALUES (?, ?, ?, ?)",
       "ON CONFLICT(id) DO UPDATE SET",
       "  data = excluded.data,",
-      "  public = excluded.public",
+      "  public = excluded.public,",
+      "  session_id = excluded.session_id",
     ].join(" "),
   );
   const tx = db.transaction(() => {
-    stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0);
+    stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0, c.sessionId ?? null);
     orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
     orm
       .delete(casePhotoAnalysis)
@@ -214,8 +222,10 @@ function saveCase(c: Case) {
 
 function getCaseRow(id: string): Case | undefined {
   const row = db
-    .prepare("SELECT id, data, public FROM cases WHERE id = ?")
-    .get(id) as { id: string; data: string; public: number } | undefined;
+    .prepare("SELECT id, data, public, session_id FROM cases WHERE id = ?")
+    .get(id) as
+    | { id: string; data: string; public: number; session_id: string | null }
+    | undefined;
   return row ? rowToCase(row) : undefined;
 }
 
@@ -241,10 +251,13 @@ function applyOverrides(caseData: Case): Case {
 }
 
 export function getCases(): Case[] {
-  const rows = db.prepare("SELECT id, data, public FROM cases").all() as Array<{
+  const rows = db
+    .prepare("SELECT id, data, public, session_id FROM cases")
+    .all() as Array<{
     id: string;
     data: string;
     public: number;
+    session_id: string | null;
   }>;
   return rows
     .map(rowToCase)
@@ -267,6 +280,7 @@ export function createCase(
   takenAt?: string | null,
   ownerId?: string | null,
   isPublic = false,
+  sessionId?: string | null,
 ): Case {
   const newCase: Case = {
     id: id ?? Date.now().toString(),
@@ -277,6 +291,7 @@ export function createCase(
     updatedAt: new Date().toISOString(),
     gps,
     public: isPublic,
+    sessionId: sessionId ?? null,
     streetAddress: null,
     intersection: null,
     vin: null,
@@ -474,4 +489,36 @@ export function deleteCase(id: string): boolean {
   orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, id)).run();
   caseEvents.emit("update", { id: current.id, deleted: true });
   return true;
+}
+
+export function getCasesBySession(sessionId: string): Case[] {
+  const rows = db
+    .prepare(
+      "SELECT id, data, public, session_id FROM cases WHERE session_id = ?",
+    )
+    .all(sessionId) as Array<{
+    id: string;
+    data: string;
+    public: number;
+    session_id: string | null;
+  }>;
+  return rows.map(rowToCase).map(applyOverrides);
+}
+
+export function claimCasesForSession(
+  userId: string,
+  sessionId: string,
+): Case[] {
+  const cases = getCasesBySession(sessionId);
+  const claimed: Case[] = [];
+  for (const c of cases) {
+    const updated = updateCase(c.id, { sessionId: null });
+    if (updated) {
+      if (!isCaseMember(c.id, userId)) {
+        addCaseMember(c.id, userId, "owner");
+      }
+      claimed.push(updated);
+    }
+  }
+  return claimed;
 }

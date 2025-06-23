@@ -10,6 +10,7 @@ export const cases = sqliteTable("cases", {
   id: text("id").primaryKey(),
   data: text("data").notNull(),
   public: integer("public", { mode: "boolean" }).notNull().default(false),
+  sessionId: text("session_id"),
 });
 
 export const casePhotos = sqliteTable(
