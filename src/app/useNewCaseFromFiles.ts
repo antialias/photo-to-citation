@@ -1,10 +1,12 @@
 "use client";
 
 import { apiFetch } from "@/apiClient";
+import { useNotification } from "@/lib/notifications";
 import { useRouter } from "next/navigation";
 
 export default function useNewCaseFromFiles() {
   const router = useRouter();
+  const notify = useNotification();
   return async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const id = Date.now().toString();
@@ -28,7 +30,7 @@ export default function useNewCaseFromFiles() {
       }),
     );
     if (results.some((r) => !r.ok)) {
-      alert("Failed to upload one or more files.");
+      notify("Failed to upload one or more files.");
       return;
     }
     router.push(`/cases/${id}`);

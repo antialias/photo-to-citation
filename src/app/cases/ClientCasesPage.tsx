@@ -6,6 +6,7 @@ import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
+import { useNotification } from "@/lib/notifications";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,6 +49,7 @@ export default function ClientCasesPage({
   } | null>(null);
   const router = useRouter();
   const uploadNewCase = useNewCaseFromFiles();
+  const notify = useNotification();
   const [dragging, setDragging] = useState(false);
   const [dropCase, setDropCase] = useState<string | null>(null);
   const params = useParams<{ id?: string }>();
@@ -111,7 +113,7 @@ export default function ClientCasesPage({
       }),
     );
     if (results.some((r) => !r.ok)) {
-      alert("Failed to upload one or more files.");
+      notify("Failed to upload one or more files.");
       return;
     }
   }

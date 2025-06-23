@@ -22,6 +22,7 @@ import {
   getRepresentativePhoto,
   hasViolation,
 } from "@/lib/caseUtils";
+import { useNotification } from "@/lib/notifications";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -65,6 +66,7 @@ export default function ClientCasePage({
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(
     initialCase ? getRepresentativePhoto(initialCase) : null,
   );
+  const notify = useNotification();
   const [plate, setPlate] = useState<string>(
     initialCase ? getCasePlateNumber(initialCase) || "" : "",
   );
@@ -147,7 +149,7 @@ export default function ClientCasePage({
       }),
     );
     if (results.some((r) => !r.ok)) {
-      alert("Failed to upload one or more files.");
+      notify("Failed to upload one or more files.");
       return;
     }
     const res = await apiFetch(`/api/cases/${caseId}`);
@@ -155,7 +157,7 @@ export default function ClientCasePage({
       const data = (await res.json()) as Case;
       setCaseData(data);
     } else {
-      alert("Failed to refresh case after upload.");
+      notify("Failed to refresh case after upload.");
     }
     router.refresh();
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -172,7 +174,7 @@ export default function ClientCasePage({
       const data = (await res.json()) as Case;
       setCaseData(data);
     } else {
-      alert("Failed to refresh case.");
+      notify("Failed to refresh case.");
     }
   }
 
@@ -188,7 +190,7 @@ export default function ClientCasePage({
       }),
     });
     if (!res.ok) {
-      alert("Failed to update vehicle information.");
+      notify("Failed to update vehicle information.");
       return;
     }
     await refreshCase();
@@ -222,7 +224,7 @@ export default function ClientCasePage({
       body: JSON.stringify({ vin: value || null }),
     });
     if (!res.ok) {
-      alert("Failed to update VIN.");
+      notify("Failed to update VIN.");
       return;
     }
     await refreshCase();
@@ -234,7 +236,7 @@ export default function ClientCasePage({
       method: "DELETE",
     });
     if (!res.ok) {
-      alert("Failed to clear VIN.");
+      notify("Failed to clear VIN.");
       return;
     }
     await refreshCase();
@@ -247,7 +249,7 @@ export default function ClientCasePage({
       body: JSON.stringify({ public: !(caseData?.public ?? false) }),
     });
     if (!res.ok) {
-      alert("Failed to update visibility.");
+      notify("Failed to update visibility.");
       return;
     }
     await refreshCase();
@@ -276,7 +278,7 @@ export default function ClientCasePage({
         detailsEl.open = false;
       }
     } else {
-      alert("Failed to reanalyze photo.");
+      notify("Failed to reanalyze photo.");
     }
     await refreshCase();
   }
@@ -287,7 +289,7 @@ export default function ClientCasePage({
       method: "POST",
     });
     if (!res.ok) {
-      alert("Failed to retry analysis.");
+      notify("Failed to retry analysis.");
     }
     await refreshCase();
   }
@@ -299,7 +301,7 @@ export default function ClientCasePage({
       body: JSON.stringify({ photo }),
     });
     if (!delRes.ok) {
-      alert("Failed to remove photo.");
+      notify("Failed to remove photo.");
       return;
     }
     const res = await apiFetch(`/api/cases/${caseId}`);
@@ -307,7 +309,7 @@ export default function ClientCasePage({
       const data = (await res.json()) as Case;
       setCaseData(data);
     } else {
-      alert("Failed to refresh case after removing photo.");
+      notify("Failed to refresh case after removing photo.");
     }
     router.refresh();
   }
@@ -325,7 +327,7 @@ export default function ClientCasePage({
       body: JSON.stringify({ userId: inviteUserId }),
     });
     if (!res.ok) {
-      alert("Failed to invite collaborator.");
+      notify("Failed to invite collaborator.");
       return;
     }
     setInviteUserId("");
@@ -337,7 +339,7 @@ export default function ClientCasePage({
       method: "DELETE",
     });
     if (!res.ok) {
-      alert("Failed to remove collaborator.");
+      notify("Failed to remove collaborator.");
       return;
     }
     await refreshMembers();

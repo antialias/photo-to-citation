@@ -1,3 +1,4 @@
+import NotificationProvider from "@/components/NotificationProvider";
 import { authOptions } from "@/lib/authOptions";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
@@ -35,8 +36,10 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider session={session}>
-          <NavBar />
-          {children}
+          <NotificationProvider>
+            <NavBar />
+            {children}
+          </NotificationProvider>
         </AuthProvider>
       </body>
     </html>
