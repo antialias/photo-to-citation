@@ -15,6 +15,7 @@ export default function CaseToolbar({
   canDelete = false,
   closed = false,
   archived = false,
+  readOnly = false,
 }: {
   caseId: string;
   disabled?: boolean;
@@ -23,6 +24,7 @@ export default function CaseToolbar({
   canDelete?: boolean;
   closed?: boolean;
   archived?: boolean;
+  readOnly?: boolean;
 }) {
   const reqText = progress
     ? progress.stage === "upload"
@@ -69,134 +71,136 @@ export default function CaseToolbar({
           </p>
         </div>
       ) : null}
-      <div className="flex justify-end">
-        <details
-          ref={detailsRef}
-          className="relative"
-          onToggle={() => {
-            if (detailsRef.current?.open) {
-              detailsRef.current
-                .querySelector<HTMLElement>("button, a")
-                ?.focus();
-            }
-          }}
-        >
-          <summary
-            className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-            aria-label="Case actions menu"
+      {readOnly ? null : (
+        <div className="flex justify-end">
+          <details
+            ref={detailsRef}
+            className="relative"
+            onToggle={() => {
+              if (detailsRef.current?.open) {
+                detailsRef.current
+                  .querySelector<HTMLElement>("button, a")
+                  ?.focus();
+              }
+            }}
           >
-            Actions
-          </summary>
-          <div
-            className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
-            role="menu"
-          >
-            <button
-              type="button"
-              onClick={async () => {
-                await apiFetch(`/api/cases/${caseId}/reanalyze`, {
-                  method: "POST",
-                });
-                window.location.reload();
-              }}
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+            <summary
+              className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+              aria-label="Case actions menu"
             >
-              Re-run Analysis
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                await apiFetch(`/api/cases/${caseId}/archived`, {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ archived: !archived }),
-                });
-                window.location.reload();
-              }}
-              data-testid="archive-case-button"
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              Actions
+            </summary>
+            <div
+              className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
+              role="menu"
             >
-              {archived ? "Unarchive Case" : "Archive Case"}
-            </button>
-            {disabled ? null : (
-              <>
-                {progress ? (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await apiFetch(`/api/cases/${caseId}/cancel-analysis`, {
-                        method: "POST",
-                      });
-                      window.location.reload();
-                    }}
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                  >
-                    Cancel Analysis
-                  </button>
-                ) : null}
-                <Link
-                  href={`/cases/${caseId}/compose`}
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  Draft Email to Authorities
-                </Link>
-                {hasOwner ? null : (
-                  <Link
-                    href={`/cases/${caseId}/ownership`}
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Request Ownership Info
-                  </Link>
-                )}
-                {hasOwner ? (
-                  <Link
-                    href={`/cases/${caseId}/notify-owner`}
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Notify Registered Owner
-                  </Link>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await apiFetch(`/api/cases/${caseId}/closed`, {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ closed: !closed }),
-                    });
-                    window.location.reload();
-                  }}
-                  data-testid="close-case-button"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                >
-                  {closed ? "Reopen Case" : "Close Case"}
-                </button>
-              </>
-            )}
-            {canDelete ? (
               <button
                 type="button"
                 onClick={async () => {
-                  const code = Math.random().toString(36).slice(2, 6);
-                  const input = prompt(
-                    `Type '${code}' to confirm deleting this case.`,
-                  );
-                  if (input === code) {
-                    await apiFetch(`/api/cases/${caseId}`, {
-                      method: "DELETE",
-                    });
-                    window.location.href = withBasePath("/cases");
-                  }
+                  await apiFetch(`/api/cases/${caseId}/reanalyze`, {
+                    method: "POST",
+                  });
+                  window.location.reload();
                 }}
-                data-testid="delete-case-button"
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
               >
-                Delete Case
+                Re-run Analysis
               </button>
-            ) : null}
-          </div>
-        </details>
-      </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  await apiFetch(`/api/cases/${caseId}/archived`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ archived: !archived }),
+                  });
+                  window.location.reload();
+                }}
+                data-testid="archive-case-button"
+                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                {archived ? "Unarchive Case" : "Archive Case"}
+              </button>
+              {disabled ? null : (
+                <>
+                  {progress ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await apiFetch(`/api/cases/${caseId}/cancel-analysis`, {
+                          method: "POST",
+                        });
+                        window.location.reload();
+                      }}
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                    >
+                      Cancel Analysis
+                    </button>
+                  ) : null}
+                  <Link
+                    href={`/cases/${caseId}/compose`}
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Draft Email to Authorities
+                  </Link>
+                  {hasOwner ? null : (
+                    <Link
+                      href={`/cases/${caseId}/ownership`}
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Request Ownership Info
+                    </Link>
+                  )}
+                  {hasOwner ? (
+                    <Link
+                      href={`/cases/${caseId}/notify-owner`}
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Notify Registered Owner
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await apiFetch(`/api/cases/${caseId}/closed`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ closed: !closed }),
+                      });
+                      window.location.reload();
+                    }}
+                    data-testid="close-case-button"
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                  >
+                    {closed ? "Reopen Case" : "Close Case"}
+                  </button>
+                </>
+              )}
+              {canDelete ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const code = Math.random().toString(36).slice(2, 6);
+                    const input = prompt(
+                      `Type '${code}' to confirm deleting this case.`,
+                    );
+                    if (input === code) {
+                      await apiFetch(`/api/cases/${caseId}`, {
+                        method: "DELETE",
+                      });
+                      window.location.href = withBasePath("/cases");
+                    }
+                  }}
+                  data-testid="delete-case-button"
+                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                >
+                  Delete Case
+                </button>
+              ) : null}
+            </div>
+          </details>
+        </div>
+      )}
     </div>
   );
 }

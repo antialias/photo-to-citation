@@ -60,10 +60,12 @@ export default function ClientCasePage({
   initialCase,
   caseId,
   initialIsAdmin = false,
+  readOnly = false,
 }: {
   initialCase: Case | null;
   caseId: string;
   initialIsAdmin?: boolean;
+  readOnly?: boolean;
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
@@ -485,10 +487,22 @@ export default function ClientCasePage({
     <>
       <AnalysisInfo
         analysis={caseData.analysis}
-        onPlateChange={updatePlateNumber}
-        onStateChange={updatePlateStateFn}
-        onClearPlate={plateNumberOverridden ? clearPlateNumber : undefined}
-        onClearState={plateStateOverridden ? clearPlateState : undefined}
+        onPlateChange={readOnly ? undefined : updatePlateNumber}
+        onStateChange={readOnly ? undefined : updatePlateStateFn}
+        onClearPlate={
+          readOnly
+            ? undefined
+            : plateNumberOverridden
+              ? clearPlateNumber
+              : undefined
+        }
+        onClearState={
+          readOnly
+            ? undefined
+            : plateStateOverridden
+              ? clearPlateState
+              : undefined
+        }
       />
     </>
   ) : caseData.analysisStatus === "canceled" ? (
@@ -500,9 +514,15 @@ export default function ClientCasePage({
   ) : (
     <div className="text-sm text-red-600 flex flex-col gap-1">
       <p>{failureReason}</p>
-      <button type="button" onClick={retryAnalysis} className="underline w-fit">
-        Retry
-      </button>
+      {readOnly ? null : (
+        <button
+          type="button"
+          onClick={retryAnalysis}
+          className="underline w-fit"
+        >
+          Retry
+        </button>
+      )}
       <details>
         <summary className="cursor-pointer underline">More info</summary>
         <p className="mt-1">
@@ -537,21 +557,33 @@ export default function ClientCasePage({
   return (
     <div
       className="relative h-full"
-      onDragOver={(e) => e.preventDefault()}
-      onDragEnter={(e) => {
-        e.preventDefault();
-        setDragging(true);
-      }}
-      onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setDragging(false);
-        }
-      }}
-      onDrop={async (e) => {
-        e.preventDefault();
-        await uploadFiles(e.dataTransfer.files);
-        setDragging(false);
-      }}
+      onDragOver={readOnly ? undefined : (e) => e.preventDefault()}
+      onDragEnter={
+        readOnly
+          ? undefined
+          : (e) => {
+              e.preventDefault();
+              setDragging(true);
+            }
+      }
+      onDragLeave={
+        readOnly
+          ? undefined
+          : (e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setDragging(false);
+              }
+            }
+      }
+      onDrop={
+        readOnly
+          ? undefined
+          : async (e) => {
+              e.preventDefault();
+              await uploadFiles(e.dataTransfer.files);
+              setDragging(false);
+            }
+      }
     >
       <CaseLayout
         header={
@@ -583,6 +615,7 @@ export default function ClientCasePage({
               canDelete={isAdmin}
               closed={caseData.closed}
               archived={caseData.archived}
+              readOnly={readOnly}
             />
           </div>
         }
@@ -604,7 +637,7 @@ export default function ClientCasePage({
                 <p>
                   <span className="font-semibold">Visibility:</span>{" "}
                   {caseData.public ? "Public" : "Private"}
-                  {(isAdmin || session?.user) && (
+                  {(isAdmin || session?.user) && !readOnly && (
                     <button
                       type="button"
                       onClick={togglePublic}
@@ -650,21 +683,29 @@ export default function ClientCasePage({
                 })()}
                 <p>
                   <span className="font-semibold">VIN:</span>{" "}
-                  <EditableText
-                    value={vin}
-                    onSubmit={updateVinFn}
-                    onClear={vinOverridden ? clearVin : undefined}
-                    placeholder="VIN"
-                  />
+                  {readOnly ? (
+                    <span>{vin || ""}</span>
+                  ) : (
+                    <EditableText
+                      value={vin}
+                      onSubmit={updateVinFn}
+                      onClear={vinOverridden ? clearVin : undefined}
+                      placeholder="VIN"
+                    />
+                  )}
                 </p>
                 <p>
                   <span className="font-semibold">Note:</span>{" "}
-                  <EditableText
-                    value={note}
-                    onSubmit={updateCaseNoteFn}
-                    onClear={note ? () => updateCaseNoteFn("") : undefined}
-                    placeholder="Add note"
-                  />
+                  {readOnly ? (
+                    <span>{note || ""}</span>
+                  ) : (
+                    <EditableText
+                      value={note}
+                      onSubmit={updateCaseNoteFn}
+                      onClear={note ? () => updateCaseNoteFn("") : undefined}
+                      placeholder="Add note"
+                    />
+                  )}
                 </p>
                 <div>
                   <span className="font-semibold">Members:</span>
@@ -674,7 +715,9 @@ export default function ClientCasePage({
                         <span className="flex-1">
                           {m.name ?? m.email ?? m.userId} ({m.role})
                         </span>
-                        {canManageMembers && m.role !== "owner" ? (
+                        {readOnly ||
+                        !canManageMembers ||
+                        m.role === "owner" ? null : (
                           <button
                             type="button"
                             onClick={() => removeMember(m.userId)}
@@ -682,11 +725,11 @@ export default function ClientCasePage({
                           >
                             Remove
                           </button>
-                        ) : null}
+                        )}
                       </li>
                     ))}
                   </ul>
-                  {canManageMembers ? (
+                  {readOnly || !canManageMembers ? null : (
                     <div className="flex gap-2 mt-2">
                       <input
                         type="text"
@@ -703,7 +746,7 @@ export default function ClientCasePage({
                         Invite
                       </button>
                     </div>
-                  ) : null}
+                  )}
                 </div>
               </div>
             </DebugWrapper>
@@ -717,48 +760,50 @@ export default function ClientCasePage({
                     fill
                     className="object-contain"
                   />
-                  <details
-                    ref={photoMenuRef}
-                    className="absolute top-1 right-1 text-white"
-                    onToggle={() => {
-                      if (photoMenuRef.current?.open) {
-                        photoMenuRef.current
-                          .querySelector<HTMLElement>("button, a")
-                          ?.focus();
-                      }
-                    }}
-                  >
-                    <summary
-                      className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-                      aria-label="Photo actions menu"
-                    >
-                      ⋮
-                    </summary>
-                    <div
-                      className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-                      role="menu"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          reanalyzePhoto(
-                            selectedPhoto,
-                            e.currentTarget.closest("details"),
-                          )
+                  {readOnly ? null : (
+                    <details
+                      ref={photoMenuRef}
+                      className="absolute top-1 right-1 text-white"
+                      onToggle={() => {
+                        if (photoMenuRef.current?.open) {
+                          photoMenuRef.current
+                            .querySelector<HTMLElement>("button, a")
+                            ?.focus();
                         }
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      }}
+                    >
+                      <summary
+                        className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
+                        aria-label="Photo actions menu"
                       >
-                        Reanalyze Photo
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(selectedPhoto)}
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        ⋮
+                      </summary>
+                      <div
+                        className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
+                        role="menu"
                       >
-                        Delete Image
-                      </button>
-                    </div>
-                  </details>
+                        <button
+                          type="button"
+                          onClick={(e) =>
+                            reanalyzePhoto(
+                              selectedPhoto,
+                              e.currentTarget.closest("details"),
+                            )
+                          }
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        >
+                          Reanalyze Photo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(selectedPhoto)}
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        >
+                          Delete Image
+                        </button>
+                      </div>
+                    </details>
+                  )}
                   {caseData.analysis ? (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
                       <ImageHighlights
@@ -783,14 +828,18 @@ export default function ClientCasePage({
                 })()}
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   <span className="font-semibold">Note:</span>{" "}
-                  <EditableText
-                    value={photoNote}
-                    onSubmit={updatePhotoNoteFn}
-                    onClear={
-                      photoNote ? () => updatePhotoNoteFn("") : undefined
-                    }
-                    placeholder="Add note"
-                  />
+                  {readOnly ? (
+                    <span>{photoNote || ""}</span>
+                  ) : (
+                    <EditableText
+                      value={photoNote}
+                      onSubmit={updatePhotoNoteFn}
+                      onClear={
+                        photoNote ? () => updatePhotoNoteFn("") : undefined
+                      }
+                      placeholder="Add note"
+                    />
+                  )}
                 </p>
               </>
             ) : null}
@@ -831,28 +880,32 @@ export default function ClientCasePage({
                           ) : null;
                         })()}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(p)}
-                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
+                      {readOnly ? null : (
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(p)}
+                          className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                      )}
                     </div>
                   </DebugWrapper>
                 );
               })}
-              <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
-                + add image
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleUpload}
-                  className="hidden"
-                />
-              </label>
+              {readOnly ? null : (
+                <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
+                  + add image
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
           </>
         }
@@ -933,11 +986,11 @@ export default function ClientCasePage({
           ) : null}
         </div>
       </CaseLayout>
-      {dragging ? (
+      {readOnly || !dragging ? null : (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
           Drop to add photos
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
