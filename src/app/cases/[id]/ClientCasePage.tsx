@@ -11,6 +11,7 @@ import ImageHighlights from "@/app/components/ImageHighlights";
 import MapPreview from "@/app/components/MapPreview";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { useSession } from "@/app/useSession";
+import { withBasePath } from "@/basePath";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
@@ -25,6 +26,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { FiShare } from "react-icons/fi";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -76,6 +78,7 @@ export default function ClientCasePage({
     Array<{ userId: string; role: string }>
   >([]);
   const [inviteUserId, setInviteUserId] = useState("");
+  const [copied, setCopied] = useState(false);
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
@@ -248,6 +251,13 @@ export default function ClientCasePage({
       return;
     }
     await refreshCase();
+  }
+
+  async function copyShareUrl() {
+    const url = `${window.location.origin}${withBasePath(`/cases/${caseId}`)}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function reanalyzePhoto(
@@ -497,19 +507,34 @@ export default function ClientCasePage({
                   <span className="font-semibold">Created:</span>{" "}
                   {new Date(caseData.createdAt).toLocaleString()}
                 </p>
-                <p>
-                  <span className="font-semibold">Visibility:</span>{" "}
-                  {caseData.public ? "Public" : "Private"}
+                <p className="flex items-center gap-2">
+                  <span>
+                    <span className="font-semibold">Visibility:</span>{" "}
+                    {caseData.public ? "Public" : "Private"}
+                  </span>
                   {(isAdmin || session?.user) && (
                     <button
                       type="button"
                       onClick={togglePublic}
-                      className="ml-2 text-blue-500 underline"
+                      className="text-blue-500 underline"
                       data-testid="toggle-public-button"
                     >
                       Make {caseData.public ? "Private" : "Public"}
                     </button>
                   )}
+                  {caseData.public ? (
+                    <button
+                      type="button"
+                      onClick={copyShareUrl}
+                      className="text-blue-500 underline flex items-center"
+                      data-testid="share-case-button"
+                    >
+                      <FiShare />
+                    </button>
+                  ) : null}
+                  {copied ? (
+                    <span className="text-green-600 text-sm">Copied</span>
+                  ) : null}
                 </p>
                 {caseData.streetAddress ? (
                   <p>
