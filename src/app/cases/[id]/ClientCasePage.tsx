@@ -22,7 +22,7 @@ import {
   getRepresentativePhoto,
   hasViolation,
 } from "@/lib/caseUtils";
-import { getThumbnailUrl } from "@/lib/thumbnails";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -58,9 +58,11 @@ function baseName(filePath: string): string {
 export default function ClientCasePage({
   initialCase,
   caseId,
+  initialIsAdmin = false,
 }: {
   initialCase: Case | null;
   caseId: string;
+  initialIsAdmin?: boolean;
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
@@ -83,7 +85,9 @@ export default function ClientCasePage({
   const [copied, setCopied] = useState(false);
   const { data: session } = useSession();
   const isAdmin =
-    session?.user?.role === "admin" || session?.user?.role === "superadmin";
+    session?.user?.role === "admin" ||
+    session?.user?.role === "superadmin" ||
+    initialIsAdmin;
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
