@@ -10,10 +10,11 @@ import { startImageStub } from "./imageStub";
 const nodeBin = process.execPath;
 const tsNodeReg = require.resolve("ts-node/register/transpile-only");
 const scriptPath = path.resolve("scripts/generateWebsiteImages.ts");
+const execSyncStub = path.resolve(__dirname, "execSyncStub.ts");
 const tsconfig = path.resolve("tsconfig.json");
 
 function run(cwd: string, env: NodeJS.ProcessEnv) {
-  return spawnSync(nodeBin, ["-r", tsNodeReg, scriptPath], {
+  return spawnSync(nodeBin, ["-r", tsNodeReg, "-r", execSyncStub, scriptPath], {
     cwd,
     env: { ...process.env, TS_NODE_PROJECT: tsconfig, ...env },
     encoding: "utf8",
