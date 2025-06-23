@@ -1,7 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AppConfigurationTab from "./AppConfigurationTab";
 
 export interface UserRecord {
@@ -32,15 +32,8 @@ export default function AdminPageClient({
   const [rules, setRules] = useState(initialRules);
   const [tab, setTab] = useState<"users" | "config">("users");
   const [inviteEmail, setInviteEmail] = useState("");
-  const [rulesText, setRulesText] = useState(
-    JSON.stringify(initialRules, null, 2),
-  );
   const { data: session } = useSession();
   const isSuperadmin = session?.user?.role === "superadmin";
-
-  useEffect(() => {
-    setRulesText(JSON.stringify(rules, null, 2));
-  }, [rules]);
 
   async function refreshUsers() {
     const res = await apiFetch("/api/users");
@@ -76,19 +69,28 @@ export default function AdminPageClient({
     refreshUsers();
   }
 
+  function updateRule(index: number, field: keyof CasbinRule, value: string) {
+    const updated = [...rules];
+    updated[index] = { ...updated[index], [field]: value };
+    setRules(updated);
+  }
+
+  function addRule() {
+    setRules([...rules, { ptype: "p", v0: "", v1: "", v2: "" }]);
+  }
+
+  function removeRule(index: number) {
+    setRules(rules.filter((_, i) => i !== index));
+  }
+
   async function saveRules() {
     if (!isSuperadmin) return;
-    try {
-      const parsed = JSON.parse(rulesText) as CasbinRule[];
-      const res = await apiFetch("/api/casbin-rules", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed),
-      });
-      if (res.ok) setRules(await res.json());
-    } catch {
-      alert("Invalid rules JSON");
-    }
+    const res = await apiFetch("/api/casbin-rules", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(rules),
+    });
+    if (res.ok) setRules(await res.json());
   }
 
   return (
@@ -161,19 +163,67 @@ export default function AdminPageClient({
             ))}
           </ul>
           <h1 className="text-xl font-bold my-4">Casbin Rules</h1>
-          <ul className="grid gap-1">
-            {rules.map((r) => (
-              <li key={`${r.ptype}-${r.v0}-${r.v1}-${r.v2}`}>
-                {r.ptype}, {r.v0 ?? ""}, {r.v1 ?? ""}, {r.v2 ?? ""}
-              </li>
-            ))}
-          </ul>
-          <textarea
-            value={rulesText}
-            onChange={(e) => setRulesText(e.target.value)}
-            rows={10}
-            className="border p-1 w-full my-2 bg-white dark:bg-gray-900"
-          />
+          <table className="w-full mb-2">
+            <thead>
+              <tr className="text-left">
+                <th>ptype</th>
+                <th>v0</th>
+                <th>v1</th>
+                <th>v2</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {rules.map((r, i) => (
+                <tr key={`${i}-${r.ptype}-${r.v0}-${r.v1}-${r.v2}`}>
+                  <td>
+                    <input
+                      value={r.ptype}
+                      onChange={(e) => updateRule(i, "ptype", e.target.value)}
+                      className="border p-1 bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      value={r.v0 ?? ""}
+                      onChange={(e) => updateRule(i, "v0", e.target.value)}
+                      className="border p-1 bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      value={r.v1 ?? ""}
+                      onChange={(e) => updateRule(i, "v1", e.target.value)}
+                      className="border p-1 bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      value={r.v2 ?? ""}
+                      onChange={(e) => updateRule(i, "v2", e.target.value)}
+                      className="border p-1 bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => removeRule(i)}
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button
+            type="button"
+            onClick={addRule}
+            className="bg-green-600 text-white px-2 py-1 rounded mb-2"
+          >
+            Add Rule
+          </button>
           <button
             type="button"
             onClick={saveRules}
