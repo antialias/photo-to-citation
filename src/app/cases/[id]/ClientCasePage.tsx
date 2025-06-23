@@ -11,6 +11,7 @@ import ImageHighlights from "@/app/components/ImageHighlights";
 import MapPreview from "@/app/components/MapPreview";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { useSession } from "@/app/useSession";
+import { withBasePath } from "@/basePath";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
@@ -25,6 +26,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { FaShare } from "react-icons/fa";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -76,6 +78,7 @@ export default function ClientCasePage({
     Array<{ userId: string; role: string }>
   >([]);
   const [inviteUserId, setInviteUserId] = useState("");
+  const [copied, setCopied] = useState(false);
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
@@ -248,6 +251,15 @@ export default function ClientCasePage({
       return;
     }
     await refreshCase();
+  }
+
+  async function copyPublicUrl() {
+    const url = `${window.location.origin}${withBasePath(
+      `/public/cases/${caseId}`,
+    )}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function reanalyzePhoto(
@@ -472,6 +484,19 @@ export default function ClientCasePage({
                 Back to Cases
               </Link>
               <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+              {caseData.public ? (
+                <button
+                  type="button"
+                  onClick={copyPublicUrl}
+                  aria-label="Copy public link"
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  <FaShare />
+                </button>
+              ) : null}
+              {copied ? (
+                <span className="text-sm text-green-600">Copied!</span>
+              ) : null}
             </div>
             <CaseToolbar
               caseId={caseId}
