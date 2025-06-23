@@ -408,7 +408,7 @@ npm run website -- \
   Pass a comma separated list of `data-image-tag` values to limit the scope.
 * `--generate-new-versions` regenerates any image whose `data-image-version`
   is higher than the recorded version in `website/images/versions.json`.
-* `--publish` builds the site and pushes the result to the `gh-pages` branch.
+* `--publish` builds the site and force pushes the result to the `gh-pages` branch.
 
 The output is written to `website/dist`.
 

@@ -51,7 +51,7 @@ async function publish(distDir: string): Promise<void> {
   const status = spawnSync("git", ["status", "--porcelain"], { cwd: tmp });
   if (status.stdout.toString().trim()) {
     execSync('git commit -m "Update website"', { cwd: tmp, stdio: "inherit" });
-    execSync("git push origin gh-pages", { cwd: tmp, stdio: "inherit" });
+    execSync("git push --force origin gh-pages", { cwd: tmp, stdio: "inherit" });
   }
   execSync(`git worktree remove ${tmp}`, { stdio: "inherit" });
 }
