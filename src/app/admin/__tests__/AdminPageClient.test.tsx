@@ -1,5 +1,11 @@
 import type { useSession as useSessionFn } from "@/app/useSession";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/useSession", () => ({
@@ -27,8 +33,12 @@ describe("AdminPageClient", () => {
   it("renders users and rules", () => {
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
     expect(screen.getByText("a@example.com")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("admin")).toBeInTheDocument();
-    expect(screen.getByText(/p, admin, users/)).toBeInTheDocument();
+    expect(screen.getAllByRole("combobox")[0]).toHaveDisplayValue("admin");
+    const table = screen.getByRole("table");
+    const inputs = within(table).getAllByRole("textbox");
+    expect(inputs[0]).toHaveValue("p");
+    expect(inputs[1]).toHaveValue("admin");
+    expect(inputs[2]).toHaveValue("users");
     expect(screen.getByRole("button", { name: /save rules/i })).toBeDisabled();
   });
 
@@ -54,11 +64,11 @@ describe("AdminPageClient", () => {
       ],
     } as Response);
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
-    fireEvent.change(screen.getByDisplayValue("admin"), {
+    fireEvent.change(screen.getAllByRole("combobox")[0], {
       target: { value: "user" },
     });
     await waitFor(() =>
-      expect(screen.getByDisplayValue("user")).toBeInTheDocument(),
+      expect(screen.getAllByRole("combobox")[0]).toHaveDisplayValue("user"),
     );
   });
 
@@ -74,13 +84,14 @@ describe("AdminPageClient", () => {
     } as Response);
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
     fireEvent.change(screen.getAllByRole("textbox")[1], {
-      target: { value: JSON.stringify(newRules, null, 2) },
+      target: { value: "user" },
+    });
+    fireEvent.change(screen.getAllByRole("textbox")[2], {
+      target: { value: "cases" },
     });
     fireEvent.click(screen.getByRole("button", { name: /save rules/i }));
     await waitFor(() =>
-      expect(
-        screen.getByText((t) => t.includes("user") && t.includes("cases")),
-      ).toBeInTheDocument(),
+      expect(screen.getAllByRole("textbox")[1]).toHaveValue("user"),
     );
   });
 });

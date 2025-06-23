@@ -95,7 +95,7 @@ Migrations are stored as SQL files under the `migrations` folder and applied at 
 
 ## Administration
 
-Visit `/admin` to manage users and Casbin policies. Admins can invite collaborators by entering an email address. The app creates the user with the `user` role and sends an invitation link. Super admins may edit the Casbin rule list directly in the UI. After saving, the server reloads the policy set so changes take effect immediately.
+Visit `/admin` to manage users and Casbin policies. Admins can invite collaborators by entering an email address. The app creates the user with the `user` role and sends an invitation link. Super admins can modify Casbin rules in a table-based editor with add, edit and delete controls. After saving, the server reloads the policy set so changes take effect immediately.
 
 ## OpenAI Integration
 
