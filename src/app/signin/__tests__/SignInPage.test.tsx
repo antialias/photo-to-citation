@@ -29,4 +29,14 @@ describe("SignInPage", () => {
       screen.getByText(/Sign-in failed. The link may have expired./i),
     ).toBeInTheDocument();
   });
+
+  it("links to marketing website", () => {
+    mockGet.mockReturnValueOnce(null);
+    render(<SignInPage />);
+    const link = screen.getByRole("link", { name: /back to website/i });
+    expect(link).toHaveAttribute(
+      "href",
+      "https://antialias.github.io/photo-to-citation/website/",
+    );
+  });
 });
