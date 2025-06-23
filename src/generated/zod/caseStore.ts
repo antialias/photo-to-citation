@@ -43,6 +43,7 @@ export const caseSchema = z.object({
     .optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  public: z.boolean(),
   gps: z
     .object({
       lat: z.number(),
@@ -76,4 +77,6 @@ export const caseSchema = z.object({
   sentEmails: z.array(sentEmailSchema).optional(),
   ownershipRequests: z.array(ownershipRequestSchema).optional(),
   threadImages: z.array(threadImageSchema).optional(),
+  note: z.string().optional().nullable(),
+  photoNotes: z.record(z.string().nullable()).optional(),
 });

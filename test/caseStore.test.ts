@@ -166,4 +166,22 @@ describe("caseStore", () => {
     const stored = getCase(c.id);
     expect(stored?.closed).toBe(true);
   });
+
+  it("sets case note", () => {
+    const { createCase, setCaseNote, getCase } = caseStore;
+    const c = createCase("/note.jpg", null);
+    const updated = setCaseNote(c.id, "hello");
+    expect(updated?.note).toBe("hello");
+    const stored = getCase(c.id);
+    expect(stored?.note).toBe("hello");
+  });
+
+  it("sets photo note", () => {
+    const { createCase, setPhotoNote, getCase } = caseStore;
+    const c = createCase("/p.jpg", null);
+    const updated = setPhotoNote(c.id, "/p.jpg", "foo");
+    expect(updated?.photoNotes?.["/p.jpg"]).toBe("foo");
+    const stored = getCase(c.id);
+    expect(stored?.photoNotes?.["/p.jpg"]).toBe("foo");
+  });
 });

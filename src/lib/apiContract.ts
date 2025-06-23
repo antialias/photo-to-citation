@@ -106,6 +106,30 @@ export const apiContract = c.router({
     summary: "Remove VIN override",
     description: "Clear any VIN override from a case.",
   }),
+  setCaseNote: c.mutation({
+    method: "PUT",
+    path: "/api/cases/:id/note",
+    pathParams: idParams,
+    body: c.type<{ note: string | null }>(),
+    responses: c.responses({
+      200: caseSchema,
+      404: errorSchema,
+    }),
+    summary: "Set case note",
+    description: "Update the note for a case.",
+  }),
+  setPhotoNote: c.mutation({
+    method: "PUT",
+    path: "/api/cases/:id/photo-note",
+    pathParams: idParams,
+    body: c.type<{ photo: string; note: string | null }>(),
+    responses: c.responses({
+      200: caseSchema,
+      404: errorSchema,
+    }),
+    summary: "Set photo note",
+    description: "Update the note for a case photo.",
+  }),
   caseStream: c.query({
     method: "GET",
     path: "/api/cases/stream",
