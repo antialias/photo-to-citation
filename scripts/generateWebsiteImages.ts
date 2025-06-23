@@ -8,105 +8,99 @@ import sharp from "sharp";
 
 dotenv.config();
 
-const openai = new OpenAI();
+let openai: OpenAI | null = null;
+function client(): OpenAI {
+  if (!openai) openai = new OpenAI();
+  return openai;
+}
 
-interface ImageSpec {
+export interface ImageSpec {
   file: string;
   prompt: string;
-  size?: ImageGenerateParams["size"];
   width?: number;
   height?: number;
+  options: Record<string, unknown>;
 }
 
-const specs: ImageSpec[] = [
-  {
-    file: "images/logo.png",
-    prompt:
-      "minimal logo reading 'Photo To Citation' with camera and ticket icon, dark background",
-    size: "1024x1024",
-    width: 40,
-    height: 40,
-  },
-  {
-    file: "images/hero.png",
-    prompt:
-      "cyclist snapping a photo of a car blocking the bike lane using a phone app",
-    width: 800,
-  },
-  {
-    file: "images/community.png",
-    prompt: "neighbors standing together in a welcoming style",
-    width: 180,
-  },
-  {
-    file: "images/mission.png",
-    prompt: "simple icon representing our mission of safer streets",
-    width: 64,
-    height: 64,
-  },
-  {
-    file: "images/ethos.png",
-    prompt: "graphic showing unity and cooperation",
-    width: 64,
-    height: 64,
-  },
-];
-
-const featurePrompts = [
-  "camera icon for quick one-handed capture",
-  "envelope icon for creating cases from email",
-  "magnifying glass over car for automatic AI analysis",
-  "map pin icon for reverse geocoding",
-  "document icon for generating reports",
-  "bell icon for multi-channel notifications",
-  "clipboard icon for citation tracking",
-  "group of cyclists helping each other",
-];
-
-for (let i = 0; i < featurePrompts.length; i++) {
-  specs.push({
-    file: `images/features/${i + 1}.png`,
-    prompt: featurePrompts[i],
-    size: "1024x1024",
-    width: 64,
-    height: 64,
-  });
+function attrMap(tag: string): Record<string, string> {
+  const attrs: Record<string, string> = {};
+  const regex = /(\w[\w-]*)(?:=("[^"]*"|'[^']*'))?/g;
+  let m: RegExpExecArray | null;
+  for (;;) {
+    m = regex.exec(tag);
+    if (!m) break;
+    const name = m[1];
+    const val = m[2] ? m[2].slice(1, -1) : "";
+    attrs[name] = val;
+  }
+  if (
+    /(?:\s|^)data-image-gen(?:\s|>|$)/.test(tag) &&
+    !("data-image-gen" in attrs)
+  ) {
+    attrs["data-image-gen"] = "";
+  }
+  return attrs;
 }
 
-const libraryPrompts = [
-  "car blocking bike lane while cyclist takes a photo",
-  "sidewalk blocked by vehicle, pedestrian photographing",
-  "cyclist using phone app to report violation",
-  "car receiving citation from community program",
-];
-
-for (let i = 0; i < libraryPrompts.length; i++) {
-  specs.push({
-    file: `images/library/${i + 1}.png`,
-    prompt: libraryPrompts[i],
-    width: 180,
-  });
+export function parseSpecs(text: string): ImageSpec[] {
+  const specs: ImageSpec[] = [];
+  const imgRe = /<img[^>]*data-image-gen[^>]*>/g;
+  let m: RegExpExecArray | null;
+  for (;;) {
+    m = imgRe.exec(text);
+    if (!m) break;
+    const tag = m[0];
+    const attrs = attrMap(tag);
+    const src = attrs.src;
+    const alt = attrs.alt;
+    if (!src || !alt) continue;
+    let file = src;
+    if (file.startsWith("{{")) {
+      const match = file.match(/'([^']+)'/);
+      if (match) file = match[1];
+    }
+    file = file.replace(/^\//, "");
+    const width = attrs.width ? Number.parseInt(attrs.width, 10) : undefined;
+    const height = attrs.height ? Number.parseInt(attrs.height, 10) : undefined;
+    let options: Record<string, unknown> = {};
+    if (attrs["data-image-gen"]?.trim()) {
+      try {
+        options = JSON.parse(attrs["data-image-gen"]);
+      } catch {
+        throw new Error(`Invalid JSON in data-image-gen for ${file}`);
+      }
+    }
+    specs.push({ file, prompt: alt, width, height, options });
+  }
+  return specs;
 }
 
-specs.push({
-  file: "images/owners.png",
-  prompt: "vehicle owner looking sorry while paying fine for parking violation",
-  width: 180,
-});
+function collectMarkdown(dir: string): string[] {
+  const files: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      files.push(...collectMarkdown(path.join(dir, entry.name)));
+    } else if (entry.name.endsWith(".md")) {
+      files.push(path.join(dir, entry.name));
+    }
+  }
+  return files;
+}
 
-const screenshotPrompts = [
-  "dark mode app screenshot showing a list of violation cases with thumbnail photos, status icons and blue highlights, sleek mobile UI",
-  "mobile camera interface screenshot with live preview and large 'Take Picture' button over a car blocking a bike lane",
-  "case detail screen screenshot with big photo marked up with bounding boxes, sidebar with address and license plate fields, map preview and dark UI",
-  "map view screenshot with open street map tiles, blue location pins containing thumbnail images and navigation header",
-];
-
-for (let i = 0; i < screenshotPrompts.length; i++) {
-  specs.push({
-    file: `images/screenshots/${i + 1}.png`,
-    prompt: screenshotPrompts[i],
-    width: 800,
-  });
+export function collectSpecs(root: string): ImageSpec[] {
+  const list: ImageSpec[] = [];
+  const files = collectMarkdown(root);
+  const seen = new Set<string>();
+  for (const file of files) {
+    const text = fs.readFileSync(file, "utf8");
+    for (const spec of parseSpecs(text)) {
+      if (!seen.has(spec.file)) {
+        list.push(spec);
+        seen.add(spec.file);
+      }
+    }
+  }
+  return list;
 }
 
 function fetchRemote(file: string): Buffer | null {
@@ -118,7 +112,7 @@ function fetchRemote(file: string): Buffer | null {
       });
       return Buffer.from(data);
     } catch {
-      // try next path
+      // continue
     }
   }
   return null;
@@ -143,8 +137,20 @@ async function createPlaceholder(
   localPath: string,
   spec: ImageSpec,
 ): Promise<void> {
-  const width = spec.width ?? 1;
-  const height = spec.height ?? 1;
+  let w = spec.width;
+  let h = spec.height;
+  if (
+    (w === undefined || h === undefined) &&
+    typeof spec.options.size === "string"
+  ) {
+    const [sw, sh] = (spec.options.size as string)
+      .split("x")
+      .map((n) => Number.parseInt(n, 10));
+    if (w === undefined) w = sw;
+    if (h === undefined) h = sh;
+  }
+  const width = w ?? 1;
+  const height = h ?? 1;
   const buf = await sharp({
     create: {
       width,
@@ -166,6 +172,15 @@ async function generate(spec: ImageSpec): Promise<void> {
     await saveResized(localPath, data, spec);
     return;
   }
+  const params: ImageGenerateParams & Record<string, unknown> = {
+    model: "dall-e-3",
+    prompt: spec.prompt,
+    n: 1,
+    ...spec.options,
+  } as ImageGenerateParams & Record<string, unknown>;
+  if (!params.size && spec.width && spec.height) {
+    params.size = `${spec.width}x${spec.height}` as ImageGenerateParams["size"];
+  }
   if (!process.env.OPENAI_API_KEY) {
     console.warn(
       `OPENAI_API_KEY not set; creating placeholder for ${spec.file}`,
@@ -174,12 +189,7 @@ async function generate(spec: ImageSpec): Promise<void> {
     return;
   }
   try {
-    const res = await openai.images.generate({
-      model: "gpt-image-1",
-      prompt: spec.prompt,
-      n: 1,
-      size: spec.size ?? "1024x1024",
-    });
+    const res = await client().images.generate(params);
     const url = res.data?.[0]?.url;
     if (!url) throw new Error("Image generation failed");
     const imgRes = await fetch(url);
@@ -191,13 +201,21 @@ async function generate(spec: ImageSpec): Promise<void> {
   }
 }
 
-(async () => {
+export async function run(rootDir: string): Promise<void> {
   try {
     execSync("git fetch origin gh-pages", { stdio: "ignore" });
   } catch {
     throw new Error("could not fetch gh-pages branch from origin");
   }
+  const specs = collectSpecs(rootDir);
   for (const spec of specs) {
     await generate(spec);
   }
-})();
+}
+
+if (require.main === module) {
+  run(path.resolve("website")).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

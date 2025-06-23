@@ -400,7 +400,12 @@ The output is written to `website/dist`.
 The build step uses OpenAI to generate marketing images when they are missing in the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the GitHub Action can access the API.
 
 
-The `scripts/generateWebsiteImages.ts` script defines prompts for each PNG used on the site. When new pages reference additional graphics, add a spec in that file so GitHub Actions can render them with GPT‑4o during the main-branch build. The **community**, **mission**, and **ethos** illustrations on the about page are produced this way.
+Images on the marketing site declare their own prompts. Any `<img>` tag that
+includes a `data-image-gen` attribute is parsed by
+`scripts/generateWebsiteImages.ts` during the build. The `alt` attribute becomes
+the prompt for OpenAI while `width` and `height` control the output size unless
+overridden in JSON provided to `data-image-gen`. New graphics can be added by
+placing such an image tag in a markdown file.
 
 ## Privacy and Data Use
 
