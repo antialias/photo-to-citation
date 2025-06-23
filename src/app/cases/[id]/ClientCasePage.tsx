@@ -477,7 +477,7 @@ export default function ClientCasePage({
       ? caseData.analysisProgress
       : null;
   const isPhotoReanalysis = Boolean(
-    progress && caseData.analysis && progress.total === 1 && reanalyzingPhoto,
+    reanalyzingPhoto && caseData.analysisStatus === "pending",
   );
   const requestValue = progress
     ? progress.stage === "upload"
