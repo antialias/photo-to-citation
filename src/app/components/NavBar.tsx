@@ -62,12 +62,14 @@ export default function NavBar() {
         >
           Map View
         </Link>
-        <Link
-          href="/triage"
-          className="hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          Triage
-        </Link>
+        {session ? (
+          <Link
+            href="/triage"
+            className="hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            Triage
+          </Link>
+        ) : null}
         {session?.user?.role === "admin" ||
         session?.user?.role === "superadmin" ? (
           <Link
@@ -85,18 +87,22 @@ export default function NavBar() {
             System Status
           </Link>
         ) : null}
-        <Link
-          href="/settings"
-          className="hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          User Settings
-        </Link>
-        <Link
-          href="/profile"
-          className="hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          Profile
-        </Link>
+        {session ? (
+          <>
+            <Link
+              href="/settings"
+              className="hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              User Settings
+            </Link>
+            <Link
+              href="/profile"
+              className="hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              Profile
+            </Link>
+          </>
+        ) : null}
         {session ? (
           <button
             type="button"
