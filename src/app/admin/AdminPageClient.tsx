@@ -1,7 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AppConfigurationTab from "./AppConfigurationTab";
 
 export interface UserRecord {
@@ -32,15 +32,8 @@ export default function AdminPageClient({
   const [rules, setRules] = useState(initialRules);
   const [tab, setTab] = useState<"users" | "config">("users");
   const [inviteEmail, setInviteEmail] = useState("");
-  const [rulesText, setRulesText] = useState(
-    JSON.stringify(initialRules, null, 2),
-  );
   const { data: session } = useSession();
   const isSuperadmin = session?.user?.role === "superadmin";
-
-  useEffect(() => {
-    setRulesText(JSON.stringify(rules, null, 2));
-  }, [rules]);
 
   async function refreshUsers() {
     const res = await apiFetch("/api/users");
@@ -76,19 +69,30 @@ export default function AdminPageClient({
     refreshUsers();
   }
 
+  function updateRule(idx: number, key: keyof CasbinRule, value: string) {
+    setRules((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], [key]: value };
+      return next;
+    });
+  }
+
+  function addRule() {
+    setRules((prev) => [...prev, { ptype: "p", v0: "", v1: "", v2: "" }]);
+  }
+
+  function deleteRule(idx: number) {
+    setRules((prev) => prev.filter((_, i) => i !== idx));
+  }
+
   async function saveRules() {
     if (!isSuperadmin) return;
-    try {
-      const parsed = JSON.parse(rulesText) as CasbinRule[];
-      const res = await apiFetch("/api/casbin-rules", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed),
-      });
-      if (res.ok) setRules(await res.json());
-    } catch {
-      alert("Invalid rules JSON");
-    }
+    const res = await apiFetch("/api/casbin-rules", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(rules),
+    });
+    if (res.ok) setRules(await res.json());
   }
 
   return (
@@ -161,19 +165,93 @@ export default function AdminPageClient({
             ))}
           </ul>
           <h1 className="text-xl font-bold my-4">Casbin Rules</h1>
-          <ul className="grid gap-1">
-            {rules.map((r) => (
-              <li key={`${r.ptype}-${r.v0}-${r.v1}-${r.v2}`}>
-                {r.ptype}, {r.v0 ?? ""}, {r.v1 ?? ""}, {r.v2 ?? ""}
-              </li>
-            ))}
-          </ul>
-          <textarea
-            value={rulesText}
-            onChange={(e) => setRulesText(e.target.value)}
-            rows={10}
-            className="border p-1 w-full my-2 bg-white dark:bg-gray-900"
-          />
+          <table className="border-collapse w-full mb-2">
+            <thead>
+              <tr>
+                <th className="border p-1">ptype</th>
+                <th className="border p-1">v0</th>
+                <th className="border p-1">v1</th>
+                <th className="border p-1">v2</th>
+                <th className="border p-1">v3</th>
+                <th className="border p-1">v4</th>
+                <th className="border p-1">v5</th>
+                <th className="border p-1" />
+              </tr>
+            </thead>
+            <tbody>
+              {rules.map((r, idx) => (
+                <tr key={`${r.ptype}-${r.v0}-${r.v1}-${r.v2}-${idx}`}>
+                  <td className="border p-1">
+                    <input
+                      value={r.ptype}
+                      onChange={(e) => updateRule(idx, "ptype", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      value={r.v0 ?? ""}
+                      onChange={(e) => updateRule(idx, "v0", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      value={r.v1 ?? ""}
+                      onChange={(e) => updateRule(idx, "v1", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      value={r.v2 ?? ""}
+                      onChange={(e) => updateRule(idx, "v2", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      value={r.v3 ?? ""}
+                      onChange={(e) => updateRule(idx, "v3", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      value={r.v4 ?? ""}
+                      onChange={(e) => updateRule(idx, "v4", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      value={r.v5 ?? ""}
+                      onChange={(e) => updateRule(idx, "v5", e.target.value)}
+                      className="border p-1 w-full bg-white dark:bg-gray-900"
+                    />
+                  </td>
+                  <td className="border p-1 text-center">
+                    <button
+                      type="button"
+                      onClick={() => deleteRule(idx)}
+                      className="text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={addRule}
+              className="bg-green-600 text-white px-2 py-1 rounded"
+            >
+              Add Rule
+            </button>
+          </div>
           <button
             type="button"
             onClick={saveRules}
