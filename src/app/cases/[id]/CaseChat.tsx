@@ -85,7 +85,11 @@ export default function CaseChat({
                 key={m.id}
                 className={m.role === "user" ? "text-right" : "text-left"}
               >
-                <span className="inline-block px-2 py-1 rounded bg-gray-200 dark:bg-gray-700">
+                <span
+                  className={`bubble ${
+                    m.role === "user" ? "bubble-user" : "bubble-assistant"
+                  }`}
+                >
                   {m.content}
                 </span>
               </div>
