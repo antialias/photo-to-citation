@@ -4,11 +4,13 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { createPhoto } from "./photo";
+import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let tmpDir: string;
+let stub: OpenAIStub;
 
 vi.setConfig({ testTimeout: 60000 });
 
@@ -30,6 +32,12 @@ async function signIn(email: string) {
 }
 
 beforeAll(async () => {
+  stub = await startOpenAIStub({
+    violationType: "parking",
+    details: "car parked illegally",
+    vehicle: {},
+    images: {},
+  });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-email-"));
   server = await startServer(3016, {
     NEXTAUTH_SECRET: "secret",
@@ -38,6 +46,7 @@ beforeAll(async () => {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     EMAIL_FILE: path.join(tmpDir, "emails.json"),
     MOCK_EMAIL_TO: "",
+    OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);
   await signIn("user@example.com");
@@ -45,6 +54,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+  await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 

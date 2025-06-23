@@ -5,10 +5,12 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
 import { createPhoto } from "./photo";
+import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
+let stub: OpenAIStub;
 
 vi.setConfig({ testTimeout: 60000 });
 
@@ -29,6 +31,12 @@ let setUserRoleAndLogIn: (opts: {
 let signIn: (email: string) => Promise<Response>;
 let signOut: () => Promise<void>;
 beforeAll(async () => {
+  stub = await startOpenAIStub({
+    violationType: "parking",
+    details: "car parked illegally",
+    vehicle: {},
+    images: {},
+  });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-admin-"));
   const case_store_file = path.join(tmpDir, "cases.sqlite");
   server = await startServer(3021, {
@@ -37,6 +45,7 @@ beforeAll(async () => {
     SMTP_FROM: "test@example.com",
     CASE_STORE_FILE: case_store_file,
     SUPER_ADMIN_EMAIL: "super@example.com",
+    OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);
   ({ setUserRoleAndLogIn, signIn, signOut } = createAuthHelpers(api, server));
@@ -46,6 +55,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+  await stub.close();
 });
 
 describe("admin actions", () => {

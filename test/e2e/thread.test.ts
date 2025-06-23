@@ -6,11 +6,13 @@ import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { createPhoto } from "./photo";
+import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let tmpDir: string;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
+let stub: OpenAIStub;
 
 async function signIn(email: string) {
   const csrf = await api("/api/auth/csrf").then((r) => r.json());
@@ -30,10 +32,17 @@ async function signIn(email: string) {
 }
 
 beforeAll(async () => {
+  stub = await startOpenAIStub({
+    violationType: "parking",
+    details: "car parked illegally",
+    vehicle: {},
+    images: {},
+  });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
+    OPENAI_BASE_URL: stub.url,
   };
   server = await startServer(3006, env);
   api = createApi(server);
@@ -42,6 +51,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
+  await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
