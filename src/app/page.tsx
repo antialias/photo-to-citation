@@ -1,9 +1,9 @@
 export { dynamic } from "./cases/page";
 import { withBasePath } from "@/basePath";
 import { authOptions } from "@/lib/authOptions";
+import isMobile from "is-mobile";
 import { getServerSession } from "next-auth/next";
 import { headers } from "next/headers";
-import isMobile from "is-mobile";
 import { redirect } from "next/navigation";
 import LoggedOutLanding from "./LoggedOutLanding";
 
