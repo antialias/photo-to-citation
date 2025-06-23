@@ -1,32 +1,21 @@
 import { getCasbinRules, listUsers } from "@/lib/adminStore";
 import { authOptions } from "@/lib/authOptions";
-import { withAuthorization } from "@/lib/authz";
+import { authorize } from "@/lib/authz";
 import { getServerSession } from "next-auth/next";
+import { notFound } from "next/navigation";
 import AdminPageClient from "./AdminPageClient";
 
 export const dynamic = "force-dynamic";
 
-const handler = withAuthorization(
-  { obj: "admin" },
-  async (
-    _req: Request,
-    { session }: { session?: { user?: { role?: string } } },
-  ) => {
-    const s = session ?? (await getServerSession(authOptions));
-    console.log("admin page session", s?.user?.role);
-    if (s?.user?.role !== "admin" && s?.user?.role !== "superadmin") {
-      return new Response(null, { status: 403 });
-    }
-    const users = listUsers();
-    const rules = getCasbinRules();
-    return <AdminPageClient initialUsers={users} initialRules={rules} />;
-  },
-);
-
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
-  return handler(new Request("http://localhost"), {
-    params: Promise.resolve({}),
-    session: session ?? undefined,
-  });
+  const role = session?.user?.role ?? "anonymous";
+  const ok = await authorize(role, "admin", "read");
+  const isSuper = await authorize(role, "superadmin", "read");
+  if (!ok && !isSuper) {
+    notFound();
+  }
+  const users = listUsers();
+  const rules = getCasbinRules();
+  return <AdminPageClient initialUsers={users} initialRules={rules} />;
 }
