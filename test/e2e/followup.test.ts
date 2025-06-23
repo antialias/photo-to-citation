@@ -5,6 +5,7 @@ import Database from "better-sqlite3";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
@@ -76,7 +77,7 @@ afterAll(async () => {
 
 describe("follow up", () => {
   async function createCase(): Promise<string> {
-    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
+    const file = createPhoto("a");
     const form = new FormData();
     form.append("photo", file);
     const res = await poll(

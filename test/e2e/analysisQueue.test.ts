@@ -5,6 +5,7 @@ import type { Case } from "@/lib/caseStore";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
@@ -49,10 +50,6 @@ function envFiles() {
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
   };
-}
-
-async function createPhoto(name: string): Promise<File> {
-  return new File([Buffer.from(name)], `${name}.jpg`, { type: "image/jpeg" });
 }
 
 async function fetchCase(id: string): Promise<Case> {
