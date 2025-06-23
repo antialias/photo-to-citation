@@ -1,5 +1,6 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import ThumbnailImage from "@/components/thumbnail-image";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
@@ -335,7 +336,7 @@ export default function NotifyOwnerEditor({
       </label>
       <div className="flex gap-2 flex-wrap">
         {attachments.map((p) => (
-          <Image
+          <ThumbnailImage
             key={p}
             src={getThumbnailUrl(p, 128)}
             alt="email attachment"

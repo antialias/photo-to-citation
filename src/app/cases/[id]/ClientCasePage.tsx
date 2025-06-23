@@ -13,6 +13,7 @@ import MapPreview from "@/app/components/MapPreview";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
+import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
@@ -876,10 +877,11 @@ export default function ClientCasePage({
                         }
                       >
                         <div className="relative w-20 aspect-[4/3]">
-                          <Image
+                          <ThumbnailImage
                             src={getThumbnailUrl(p, 128)}
                             alt="case photo"
-                            fill
+                            width={80}
+                            height={60}
                             className="object-cover"
                           />
                         </div>
@@ -1001,10 +1003,11 @@ export default function ClientCasePage({
                           }
                         >
                           <div className="relative w-20 aspect-[4/3]">
-                            <Image
+                            <ThumbnailImage
                               src={getThumbnailUrl(url, 128)}
                               alt="paperwork"
-                              fill
+                              width={80}
+                              height={60}
                               className="object-cover"
                             />
                           </div>
