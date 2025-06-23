@@ -26,8 +26,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useNotify } from "../../components/NotificationProvider";
 import { FaShare } from "react-icons/fa";
+import { useNotify } from "../../components/NotificationProvider";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
@@ -250,6 +250,19 @@ export default function ClientCasePage({
     });
     if (!res.ok) {
       notify("Failed to update visibility.");
+      return;
+    }
+    await refreshCase();
+  }
+
+  async function toggleClosed() {
+    const res = await apiFetch(`/api/cases/${caseId}/closed`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ closed: !(caseData?.closed ?? false) }),
+    });
+    if (!res.ok) {
+      notify("Failed to update status.");
       return;
     }
     await refreshCase();
@@ -506,6 +519,7 @@ export default function ClientCasePage({
               hasOwner={Boolean(ownerContact)}
               progress={progress}
               canDelete={isAdmin}
+              closed={caseData.closed}
             />
           </div>
         }
@@ -535,6 +549,20 @@ export default function ClientCasePage({
                       data-testid="toggle-public-button"
                     >
                       Make {caseData.public ? "Private" : "Public"}
+                    </button>
+                  )}
+                </p>
+                <p>
+                  <span className="font-semibold">Status:</span>{" "}
+                  {caseData.closed ? "Closed" : "Open"}
+                  {(isAdmin || session?.user) && (
+                    <button
+                      type="button"
+                      onClick={toggleClosed}
+                      className="ml-2 text-blue-500 underline"
+                      data-testid="toggle-closed-button"
+                    >
+                      Mark {caseData.closed ? "Open" : "Closed"}
                     </button>
                   )}
                 </p>
