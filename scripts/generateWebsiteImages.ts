@@ -14,6 +14,8 @@ export interface ImageSpec {
   file: string;
   width?: number;
   height?: number;
+  tag?: string;
+  version?: number;
   args: ImageGenerateParams;
 }
 
@@ -49,6 +51,11 @@ export function gatherSpecs(dir: string): ImageSpec[] {
       const heightAttr = img.getAttribute("height");
       const width = widthAttr ? Number.parseInt(widthAttr, 10) : undefined;
       const height = heightAttr ? Number.parseInt(heightAttr, 10) : undefined;
+      const tag = img.getAttribute("data-image-tag") || undefined;
+      const versionAttr = img.getAttribute("data-image-version");
+      const version = versionAttr
+        ? Number.parseInt(versionAttr, 10)
+        : undefined;
       const data = img.getAttribute("data-image-gen") || "";
       let opts: Partial<ImageGenerateParams> = {};
       if (data.trim()) {
@@ -67,13 +74,13 @@ export function gatherSpecs(dir: string): ImageSpec[] {
       if (!opts.size && width && height) {
         args.size = `${width}x${height}` as ImageGenerateParams["size"];
       }
-      specs[file] = { file, width, height, args };
+      specs[file] = { file, width, height, tag, version, args };
     }
   }
   return Object.values(specs);
 }
 
-function fetchRemote(dir: string, file: string): Buffer | null {
+export function fetchRemote(dir: string, file: string): Buffer | null {
   const paths = [path.join(dir, file), path.join(dir, "dist", file)];
   for (const p of paths) {
     try {
@@ -122,7 +129,10 @@ async function createPlaceholder(
   await saveResized(localPath, buf, spec);
 }
 
-async function generate(websiteDir: string, spec: ImageSpec): Promise<void> {
+export async function generateImage(
+  websiteDir: string,
+  spec: ImageSpec,
+): Promise<void> {
   const openai = new OpenAI();
   const localPath = path.join(websiteDir, spec.file);
   if (fs.existsSync(localPath)) return;
@@ -161,7 +171,7 @@ if (require.main === module) {
     }
     const specs = gatherSpecs(websiteDir);
     for (const spec of specs) {
-      await generate(websiteDir, spec);
+      await generateImage(websiteDir, spec);
     }
   })();
 }

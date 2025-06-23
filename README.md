@@ -395,6 +395,21 @@ Build the site with:
 npm run website
 ```
 
+The command accepts several flags:
+
+```
+npm run website -- \
+  [--force-regenerate-images[=tag1,tag2]] \
+  [--generate-new-versions] \
+  [--publish]
+```
+
+* `--force-regenerate-images` without arguments recreates all generated images.
+  Pass a comma separated list of `data-image-tag` values to limit the scope.
+* `--generate-new-versions` regenerates any image whose `data-image-version`
+  is higher than the recorded version in `website/images/versions.json`.
+* `--publish` builds the site and pushes the result to the `gh-pages` branch.
+
 The output is written to `website/dist`.
 
 The build step uses OpenAI to generate marketing images when they are missing in the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the GitHub Action can access the API.
@@ -402,7 +417,7 @@ The build step uses OpenAI to generate marketing images when they are missing in
 Images are declared directly in the markdown with a `data-image-gen` attribute:
 
 ```html
-<img src="autogen/cat.png" alt="Draw a 2D pixel art cat" width="256" height="256" data-image-gen />
+<img src="autogen/cat.png" alt="Draw a 2D pixel art cat" width="256" height="256" data-image-gen data-image-tag="example" data-image-version="1" />
 ```
 
 The build script scans the site for these tags and calls `client.images.generate`. Any JSON placed in the `data-image-gen` attribute is passed through to the API. Width and height attributes become the generated size unless overridden in the JSON.

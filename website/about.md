@@ -11,6 +11,8 @@ layout: layout.njk
     alt="neighbors standing together in a welcoming style"
     width="180"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="community"
+    data-image-version="1"
   />
 </div>
 
@@ -27,6 +29,8 @@ While we started with cyclists frustrated by blocked bike lanes, the app is just
   width="64"
   height="64"
   data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+  data-image-tag="mission"
+  data-image-version="1"
 />
 Our mission is to keep sidewalks and bike lanes clear so everyone can move freely. We believe better streets start with neighbors helping one another and a straightforward way to hold scofflaws accountable.
 
@@ -39,6 +43,8 @@ Our mission is to keep sidewalks and bike lanes clear so everyone can move freel
   width="64"
   height="64"
   data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+  data-image-tag="ethos"
+  data-image-version="1"
 />
 We champion cooperation—one quick photo can transform frustration into positive action. Each report builds a safer space for walkers, wheelchair users and cyclists.
 
