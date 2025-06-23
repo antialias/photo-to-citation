@@ -191,7 +191,7 @@ export default function ClientCasesPage({
                   router.push(`/cases/${c.id}`);
                 }
               }}
-              className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
+              className="flex flex-col sm:flex-row lg:flex-col items-start gap-2 sm:gap-4 w-full text-left"
             >
               <div className="relative">
                 {(() => {
@@ -200,8 +200,8 @@ export default function ClientCasesPage({
                     <Image
                       src={photo}
                       alt="case thumbnail"
-                      width={80}
-                      height={60}
+                      width={120}
+                      height={90}
                     />
                   ) : null;
                 })()}
@@ -217,9 +217,9 @@ export default function ClientCasesPage({
                   <MapPreview
                     lat={g.lat}
                     lon={g.lon}
-                    width={80}
-                    height={60}
-                    className="w-20 aspect-[4/3]"
+                    width={120}
+                    height={90}
+                    className="w-32 aspect-[4/3] lg:hidden"
                   />
                 ) : null;
               })()}
