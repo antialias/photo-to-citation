@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { reloadEnforcer } from "./authz";
 import { orm } from "./orm";
 import { casbinRules, users } from "./schema";
@@ -60,6 +60,75 @@ export async function replaceCasbinRules(
 ): Promise<CasbinRule[]> {
   orm.delete(casbinRules).run();
   if (rules.length) orm.insert(casbinRules).values(rules).run();
+  await reloadEnforcer();
+  return getCasbinRules();
+}
+
+export async function addCasbinRule(rule: CasbinRule): Promise<CasbinRule[]> {
+  orm
+    .insert(casbinRules)
+    .values({
+      ...rule,
+      v0: rule.v0 ?? null,
+      v1: rule.v1 ?? null,
+      v2: rule.v2 ?? null,
+      v3: rule.v3 ?? null,
+      v4: rule.v4 ?? null,
+      v5: rule.v5 ?? null,
+    })
+    .run();
+  await reloadEnforcer();
+  return getCasbinRules();
+}
+
+export async function updateCasbinRule(
+  oldRule: CasbinRule,
+  newRule: CasbinRule,
+): Promise<CasbinRule[]> {
+  orm
+    .update(casbinRules)
+    .set({
+      ...newRule,
+      v0: newRule.v0 ?? null,
+      v1: newRule.v1 ?? null,
+      v2: newRule.v2 ?? null,
+      v3: newRule.v3 ?? null,
+      v4: newRule.v4 ?? null,
+      v5: newRule.v5 ?? null,
+    })
+    .where(
+      and(
+        eq(casbinRules.ptype, oldRule.ptype),
+        eq(casbinRules.v0, oldRule.v0 ?? null),
+        eq(casbinRules.v1, oldRule.v1 ?? null),
+        eq(casbinRules.v2, oldRule.v2 ?? null),
+        eq(casbinRules.v3, oldRule.v3 ?? null),
+        eq(casbinRules.v4, oldRule.v4 ?? null),
+        eq(casbinRules.v5, oldRule.v5 ?? null),
+      ),
+    )
+    .run();
+  await reloadEnforcer();
+  return getCasbinRules();
+}
+
+export async function deleteCasbinRule(
+  rule: CasbinRule,
+): Promise<CasbinRule[]> {
+  orm
+    .delete(casbinRules)
+    .where(
+      and(
+        eq(casbinRules.ptype, rule.ptype),
+        eq(casbinRules.v0, rule.v0 ?? null),
+        eq(casbinRules.v1, rule.v1 ?? null),
+        eq(casbinRules.v2, rule.v2 ?? null),
+        eq(casbinRules.v3, rule.v3 ?? null),
+        eq(casbinRules.v4, rule.v4 ?? null),
+        eq(casbinRules.v5, rule.v5 ?? null),
+      ),
+    )
+    .run();
   await reloadEnforcer();
   return getCasbinRules();
 }
