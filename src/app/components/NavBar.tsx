@@ -77,6 +77,14 @@ export default function NavBar() {
             Admin
           </Link>
         ) : null}
+        {session?.user?.role === "superadmin" ? (
+          <Link
+            href="/system-status"
+            className="hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            System Status
+          </Link>
+        ) : null}
         <Link
           href="/settings"
           className="hover:text-gray-600 dark:hover:text-gray-300"
