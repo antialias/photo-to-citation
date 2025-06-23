@@ -6,6 +6,7 @@ interface TrackedJob {
   type: string;
   worker: Worker;
   startedAt: number;
+  caseId?: string;
 }
 
 const globalStore = globalThis as unknown as {
@@ -46,14 +47,16 @@ if (!globalStore.auditTimer) {
   globalStore.auditTimer.unref();
 }
 
-export function listJobs(type?: string) {
+export function listJobs(type?: string, caseId?: string) {
   auditJobs();
   const jobs = Array.from(activeJobs.values()).map((j) => ({
     id: j.worker.threadId,
     type: j.type,
     startedAt: j.startedAt,
+    caseId: j.caseId,
   }));
-  const filtered = type ? jobs.filter((j) => j.type === type) : jobs;
+  let filtered = type ? jobs.filter((j) => j.type === type) : jobs;
+  if (caseId) filtered = filtered.filter((j) => j.caseId === caseId);
   return {
     jobs: filtered,
     auditedAt: lastAudit,
@@ -61,7 +64,11 @@ export function listJobs(type?: string) {
   };
 }
 
-export function runJob(name: string, jobData: unknown): Worker {
+export function runJob(
+  name: string,
+  jobData: unknown,
+  opts?: { caseId?: string },
+): Worker {
   const jobPath = path.join(process.cwd(), "src", "jobs", `${name}.ts`);
   const wrapper = path.join(process.cwd(), "src", "jobs", "workerWrapper.js");
   const worker = new Worker(wrapper, {
@@ -71,6 +78,7 @@ export function runJob(name: string, jobData: unknown): Worker {
     type: name,
     worker,
     startedAt: Date.now(),
+    caseId: opts?.caseId,
   });
   lastUpdate = Date.now();
   globalStore.lastUpdate = lastUpdate;

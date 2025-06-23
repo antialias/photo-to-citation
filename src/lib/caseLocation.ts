@@ -16,5 +16,5 @@ export async function fetchCaseLocation(caseData: Case): Promise<void> {
 }
 
 export function fetchCaseLocationInBackground(caseData: Case): void {
-  runJob("fetchCaseLocation", caseData);
+  runJob("fetchCaseLocation", caseData, { caseId: caseData.id });
 }

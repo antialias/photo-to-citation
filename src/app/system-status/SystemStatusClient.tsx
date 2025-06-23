@@ -6,6 +6,7 @@ interface JobInfo {
   id: number;
   type: string;
   startedAt: number;
+  caseId?: string;
 }
 
 interface JobResponse {
@@ -69,6 +70,9 @@ export default function SystemStatusClient() {
           {jobs.map((j) => (
             <li key={j.id} className="border p-2">
               <span className="font-mono mr-2">{j.type}</span>
+              {j.caseId ? (
+                <span className="mr-2 text-gray-500">case {j.caseId}</span>
+              ) : null}
               {new Date(j.startedAt).toLocaleString()}
             </li>
           ))}
