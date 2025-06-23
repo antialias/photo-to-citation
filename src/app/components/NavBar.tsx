@@ -62,6 +62,12 @@ export default function NavBar() {
         >
           Map View
         </Link>
+        <Link
+          href="/triage"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          Triage
+        </Link>
         {session?.user?.role === "admin" ||
         session?.user?.role === "superadmin" ? (
           <Link
