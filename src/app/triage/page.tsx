@@ -1,3 +1,4 @@
+import { authOptions } from "@/lib/authOptions";
 import type { Case } from "@/lib/caseStore";
 import { getCases } from "@/lib/caseStore";
 import {
@@ -8,6 +9,7 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import { reportModules } from "@/lib/reportModules";
+import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +48,19 @@ function nextAction(c: Case): string {
 }
 
 export default async function TriagePage() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return <div className="p-8">You are not logged in.</div>;
+  }
   const cases = getCases();
+  if (cases.length === 0) {
+    return (
+      <div className="p-8">
+        <h1 className="text-xl font-bold mb-4">Case Triage</h1>
+        <p>No cases available.</p>
+      </div>
+    );
+  }
   const triage = cases
     .map((c) => ({ case: c, severity: computeSeverity(c) }))
     .filter((t) => t.severity > 0)

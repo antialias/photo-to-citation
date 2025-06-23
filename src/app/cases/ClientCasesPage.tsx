@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useNotify } from "../components/NotificationProvider";
+import { useSession } from "../useSession";
 import useDragReset from "./useDragReset";
 
 type Order = "createdAt" | "updatedAt" | "distance";
@@ -54,6 +55,7 @@ export default function ClientCasesPage({
   const [dragging, setDragging] = useState(false);
   const [dropCase, setDropCase] = useState<string | null>(null);
   const notify = useNotify();
+  const { data: session } = useSession();
   const params = useParams<{ id?: string }>();
   const searchParams = useSearchParams();
   const selectedIds =
@@ -61,6 +63,7 @@ export default function ClientCasesPage({
     (params.id ? [params.id] : []);
 
   useEffect(() => {
+    if (!session) return;
     const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
@@ -80,7 +83,7 @@ export default function ClientCasesPage({
       });
     };
     return () => es.close();
-  }, [orderBy, userLocation]);
+  }, [orderBy, userLocation, session]);
 
   useEffect(() => {
     setCases((prev) => sortList(prev, orderBy, userLocation));
