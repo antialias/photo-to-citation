@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - name: Configure git remote
         run: |
-          git remote set-url origin https://github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git fetch origin gh-pages --depth=1 || true
       - uses: actions/setup-node@v4
         with:
