@@ -402,6 +402,11 @@ export default function ClientCasePage({
       notify("Failed to refresh case after removing photo.");
     }
     router.refresh();
+    const confirmed = window.confirm("Photo removed. Reanalyze this case now?");
+    if (confirmed) {
+      await apiFetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" });
+      router.refresh();
+    }
   }
 
   async function refreshMembers() {
