@@ -1,13 +1,20 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { getAnonymousSessionId } from "@/lib/anonymousSession";
 import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import {
   analyzeCaseInBackground,
   cancelCaseAnalysis,
 } from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
-import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
+import {
+  addCasePhoto,
+  createCase,
+  getCase,
+  setCaseSessionId,
+  updateCase,
+} from "@/lib/caseStore";
 import { extractGps, extractTimestamp } from "@/lib/exif";
 import { generateThumbnailsInBackground } from "@/lib/thumbnails";
 import { cookies } from "next/headers";
@@ -88,6 +95,10 @@ export const POST = withAuthorization(
       takenAt,
       userId ?? null,
     );
+    if (!userId) {
+      const anonId = getAnonymousSessionId(req);
+      if (anonId) setCaseSessionId(newCase.id, anonId);
+    }
     const p = updateCase(newCase.id, {
       analysisStatus: "pending",
       analysisProgress: {

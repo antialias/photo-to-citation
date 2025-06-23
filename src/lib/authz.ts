@@ -1,7 +1,9 @@
 import { type Enforcer, newEnforcer, newModelFromString } from "casbin";
 import { getServerSession } from "next-auth/next";
+import { getAnonymousSessionId } from "./anonymousSession";
 import { authOptions } from "./authOptions";
 import { isCaseMember } from "./caseMembers";
+import { getCase } from "./caseStore";
 import { migrationsReady } from "./db";
 import { orm } from "./orm";
 import { casbinRules } from "./schema";
@@ -136,10 +138,18 @@ export function withCaseAuthorization<
   return async (req: Request, ctx: C): Promise<R | Response> => {
     const { id } = await ctx.params;
     const { session, role, userId } = await loadAuthContext(ctx, "user");
+    const caseData = getCase(id);
+    const anonSessionId = getAnonymousSessionId(req);
+    const sessionMatch =
+      anonSessionId &&
+      caseData?.sessionId &&
+      caseData.sessionId === anonSessionId;
     const { obj } = opts;
     const act = opts.act ?? methodToAct[req.method as keyof typeof methodToAct];
     console.log("withCaseAuthorization", role, obj, act, id, userId);
-    if (!(await authorize(role, obj, act, { caseId: id, userId }))) {
+    const authRole = sessionMatch ? "user" : role;
+    const authCtx = sessionMatch ? undefined : { caseId: id, userId };
+    if (!(await authorize(authRole, obj, act, authCtx))) {
       return new Response(null, { status: 403 });
     }
     return handler(req, { ...ctx, session } as C);

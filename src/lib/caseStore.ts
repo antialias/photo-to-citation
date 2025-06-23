@@ -42,6 +42,7 @@ export interface Case {
   closed?: boolean;
   note?: string | null;
   photoNotes?: Record<string, string | null>;
+  sessionId?: string | null;
   archived?: boolean;
 }
 
@@ -479,6 +480,13 @@ export function setCaseArchived(
   archived: boolean,
 ): Case | undefined {
   return updateCase(id, { archived });
+}
+
+export function setCaseSessionId(
+  id: string,
+  sessionId: string | null,
+): Case | undefined {
+  return updateCase(id, { sessionId });
 }
 
 export function deleteCase(id: string): boolean {
