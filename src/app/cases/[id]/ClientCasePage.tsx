@@ -402,6 +402,9 @@ export default function ClientCasePage({
       notify("Failed to refresh case after removing photo.");
     }
     router.refresh();
+    if (window.confirm("Re-run analysis now that a photo was removed?")) {
+      await retryAnalysis();
+    }
   }
 
   async function refreshMembers() {
