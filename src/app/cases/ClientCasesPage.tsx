@@ -43,6 +43,7 @@ export default function ClientCasesPage({
 }) {
   const [orderBy, setOrderBy] = useState<Order>("createdAt");
   const [cases, setCases] = useState(() => sortList(initialCases, "createdAt"));
+  const [showClosed, setShowClosed] = useState(false);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lon: number;
@@ -145,7 +146,7 @@ export default function ClientCasesPage({
       }}
     >
       <h1 className="text-xl font-bold mb-4">Cases</h1>
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-4">
         <label className="mr-2" htmlFor="order">
           Order by:
         </label>
@@ -159,90 +160,102 @@ export default function ClientCasesPage({
           <option value="updatedAt">Last Updated</option>
           <option value="distance">Distance from My Location</option>
         </select>
+        <label className="flex items-center gap-1" htmlFor="show-closed">
+          <input
+            id="show-closed"
+            type="checkbox"
+            checked={showClosed}
+            onChange={(e) => setShowClosed(e.target.checked)}
+            className="mr-1"
+          />
+          Show closed cases
+        </label>
       </div>
       <ul className="grid gap-4">
-        {cases.map((c) => (
-          <li
-            key={c.id}
-            onDragEnter={() => {
-              setDropCase(c.id);
-              setDragging(true);
-            }}
-            onDragLeave={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                setDropCase(null);
-              }
-            }}
-            className={`border p-2 ${
-              selectedIds.includes(c.id)
-                ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
-                : dropCase === c.id
-                  ? "ring-2 ring-green-500"
-                  : "ring-1 ring-transparent"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={(e) => {
-                if (e.shiftKey) {
-                  const ids = Array.from(new Set([...selectedIds, c.id]));
-                  router.push(`/cases?ids=${ids.join(",")}`);
-                } else {
-                  router.push(`/cases/${c.id}`);
+        {cases
+          .filter((c) => showClosed || !c.closed)
+          .map((c) => (
+            <li
+              key={c.id}
+              onDragEnter={() => {
+                setDropCase(c.id);
+                setDragging(true);
+              }}
+              onDragLeave={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setDropCase(null);
                 }
               }}
-              className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
+              className={`border p-2 ${
+                selectedIds.includes(c.id)
+                  ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
+                  : dropCase === c.id
+                    ? "ring-2 ring-green-500"
+                    : "ring-1 ring-transparent"
+              }`}
             >
-              <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  if (e.shiftKey) {
+                    const ids = Array.from(new Set([...selectedIds, c.id]));
+                    router.push(`/cases?ids=${ids.join(",")}`);
+                  } else {
+                    router.push(`/cases/${c.id}`);
+                  }
+                }}
+                className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
+              >
+                <div className="relative">
+                  {(() => {
+                    const photo = getRepresentativePhoto(c);
+                    return photo ? (
+                      <Image
+                        src={photo}
+                        alt="case thumbnail"
+                        width={80}
+                        height={60}
+                      />
+                    ) : null;
+                  })()}
+                  {c.photos.length > 1 ? (
+                    <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
+                      {c.photos.length}
+                    </span>
+                  ) : null}
+                </div>
                 {(() => {
-                  const photo = getRepresentativePhoto(c);
-                  return photo ? (
-                    <Image
-                      src={photo}
-                      alt="case thumbnail"
+                  const g = getOfficialCaseGps(c);
+                  return g ? (
+                    <MapPreview
+                      lat={g.lat}
+                      lon={g.lon}
                       width={80}
                       height={60}
+                      className="w-20 aspect-[4/3]"
                     />
                   ) : null;
                 })()}
-                {c.photos.length > 1 ? (
-                  <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
-                    {c.photos.length}
-                  </span>
-                ) : null}
-              </div>
-              {(() => {
-                const g = getOfficialCaseGps(c);
-                return g ? (
-                  <MapPreview
-                    lat={g.lat}
-                    lon={g.lon}
-                    width={80}
-                    height={60}
-                    className="w-20 aspect-[4/3]"
-                  />
-                ) : null;
-              })()}
-              <div className="flex flex-col text-sm gap-1">
-                <span className="font-semibold">Case {c.id}</span>
-                {c.analysis ? (
-                  <>
-                    <AnalysisInfo analysis={c.analysis} />
-                    {c.analysisStatus === "pending" ? (
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Updating analysis...
-                      </span>
-                    ) : null}
-                  </>
-                ) : (
-                  <span className="text-gray-500 dark:text-gray-400">
-                    Analyzing photo...
-                  </span>
-                )}
-              </div>
-            </button>
-          </li>
-        ))}
+                <div className="flex flex-col text-sm gap-1">
+                  <span className="font-semibold">Case {c.id}</span>
+                  {c.analysis ? (
+                    <>
+                      <AnalysisInfo analysis={c.analysis} />
+                      {c.analysisStatus === "pending" ? (
+                        <span className="text-gray-500 dark:text-gray-400">
+                          Updating analysis...
+                        </span>
+                      ) : null}
+                    </>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400">
+                      Analyzing photo...
+                    </span>
+                  )}
+                </div>
+              </button>
+            </li>
+          ))}
       </ul>
       {dragging ? (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
