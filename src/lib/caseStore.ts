@@ -163,7 +163,10 @@ function saveCase(c: Case) {
   const tx = db.transaction(() => {
     stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0);
     orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
-    orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, c.id)).run();
+    orm
+      .delete(casePhotoAnalysis)
+      .where(eq(casePhotoAnalysis.caseId, c.id))
+      .run();
     for (const url of photos) {
       orm
         .insert(casePhotos)
