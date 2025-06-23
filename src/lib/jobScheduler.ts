@@ -1,6 +1,7 @@
 import path from "node:path";
 import { Worker } from "node:worker_threads";
 import { caseEvents } from "./caseEvents";
+import { jobEvents } from "./jobEvents";
 
 interface TrackedJob {
   type: string;
@@ -37,6 +38,7 @@ function auditJobs() {
   }
   if (changed) {
     lastUpdate = lastAudit;
+    jobEvents.emit("update", listJobs());
   }
   globalStore.lastAudit = lastAudit;
   globalStore.lastUpdate = lastUpdate;
@@ -82,6 +84,7 @@ export function runJob(
   });
   lastUpdate = Date.now();
   globalStore.lastUpdate = lastUpdate;
+  jobEvents.emit("update", listJobs());
   worker.on("message", (msg) => {
     if (msg && msg.event === "update") {
       caseEvents.emit("update", msg.data);
@@ -94,6 +97,7 @@ export function runJob(
     activeJobs.delete(worker.threadId);
     lastUpdate = Date.now();
     globalStore.lastUpdate = lastUpdate;
+    jobEvents.emit("update", listJobs());
   };
   worker.once("exit", cleanup);
   worker.once("error", cleanup);
