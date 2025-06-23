@@ -1,19 +1,8 @@
 import { getByRole } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { type TestServer, startServer } from "./startServer";
+import { describe, expect, it } from "vitest";
 
-let server: TestServer;
-
-beforeAll(async () => {
-  server = await startServer(3002, {
-    NEXTAUTH_SECRET: "secret",
-  });
-});
-
-afterAll(async () => {
-  await server.close();
-});
+declare const server: import("./startServer").TestServer;
 
 describe("end-to-end @smoke", () => {
   it("serves the homepage", async () => {

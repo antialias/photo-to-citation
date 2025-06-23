@@ -1,21 +1,11 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
 
-let server: TestServer;
+declare const server: import("./startServer").TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
-beforeAll(async () => {
-  server = await startServer(3010, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-  });
+beforeAll(() => {
   api = createApi(server);
-});
-
-afterAll(async () => {
-  await server.close();
 });
 
 describe("auth flow", () => {

@@ -9,6 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    setupFiles: "./vitest.e2e.setup.ts",
     include: ["test/e2e/*.test.ts"],
     testTimeout: 30000,
     hookTimeout: 30000,

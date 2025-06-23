@@ -4,7 +4,8 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
-import { type TestServer, startServer } from "./startServer";
+
+declare const server: import("./startServer").TestServer;
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
@@ -37,7 +38,6 @@ async function signOut() {
   });
 }
 
-let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;
 
@@ -96,13 +96,11 @@ beforeAll(async () => {
       2,
     ),
   );
-  server = await startServer(3008, env);
   api = createApi(server);
   await signIn("admin@example.com");
 });
 
 afterAll(async () => {
-  await server.close();
   await stub.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });

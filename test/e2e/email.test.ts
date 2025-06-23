@@ -3,9 +3,9 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
-import { type TestServer, startServer } from "./startServer";
 
-let server: TestServer;
+declare const server: import("./startServer").TestServer;
+
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let tmpDir: string;
 
@@ -30,20 +30,11 @@ async function signIn(email: string) {
 
 beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-email-"));
-  server = await startServer(3016, {
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
-    EMAIL_FILE: path.join(tmpDir, "emails.json"),
-    MOCK_EMAIL_TO: "",
-  });
   api = createApi(server);
   await signIn("user@example.com");
 });
 
 afterAll(async () => {
-  await server.close();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
