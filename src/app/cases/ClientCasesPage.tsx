@@ -6,6 +6,7 @@ import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
+import { getThumbnailUrl } from "@/lib/thumbnails";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -198,7 +199,7 @@ export default function ClientCasesPage({
                   const photo = getRepresentativePhoto(c);
                   return photo ? (
                     <Image
-                      src={photo}
+                      src={getThumbnailUrl(photo, 128)}
                       alt="case thumbnail"
                       width={120}
                       height={90}

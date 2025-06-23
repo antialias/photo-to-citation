@@ -9,6 +9,7 @@ import { addCasePhoto, createCase } from "./caseStore";
 import { config } from "./config";
 import { extractGps, extractTimestamp } from "./exif";
 import { readJsonFile, writeJsonFile } from "./fileUtils";
+import { generateThumbnailsInBackground } from "./thumbnails";
 
 const stateFile = config.INBOX_STATE_FILE
   ? path.resolve(config.INBOX_STATE_FILE)
@@ -58,6 +59,7 @@ export async function scanInbox(): Promise<void> {
           const filename = `${crypto.randomUUID()}${ext}`;
           const buffer = att.content as Buffer;
           fs.writeFileSync(path.join(uploadDir, filename), buffer);
+          generateThumbnailsInBackground(buffer, filename);
           const gps = extractGps(buffer);
           const takenAt = extractTimestamp(buffer);
           gpsList.push(gps);

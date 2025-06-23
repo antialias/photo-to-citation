@@ -22,6 +22,7 @@ import {
   getRepresentativePhoto,
   hasViolation,
 } from "@/lib/caseUtils";
+import { getThumbnailUrl } from "@/lib/thumbnails";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -710,7 +711,7 @@ export default function ClientCasePage({
                       >
                         <div className="relative w-20 aspect-[4/3]">
                           <Image
-                            src={p}
+                            src={getThumbnailUrl(p, 128)}
                             alt="case photo"
                             fill
                             className="object-cover"
@@ -806,7 +807,7 @@ export default function ClientCasePage({
                         >
                           <div className="relative w-20 aspect-[4/3]">
                             <Image
-                              src={url}
+                              src={getThumbnailUrl(url, 128)}
                               alt="paperwork"
                               fill
                               className="object-cover"

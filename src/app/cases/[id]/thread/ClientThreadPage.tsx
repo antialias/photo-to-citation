@@ -1,6 +1,7 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
+import { getThumbnailUrl } from "@/lib/thumbnails";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -140,7 +141,7 @@ export default function ClientThreadPage({
         {images.map((img) => (
           <li key={img.id} className="border p-2 rounded flex gap-2">
             <Image
-              src={img.url}
+              src={getThumbnailUrl(img.url, 256)}
               alt="scan"
               width={150}
               height={100}
