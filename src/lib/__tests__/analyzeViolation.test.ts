@@ -47,4 +47,21 @@ describe("analyzeViolation", () => {
       kind: "schema",
     });
   });
+
+  it("rejects invalid license plate state", async () => {
+    const { client } = getLlm("analyze_images");
+    const reply = JSON.stringify({
+      violationType: "parking",
+      details: "",
+      vehicle: { licensePlateNumber: "123", licensePlateState: "XX" },
+      images: {},
+    });
+    vi.spyOn(client.chat.completions, "create").mockResolvedValue({
+      choices: [{ message: { content: reply }, finish_reason: "stop" }],
+    } as unknown as ChatCompletion);
+
+    await expect(analyzeViolation(imgs)).rejects.toMatchObject({
+      kind: "schema",
+    });
+  });
 });

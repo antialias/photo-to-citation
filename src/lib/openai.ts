@@ -8,6 +8,7 @@ import type {
 import { z } from "zod";
 import "./zod-setup";
 import { getLlm } from "./llm";
+import { US_STATES } from "./usStates";
 
 export type LlmProgress =
   | {
@@ -52,7 +53,7 @@ function approxTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-const licensePlateStateSchema = z.string().regex(/^[A-Z]{2}$/);
+const licensePlateStateSchema = z.enum(US_STATES);
 const licensePlateNumberSchema = z.string();
 
 export const paperworkInfoSchema = z.object({
@@ -88,10 +89,7 @@ export const violationReportSchema = z.object({
       model: z.string().optional(),
       type: z.string().optional(),
       color: z.string().optional(),
-      licensePlateState: z
-        .string()
-        .regex(/^[A-Z]{2}$/)
-        .optional(),
+      licensePlateState: licensePlateStateSchema.optional(),
       licensePlateNumber: z.string().optional(),
     })
     .default({}),
@@ -132,7 +130,7 @@ export async function analyzeViolation(
           model: { type: "string" },
           type: { type: "string" },
           color: { type: "string" },
-          licensePlateState: { type: "string", pattern: "^[A-Z]{2}$" },
+          licensePlateState: { type: "string", enum: US_STATES },
           licensePlateNumber: { type: "string" },
         },
       },
@@ -160,7 +158,7 @@ export async function analyzeViolation(
     {
       role: "system",
       content:
-        "You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters.",
+        "You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters. Omit the licensePlateNumber and licensePlateState fields if no plate is visible.",
     },
     {
       role: "user",
@@ -273,7 +271,7 @@ export async function extractPaperworkInfo(
         properties: {
           vin: { type: "string", pattern: "^[A-HJ-NPR-Z0-9]{17}$" },
           registrationStatus: { type: "string" },
-          licensePlateState: { type: "string" },
+          licensePlateState: { type: "string", enum: US_STATES },
           licensePlateNumber: { type: "string" },
         },
       },
