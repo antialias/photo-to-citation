@@ -1,5 +1,6 @@
 import path from "node:path";
 import { Worker } from "node:worker_threads";
+import { listQueuedJobs } from "./analysisQueue";
 import { caseEvents } from "./caseEvents";
 import { jobEvents } from "./jobEvents";
 
@@ -51,16 +52,24 @@ if (!globalStore.auditTimer) {
 
 export function listJobs(type?: string, caseId?: string) {
   auditJobs();
-  const jobs = Array.from(activeJobs.values()).map((j) => ({
+  const running = Array.from(activeJobs.values()).map((j) => ({
     id: j.worker.threadId,
     type: j.type,
     startedAt: j.startedAt,
     caseId: j.caseId,
   }));
-  let filtered = type ? jobs.filter((j) => j.type === type) : jobs;
-  if (caseId) filtered = filtered.filter((j) => j.caseId === caseId);
+  const queued = listQueuedJobs().map((j) => ({
+    id: j.id,
+    type: j.type,
+    startedAt: j.startedAt ?? Date.now(),
+    caseId: j.caseId,
+    state: j.state,
+  }));
+  let combined = [...running, ...queued];
+  if (type) combined = combined.filter((j) => j.type === type);
+  if (caseId) combined = combined.filter((j) => j.caseId === caseId);
   return {
-    jobs: filtered,
+    jobs: combined,
     auditedAt: lastAudit,
     updatedAt: lastUpdate,
   };

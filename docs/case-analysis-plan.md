@@ -51,6 +51,25 @@ and inspect, with progressive feedback and better concurrency control.
    - Persist job start/end times and outcomes in the database.
    - Provide an API to list active and recent jobs for inspection.
 
+## State Machine Implementation
+
+The queue introduced in `src/lib/analysisQueue.ts` manages jobs with explicit
+states:
+
+- **queued** – waiting for a worker
+- **running** – actively processed in a worker thread
+- **complete** – finished successfully
+- **failed** – encountered an error
+- **canceled** – aborted before completion
+
+API routes expose job status via `/api/cases/[id]/jobs` and the SSE stream at
+`/api/cases/[id]/jobs/stream`. Client hooks such as
+`useCaseAnalysisActive` subscribe to these endpoints to display progress bars
+and disable actions while jobs are running.
+
+System status pages aggregate both running and queued jobs so administrators can
+monitor activity.
+
 ## Benefits
 - Users can create cases, add or remove photos, and reanalyze single images
   without blocking other work.

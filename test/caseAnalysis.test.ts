@@ -50,6 +50,7 @@ describe("analyzeCaseInBackground", () => {
     expect(runJobMock).toHaveBeenCalledTimes(1);
 
     worker.emit("exit");
+    await Promise.resolve();
     expect(isCaseAnalysisActive(c.id)).toBe(false);
   });
 });

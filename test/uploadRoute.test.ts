@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+process.env.NEXTAUTH_SECRET = "secret";
 
 let dataDir: string;
 let tmpDir: string;
@@ -28,6 +29,9 @@ vi.mock("@/lib/exif", () => ({
 }));
 vi.mock("@/lib/caseLocation", () => ({
   fetchCaseLocationInBackground: vi.fn(),
+}));
+vi.mock("next/headers", () => ({
+  cookies: () => ({ get: vi.fn(), set: vi.fn() }),
 }));
 
 beforeEach(async () => {

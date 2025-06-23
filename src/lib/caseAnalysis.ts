@@ -5,7 +5,14 @@ import type { Worker } from "node:worker_threads";
 import { and, eq } from "drizzle-orm";
 import { APIError } from "openai/error";
 
-import { clearQueue, enqueueTask, removeQueuedPhoto } from "./analysisQueue";
+import {
+  type Job,
+  cancelJob,
+  clearQueue,
+  enqueueJob,
+  listQueuedJobs,
+  removeQueuedPhoto,
+} from "./analysisQueue";
 import { type Case, getCase, updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
 import {
@@ -18,7 +25,6 @@ import { orm } from "./orm";
 import { casePhotoAnalysis } from "./schema";
 import { fetchCaseVinInBackground } from "./vinLookup";
 
-const activeWorkers = new Map<string, Worker>();
 const activePhotoAnalyses = new Map<string, AbortController>();
 
 export function isPhotoAnalysisActive(id: string, photo: string): boolean {
@@ -26,19 +32,20 @@ export function isPhotoAnalysisActive(id: string, photo: string): boolean {
 }
 
 export function isCaseAnalysisActive(id: string): boolean {
-  return activeWorkers.has(id);
+  return listQueuedJobs(id).some(
+    (j) =>
+      j.type === "analyzeCase" &&
+      (j.state === "queued" || j.state === "running"),
+  );
 }
 
 export function cancelCaseAnalysis(id: string): boolean {
-  const worker = activeWorkers.get(id);
-  if (worker) {
-    worker.terminate();
-    activeWorkers.delete(id);
+  const jobs = listQueuedJobs(id);
+  if (jobs.length === 0) return false;
+  for (const j of jobs) {
+    cancelJob(j.id);
   }
   clearQueue(id);
-  if (!worker) {
-    return false;
-  }
   updateCase(id, { analysisStatus: "canceled", analysisProgress: null });
   return true;
 }
@@ -175,27 +182,30 @@ export async function analyzeCase(caseData: Case): Promise<void> {
 }
 
 export function analyzeCaseInBackground(caseData: Case): void {
-  enqueueTask(caseData.id, {
-    run() {
-      if (activeWorkers.has(caseData.id)) return Promise.resolve();
-      return new Promise<void>((resolve) => {
-        const worker = runJob("analyzeCase", caseData, { caseId: caseData.id });
-        activeWorkers.set(caseData.id, worker);
-        const cleanup = () => {
-          activeWorkers.delete(caseData.id);
-          resolve();
-        };
-        worker.on("exit", cleanup);
-        worker.on("error", (err) => {
-          console.error("analyzeCase worker failed", err);
-          updateCase(caseData.id, {
-            analysisStatus: "failed",
-            analysisProgress: null,
-          });
-          cleanup();
+  if (
+    listQueuedJobs(caseData.id).some(
+      (j) => j.type === "analyzeCase" && j.state !== "canceled",
+    )
+  ) {
+    return;
+  }
+  enqueueJob(caseData.id, "analyzeCase", (job: Job) => {
+    return new Promise<void>((resolve) => {
+      const worker = runJob("analyzeCase", caseData, { caseId: caseData.id });
+      job.worker = worker;
+      const cleanup = () => {
+        resolve();
+      };
+      worker.on("exit", cleanup);
+      worker.on("error", (err) => {
+        console.error("analyzeCase worker failed", err);
+        updateCase(caseData.id, {
+          analysisStatus: "failed",
+          analysisProgress: null,
         });
+        cleanup();
       });
-    },
+    });
   });
 }
 
@@ -300,18 +310,18 @@ export async function reanalyzePhoto(
 }
 
 export function analyzePhotoInBackground(caseData: Case, photo: string): void {
-  enqueueTask(caseData.id, {
-    photo,
-    run() {
+  enqueueJob(
+    caseData.id,
+    "analyzePhoto",
+    (job: Job) => {
       return new Promise<void>((resolve) => {
         const worker = runJob(
           "analyzePhoto",
           { caseData, photo },
           { caseId: caseData.id },
         );
-        activeWorkers.set(caseData.id, worker);
+        job.worker = worker;
         const cleanup = () => {
-          activeWorkers.delete(caseData.id);
           resolve();
         };
         worker.on("exit", cleanup);
@@ -325,7 +335,8 @@ export function analyzePhotoInBackground(caseData: Case, photo: string): void {
         });
       });
     },
-  });
+    photo,
+  );
 }
 
 export function removePhotoAnalysis(caseId: string, photo: string): void {
