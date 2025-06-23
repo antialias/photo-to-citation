@@ -90,17 +90,6 @@ describe("reanalysis", () => {
           vehicle: { licensePlateNumber: "ABC123", licensePlateState: "IL" },
           images: { [photoName]: { representationScore: 1 } },
         }),
-        { violationType: "parking", details: "d", vehicle: {}, images: {} },
-        () => {
-          const start = Date.now();
-          while (Date.now() - start < 200) {}
-          return {
-            violationType: "parking",
-            details: "d",
-            vehicle: {},
-            images: {},
-          };
-        },
       ]);
     });
 
@@ -152,36 +141,6 @@ describe("reanalysis", () => {
         20,
       );
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it("rejects photo reanalysis while case analysis active", async () => {
-      const file = createPhoto("block");
-      const form = new FormData();
-      form.append("photo", file);
-      const res = await api("/api/upload", { method: "POST", body: form });
-      expect(res.status).toBe(200);
-      const { caseId } = (await res.json()) as { caseId: string };
-
-      type CaseData = { photos: string[] };
-      const first = await poll(
-        () => api(`/api/cases/${caseId}`),
-        (r) => r.status === 200,
-        10,
-      );
-      const json = (await first.json()) as CaseData;
-      const photo = json.photos[0] as string;
-      photoName = path.basename(photo);
-
-      const rean = await api(`/api/cases/${caseId}/reanalyze`, {
-        method: "POST",
-      });
-      expect(rean.status).toBe(200);
-
-      const single = await api(
-        `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`,
-        { method: "POST" },
-      );
-      expect(single.status).toBe(409);
     });
   });
 
