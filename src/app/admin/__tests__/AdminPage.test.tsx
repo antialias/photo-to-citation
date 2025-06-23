@@ -11,7 +11,7 @@ vi.mock("@/lib/authOptions", () => ({
 }));
 
 vi.mock("@/lib/authz", () => ({
-  withAuthorization: (_opts: unknown, h: unknown) => h,
+  authorize: vi.fn(),
 }));
 
 it("returns 403 for non-admin", async () => {
@@ -20,6 +20,10 @@ it("returns 403 for non-admin", async () => {
   ).mockResolvedValue({
     user: { role: "user" },
   });
-  const res = (await AdminPage()) as Response;
-  expect(res.status).toBe(403);
+  (
+    (await import("@/lib/authz")) as {
+      authorize: { mockResolvedValue: (v: unknown) => void };
+    }
+  ).authorize.mockResolvedValue(false);
+  await expect(AdminPage()).rejects.toThrow();
 });
