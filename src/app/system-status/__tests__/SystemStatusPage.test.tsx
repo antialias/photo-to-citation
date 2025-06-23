@@ -1,6 +1,11 @@
-import SystemStatusPage from "@/app/system-status/page";
 import { getServerSession } from "next-auth/next";
 import { expect, it, vi } from "vitest";
+
+const mockNotFound = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  notFound: mockNotFound,
+}));
 
 vi.mock("next-auth/next", () => ({
   getServerSession: vi.fn(),
@@ -11,29 +16,18 @@ vi.mock("@/lib/authOptions", () => ({
 }));
 
 vi.mock("@/lib/authz", () => ({
-  withAuthorization:
-    (
-      _opts: unknown,
-      handler: (
-        req: Request,
-        ctx: { session?: { user?: { role?: string } } },
-      ) => unknown,
-    ) =>
-    async (req: Request, ctx: { session?: { user?: { role?: string } } }) => {
-      return ctx.session?.user?.role === "superadmin"
-        ? handler(req, ctx)
-        : new Response(null, { status: 403 });
-    },
+  authorize: vi.fn((role: string) => role === "superadmin"),
 }));
 
-it("returns 403 for non-superadmin", async () => {
+it("returns 404 for non-superadmin", async () => {
   (
     getServerSession as unknown as { mockResolvedValue: (v: unknown) => void }
   ).mockResolvedValue({
     user: { role: "admin" },
   });
-  const res = (await SystemStatusPage()) as Response;
-  expect(res.status).toBe(403);
+  const { default: Page } = await import("@/app/system-status/page");
+  await Page();
+  expect(mockNotFound).toHaveBeenCalled();
 });
 
 it("renders for superadmin", async () => {
@@ -42,6 +36,7 @@ it("renders for superadmin", async () => {
   ).mockResolvedValue({
     user: { role: "superadmin" },
   });
-  const res = await SystemStatusPage();
+  const { default: Page } = await import("@/app/system-status/page");
+  const res = await Page();
   expect(res).not.toBeInstanceOf(Response);
 });
