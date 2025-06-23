@@ -7,6 +7,10 @@ This document proposes an approach for user login, role management, and access c
 - Use **NextAuth.js** for session management. It supports OAuth providers and email magic links.
 - Store user records in the database via NextAuth's adapter with `User` and `Account` tables.
 - Sessions use JWTs stored in secure HTTP‑only cookies.
+- Anonymous uploads set an `anonSession` cookie holding a temporary session ID
+  tied to those cases. When the visitor later signs in, all cases matching this
+  cookie are claimed for the new account. A weekly cleanup job purges any
+  unclaimed cases.
 - Password‑less login is preferred, but we can add password support later via `Credentials` provider.
 - A super admin email is defined via `SUPER_ADMIN_EMAIL`. If unset, the first registered user becomes super admin.
 
