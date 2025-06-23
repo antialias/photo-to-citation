@@ -1,6 +1,7 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
+import { useNotification } from "@/lib/notifications";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -31,6 +32,7 @@ export default function ClientThreadPage({
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [viewImage, setViewImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const notify = useNotification();
 
   useEffect(() => {
     apiFetch(`/api/cases/${caseId}`).then(async (res) => {
@@ -64,7 +66,7 @@ export default function ClientThreadPage({
       body: form,
     });
     if (!uploadRes.ok) {
-      alert("Failed to upload image. Please try again.");
+      notify("Failed to upload image. Please try again.");
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -72,7 +74,7 @@ export default function ClientThreadPage({
     if (res.ok) {
       setCaseData((await res.json()) as Case);
     } else {
-      alert("Failed to refresh case data. Please retry.");
+      notify("Failed to refresh case data. Please retry.");
     }
     if (fileRef.current) fileRef.current.value = "";
   }
@@ -84,7 +86,7 @@ export default function ClientThreadPage({
       body: JSON.stringify({ photo: url }),
     });
     if (!res.ok) {
-      alert("Failed to attach evidence. Please try again.");
+      notify("Failed to attach evidence. Please try again.");
     }
   }
 

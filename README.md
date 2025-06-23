@@ -40,6 +40,12 @@ npm run https
 ```
 Then browse to [https://localhost](https://localhost).
 
+## Notifications
+
+Wrap the app in `NotificationProvider` to enable toast messages and optional
+browser notifications. Use `useNotification()` or `notify()` instead of calling
+`alert()` in the UI.
+
 ## Authentication
 
 Copy `.env.example` to `.env` and set `SUPER_ADMIN_EMAIL` to automatically

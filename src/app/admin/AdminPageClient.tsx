@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
+import { useNotification } from "@/lib/notifications";
 import { useEffect, useState } from "react";
 import AppConfigurationTab from "./AppConfigurationTab";
 
@@ -35,6 +36,7 @@ export default function AdminPageClient({
   const [rulesText, setRulesText] = useState(
     JSON.stringify(initialRules, null, 2),
   );
+  const notify = useNotification();
   const { data: session } = useSession();
   const isSuperadmin = session?.user?.role === "superadmin";
 
@@ -87,7 +89,7 @@ export default function AdminPageClient({
       });
       if (res.ok) setRules(await res.json());
     } catch {
-      alert("Invalid rules JSON");
+      notify("Invalid rules JSON");
     }
   }
 

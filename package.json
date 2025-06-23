@@ -60,6 +60,7 @@
     "react-leaflet": "^5.0.0",
     "react-mermaid2": "^0.1.4",
     "sharp": "^0.34.2",
+    "sonner": "^2.0.5",
     "tippy.js": "^6.3.7",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

@@ -3,6 +3,7 @@ import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
+import { useNotification } from "@/lib/notifications";
 import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -35,6 +36,7 @@ export default function DraftEditor({
   >({});
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
   const router = useRouter();
+  const notify = useNotification();
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
@@ -91,16 +93,16 @@ export default function DraftEditor({
             router.push(url);
             return;
           }
-          alert("Notification sent");
+          notify("Notification sent");
         } else if (r.email && r.email.status === "success") {
           if (url) setThreadUrl(url);
-          alert("Email sent with some errors");
+          notify("Email sent with some errors");
         } else {
-          alert("Failed to send notification");
+          notify("Failed to send notification");
         }
       } else {
         setResults({ email: { status: "error", error: res.statusText } });
-        alert("Failed to send notification");
+        notify("Failed to send notification");
       }
     } finally {
       setSending(false);

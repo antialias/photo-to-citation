@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
+import { useNotification } from "@/lib/notifications";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import NotifyOwnerEditor from "./NotifyOwnerEditor";
@@ -25,6 +26,7 @@ export default function NotifyOwnerModal({
   onClose: () => void;
 }) {
   const [data, setData] = useState<DraftData | null>(null);
+  const notify = useNotification();
 
   useEffect(() => {
     let canceled = false;
@@ -34,7 +36,7 @@ export default function NotifyOwnerModal({
           return res.json();
         }
         const err = await res.json().catch(() => ({}));
-        alert(err.error || "Failed to draft notification");
+        notify(err.error || "Failed to draft notification");
         onClose();
         return null;
       })
@@ -44,7 +46,7 @@ export default function NotifyOwnerModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, onClose]);
+  }, [caseId, onClose, notify]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
