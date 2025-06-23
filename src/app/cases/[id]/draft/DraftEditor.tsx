@@ -7,6 +7,7 @@ import type { ReportModule } from "@/lib/reportModules";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useNotify } from "../../../components/NotificationProvider";
 
 export default function DraftEditor({
   initialDraft,
@@ -38,6 +39,7 @@ export default function DraftEditor({
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
+  const notify = useNotify();
 
   useEffect(() => {
     if (initialDraft) {
@@ -91,16 +93,16 @@ export default function DraftEditor({
             router.push(url);
             return;
           }
-          alert("Notification sent");
+          notify("Notification sent");
         } else if (r.email && r.email.status === "success") {
           if (url) setThreadUrl(url);
-          alert("Email sent with some errors");
+          notify("Email sent with some errors");
         } else {
-          alert("Failed to send notification");
+          notify("Failed to send notification");
         }
       } else {
         setResults({ email: { status: "error", error: res.statusText } });
-        alert("Failed to send notification");
+        notify("Failed to send notification");
       }
     } finally {
       setSending(false);

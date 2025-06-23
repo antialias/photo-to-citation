@@ -4,6 +4,7 @@ import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
+import { useNotify } from "../../../components/NotificationProvider";
 import DraftEditor from "./DraftEditor";
 
 interface DraftData {
@@ -21,6 +22,7 @@ export default function DraftModal({
 }) {
   const [data, setData] = useState<DraftData | null>(null);
   const [fullScreen, setFullScreen] = useState(false);
+  const notify = useNotify();
 
   useEffect(() => {
     let canceled = false;
@@ -30,7 +32,7 @@ export default function DraftModal({
           return res.json();
         }
         const err = await res.json().catch(() => ({}));
-        alert(err.error || "Failed to draft report");
+        notify(err.error || "Failed to draft report");
         onClose();
         return null;
       })
@@ -40,7 +42,7 @@ export default function DraftModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, onClose]);
+  }, [caseId, onClose, notify]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>

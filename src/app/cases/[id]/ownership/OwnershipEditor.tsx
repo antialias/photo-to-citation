@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import type { OwnershipModule } from "@/lib/ownershipModules";
 import { useState } from "react";
+import { useNotify } from "../../../components/NotificationProvider";
 
 export default function OwnershipEditor({
   caseId,
@@ -12,6 +13,7 @@ export default function OwnershipEditor({
 }) {
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
+  const notify = useNotify();
 
   async function record() {
     await apiFetch(`/api/cases/${caseId}/ownership-request`, {
@@ -23,7 +25,7 @@ export default function OwnershipEditor({
         ...(snailMail ? { snailMail: true } : {}),
       }),
     });
-    alert("Request recorded");
+    notify("Request recorded");
   }
 
   return (

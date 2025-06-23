@@ -406,6 +406,22 @@ The `scripts/generateWebsiteImages.ts` script defines prompts for each PNG used 
 
 All photos, contact details and analysis results are stored only to generate the corresponding citation reports. The app relies on external services such as OpenAI for image analysis and third‑party mail providers for physical letters. No uploaded content is sold or shared outside of those providers. You can delete any case to permanently remove the associated data.
 
+## Notifications
+
+Wrap your application with `<NotificationProvider>` in `src/app/layout.tsx`. Use the `useNotify` hook in client components to show toast and system notifications:
+
+```tsx
+"use client";
+import { useNotify } from "@/app/components/NotificationProvider";
+
+export default function Example() {
+  const notify = useNotify();
+  return <button onClick={() => notify("Saved!")}>Save</button>;
+}
+```
+
+The provider requests browser permission so these messages can also appear as native notifications when allowed.
+
 ## Browser Debugging
 Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images or details to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
 

@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { useEffect, useState } from "react";
+import { useNotify } from "../components/NotificationProvider";
 import AppConfigurationTab from "./AppConfigurationTab";
 
 export interface UserRecord {
@@ -76,6 +77,8 @@ export default function AdminPageClient({
     refreshUsers();
   }
 
+  const notify = useNotify();
+
   async function saveRules() {
     if (!isSuperadmin) return;
     try {
@@ -87,7 +90,7 @@ export default function AdminPageClient({
       });
       if (res.ok) setRules(await res.json());
     } catch {
-      alert("Invalid rules JSON");
+      notify("Invalid rules JSON");
     }
   }
 

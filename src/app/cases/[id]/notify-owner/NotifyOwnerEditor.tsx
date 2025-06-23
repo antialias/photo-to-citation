@@ -5,6 +5,7 @@ import type { Case } from "@/lib/caseStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useNotify } from "../../../components/NotificationProvider";
 
 export default function NotifyOwnerEditor({
   initialDraft,
@@ -35,6 +36,7 @@ export default function NotifyOwnerEditor({
   const [disabledMethods, setDisabledMethods] = useState<string[]>([]);
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
   const router = useRouter();
+  const notify = useNotify();
 
   useEffect(() => {
     if (initialDraft) {
@@ -85,12 +87,12 @@ export default function NotifyOwnerEditor({
             router.push(url);
             return;
           }
-          alert("Notification sent");
+          notify("Notification sent");
         } else if (r.email && r.email.status === "success") {
           if (url) setThreadUrl(url);
-          alert("Some notifications failed");
+          notify("Some notifications failed");
         } else {
-          alert("Some notifications failed");
+          notify("Some notifications failed");
         }
       } else {
         setResults({
@@ -98,7 +100,7 @@ export default function NotifyOwnerEditor({
             methods.map((m) => [m, { status: "error", error: res.statusText }]),
           ),
         });
-        alert("Failed to send notification");
+        notify("Failed to send notification");
       }
     } finally {
       setSending(false);

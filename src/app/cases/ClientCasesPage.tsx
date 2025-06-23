@@ -9,6 +9,7 @@ import { distanceBetween } from "@/lib/distance";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useNotify } from "../components/NotificationProvider";
 import useDragReset from "./useDragReset";
 
 type Order = "createdAt" | "updatedAt" | "distance";
@@ -50,6 +51,7 @@ export default function ClientCasesPage({
   const uploadNewCase = useNewCaseFromFiles();
   const [dragging, setDragging] = useState(false);
   const [dropCase, setDropCase] = useState<string | null>(null);
+  const notify = useNotify();
   const params = useParams<{ id?: string }>();
   const searchParams = useSearchParams();
   const selectedIds =
@@ -111,7 +113,7 @@ export default function ClientCasesPage({
       }),
     );
     if (results.some((r) => !r.ok)) {
-      alert("Failed to upload one or more files.");
+      notify("Failed to upload one or more files.");
       return;
     }
   }
