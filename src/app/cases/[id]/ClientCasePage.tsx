@@ -13,6 +13,7 @@ import MapPreview from "@/app/components/MapPreview";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
+import { Progress } from "@/components/ui/progress";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
@@ -93,6 +94,7 @@ export default function ClientCasePage({
   >([]);
   const [inviteUserId, setInviteUserId] = useState("");
   const [copied, setCopied] = useState(false);
+  const [reanalyzingPhoto, setReanalyzingPhoto] = useState<string | null>(null);
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" ||
@@ -168,6 +170,12 @@ export default function ClientCasePage({
       setPhotoNote(caseData.photoNotes?.[selectedPhoto] || "");
     }
   }, [caseData, selectedPhoto]);
+
+  useEffect(() => {
+    if (caseData?.analysisStatus !== "pending") {
+      setReanalyzingPhoto(null);
+    }
+  }, [caseData?.analysisStatus]);
 
   async function uploadFiles(files: FileList) {
     if (!files || files.length === 0) return;
@@ -361,6 +369,7 @@ export default function ClientCasePage({
       photo,
     )}`;
     if (caseData) setCaseData({ ...caseData, analysisStatus: "pending" });
+    setReanalyzingPhoto(photo);
     const res = await apiFetch(url, { method: "POST" });
     if (res.ok) {
       if (detailsEl) {
@@ -467,6 +476,16 @@ export default function ClientCasePage({
     caseData.analysisStatus === "pending" && caseData.analysisProgress
       ? caseData.analysisProgress
       : null;
+  const isPhotoReanalysis = Boolean(
+    progress && caseData.analysis && progress.total === 1 && reanalyzingPhoto,
+  );
+  const requestValue = progress
+    ? progress.stage === "upload"
+      ? progress.index > 0
+        ? (progress.index / progress.total) * 100
+        : undefined
+      : Math.min((progress.received / progress.total) * 100, 100)
+    : undefined;
   const progressDescription = progress
     ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${
         progress.stage === "upload"
@@ -623,7 +642,7 @@ export default function ClientCasePage({
               caseId={caseId}
               disabled={!violationIdentified}
               hasOwner={Boolean(ownerContact)}
-              progress={progress}
+              progress={isPhotoReanalysis ? null : progress}
               canDelete={isAdmin}
               closed={caseData.closed}
               archived={caseData.archived}
@@ -772,6 +791,14 @@ export default function ClientCasePage({
                     fill
                     className="object-contain"
                   />
+                  {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
+                    <div className="absolute top-0 left-0 right-0">
+                      <Progress
+                        value={requestValue}
+                        indeterminate={requestValue === undefined}
+                      />
+                    </div>
+                  ) : null}
                   {readOnly ? null : (
                     <details
                       ref={photoMenuRef}
@@ -882,6 +909,14 @@ export default function ClientCasePage({
                             fill
                             className="object-cover"
                           />
+                          {isPhotoReanalysis && reanalyzingPhoto === p ? (
+                            <div className="absolute top-0 left-0 right-0">
+                              <Progress
+                                value={requestValue}
+                                indeterminate={requestValue === undefined}
+                              />
+                            </div>
+                          ) : null}
                         </div>
                         {(() => {
                           const t = caseData.photoTimes[p];
