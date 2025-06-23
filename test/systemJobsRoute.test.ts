@@ -61,7 +61,9 @@ describe("system jobs API", () => {
     });
     expect(res.status).toBe(200);
     const { jobs, auditedAt, updatedAt } = await res.json();
-    expect(jobs).toEqual([{ id: 1, type: "a", startedAt: 1 }]);
+    expect(jobs).toEqual([
+      { id: 1, type: "a", startedAt: 1, state: "running" },
+    ]);
     expect(auditedAt).toBeGreaterThan(0);
     expect(updatedAt).toBeGreaterThanOrEqual(auditedAt);
   });

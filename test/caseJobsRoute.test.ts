@@ -55,7 +55,13 @@ describe("case jobs API", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.jobs).toEqual([
-      { id: 1, type: "analyzeCase", startedAt: 1, caseId: c.id },
+      {
+        id: 1,
+        type: "analyzeCase",
+        startedAt: 1,
+        caseId: c.id,
+        state: "running",
+      },
     ]);
   });
 });

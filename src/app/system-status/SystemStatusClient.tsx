@@ -3,10 +3,11 @@ import { apiEventSource } from "@/apiClient";
 import { useEffect, useState } from "react";
 
 interface JobInfo {
-  id: number;
+  id: string | number;
   type: string;
   startedAt: number;
   caseId?: string;
+  state: "queued" | "running" | "complete" | "failed" | "canceled";
 }
 
 interface JobResponse {
@@ -66,11 +67,40 @@ export default function SystemStatusClient() {
       ) : (
         <ul className="grid gap-2">
           {jobs.map((j) => (
-            <li key={j.id} className="border p-2">
-              <span className="font-mono mr-2">{j.type}</span>
-              {j.caseId ? (
-                <span className="mr-2 text-gray-500">case {j.caseId}</span>
-              ) : null}
+            <li
+              key={j.id}
+              className="border p-2 flex justify-between items-center"
+            >
+              <div>
+                <span className="font-mono mr-2">{j.type}</span>
+                {j.caseId ? (
+                  <span className="mr-2 text-gray-500">case {j.caseId}</span>
+                ) : null}
+              </div>
+              <span
+                className={`px-1 rounded text-white text-xs mr-2 ${
+                  j.state === "queued"
+                    ? "bg-gray-500"
+                    : j.state === "running"
+                      ? "bg-blue-600"
+                      : j.state === "complete"
+                        ? "bg-green-600"
+                        : j.state === "failed"
+                          ? "bg-red-600"
+                          : "bg-yellow-600"
+                }`}
+              >
+                {j.state === "queued"
+                  ? "⌛"
+                  : j.state === "running"
+                    ? "🔄"
+                    : j.state === "complete"
+                      ? "✅"
+                      : j.state === "failed"
+                        ? "❌"
+                        : "🚫"}{" "}
+                {j.state}
+              </span>
               {new Date(j.startedAt).toLocaleString()}
             </li>
           ))}

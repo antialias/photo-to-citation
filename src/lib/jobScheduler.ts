@@ -57,6 +57,7 @@ export function listJobs(type?: string, caseId?: string) {
     type: j.type,
     startedAt: j.startedAt,
     caseId: j.caseId,
+    state: "running" as const,
   }));
   const queued = listQueuedJobs().map((j) => ({
     id: j.id,

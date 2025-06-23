@@ -3,9 +3,10 @@ import { apiEventSource, apiFetch } from "@/apiClient";
 import { useEffect, useState } from "react";
 
 interface JobInfo {
-  id: number;
+  id: string | number;
   type: string;
   startedAt: number;
+  state: "queued" | "running" | "complete" | "failed" | "canceled";
 }
 
 interface JobResponse {

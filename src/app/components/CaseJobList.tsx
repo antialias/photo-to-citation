@@ -3,9 +3,10 @@ import { apiEventSource } from "@/apiClient";
 import { useEffect, useState } from "react";
 
 interface JobInfo {
-  id: number;
+  id: string | number;
   type: string;
   startedAt: number;
+  state: "queued" | "running" | "complete" | "failed" | "canceled";
 }
 
 interface JobResponse {
@@ -48,8 +49,32 @@ export default function CaseJobList({
       <h2 className="font-semibold">Active Jobs</h2>
       <ul className="grid gap-1">
         {jobs.map((j) => (
-          <li key={j.id} className="flex justify-between">
+          <li key={j.id} className="flex justify-between items-center">
             <span className="font-mono mr-2">{j.type}</span>
+            <span
+              className={`px-1 rounded text-white text-xs mr-2 ${
+                j.state === "queued"
+                  ? "bg-gray-500"
+                  : j.state === "running"
+                    ? "bg-blue-600"
+                    : j.state === "complete"
+                      ? "bg-green-600"
+                      : j.state === "failed"
+                        ? "bg-red-600"
+                        : "bg-yellow-600"
+              }`}
+            >
+              {j.state === "queued"
+                ? "⌛"
+                : j.state === "running"
+                  ? "🔄"
+                  : j.state === "complete"
+                    ? "✅"
+                    : j.state === "failed"
+                      ? "❌"
+                      : "🚫"}{" "}
+              {j.state}
+            </span>
             {new Date(j.startedAt).toLocaleString()}
           </li>
         ))}
