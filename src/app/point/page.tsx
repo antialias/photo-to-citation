@@ -21,6 +21,7 @@ export default function PointAndShootPage() {
   const workerRef = useRef<Worker | null>(null);
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const params = useSearchParams();
   const caseId = params.get("case") || null;
   const uploadCase = caseId ? useAddFilesToCase(caseId) : useNewCaseFromFiles();
@@ -111,6 +112,7 @@ export default function PointAndShootPage() {
 
   async function takePicture() {
     if (!videoRef.current || !canvasRef.current) return;
+    setUploading(true);
     const video = videoRef.current;
     const canvas = canvasRef.current;
     canvas.width = video.videoWidth;
@@ -125,6 +127,11 @@ export default function PointAndShootPage() {
       dt.items.add(file);
       await uploadCase(dt.files);
     }, "image/jpeg");
+  }
+
+  async function handleInputChange(files: FileList | null) {
+    setUploading(true);
+    await uploadCase(files);
   }
 
   return (
@@ -144,6 +151,11 @@ export default function PointAndShootPage() {
         <track kind="captions" label="" />
       </video>
       <canvas ref={canvasRef} className="hidden" />
+      {uploading ? (
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
+          Uploading photo...
+        </div>
+      ) : null}
       <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 pointer-events-none">
         <input
           ref={inputRef}
@@ -151,19 +163,21 @@ export default function PointAndShootPage() {
           accept="image/*"
           multiple
           hidden
-          onChange={(e) => uploadCase(e.target.files)}
+          onChange={(e) => handleInputChange(e.target.files)}
         />
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="pointer-events-auto bg-white/80 text-black px-4 py-2 rounded"
+          disabled={uploading}
+          className="pointer-events-auto bg-white/80 text-black px-4 py-2 rounded disabled:opacity-50"
         >
           Upload Picture
         </button>
         <button
           type="button"
           onClick={takePicture}
-          className="pointer-events-auto bg-blue-600 text-white px-4 py-2 rounded w-full"
+          disabled={uploading}
+          className="pointer-events-auto bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
         >
           Take Picture
         </button>
