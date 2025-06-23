@@ -3,6 +3,7 @@ import { withBasePath } from "@/basePath";
 import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth/next";
 import { headers } from "next/headers";
+import isMobile from "is-mobile";
 import { redirect } from "next/navigation";
 import LoggedOutLanding from "./LoggedOutLanding";
 
@@ -10,12 +11,12 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
   console.log("home session", !!session);
   const ua = (await headers()).get("user-agent") ?? "";
-  const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
+  const isMobileBrowser = isMobile({ ua });
   if (!session) {
-    if (isMobile) {
+    if (isMobileBrowser) {
       redirect(withBasePath("/point"));
     }
     return <LoggedOutLanding />;
   }
-  redirect(withBasePath(isMobile ? "/point" : "/cases"));
+  redirect(withBasePath(isMobileBrowser ? "/point" : "/cases"));
 }
