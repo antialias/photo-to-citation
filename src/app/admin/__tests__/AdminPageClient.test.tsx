@@ -21,14 +21,16 @@ import { apiFetch } from "@/apiClient";
 import AdminPageClient from "@/app/admin/AdminPageClient";
 
 const users = [{ id: "1", email: "a@example.com", name: null, role: "admin" }];
-const rules = [{ ptype: "p", v0: "admin", v1: "users", v2: "read" }];
+const rules = [
+  { id: "rule1", ptype: "p", v0: "admin", v1: "users", v2: "read" },
+];
 
 describe("AdminPageClient", () => {
   it("renders users and rules", () => {
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
     expect(screen.getByText("a@example.com")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("admin")).toBeInTheDocument();
-    expect(screen.getByText(/p, admin, users/)).toBeInTheDocument();
+    expect(screen.getAllByDisplayValue("admin")[0]).toBeInTheDocument();
+    expect(screen.getByDisplayValue("users")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save rules/i })).toBeDisabled();
   });
 
@@ -54,7 +56,7 @@ describe("AdminPageClient", () => {
       ],
     } as Response);
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
-    fireEvent.change(screen.getByDisplayValue("admin"), {
+    fireEvent.change(screen.getAllByDisplayValue("admin")[0], {
       target: { value: "user" },
     });
     await waitFor(() =>
@@ -67,20 +69,20 @@ describe("AdminPageClient", () => {
     vi.mocked(useSession).mockReturnValueOnce({
       data: { user: { role: "superadmin" }, expires: "0" },
     } as unknown as ReturnType<typeof useSessionFn>);
-    const newRules = [{ ptype: "p", v0: "user", v1: "cases", v2: "read" }];
+    const newRules = [
+      { id: "rule2", ptype: "p", v0: "user", v1: "cases", v2: "read" },
+    ];
     vi.mocked(apiFetch).mockResolvedValueOnce({
       ok: true,
       json: async () => newRules,
     } as Response);
     render(<AdminPageClient initialUsers={users} initialRules={rules} />);
-    fireEvent.change(screen.getAllByRole("textbox")[1], {
-      target: { value: JSON.stringify(newRules, null, 2) },
+    fireEvent.change(screen.getAllByDisplayValue("admin")[1], {
+      target: { value: "user" },
     });
     fireEvent.click(screen.getByRole("button", { name: /save rules/i }));
     await waitFor(() =>
-      expect(
-        screen.getByText((t) => t.includes("user") && t.includes("cases")),
-      ).toBeInTheDocument(),
+      expect(screen.getByDisplayValue("user")).toBeInTheDocument(),
     );
   });
 });

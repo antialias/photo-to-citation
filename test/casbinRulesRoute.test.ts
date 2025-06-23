@@ -84,4 +84,41 @@ describe("casbin rules API", () => {
     expect(res.status).toBe(200);
     expect(await authorize("admin", "admin", "update")).toBe(true);
   });
+
+  it("supports adding and removing rules", async () => {
+    const mod = await import("@/app/api/casbin-rules/route");
+    let res = await mod.POST(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({
+          ptype: "p",
+          v0: "user",
+          v1: "cases",
+          v2: "create",
+        }),
+      }),
+      {
+        params: Promise.resolve({}),
+        session: { user: { role: "superadmin" } },
+      },
+    );
+    expect(res.status).toBe(200);
+    expect(res.status).toBe(200);
+    res = await mod.DELETE(
+      new Request("http://test", {
+        method: "DELETE",
+        body: JSON.stringify({
+          ptype: "p",
+          v0: "user",
+          v1: "cases",
+          v2: "create",
+        }),
+      }),
+      {
+        params: Promise.resolve({}),
+        session: { user: { role: "superadmin" } },
+      },
+    );
+    expect(res.status).toBe(200);
+  });
 });
