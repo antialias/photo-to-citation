@@ -5,8 +5,8 @@ import { getByTestId } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
-import { createPhoto } from "./photo";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
+import { createPhoto } from "./photo";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
