@@ -7,12 +7,14 @@ export default function EditableText({
   onClear,
   placeholder,
   options,
+  disabled = false,
 }: {
   value: string;
   onSubmit: (v: string) => Promise<void> | void;
   onClear?: () => Promise<void> | void;
   placeholder?: string;
   options?: string[];
+  disabled?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(value);
@@ -36,6 +38,10 @@ export default function EditableText({
     if (text !== value) {
       await onSubmit(text);
     }
+  }
+
+  if (disabled) {
+    return <span>{value || placeholder}</span>;
   }
 
   if (editing) {
