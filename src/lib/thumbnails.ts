@@ -11,6 +11,12 @@ export async function generateThumbnails(
 ): Promise<void> {
   const base = path.basename(filename);
   const uploadDir = path.join(process.cwd(), "public", "uploads", "thumbs");
+  try {
+    await sharp(buffer).metadata();
+  } catch (err) {
+    console.warn("Skipping thumbnail generation for invalid image", err);
+    return;
+  }
   await Promise.all(
     THUMB_SIZES.map(async (size) => {
       const dir = path.join(uploadDir, String(size));
