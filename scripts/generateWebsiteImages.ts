@@ -175,7 +175,7 @@ async function generate(spec: ImageSpec): Promise<void> {
   }
   try {
     const res = await openai.images.generate({
-      model: "dall-e-3",
+      model: "gpt-image-1",
       prompt: spec.prompt,
       n: 1,
       size: spec.size ?? "1024x1024",
@@ -195,7 +195,7 @@ async function generate(spec: ImageSpec): Promise<void> {
   try {
     execSync("git fetch origin gh-pages", { stdio: "ignore" });
   } catch {
-    // ignore
+    throw new Error("could not fetch gh-pages branch from origin");
   }
   for (const spec of specs) {
     await generate(spec);
