@@ -8,7 +8,7 @@ export const PUT = withCaseAuthorization(
     req: Request,
     {
       params,
-      session,
+      session: _session,
     }: {
       params: Promise<{ id: string }>;
       session?: { user?: { id?: string; role?: string } };

@@ -14,7 +14,7 @@ export const POST = withAuthorization(
     req: Request,
     {
       session,
-      params,
+      params: _params,
     }: {
       params: Promise<Record<string, string>>;
       session?: { user?: { id?: string; role?: string } };

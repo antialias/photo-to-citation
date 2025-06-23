@@ -18,7 +18,7 @@ export const GET = withCaseAuthorization(
     _req: Request,
     {
       params,
-      session,
+      session: _session,
     }: {
       params: Promise<{ id: string }>;
       session?: { user?: { id?: string; role?: string } };
