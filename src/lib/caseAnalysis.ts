@@ -176,21 +176,24 @@ export async function analyzeCase(caseData: Case): Promise<void> {
 
 export function analyzeCaseInBackground(caseData: Case): void {
   enqueueTask(caseData.id, {
-    async run() {
-      if (activeWorkers.has(caseData.id)) return;
-      const worker = runJob("analyzeCase", caseData);
-      activeWorkers.set(caseData.id, worker);
-      const cleanup = () => {
-        activeWorkers.delete(caseData.id);
-      };
-      worker.on("exit", cleanup);
-      worker.on("error", (err) => {
-        console.error("analyzeCase worker failed", err);
-        updateCase(caseData.id, {
-          analysisStatus: "failed",
-          analysisProgress: null,
+    run() {
+      if (activeWorkers.has(caseData.id)) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        const worker = runJob("analyzeCase", caseData);
+        activeWorkers.set(caseData.id, worker);
+        const cleanup = () => {
+          activeWorkers.delete(caseData.id);
+          resolve();
+        };
+        worker.on("exit", cleanup);
+        worker.on("error", (err) => {
+          console.error("analyzeCase worker failed", err);
+          updateCase(caseData.id, {
+            analysisStatus: "failed",
+            analysisProgress: null,
+          });
+          cleanup();
         });
-        cleanup();
       });
     },
   });
@@ -299,20 +302,23 @@ export async function reanalyzePhoto(
 export function analyzePhotoInBackground(caseData: Case, photo: string): void {
   enqueueTask(caseData.id, {
     photo,
-    async run() {
-      const worker = runJob("analyzePhoto", { caseData, photo });
-      activeWorkers.set(caseData.id, worker);
-      const cleanup = () => {
-        activeWorkers.delete(caseData.id);
-      };
-      worker.on("exit", cleanup);
-      worker.on("error", (err) => {
-        console.error("analyzePhoto worker failed", err);
-        updateCase(caseData.id, {
-          analysisStatus: "failed",
-          analysisProgress: null,
+    run() {
+      return new Promise<void>((resolve) => {
+        const worker = runJob("analyzePhoto", { caseData, photo });
+        activeWorkers.set(caseData.id, worker);
+        const cleanup = () => {
+          activeWorkers.delete(caseData.id);
+          resolve();
+        };
+        worker.on("exit", cleanup);
+        worker.on("error", (err) => {
+          console.error("analyzePhoto worker failed", err);
+          updateCase(caseData.id, {
+            analysisStatus: "failed",
+            analysisProgress: null,
+          });
+          cleanup();
         });
-        cleanup();
       });
     },
   });
