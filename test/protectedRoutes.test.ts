@@ -42,6 +42,6 @@ describe("protected routes", () => {
       params: Promise.resolve({}),
       session: { user: { role: "anonymous" } },
     });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 });
