@@ -8,6 +8,7 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import { reportModules } from "@/lib/reportModules";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -59,13 +60,18 @@ export default async function TriagePage() {
       ) : (
         <ul className="grid gap-4">
           {triage.map(({ case: c, severity }) => (
-            <li key={c.id} className="border p-4">
-              <p className="font-semibold">Case {c.id}</p>
-              {c.analysis?.violationType ? (
-                <p>Violation: {c.analysis.violationType}</p>
-              ) : null}
-              <p>Severity: {(severity * 100).toFixed(0)}%</p>
-              <p className="mt-2">{nextAction(c)}</p>
+            <li key={c.id}>
+              <Link
+                href={`/cases/${c.id}`}
+                className="block border p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <p className="font-semibold">Case {c.id}</p>
+                {c.analysis?.violationType ? (
+                  <p>Violation: {c.analysis.violationType}</p>
+                ) : null}
+                <p>Severity: {(severity * 100).toFixed(0)}%</p>
+                <p className="mt-2">{nextAction(c)}</p>
+              </Link>
             </li>
           ))}
         </ul>
