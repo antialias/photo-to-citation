@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 // Worker for lightweight browser analysis
@@ -10,6 +11,7 @@ const AnalyzerWorker = () =>
     : new Worker(new URL("./localAnalyzer.worker.ts", import.meta.url), {
         type: "module",
       });
+import useAddFilesToCase from "@/app/useAddFilesToCase";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 
 export default function PointAndShootPage() {
@@ -19,7 +21,9 @@ export default function PointAndShootPage() {
   const workerRef = useRef<Worker | null>(null);
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const uploadCase = useNewCaseFromFiles();
+  const params = useSearchParams();
+  const caseId = params.get("case") || null;
+  const uploadCase = caseId ? useAddFilesToCase(caseId) : useNewCaseFromFiles();
 
   useEffect(() => {
     async function startCamera() {
@@ -181,10 +185,10 @@ export default function PointAndShootPage() {
           </div>
         )}
         <Link
-          href="/cases"
+          href={caseId ? `/cases/${caseId}` : "/cases"}
           className="pointer-events-auto text-xs text-white underline mt-2"
         >
-          Cases
+          {caseId ? "Back to Case" : "Cases"}
         </Link>
       </div>
     </div>

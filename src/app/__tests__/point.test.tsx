@@ -4,9 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => ({ get: () => null }),
 }));
 
 vi.mock("@/app/useNewCaseFromFiles", () => ({
+  default: () => async () => {},
+}));
+
+vi.mock("@/app/useAddFilesToCase", () => ({
   default: () => async () => {},
 }));
 
