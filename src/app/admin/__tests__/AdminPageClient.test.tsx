@@ -69,6 +69,7 @@ describe("AdminPageClient", () => {
     vi.mocked(useSession).mockReturnValueOnce({
       data: { user: { role: "superadmin" }, expires: "0" },
     } as unknown as ReturnType<typeof useSessionFn>);
+    vi.spyOn(window, "confirm").mockReturnValueOnce(true);
     const newRules = [
       { id: "rule2", ptype: "p", v0: "user", v1: "cases", v2: "read" },
     ];
@@ -84,5 +85,17 @@ describe("AdminPageClient", () => {
     await waitFor(() =>
       expect(screen.getByDisplayValue("user")).toBeInTheDocument(),
     );
+  });
+
+  it("asks for confirmation if edit access would be removed", () => {
+    vi.mocked(useSession).mockReturnValueOnce({
+      data: { user: { role: "superadmin" }, expires: "0" },
+    } as unknown as ReturnType<typeof useSessionFn>);
+    vi.mocked(apiFetch).mockReset();
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValueOnce(false);
+    render(<AdminPageClient initialUsers={users} initialRules={rules} />);
+    fireEvent.click(screen.getByRole("button", { name: /save rules/i }));
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(apiFetch).not.toHaveBeenCalled();
   });
 });

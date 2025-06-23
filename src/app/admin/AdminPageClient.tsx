@@ -109,6 +109,19 @@ export default function AdminPageClient({
       v4: r.v4 || null,
       v5: r.v5 || null,
     }));
+    const hasEdit = cleaned.some(
+      (r) =>
+        r.ptype === "p" &&
+        r.v0 === "superadmin" &&
+        r.v1 === "superadmin" &&
+        r.v2 === "update",
+    );
+    if (!hasEdit) {
+      const confirmed = window.confirm(
+        "These changes will remove your ability to edit Casbin rules. Continue?",
+      );
+      if (!confirmed) return;
+    }
     const res = await apiFetch("/api/casbin-rules", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
