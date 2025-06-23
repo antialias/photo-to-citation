@@ -27,7 +27,7 @@ export default async function RootLayout({
             <NavBar />
             {children}
           </AuthProvider>
-        <NotificationProvider>
+        </NotificationProvider>
       </body>
     </html>
   );
