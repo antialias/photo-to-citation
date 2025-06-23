@@ -1,23 +1,12 @@
 import { authOptions } from "@/lib/authOptions";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
-import { Geist, Geist_Mono } from "next/font/google";
 import AuthProvider from "./auth-provider";
 import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
 import "./globals.css";
 
 export const runtime = "nodejs";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -32,15 +21,13 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <NotificationProvider>
           <AuthProvider session={session}>
             <NavBar />
             {children}
           </AuthProvider>
-        </NotificationProvider>
+        <NotificationProvider>
       </body>
     </html>
   );
