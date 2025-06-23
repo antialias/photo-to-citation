@@ -60,10 +60,12 @@ export default function ClientCasePage({
   initialCase,
   caseId,
   initialIsAdmin = false,
+  readOnly = false,
 }: {
   initialCase: Case | null;
   caseId: string;
   initialIsAdmin?: boolean;
+  readOnly?: boolean;
 }) {
   const [caseData, setCaseData] = useState<Case | null>(initialCase);
   const [preview, setPreview] = useState<string | null>(null);
@@ -93,9 +95,10 @@ export default function ClientCasePage({
   const [copied, setCopied] = useState(false);
   const { data: session } = useSession();
   const isAdmin =
-    session?.user?.role === "admin" ||
-    session?.user?.role === "superadmin" ||
-    initialIsAdmin;
+    !readOnly &&
+    (session?.user?.role === "admin" ||
+      session?.user?.role === "superadmin" ||
+      initialIsAdmin);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -447,7 +450,7 @@ export default function ClientCasePage({
   const isOwner = members.some(
     (m) => m.userId === session?.user?.id && m.role === "owner",
   );
-  const canManageMembers = isAdmin || isOwner;
+  const canManageMembers = !readOnly && (isAdmin || isOwner);
 
   const progress =
     caseData.analysisStatus === "pending" && caseData.analysisProgress
@@ -537,21 +540,33 @@ export default function ClientCasePage({
   return (
     <div
       className="relative h-full"
-      onDragOver={(e) => e.preventDefault()}
-      onDragEnter={(e) => {
-        e.preventDefault();
-        setDragging(true);
-      }}
-      onDragLeave={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setDragging(false);
-        }
-      }}
-      onDrop={async (e) => {
-        e.preventDefault();
-        await uploadFiles(e.dataTransfer.files);
-        setDragging(false);
-      }}
+      onDragOver={!readOnly ? (e) => e.preventDefault() : undefined}
+      onDragEnter={
+        !readOnly
+          ? (e) => {
+              e.preventDefault();
+              setDragging(true);
+            }
+          : undefined
+      }
+      onDragLeave={
+        !readOnly
+          ? (e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setDragging(false);
+              }
+            }
+          : undefined
+      }
+      onDrop={
+        !readOnly
+          ? async (e) => {
+              e.preventDefault();
+              await uploadFiles(e.dataTransfer.files);
+              setDragging(false);
+            }
+          : undefined
+      }
     >
       <CaseLayout
         header={
@@ -583,6 +598,7 @@ export default function ClientCasePage({
               canDelete={isAdmin}
               closed={caseData.closed}
               archived={caseData.archived}
+              readOnly={readOnly}
             />
           </div>
         }
@@ -604,7 +620,7 @@ export default function ClientCasePage({
                 <p>
                   <span className="font-semibold">Visibility:</span>{" "}
                   {caseData.public ? "Public" : "Private"}
-                  {(isAdmin || session?.user) && (
+                  {!readOnly && (isAdmin || session?.user) && (
                     <button
                       type="button"
                       onClick={togglePublic}
@@ -655,6 +671,7 @@ export default function ClientCasePage({
                     onSubmit={updateVinFn}
                     onClear={vinOverridden ? clearVin : undefined}
                     placeholder="VIN"
+                    disabled={readOnly}
                   />
                 </p>
                 <p>
@@ -664,6 +681,7 @@ export default function ClientCasePage({
                     onSubmit={updateCaseNoteFn}
                     onClear={note ? () => updateCaseNoteFn("") : undefined}
                     placeholder="Add note"
+                    disabled={readOnly}
                   />
                 </p>
                 <div>
@@ -717,48 +735,50 @@ export default function ClientCasePage({
                     fill
                     className="object-contain"
                   />
-                  <details
-                    ref={photoMenuRef}
-                    className="absolute top-1 right-1 text-white"
-                    onToggle={() => {
-                      if (photoMenuRef.current?.open) {
-                        photoMenuRef.current
-                          .querySelector<HTMLElement>("button, a")
-                          ?.focus();
-                      }
-                    }}
-                  >
-                    <summary
-                      className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-                      aria-label="Photo actions menu"
-                    >
-                      ⋮
-                    </summary>
-                    <div
-                      className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-                      role="menu"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          reanalyzePhoto(
-                            selectedPhoto,
-                            e.currentTarget.closest("details"),
-                          )
+                  {!readOnly ? (
+                    <details
+                      ref={photoMenuRef}
+                      className="absolute top-1 right-1 text-white"
+                      onToggle={() => {
+                        if (photoMenuRef.current?.open) {
+                          photoMenuRef.current
+                            .querySelector<HTMLElement>("button, a")
+                            ?.focus();
                         }
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      }}
+                    >
+                      <summary
+                        className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
+                        aria-label="Photo actions menu"
                       >
-                        Reanalyze Photo
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(selectedPhoto)}
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        ⋮
+                      </summary>
+                      <div
+                        className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
+                        role="menu"
                       >
-                        Delete Image
-                      </button>
-                    </div>
-                  </details>
+                        <button
+                          type="button"
+                          onClick={(e) =>
+                            reanalyzePhoto(
+                              selectedPhoto,
+                              e.currentTarget.closest("details"),
+                            )
+                          }
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        >
+                          Reanalyze Photo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(selectedPhoto)}
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        >
+                          Delete Image
+                        </button>
+                      </div>
+                    </details>
+                  ) : null}
                   {caseData.analysis ? (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
                       <ImageHighlights
@@ -790,6 +810,7 @@ export default function ClientCasePage({
                       photoNote ? () => updatePhotoNoteFn("") : undefined
                     }
                     placeholder="Add note"
+                    disabled={readOnly}
                   />
                 </p>
               </>
@@ -831,28 +852,32 @@ export default function ClientCasePage({
                           ) : null;
                         })()}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(p)}
-                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
+                      {!readOnly ? (
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(p)}
+                          className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                      ) : null}
                     </div>
                   </DebugWrapper>
                 );
               })}
-              <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
-                + add image
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleUpload}
-                  className="hidden"
-                />
-              </label>
+              {!readOnly ? (
+                <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
+                  + add image
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleUpload}
+                    className="hidden"
+                  />
+                </label>
+              ) : null}
             </div>
           </>
         }
