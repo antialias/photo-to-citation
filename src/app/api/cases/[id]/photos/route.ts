@@ -17,7 +17,7 @@ export const DELETE = withCaseAuthorization(
     req: Request,
     {
       params,
-      session,
+      session: _session,
     }: {
       params: Promise<{ id: string }>;
       session?: { user?: { id?: string; role?: string } };
@@ -41,7 +41,7 @@ export const POST = withCaseAuthorization(
     req: Request,
     {
       params,
-      session,
+      session: _session,
     }: {
       params: Promise<{ id: string }>;
       session?: { user?: { id?: string; role?: string } };
