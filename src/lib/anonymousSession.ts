@@ -9,3 +9,17 @@ export function getAnonymousSessionId(req: Request): string | undefined {
   }
   return undefined;
 }
+
+export function getAnonSession(req: Request): string | undefined {
+  // handle tests where `req` may be a simple object without headers
+  const headers = (req as { headers?: Headers }).headers;
+  const cookie = headers?.get("cookie");
+  if (!cookie) return undefined;
+  for (const part of cookie.split(/;\s*/)) {
+    const [name, ...rest] = part.split("=");
+    if (name === "anonSession") {
+      return decodeURIComponent(rest.join("="));
+    }
+  }
+  return undefined;
+}

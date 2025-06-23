@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { getAnonymousSessionId } from "@/lib/anonymousSession";
+import { getAnonSession, getAnonymousSessionId } from "@/lib/anonymousSession";
 import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import {
   analyzeCaseInBackground,
@@ -32,8 +32,13 @@ export const POST = withAuthorization(
       session?: { user?: { id?: string; role?: string } };
     },
   ) => {
-    const cookieStore = cookies();
-    let anonId = cookieStore.get("anonSession")?.value;
+    let anonId: string | undefined;
+    try {
+      const store = await cookies();
+      anonId = store.get("anonSession")?.value;
+    } catch {
+      anonId = getAnonSession(req);
+    }
     let setSessionCookie = false;
     if (!anonId) {
       anonId = crypto.randomUUID();

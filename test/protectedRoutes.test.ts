@@ -1,8 +1,29 @@
+import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { Worker } from "node:worker_threads";
+
+const terminateMock = vi.fn();
+const worker = Object.assign(new EventEmitter(), {
+  terminate: terminateMock,
+}) as unknown as Worker;
+
+const runJobMock = vi.fn(() => worker);
+vi.mock("@/lib/jobScheduler", () => ({ runJob: runJobMock }));
+vi.mock("@/lib/thumbnails", () => ({
+  generateThumbnailsInBackground: vi.fn(),
+}));
+vi.mock("@/lib/exif", () => ({
+  extractGps: () => null,
+  extractTimestamp: () => null,
+}));
+vi.mock("@/lib/caseLocation", () => ({
+  fetchCaseLocationInBackground: vi.fn(),
+}));
 
 let dataDir: string;
 
@@ -32,16 +53,27 @@ describe("protected routes", () => {
     expect(res.status).toBe(403);
   });
 
-  it("protects upload", async () => {
+  it("allows anonymous upload", async () => {
     const mod = await import("@/app/api/upload/route");
-    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
-    const form = new FormData();
-    form.append("photo", file);
-    const req = new Request("http://test", { method: "POST", body: form });
-    const res = await mod.POST(req as unknown as NextRequest, {
+    const file = {
+      arrayBuffer: async () => Buffer.from("a"),
+      name: "a.jpg",
+      type: "image/jpeg",
+    } as unknown as File;
+    const req = {
+      method: "POST",
+      headers: new Headers(),
+      formData: async () => ({
+        get(name: string) {
+          if (name === "photo") return file;
+          return null;
+        },
+      }),
+    } as unknown as Request;
+    const res = await mod.POST(req, {
       params: Promise.resolve({}),
       session: { user: { role: "anonymous" } },
     });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 });
