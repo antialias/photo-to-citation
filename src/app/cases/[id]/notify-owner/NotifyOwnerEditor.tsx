@@ -2,7 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
-import { getThumbnailUrl } from "@/lib/thumbnails";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

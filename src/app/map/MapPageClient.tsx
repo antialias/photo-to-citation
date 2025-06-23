@@ -1,7 +1,7 @@
 "use client";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { getThumbnailUrl } from "@/lib/thumbnails";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

@@ -1,7 +1,7 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
-import { getThumbnailUrl } from "@/lib/thumbnails";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
