@@ -86,5 +86,5 @@ export async function fetchCaseVin(caseData: Case): Promise<void> {
 }
 
 export function fetchCaseVinInBackground(caseData: Case): void {
-  runJob("fetchCaseVin", caseData);
+  runJob("fetchCaseVin", caseData, { caseId: caseData.id });
 }

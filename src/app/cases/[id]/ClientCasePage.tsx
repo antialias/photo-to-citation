@@ -2,6 +2,7 @@
 import { apiEventSource, apiFetch } from "@/apiClient";
 import useDragReset from "@/app/cases/useDragReset";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
+import CaseJobList from "@/app/components/CaseJobList";
 import CaseLayout from "@/app/components/CaseLayout";
 import CaseProgressGraph from "@/app/components/CaseProgressGraph";
 import CaseToolbar from "@/app/components/CaseToolbar";
@@ -706,6 +707,7 @@ export default function ClientCasePage({
                 </div>
               </div>
             </DebugWrapper>
+            <CaseJobList caseId={caseId} isPublic={caseData.public} />
             {selectedPhoto ? (
               <>
                 <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">

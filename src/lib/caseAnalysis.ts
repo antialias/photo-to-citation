@@ -179,7 +179,7 @@ export function analyzeCaseInBackground(caseData: Case): void {
     run() {
       if (activeWorkers.has(caseData.id)) return Promise.resolve();
       return new Promise<void>((resolve) => {
-        const worker = runJob("analyzeCase", caseData);
+        const worker = runJob("analyzeCase", caseData, { caseId: caseData.id });
         activeWorkers.set(caseData.id, worker);
         const cleanup = () => {
           activeWorkers.delete(caseData.id);
@@ -304,7 +304,11 @@ export function analyzePhotoInBackground(caseData: Case, photo: string): void {
     photo,
     run() {
       return new Promise<void>((resolve) => {
-        const worker = runJob("analyzePhoto", { caseData, photo });
+        const worker = runJob(
+          "analyzePhoto",
+          { caseData, photo },
+          { caseId: caseData.id },
+        );
         activeWorkers.set(caseData.id, worker);
         const cleanup = () => {
           activeWorkers.delete(caseData.id);
