@@ -1,116 +1,80 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+
 import dotenv from "dotenv";
+import { JSDOM } from "jsdom";
 import OpenAI from "openai";
 import type { ImageGenerateParams } from "openai/resources/images";
 import sharp from "sharp";
 
 dotenv.config();
 
-const openai = new OpenAI();
-
-interface ImageSpec {
+export interface ImageSpec {
   file: string;
-  prompt: string;
-  size?: ImageGenerateParams["size"];
   width?: number;
   height?: number;
+  args: ImageGenerateParams;
 }
 
-const specs: ImageSpec[] = [
-  {
-    file: "images/logo.png",
-    prompt:
-      "minimal logo reading 'Photo To Citation' with camera and ticket icon, dark background",
-    size: "1024x1024",
-    width: 40,
-    height: 40,
-  },
-  {
-    file: "images/hero.png",
-    prompt:
-      "cyclist snapping a photo of a car blocking the bike lane using a phone app",
-    width: 800,
-  },
-  {
-    file: "images/community.png",
-    prompt: "neighbors standing together in a welcoming style",
-    width: 180,
-  },
-  {
-    file: "images/mission.png",
-    prompt: "simple icon representing our mission of safer streets",
-    width: 64,
-    height: 64,
-  },
-  {
-    file: "images/ethos.png",
-    prompt: "graphic showing unity and cooperation",
-    width: 64,
-    height: 64,
-  },
-];
-
-const featurePrompts = [
-  "camera icon for quick one-handed capture",
-  "envelope icon for creating cases from email",
-  "magnifying glass over car for automatic AI analysis",
-  "map pin icon for reverse geocoding",
-  "document icon for generating reports",
-  "bell icon for multi-channel notifications",
-  "clipboard icon for citation tracking",
-  "group of cyclists helping each other",
-];
-
-for (let i = 0; i < featurePrompts.length; i++) {
-  specs.push({
-    file: `images/features/${i + 1}.png`,
-    prompt: featurePrompts[i],
-    size: "1024x1024",
-    width: 64,
-    height: 64,
-  });
+function parseSrc(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.startsWith("{{")) {
+    const m = trimmed.match(/['"]([^'"]+)['"]/);
+    if (m) return m[1].replace(/^\//, "");
+  }
+  return trimmed.replace(/^\//, "");
 }
 
-const libraryPrompts = [
-  "car blocking bike lane while cyclist takes a photo",
-  "sidewalk blocked by vehicle, pedestrian photographing",
-  "cyclist using phone app to report violation",
-  "car receiving citation from community program",
-];
-
-for (let i = 0; i < libraryPrompts.length; i++) {
-  specs.push({
-    file: `images/library/${i + 1}.png`,
-    prompt: libraryPrompts[i],
-    width: 180,
-  });
+export function gatherSpecs(dir: string): ImageSpec[] {
+  const specs: Record<string, ImageSpec> = {};
+  const files = fs.readdirSync(dir, { withFileTypes: true });
+  for (const f of files) {
+    const fp = path.join(dir, f.name);
+    if (f.isDirectory()) {
+      for (const spec of gatherSpecs(fp)) {
+        specs[spec.file] = spec;
+      }
+      continue;
+    }
+    if (!f.name.endsWith(".md") && !f.name.endsWith(".njk")) continue;
+    const content = fs.readFileSync(fp, "utf8");
+    const dom = new JSDOM(content);
+    const imgs = dom.window.document.querySelectorAll("img[data-image-gen]");
+    for (const img of imgs) {
+      const srcAttr = img.getAttribute("src") || "";
+      const file = parseSrc(srcAttr);
+      const alt = img.getAttribute("alt") || "";
+      const widthAttr = img.getAttribute("width");
+      const heightAttr = img.getAttribute("height");
+      const width = widthAttr ? Number.parseInt(widthAttr, 10) : undefined;
+      const height = heightAttr ? Number.parseInt(heightAttr, 10) : undefined;
+      const data = img.getAttribute("data-image-gen") || "";
+      let opts: Partial<ImageGenerateParams> = {};
+      if (data.trim()) {
+        try {
+          opts = JSON.parse(data);
+        } catch {
+          console.warn(`could not parse JSON for ${file}`);
+        }
+      }
+      const args: ImageGenerateParams = {
+        model: "dall-e-3",
+        prompt: alt,
+        n: 1,
+        ...opts,
+      };
+      if (!opts.size && width && height) {
+        args.size = `${width}x${height}` as ImageGenerateParams["size"];
+      }
+      specs[file] = { file, width, height, args };
+    }
+  }
+  return Object.values(specs);
 }
 
-specs.push({
-  file: "images/owners.png",
-  prompt: "vehicle owner looking sorry while paying fine for parking violation",
-  width: 180,
-});
-
-const screenshotPrompts = [
-  "dark mode app screenshot showing a list of violation cases with thumbnail photos, status icons and blue highlights, sleek mobile UI",
-  "mobile camera interface screenshot with live preview and large 'Take Picture' button over a car blocking a bike lane",
-  "case detail screen screenshot with big photo marked up with bounding boxes, sidebar with address and license plate fields, map preview and dark UI",
-  "map view screenshot with open street map tiles, blue location pins containing thumbnail images and navigation header",
-];
-
-for (let i = 0; i < screenshotPrompts.length; i++) {
-  specs.push({
-    file: `images/screenshots/${i + 1}.png`,
-    prompt: screenshotPrompts[i],
-    width: 800,
-  });
-}
-
-function fetchRemote(file: string): Buffer | null {
-  const paths = [`website/${file}`, `website/dist/${file}`];
+function fetchRemote(dir: string, file: string): Buffer | null {
+  const paths = [path.join(dir, file), path.join(dir, "dist", file)];
   for (const p of paths) {
     try {
       const data = execSync(`git show origin/gh-pages:${p}`, {
@@ -118,7 +82,7 @@ function fetchRemote(file: string): Buffer | null {
       });
       return Buffer.from(data);
     } catch {
-      // try next path
+      // ignore
     }
   }
   return null;
@@ -158,10 +122,11 @@ async function createPlaceholder(
   await saveResized(localPath, buf, spec);
 }
 
-async function generate(spec: ImageSpec): Promise<void> {
-  const localPath = path.join("website", spec.file);
+async function generate(websiteDir: string, spec: ImageSpec): Promise<void> {
+  const openai = new OpenAI();
+  const localPath = path.join(websiteDir, spec.file);
   if (fs.existsSync(localPath)) return;
-  const data = fetchRemote(spec.file);
+  const data = fetchRemote(websiteDir, spec.file);
   if (data) {
     await saveResized(localPath, data, spec);
     return;
@@ -174,12 +139,7 @@ async function generate(spec: ImageSpec): Promise<void> {
     return;
   }
   try {
-    const res = await openai.images.generate({
-      model: "gpt-image-1",
-      prompt: spec.prompt,
-      n: 1,
-      size: spec.size ?? "1024x1024",
-    });
+    const res = await openai.images.generate(spec.args);
     const url = res.data?.[0]?.url;
     if (!url) throw new Error("Image generation failed");
     const imgRes = await fetch(url);
@@ -191,13 +151,17 @@ async function generate(spec: ImageSpec): Promise<void> {
   }
 }
 
-(async () => {
-  try {
-    execSync("git fetch origin gh-pages", { stdio: "ignore" });
-  } catch {
-    throw new Error("could not fetch gh-pages branch from origin");
-  }
-  for (const spec of specs) {
-    await generate(spec);
-  }
-})();
+if (require.main === module) {
+  (async () => {
+    const websiteDir = process.env.WEBSITE_DIR || "website";
+    try {
+      execSync("git fetch origin gh-pages", { stdio: "ignore" });
+    } catch {
+      throw new Error("could not fetch gh-pages branch from origin");
+    }
+    const specs = gatherSpecs(websiteDir);
+    for (const spec of specs) {
+      await generate(websiteDir, spec);
+    }
+  })();
+}
