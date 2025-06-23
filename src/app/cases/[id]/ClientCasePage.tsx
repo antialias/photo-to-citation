@@ -1,5 +1,6 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
+import CaseChat from "@/app/cases/[id]/CaseChat";
 import useDragReset from "@/app/cases/useDragReset";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
 import CaseJobList from "@/app/components/CaseJobList";
@@ -1122,6 +1123,7 @@ export default function ClientCasePage({
           Drop to add photos
         </div>
       )}
+      <CaseChat caseId={caseId} />
     </div>
   );
 }
