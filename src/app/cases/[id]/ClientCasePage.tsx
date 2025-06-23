@@ -12,7 +12,7 @@ import ImageHighlights from "@/app/components/ImageHighlights";
 import MapPreview from "@/app/components/MapPreview";
 import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
-import { useSession } from "@/app/useSession";
+import { signIn, useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { Progress } from "@/components/ui/progress";
@@ -111,14 +111,30 @@ export default function ClientCasePage({
   const addMenuRef = useRef<HTMLDetailsElement>(null);
   const [hasCamera, setHasCamera] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [hideClaimBanner, setHideClaimBanner] = useState(false);
   const photoMenuRef = useRef<HTMLDetailsElement>(null);
   useCloseOnOutsideClick(photoMenuRef);
   useCloseOnOutsideClick(addMenuRef);
   const notify = useNotify();
+  const showClaimBanner = Boolean(
+    caseData?.sessionId && !session?.user && !hideClaimBanner,
+  );
 
   useDragReset(() => {
     setDragging(false);
   });
+
+  useEffect(() => {
+    void caseId;
+    setHideClaimBanner(false);
+  }, [caseId]);
+
+  useEffect(() => {
+    void caseData?.sessionId;
+    if (!caseData?.sessionId) {
+      setHideClaimBanner(false);
+    }
+  }, [caseData?.sessionId]);
 
   useEffect(() => {
     if (
@@ -627,6 +643,32 @@ export default function ClientCasePage({
             }
       }
     >
+      {showClaimBanner ? (
+        <div className="bg-yellow-100 border border-yellow-300 text-yellow-800 p-2 flex items-center justify-between">
+          <span>
+            Sign in to claim this case or it will be lost when the session ends.
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                signIn(undefined, { callbackUrl: withBasePath("/claim") })
+              }
+              className="underline"
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => setHideClaimBanner(true)}
+              aria-label="Dismiss"
+              className="text-xl leading-none"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
       <CaseLayout
         header={
           <div className="flex items-center justify-between">
