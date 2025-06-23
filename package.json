@@ -15,6 +15,7 @@
     "reanalyze": "ts-node --transpile-only scripts/updateMissingAnalysis.ts",
     "poll:snailmail": "ts-node --transpile-only scripts/pollSnailMail.ts",
     "scan:inbox": "ts-node --transpile-only scripts/scanInbox.ts",
+    "cleanup:anon-cases": "ts-node --transpile-only scripts/cleanupAnonymousCases.ts",
     "migrate": "ts-node --transpile-only scripts/migrate.ts",
     "seed:cases": "ts-node --transpile-only scripts/seedCases.ts",
     "https": "local-ssl-proxy --source 443 --target 3000",

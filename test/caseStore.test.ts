@@ -197,4 +197,37 @@ describe("caseStore", () => {
     expect(claimed1?.sessionId).toBeNull();
     expect(members.isCaseMember(c1.id, "u1", "owner")).toBe(true);
   });
+
+  it("deletes anonymous cases older than cutoff", () => {
+    const { createCase, deleteAnonymousCasesOlderThan, getCase } = caseStore;
+    const oldDate = new Date(
+      Date.now() - 10 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const recentDate = new Date().toISOString();
+    const oldCase = createCase(
+      "/old.jpg",
+      null,
+      undefined,
+      undefined,
+      null,
+      false,
+      "s1",
+    );
+    caseStore.updateCase(oldCase.id, { createdAt: oldDate });
+    const recentCase = createCase(
+      "/recent.jpg",
+      null,
+      undefined,
+      undefined,
+      null,
+      false,
+      "s2",
+    );
+    caseStore.updateCase(recentCase.id, { createdAt: recentDate });
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const count = deleteAnonymousCasesOlderThan(cutoff);
+    expect(count).toBe(1);
+    expect(getCase(oldCase.id)).toBeUndefined();
+    expect(getCase(recentCase.id)).toBeDefined();
+  });
 });

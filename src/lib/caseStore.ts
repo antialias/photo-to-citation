@@ -530,3 +530,18 @@ export function claimCasesForSession(
   }
   return claimed;
 }
+
+export function deleteAnonymousCasesOlderThan(cutoff: Date): number {
+  const rows = db
+    .prepare("SELECT id, data FROM cases WHERE session_id IS NOT NULL")
+    .all() as Array<{ id: string; data: string }>;
+  let deleted = 0;
+  for (const row of rows) {
+    const data = JSON.parse(row.data) as { createdAt?: string };
+    if (!data.createdAt) continue;
+    if (new Date(data.createdAt).getTime() < cutoff.getTime()) {
+      if (deleteCase(row.id)) deleted++;
+    }
+  }
+  return deleted;
+}

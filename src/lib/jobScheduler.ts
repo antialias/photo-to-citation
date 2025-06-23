@@ -38,7 +38,7 @@ function auditJobs() {
   }
   if (changed) {
     lastUpdate = lastAudit;
-    jobEvents.emit("update", listJobs());
+    jobEvents.emit("update", listJobs(undefined, undefined, true));
   }
   globalStore.lastAudit = lastAudit;
   globalStore.lastUpdate = lastUpdate;
@@ -49,8 +49,8 @@ if (!globalStore.auditTimer) {
   globalStore.auditTimer.unref();
 }
 
-export function listJobs(type?: string, caseId?: string) {
-  auditJobs();
+export function listJobs(type?: string, caseId?: string, skipAudit = false) {
+  if (!skipAudit) auditJobs();
   const jobs = Array.from(activeJobs.values()).map((j) => ({
     id: j.worker.threadId,
     type: j.type,
