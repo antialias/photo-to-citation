@@ -100,14 +100,26 @@ export default function ClientCasePage({
     initialIsAdmin;
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const addMenuRef = useRef<HTMLDetailsElement>(null);
+  const [hasCamera, setHasCamera] = useState(false);
   const [dragging, setDragging] = useState(false);
   const photoMenuRef = useRef<HTMLDetailsElement>(null);
   useCloseOnOutsideClick(photoMenuRef);
+  useCloseOnOutsideClick(addMenuRef);
   const notify = useNotify();
 
   useDragReset(() => {
     setDragging(false);
   });
+
+  useEffect(() => {
+    if (
+      navigator.mediaDevices?.getUserMedia &&
+      (location.protocol === "https:" || location.hostname === "localhost")
+    ) {
+      setHasCamera(true);
+    }
+  }, []);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`preview-${caseId}`);
@@ -894,8 +906,33 @@ export default function ClientCasePage({
                 );
               })}
               {readOnly ? null : (
-                <label className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
-                  + add image
+                <details ref={addMenuRef} className="relative">
+                  <summary className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                    + add image
+                  </summary>
+                  <div
+                    className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
+                    role="menu"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        addMenuRef.current?.removeAttribute("open");
+                        fileInputRef.current?.click();
+                      }}
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                    >
+                      Upload Image
+                    </button>
+                    {hasCamera ? (
+                      <Link
+                        href={`/point?case=${caseId}`}
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      >
+                        Take Photo
+                      </Link>
+                    ) : null}
+                  </div>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -904,7 +941,7 @@ export default function ClientCasePage({
                     onChange={handleUpload}
                     className="hidden"
                   />
-                </label>
+                </details>
               )}
             </div>
           </>
