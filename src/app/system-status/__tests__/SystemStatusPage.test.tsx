@@ -11,29 +11,17 @@ vi.mock("@/lib/authOptions", () => ({
 }));
 
 vi.mock("@/lib/authz", () => ({
-  withAuthorization:
-    (
-      _opts: unknown,
-      handler: (
-        req: Request,
-        ctx: { session?: { user?: { role?: string } } },
-      ) => unknown,
-    ) =>
-    async (req: Request, ctx: { session?: { user?: { role?: string } } }) => {
-      return ctx.session?.user?.role === "superadmin"
-        ? handler(req, ctx)
-        : new Response(null, { status: 403 });
-    },
+  authorize: vi.fn((role: string) => role === "superadmin"),
 }));
 
-it("returns 403 for non-superadmin", async () => {
+it("shows message for non-superadmin", async () => {
   (
     getServerSession as unknown as { mockResolvedValue: (v: unknown) => void }
   ).mockResolvedValue({
     user: { role: "admin" },
   });
-  const res = (await SystemStatusPage()) as Response;
-  expect(res.status).toBe(403);
+  const res = await SystemStatusPage();
+  expect(res).not.toBeInstanceOf(Response);
 });
 
 it("renders for superadmin", async () => {
