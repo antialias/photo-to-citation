@@ -85,7 +85,11 @@ describe("permissions", () => {
     const delButton = caseDom.window.document.querySelector(
       '[data-testid="delete-case-button"]',
     );
+    const closeButton = caseDom.window.document.querySelector(
+      '[data-testid="close-case-button"]',
+    );
     expect(delButton).toBeNull();
+    expect(closeButton).toBeNull();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
     const draftDom = new JSDOM(draft);
     const sendButton = getByTestId(draftDom.window.document, "send-button");
@@ -102,7 +106,12 @@ describe("permissions", () => {
       caseDom.window.document,
       "delete-case-button",
     );
+    const closeButton = getByTestId(
+      caseDom.window.document,
+      "close-case-button",
+    );
     expect(delButton).toBeTruthy();
+    expect(closeButton).toBeTruthy();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
     const draftDom = new JSDOM(draft);
     const sendButton = getByTestId(draftDom.window.document, "send-button");

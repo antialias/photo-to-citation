@@ -156,4 +156,14 @@ describe("caseStore", () => {
     const stored = getCase(c.id);
     expect(stored?.public).toBe(true);
   });
+
+  it("toggles closed flag", () => {
+    const { createCase, setCaseClosed, getCase } = caseStore;
+    const c = createCase("/close.jpg", null);
+    expect(c.closed).toBe(false);
+    const updated = setCaseClosed(c.id, true);
+    expect(updated?.closed).toBe(true);
+    const stored = getCase(c.id);
+    expect(stored?.closed).toBe(true);
+  });
 });

@@ -13,12 +13,14 @@ export default function CaseToolbar({
   hasOwner = false,
   progress,
   canDelete = false,
+  closed = false,
 }: {
   caseId: string;
   disabled?: boolean;
   hasOwner?: boolean;
   progress?: LlmProgress | null;
   canDelete?: boolean;
+  closed?: boolean;
 }) {
   const reqText = progress
     ? progress.stage === "upload"
@@ -137,6 +139,21 @@ export default function CaseToolbar({
                     Notify Registered Owner
                   </Link>
                 ) : null}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await apiFetch(`/api/cases/${caseId}/closed`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ closed: !closed }),
+                    });
+                    window.location.reload();
+                  }}
+                  data-testid="close-case-button"
+                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                >
+                  {closed ? "Reopen Case" : "Close Case"}
+                </button>
               </>
             )}
             {canDelete ? (

@@ -38,6 +38,7 @@ export interface Case {
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
   threadImages?: ThreadImage[];
+  closed?: boolean;
 }
 
 export interface SentEmail {
@@ -76,6 +77,9 @@ function rowToCase(row: { id: string; data: string; public: number }): Case {
   >;
   if (!("updatedAt" in base)) {
     (base as Partial<Case>).updatedAt = (base as Partial<Case>).createdAt;
+  }
+  if (!("closed" in base)) {
+    (base as Partial<Case>).closed = false;
   }
   const photos = orm
     .select()
@@ -268,6 +272,7 @@ export function createCase(
     sentEmails: [],
     ownershipRequests: [],
     threadImages: [],
+    closed: false,
   };
   saveCase(newCase);
   if (ownerId) {
@@ -404,6 +409,10 @@ export function addOwnershipRequest(
 
 export function setCasePublic(id: string, isPublic: boolean): Case | undefined {
   return updateCase(id, { public: isPublic });
+}
+
+export function setCaseClosed(id: string, closed: boolean): Case | undefined {
+  return updateCase(id, { closed });
 }
 
 export function deleteCase(id: string): boolean {

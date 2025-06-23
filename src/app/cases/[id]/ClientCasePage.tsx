@@ -260,6 +260,19 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
+  async function toggleClosed() {
+    const res = await apiFetch(`/api/cases/${caseId}/closed`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ closed: !(caseData?.closed ?? false) }),
+    });
+    if (!res.ok) {
+      notify("Failed to update status.");
+      return;
+    }
+    await refreshCase();
+  }
+
   async function copyPublicUrl() {
     const url = `${window.location.origin}${withBasePath(
       `/public/cases/${caseId}`,
@@ -511,6 +524,7 @@ export default function ClientCasePage({
               hasOwner={Boolean(ownerContact)}
               progress={progress}
               canDelete={isAdmin}
+              closed={caseData.closed}
             />
           </div>
         }
@@ -542,6 +556,10 @@ export default function ClientCasePage({
                       Make {caseData.public ? "Private" : "Public"}
                     </button>
                   )}
+                </p>
+                <p>
+                  <span className="font-semibold">Status:</span>{" "}
+                  {caseData.closed ? "Closed" : "Open"}
                 </p>
                 {caseData.streetAddress ? (
                   <p>
