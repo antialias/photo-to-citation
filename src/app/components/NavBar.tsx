@@ -83,6 +83,12 @@ export default function NavBar() {
         >
           User Settings
         </Link>
+        <Link
+          href="/profile"
+          className="hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          Profile
+        </Link>
         {session ? (
           <button
             type="button"
