@@ -55,6 +55,24 @@ export default function MultiCaseToolbar({
           >
             Re-run Analysis
           </button>
+          <button
+            type="button"
+            onClick={async () => {
+              await Promise.all(
+                caseIds.map((id) =>
+                  apiFetch(`/api/cases/${id}/archived`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ archived: true }),
+                  }),
+                ),
+              );
+              window.location.reload();
+            }}
+            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+          >
+            Archive Cases
+          </button>
           {disabled ? null : (
             <>
               <Link

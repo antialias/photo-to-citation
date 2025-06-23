@@ -44,7 +44,7 @@ export default function ClientCasesPage({
 }) {
   const [orderBy, setOrderBy] = useState<Order>("createdAt");
   const [cases, setCases] = useState(() => sortList(initialCases, "createdAt"));
-  const [showClosed, setShowClosed] = useState(false);
+  const [states, setStates] = useState<string[]>(["open"]);
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lon: number;
@@ -161,20 +161,35 @@ export default function ClientCasesPage({
           <option value="updatedAt">Last Updated</option>
           <option value="distance">Distance from My Location</option>
         </select>
-        <label className="flex items-center gap-1" htmlFor="show-closed">
-          <input
-            id="show-closed"
-            type="checkbox"
-            checked={showClosed}
-            onChange={(e) => setShowClosed(e.target.checked)}
-            className="mr-1"
-          />
-          Show closed cases
+        <label className="flex items-center gap-1" htmlFor="case-states">
+          <span>Show:</span>
+          <select
+            id="case-states"
+            multiple
+            value={states}
+            onChange={(e) =>
+              setStates(
+                Array.from(e.target.selectedOptions).map((o) => o.value),
+              )
+            }
+            className="border rounded p-1 bg-white dark:bg-gray-900"
+          >
+            <option value="open">Open</option>
+            <option value="archived">Archived</option>
+            <option value="closed">Closed</option>
+          </select>
         </label>
       </div>
       <ul className="grid gap-4">
         {cases
-          .filter((c) => showClosed || !c.closed)
+          .filter((c) => {
+            const state = c.archived
+              ? "archived"
+              : c.closed
+                ? "closed"
+                : "open";
+            return states.includes(state);
+          })
           .map((c) => (
             <li
               key={c.id}

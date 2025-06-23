@@ -311,6 +311,19 @@ export default function ClientCasePage({
     await refreshCase();
   }
 
+  async function toggleArchived() {
+    const res = await apiFetch(`/api/cases/${caseId}/archived`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ archived: !(caseData?.archived ?? false) }),
+    });
+    if (!res.ok) {
+      notify("Failed to update status.");
+      return;
+    }
+    await refreshCase();
+  }
+
   async function copyPublicUrl() {
     const url = `${window.location.origin}${withBasePath(
       `/public/cases/${caseId}`,
@@ -563,6 +576,7 @@ export default function ClientCasePage({
               progress={progress}
               canDelete={isAdmin}
               closed={caseData.closed}
+              archived={caseData.archived}
             />
           </div>
         }
@@ -597,7 +611,11 @@ export default function ClientCasePage({
                 </p>
                 <p>
                   <span className="font-semibold">Status:</span>{" "}
-                  {caseData.closed ? "Closed" : "Open"}
+                  {caseData.archived
+                    ? "Archived"
+                    : caseData.closed
+                      ? "Closed"
+                      : "Open"}
                 </p>
                 {caseData.streetAddress ? (
                   <p>

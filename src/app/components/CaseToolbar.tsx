@@ -14,6 +14,7 @@ export default function CaseToolbar({
   progress,
   canDelete = false,
   closed = false,
+  archived = false,
 }: {
   caseId: string;
   disabled?: boolean;
@@ -21,6 +22,7 @@ export default function CaseToolbar({
   progress?: LlmProgress | null;
   canDelete?: boolean;
   closed?: boolean;
+  archived?: boolean;
 }) {
   const reqText = progress
     ? progress.stage === "upload"
@@ -100,6 +102,21 @@ export default function CaseToolbar({
               className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
             >
               Re-run Analysis
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await apiFetch(`/api/cases/${caseId}/archived`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ archived: !archived }),
+                });
+                window.location.reload();
+              }}
+              data-testid="archive-case-button"
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+            >
+              {archived ? "Unarchive Case" : "Archive Case"}
             </button>
             {disabled ? null : (
               <>

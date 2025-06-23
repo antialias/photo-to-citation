@@ -36,14 +36,18 @@ const baseCase: Case = {
 
 const closedCase: Case = { ...baseCase, id: "2", closed: true };
 
-describe("show closed cases", () => {
+describe("case state filter", () => {
   it("toggles closed case visibility", () => {
     const { getByLabelText, queryByText } = render(
       <ClientCasesPage initialCases={[baseCase, closedCase]} />,
     );
     expect(queryByText(/Case 2/)).toBeNull();
-    const checkbox = getByLabelText(/show closed cases/i);
-    fireEvent.click(checkbox);
+    const select = getByLabelText(/show/i) as HTMLSelectElement;
+    const closedOption = Array.from(select.options).find(
+      (o) => o.value === "closed",
+    ) as HTMLOptionElement;
+    closedOption.selected = true;
+    fireEvent.change(select);
     expect(queryByText(/Case 2/)).toBeInTheDocument();
   });
 });

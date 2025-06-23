@@ -41,6 +41,7 @@ export interface Case {
   closed?: boolean;
   note?: string | null;
   photoNotes?: Record<string, string | null>;
+  archived?: boolean;
 }
 
 export interface SentEmail {
@@ -82,6 +83,9 @@ function rowToCase(row: { id: string; data: string; public: number }): Case {
   }
   if (!("closed" in base)) {
     (base as Partial<Case>).closed = false;
+  }
+  if (!("archived" in base)) {
+    (base as Partial<Case>).archived = false;
   }
   const photos = orm
     .select()
@@ -283,6 +287,7 @@ export function createCase(
     ownershipRequests: [],
     threadImages: [],
     closed: false,
+    archived: false,
   };
   saveCase(newCase);
   if (ownerId) {
@@ -446,6 +451,13 @@ export function setCasePublic(id: string, isPublic: boolean): Case | undefined {
 
 export function setCaseClosed(id: string, closed: boolean): Case | undefined {
   return updateCase(id, { closed });
+}
+
+export function setCaseArchived(
+  id: string,
+  archived: boolean,
+): Case | undefined {
+  return updateCase(id, { archived });
 }
 
 export function deleteCase(id: string): boolean {
