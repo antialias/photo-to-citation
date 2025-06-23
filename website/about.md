@@ -6,7 +6,12 @@ layout: layout.njk
 # About Photo To Citation
 
 <div class="hero">
-  <img src="{{ '/images/community.png' | url }}" alt="Neighbors standing together" />
+  <img
+    src="{{ '/images/community.png' | url }}"
+    alt="neighbors standing together in a welcoming style"
+    width="180"
+    data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+  />
 </div>
 
 Photo To Citation began as a community project in Oak Park, IL. Our goal is to make it effortless for residents to document dangerous parking behavior and ensure violators are held accountable. By combining modern web tech with language models, we streamline everything from photo analysis to mailing citations.
@@ -15,12 +20,26 @@ While we started with cyclists frustrated by blocked bike lanes, the app is just
 
 ## Our Mission
 
-<img class="feature-icon" src="{{ '/images/mission.png' | url }}" alt="Mission icon" />
+<img
+  class="feature-icon"
+  src="{{ '/images/mission.png' | url }}"
+  alt="simple icon representing our mission of safer streets"
+  width="64"
+  height="64"
+  data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+/>
 Our mission is to keep sidewalks and bike lanes clear so everyone can move freely. We believe better streets start with neighbors helping one another and a straightforward way to hold scofflaws accountable.
 
 ## Community Spirit
 
-<img class="feature-icon" src="{{ '/images/ethos.png' | url }}" alt="Ethos icon" />
+<img
+  class="feature-icon"
+  src="{{ '/images/ethos.png' | url }}"
+  alt="graphic showing unity and cooperation"
+  width="64"
+  height="64"
+  data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+/>
 We champion cooperation—one quick photo can transform frustration into positive action. Each report builds a safer space for walkers, wheelchair users and cyclists.
 
 ## Join the Movement
