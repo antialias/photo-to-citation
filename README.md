@@ -406,6 +406,7 @@ npm run website -- \
 
 * `--force-regenerate-images` without arguments recreates all generated images.
   Pass a comma separated list of `data-image-tag` values to limit the scope.
+  This option ignores any cached or remote copies.
 * `--generate-new-versions` regenerates any image whose `data-image-version`
   is higher than the recorded version in `website/images/versions.json`.
 * `--publish` builds the site and force pushes the result to the `gh-pages` branch.

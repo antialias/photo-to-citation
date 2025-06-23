@@ -132,14 +132,17 @@ async function createPlaceholder(
 export async function generateImage(
   websiteDir: string,
   spec: ImageSpec,
+  force = false,
 ): Promise<void> {
   const openai = new OpenAI();
   const localPath = path.join(websiteDir, spec.file);
-  if (fs.existsSync(localPath)) return;
-  const data = fetchRemote(websiteDir, spec.file);
-  if (data) {
-    await saveResized(localPath, data, spec);
-    return;
+  if (!force) {
+    if (fs.existsSync(localPath)) return;
+    const data = fetchRemote(websiteDir, spec.file);
+    if (data) {
+      await saveResized(localPath, data, spec);
+      return;
+    }
   }
   if (!process.env.OPENAI_API_KEY) {
     console.warn(

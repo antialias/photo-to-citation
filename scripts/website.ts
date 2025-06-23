@@ -96,7 +96,11 @@ async function publish(distDir: string): Promise<void> {
     }
 
     if (shouldGenerate) {
-      await generateImage(websiteDir, spec);
+      const force =
+        forceAll ||
+        (forceTags ? forceTags.has(tag) : false) ||
+        (opts.generateNewVersions && version > prevVersion);
+      await generateImage(websiteDir, spec, force);
       versions[tag] = version;
     } else if (!fs.existsSync(localPath)) {
       const data = fetchRemote(websiteDir, spec.file);
