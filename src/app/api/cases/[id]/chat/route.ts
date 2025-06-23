@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 export const POST = withCaseAuthorization(
-  { obj: "cases" },
+  { obj: "cases", act: "read" },
   async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
     const body = (await req.json()) as {
