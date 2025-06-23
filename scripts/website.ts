@@ -67,6 +67,7 @@ async function publish(distDir: string): Promise<void> {
 
   const websiteDir = process.env.WEBSITE_DIR || "website";
   const specs = gatherSpecs(websiteDir);
+  console.log(`Found ${specs.length} images to check...`);
   const versions = loadVersions(websiteDir);
 
   let forceAll = false;
@@ -79,7 +80,7 @@ async function publish(distDir: string): Promise<void> {
     }
   }
 
-  for (const spec of specs) {
+  for (const [i, spec] of specs.entries()) {
     const localPath = path.join(websiteDir, spec.file);
     const tag = spec.tag ?? spec.file;
     const version = spec.version ?? 0;
@@ -96,6 +97,7 @@ async function publish(distDir: string): Promise<void> {
     }
 
     if (shouldGenerate) {
+      console.log(`[${i + 1}/${specs.length}] generating ${spec.file}`);
       const force =
         forceAll ||
         (forceTags ? forceTags.has(tag) : false) ||
@@ -103,6 +105,7 @@ async function publish(distDir: string): Promise<void> {
       await generateImage(websiteDir, spec, force);
       versions[tag] = version;
     } else if (!fs.existsSync(localPath)) {
+      console.log(`[${i + 1}/${specs.length}] retrieving ${spec.file}`);
       const data = fetchRemote(websiteDir, spec.file);
       if (data) {
         await fs.promises.mkdir(path.dirname(localPath), { recursive: true });
@@ -112,9 +115,11 @@ async function publish(distDir: string): Promise<void> {
   }
 
   saveVersions(websiteDir, versions);
+  console.log("Running Eleventy...");
   execSync("eleventy", { stdio: "inherit" });
 
   if (opts.publish) {
+    console.log("Publishing to gh-pages...");
     await publish(path.join(websiteDir, "dist"));
   }
 })();

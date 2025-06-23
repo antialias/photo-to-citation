@@ -411,6 +411,8 @@ npm run website -- \
   is higher than the recorded version in `website/images/versions.json`.
 * `--publish` builds the site and force pushes the result to the `gh-pages` branch.
 
+The script prints progress for each image so you can see long-running operations.
+
 The output is written to `website/dist`.
 
 The build step uses OpenAI to generate marketing images when they are missing in the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the GitHub Action can access the API.

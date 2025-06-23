@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -83,13 +83,11 @@ export function gatherSpecs(dir: string): ImageSpec[] {
 export function fetchRemote(dir: string, file: string): Buffer | null {
   const paths = [path.join(dir, file), path.join(dir, "dist", file)];
   for (const p of paths) {
-    try {
-      const data = execSync(`git show origin/gh-pages:${p}`, {
-        encoding: "buffer",
-      });
-      return Buffer.from(data);
-    } catch {
-      // ignore
+    const res = spawnSync("git", ["show", `origin/gh-pages:${p}`], {
+      encoding: "buffer",
+    });
+    if (res.status === 0 && res.stdout) {
+      return Buffer.from(res.stdout);
     }
   }
   return null;
