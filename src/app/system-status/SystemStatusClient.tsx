@@ -1,6 +1,6 @@
 "use client";
-import { apiFetch } from "@/apiClient";
-import { useCallback, useEffect, useState } from "react";
+import { apiEventSource } from "@/apiClient";
+import { useEffect, useState } from "react";
 
 interface JobInfo {
   id: number;
@@ -21,22 +21,20 @@ export default function SystemStatusClient() {
   const [updatedAt, setUpdatedAt] = useState<number>(0);
   const [filter, setFilter] = useState<string>("");
 
-  const refresh = useCallback(async (t: string) => {
-    const url = t
-      ? `/api/system/jobs?type=${encodeURIComponent(t)}`
-      : "/api/system/jobs";
-    const res = await apiFetch(url);
-    if (res.ok) {
-      const data: JobResponse = await res.json();
+  useEffect(() => {
+    const url =
+      filter !== ""
+        ? `/api/system/jobs/stream?type=${encodeURIComponent(filter)}`
+        : "/api/system/jobs/stream";
+    const es = apiEventSource(url);
+    es.onmessage = (e) => {
+      const data: JobResponse = JSON.parse(e.data);
       setJobs(data.jobs);
       setAuditedAt(data.auditedAt);
       setUpdatedAt(data.updatedAt);
-    }
-  }, []);
-
-  useEffect(() => {
-    refresh(filter);
-  }, [filter, refresh]);
+    };
+    return () => es.close();
+  }, [filter]);
 
   const types = Array.from(new Set(jobs.map((j) => j.type)));
 
