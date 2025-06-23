@@ -965,7 +965,7 @@ export default function ClientCasePage({
                             alt="case photo"
                             width={80}
                             height={60}
-                            className="object-cover"
+                            className="object-contain"
                           />
                           {isPhotoReanalysis && reanalyzingPhoto === p ? (
                             <div className="absolute top-0 left-0 right-0">
@@ -1099,7 +1099,7 @@ export default function ClientCasePage({
                               alt="paperwork"
                               width={80}
                               height={60}
-                              className="object-cover"
+                              className="object-contain"
                             />
                           </div>
                           {time ? (
