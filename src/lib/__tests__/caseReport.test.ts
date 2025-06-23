@@ -27,6 +27,8 @@ const baseCase: Case = {
   public: false,
 };
 
+const sender = { name: "Test User", email: "user@example.com" };
+
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.spyOn(violationCodes, "getViolationCode").mockResolvedValue("1-1-1");
@@ -41,7 +43,11 @@ describe("draftEmail", () => {
       ],
     } as unknown as ChatCompletion);
 
-    const result = await draftEmail(baseCase, reportModules["oak-park"]);
+    const result = await draftEmail(
+      baseCase,
+      reportModules["oak-park"],
+      sender,
+    );
     expect(result).toEqual({ subject: "s", body: "b" });
   });
 
@@ -59,7 +65,11 @@ describe("draftEmail", () => {
         ],
       } as unknown as ChatCompletion);
 
-    const result = await draftEmail(baseCase, reportModules["oak-park"]);
+    const result = await draftEmail(
+      baseCase,
+      reportModules["oak-park"],
+      sender,
+    );
     expect(result).toEqual({ subject: "s2", body: "b2" });
   });
 
@@ -69,7 +79,11 @@ describe("draftEmail", () => {
       choices: [{ message: { content: "{}" } }],
     } as unknown as ChatCompletion);
 
-    const result = await draftEmail(baseCase, reportModules["oak-park"]);
+    const result = await draftEmail(
+      baseCase,
+      reportModules["oak-park"],
+      sender,
+    );
     expect(result).toEqual({ subject: "", body: "" });
   });
 });

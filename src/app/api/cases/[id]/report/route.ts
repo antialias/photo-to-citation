@@ -12,17 +12,22 @@ export const GET = withCaseAuthorization(
     _req: Request,
     {
       params,
-      session: _session,
+      session,
     }: {
       params: Promise<{ id: string }>;
-      session?: { user?: { id?: string; role?: string } };
+      session?: {
+        user?: { id?: string; role?: string; email?: string; name?: string };
+      };
     },
   ) => {
     const { id } = await params;
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const reportModule = reportModules["oak-park"];
-    const email = await draftEmail(c, reportModule);
+    const sender = session?.user
+      ? { name: session.user.name ?? null, email: session.user.email ?? null }
+      : undefined;
+    const email = await draftEmail(c, reportModule, sender);
     return NextResponse.json({
       email,
       attachments: c.photos,
