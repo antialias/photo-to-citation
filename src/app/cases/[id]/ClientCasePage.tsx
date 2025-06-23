@@ -555,16 +555,6 @@ export default function ClientCasePage({
                 <p>
                   <span className="font-semibold">Status:</span>{" "}
                   {caseData.closed ? "Closed" : "Open"}
-                  {(isAdmin || session?.user) && (
-                    <button
-                      type="button"
-                      onClick={toggleClosed}
-                      className="ml-2 text-blue-500 underline"
-                      data-testid="toggle-closed-button"
-                    >
-                      Mark {caseData.closed ? "Open" : "Closed"}
-                    </button>
-                  )}
                 </p>
                 {caseData.streetAddress ? (
                   <p>
