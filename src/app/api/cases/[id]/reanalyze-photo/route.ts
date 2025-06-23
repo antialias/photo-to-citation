@@ -3,6 +3,7 @@ import {
   analyzePhotoInBackground,
   cancelCaseAnalysis,
   cancelPhotoAnalysis,
+  isCaseAnalysisActive,
 } from "@/lib/caseAnalysis";
 import { getCase, updateCase } from "@/lib/caseStore";
 import { NextResponse } from "next/server";
@@ -28,6 +29,15 @@ export const POST = withCaseAuthorization(
     const c = getCase(id);
     if (!c || !c.photos.includes(photo)) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    if (isCaseAnalysisActive(id)) {
+      return NextResponse.json(
+        {
+          error:
+            "Individual photo reanalysis is blocked until the case job finishes or is canceled.",
+        },
+        { status: 409 },
+      );
     }
     cancelCaseAnalysis(id);
     cancelPhotoAnalysis(id, photo);

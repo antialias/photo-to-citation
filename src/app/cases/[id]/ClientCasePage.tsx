@@ -14,6 +14,7 @@ import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
 import ThumbnailImage from "@/components/thumbnail-image";
+import { isCaseAnalysisActive } from "@/lib/caseAnalysis";
 import type { Case, SentEmail } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
@@ -809,6 +810,10 @@ export default function ClientCasePage({
                             )
                           }
                           className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                          disabled={
+                            caseData.analysisStatus === "pending" &&
+                            isCaseAnalysisActive(caseId)
+                          }
                         >
                           Reanalyze Photo
                         </button>
