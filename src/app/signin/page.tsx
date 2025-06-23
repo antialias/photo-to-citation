@@ -4,6 +4,8 @@ import { withBasePath } from "@/basePath";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+const MARKETING_URL = "https://antialias.github.io/photo-to-citation/website/";
+
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const params = useSearchParams();
@@ -43,6 +45,9 @@ export default function SignInPage() {
           Sign In
         </button>
       </form>
+      <a href={MARKETING_URL} className="underline mt-2">
+        Back to Website
+      </a>
     </>
   );
 }

@@ -26,8 +26,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useNotify } from "../../components/NotificationProvider";
 import { FaShare } from "react-icons/fa";
+import { useNotify } from "../../components/NotificationProvider";
 
 function buildThreads(c: Case): SentEmail[] {
   const mails = c.sentEmails ?? [];
