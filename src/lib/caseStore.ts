@@ -160,50 +160,53 @@ function saveCase(c: Case) {
       "  public = excluded.public",
     ].join(" "),
   );
-  stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0);
-  orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
-  orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, c.id)).run();
-  for (const url of photos) {
-    orm
-      .insert(casePhotos)
-      .values({
-        caseId: c.id,
-        url,
-        takenAt: photoTimes[url] ?? null,
-        gpsLat: photoGps?.[url]?.lat ?? null,
-        gpsLon: photoGps?.[url]?.lon ?? null,
-      })
-      .run();
-  }
-  for (const [name, info] of Object.entries(images)) {
-    const url = photos.find((p) => path.basename(p) === name);
-    if (!url) continue;
-    orm
-      .insert(casePhotoAnalysis)
-      .values({
-        caseId: c.id,
-        url,
-        representationScore: info.representationScore,
-        highlights: info.highlights ?? null,
-        violation:
-          info.violation === undefined || info.violation === null
-            ? null
-            : info.violation
-              ? 1
-              : 0,
-        paperwork:
-          info.paperwork === undefined || info.paperwork === null
-            ? null
-            : info.paperwork
-              ? 1
-              : 0,
-        paperworkText: info.paperworkText ?? null,
-        paperworkInfo: info.paperworkInfo
-          ? JSON.stringify(info.paperworkInfo)
-          : null,
-      })
-      .run();
-  }
+  const tx = db.transaction(() => {
+    stmt.run(c.id, JSON.stringify(rest), c.public ? 1 : 0);
+    orm.delete(casePhotos).where(eq(casePhotos.caseId, c.id)).run();
+    orm.delete(casePhotoAnalysis).where(eq(casePhotoAnalysis.caseId, c.id)).run();
+    for (const url of photos) {
+      orm
+        .insert(casePhotos)
+        .values({
+          caseId: c.id,
+          url,
+          takenAt: photoTimes[url] ?? null,
+          gpsLat: photoGps?.[url]?.lat ?? null,
+          gpsLon: photoGps?.[url]?.lon ?? null,
+        })
+        .run();
+    }
+    for (const [name, info] of Object.entries(images)) {
+      const url = photos.find((p) => path.basename(p) === name);
+      if (!url) continue;
+      orm
+        .insert(casePhotoAnalysis)
+        .values({
+          caseId: c.id,
+          url,
+          representationScore: info.representationScore,
+          highlights: info.highlights ?? null,
+          violation:
+            info.violation === undefined || info.violation === null
+              ? null
+              : info.violation
+                ? 1
+                : 0,
+          paperwork:
+            info.paperwork === undefined || info.paperwork === null
+              ? null
+              : info.paperwork
+                ? 1
+                : 0,
+          paperworkText: info.paperworkText ?? null,
+          paperworkInfo: info.paperworkInfo
+            ? JSON.stringify(info.paperworkInfo)
+            : null,
+        })
+        .run();
+    }
+  });
+  tx();
 }
 
 function getCaseRow(id: string): Case | undefined {
