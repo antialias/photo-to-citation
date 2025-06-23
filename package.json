@@ -25,7 +25,7 @@
     "validate:generated": "tsc --noEmit -p tsconfig.generated.json",
     "generate:migrations": "drizzle-kit generate:sqlite",
     "squash:migrations": "ts-node --transpile-only scripts/squashMigrations.ts",
-    "website": "ts-node --transpile-only scripts/generateWebsiteImages.ts && eleventy",
+    "website": "ts-node --transpile-only scripts/website.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

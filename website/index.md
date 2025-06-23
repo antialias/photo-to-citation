@@ -10,6 +10,8 @@ layout: layout.njk
     alt="cyclist snapping a photo of a car blocking the bike lane using a phone app"
     width="800"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="hero"
+    data-image-version="1"
   />
   <p>Stop dodging cars in the bike lane or on the sidewalk—let one photo clear the path.</p>
 </div>
@@ -22,30 +24,40 @@ Welcome to **Photo To Citation**, a tool for cyclists and pedestrians who feel p
     alt="car blocking bike lane while cyclist takes a photo"
     width="180"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="library-1"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/library/2.png' | url }}"
     alt="sidewalk blocked by vehicle, pedestrian photographing"
     width="180"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="library-2"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/library/3.png' | url }}"
     alt="cyclist using phone app to report violation"
     width="180"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="library-3"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/library/4.png' | url }}"
     alt="car receiving citation from community program"
     width="180"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="library-4"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/owners.png' | url }}"
     alt="vehicle owner looking sorry while paying fine for parking violation"
     width="180"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="owners"
+    data-image-version="1"
   />
 </div>
 
@@ -55,23 +67,31 @@ Welcome to **Photo To Citation**, a tool for cyclists and pedestrians who feel p
     alt="dark mode app screenshot showing a list of violation cases with thumbnail photos, status icons and blue highlights, sleek mobile UI"
     width="800"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="screenshot-1"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/screenshots/2.png' | url }}"
     alt="mobile camera interface screenshot with live preview and large 'Take Picture' button over a car blocking a bike lane"
     width="800"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="screenshot-2"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/screenshots/3.png' | url }}"
     alt="case detail screen screenshot with big photo marked up with bounding boxes, sidebar with address and license plate fields, map preview and dark UI"
     width="800"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="screenshot-3"
+    data-image-version="1"
   />
   <img
     src="{{ '/images/screenshots/4.png' | url }}"
     alt="map view screenshot with open street map tiles, blue location pins containing thumbnail images and navigation header"
     width="800"
     data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}'
+    data-image-tag="screenshot-4"
+    data-image-version="1"
   />
 </div>
