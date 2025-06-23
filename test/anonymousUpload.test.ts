@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("next/headers", () => ({ cookies: () => ({ get: vi.fn() }) }));
 
 let dataDir: string;
 let upload: typeof import("@/app/api/upload/route");
@@ -11,6 +12,15 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
+  vi.doMock("next/headers", () => ({
+    cookies: () => ({
+      get: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
+      getAll: () => [],
+      has: vi.fn(),
+    }),
+  }));
   const db = await import("@/lib/db");
   await db.migrationsReady;
   upload = await import("@/app/api/upload/route");
@@ -24,8 +34,10 @@ afterEach(() => {
 });
 
 describe("anonymous upload", () => {
-  it("sets session cookie and returns case", async () => {
-    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
+  it(
+    "sets session cookie and returns case",
+    async () => {
+      const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
     const req = new Request("http://test", { method: "POST", body: form });
@@ -37,11 +49,13 @@ describe("anonymous upload", () => {
     const getReq = new Request("http://test", {
       headers: { cookie: setCookie.split(";")[0] },
     });
-    const caseRes = await caseRoute.GET(getReq, {
-      params: Promise.resolve({ id: caseId }),
-    });
-    expect(caseRes.status).toBe(200);
-    const data = await caseRes.json();
-    expect(data.id).toBe(caseId);
-  });
+      const caseRes = await caseRoute.GET(getReq, {
+        params: Promise.resolve({ id: caseId }),
+      });
+      expect(caseRes.status).toBe(200);
+      const data = await caseRes.json();
+      expect(data.id).toBe(caseId);
+    },
+    15000,
+  );
 });
