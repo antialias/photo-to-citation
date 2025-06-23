@@ -18,6 +18,7 @@ export default function ImageHighlights({
         {info.representationScore.toFixed(2)}
       </span>
       {info.highlights ? <span>{info.highlights}</span> : null}
+      {info.context ? <span>{info.context}</span> : null}
     </div>
   );
 }

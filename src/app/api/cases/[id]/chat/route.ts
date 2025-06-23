@@ -20,7 +20,12 @@ export const POST = withCaseAuthorization(
       c.streetAddress ||
       c.intersection ||
       (c.gps ? `${c.gps.lat}, ${c.gps.lon}` : "unknown location");
-    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}.`;
+    const contextLines = analysis?.images
+      ? Object.entries(analysis.images)
+          .map(([name, info]) => `Photo ${name}: ${info.context || ""}`)
+          .join("\n")
+      : "";
+    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}.${contextLines ? `\nImage contexts:\n${contextLines}` : ""}`;
 
     const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: system },
