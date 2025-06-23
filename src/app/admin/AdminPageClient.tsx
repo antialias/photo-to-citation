@@ -20,7 +20,7 @@ const policyOptions = {
     snail_mail_providers: ["update"],
     vin_sources: ["update"],
   },
-  superadmin: { superadmin: ["update"] },
+  superadmin: { superadmin: ["read", "update"] },
 } as const;
 
 const groupOptions = {
