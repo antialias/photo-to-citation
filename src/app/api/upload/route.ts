@@ -10,6 +10,7 @@ import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
 import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
 import { extractGps, extractTimestamp } from "@/lib/exif";
 import { generateThumbnailsInBackground } from "@/lib/thumbnails";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
@@ -24,9 +25,17 @@ export const POST = withAuthorization(
       session?: { user?: { id?: string; role?: string } };
     },
   ) => {
+    const cookieStore = cookies();
+    let anonId = cookieStore.get("anonSession")?.value;
+    let setSessionCookie = false;
+    if (!anonId) {
+      anonId = crypto.randomUUID();
+      setSessionCookie = true;
+    }
     const form = await req.formData();
     const file = form.get("photo") as File | null;
     const clientId = form.get("caseId") as string | null;
+    const { userId } = getSessionDetails({ session }, "user");
     if (!file) {
       return NextResponse.json({ error: "No file" }, { status: 400 });
     }
@@ -66,13 +75,16 @@ export const POST = withAuthorization(
         },
       });
       analyzeCaseInBackground(p || updated);
-      return NextResponse.json({ caseId: updated.id });
+      const res = NextResponse.json({ caseId: updated.id });
+      if (!userId && setSessionCookie) {
+        res.cookies.set("anonSession", anonId, { httpOnly: true, path: "/" });
+      }
+      return res;
     }
-    const { userId } = getSessionDetails({ session }, "user");
     const newCase = createCase(
       `/uploads/${filename}`,
       gps,
-      clientId || undefined,
+      clientId || (!userId ? anonId : undefined),
       takenAt,
       userId ?? null,
     );
@@ -86,6 +98,10 @@ export const POST = withAuthorization(
     });
     analyzeCaseInBackground(p || newCase);
     fetchCaseLocationInBackground(newCase);
-    return NextResponse.json({ caseId: newCase.id });
+    const res = NextResponse.json({ caseId: newCase.id });
+    if (!userId && setSessionCookie) {
+      res.cookies.set("anonSession", anonId, { httpOnly: true, path: "/" });
+    }
+    return res;
   },
 );
