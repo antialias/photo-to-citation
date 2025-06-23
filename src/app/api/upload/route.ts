@@ -2,7 +2,10 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { getSessionDetails, withAuthorization } from "@/lib/authz";
-import { analyzeCaseInBackground } from "@/lib/caseAnalysis";
+import {
+  analyzeCaseInBackground,
+  cancelCaseAnalysis,
+} from "@/lib/caseAnalysis";
 import { fetchCaseLocationInBackground } from "@/lib/caseLocation";
 import { addCasePhoto, createCase, getCase, updateCase } from "@/lib/caseStore";
 import { extractGps, extractTimestamp } from "@/lib/exif";
@@ -40,6 +43,7 @@ export const POST = withAuthorization(
     generateThumbnailsInBackground(buffer, filename);
     const existing = clientId ? getCase(clientId) : null;
     if (existing) {
+      cancelCaseAnalysis(existing.id);
       const updated = addCasePhoto(
         existing.id,
         `/uploads/${filename}`,
