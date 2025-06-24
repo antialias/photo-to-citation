@@ -6,7 +6,6 @@ declare module "react-mermaid2" {
   }>;
   export default Mermaid;
 }
-declare module "tippy.js/dist/tippy.css";
 declare module "leaflet";
 declare module "nodemailer";
 declare module "exif-parser";

@@ -1,7 +1,7 @@
 "use client";
-import Tippy from "@tippyjs/react";
+import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
-import { type RefObject, useEffect, useState } from "react";
+import { type RefObject, useState } from "react";
 
 export default function AddImageMenu({
   caseId,
@@ -15,14 +15,22 @@ export default function AddImageMenu({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const [open, setOpen] = useState(false);
-  useEffect(() => {
-    import("tippy.js/dist/tippy.css");
-  }, []);
   return (
     <>
-      <Tippy
-        content={
-          <div className="bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white">
+      <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Trigger asChild>
+          <button
+            type="button"
+            className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none"
+          >
+            + add image
+          </button>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            sideOffset={4}
+            className="bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
+          >
             <button
               type="button"
               onClick={() => {
@@ -42,21 +50,9 @@ export default function AddImageMenu({
                 Take Photo
               </Link>
             ) : null}
-          </div>
-        }
-        visible={open}
-        interactive
-        placement="auto"
-        onClickOutside={() => setOpen(false)}
-      >
-        <button
-          type="button"
-          className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none"
-          onClick={() => setOpen((v) => !v)}
-        >
-          + add image
-        </button>
-      </Tippy>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
       <input
         ref={fileInputRef}
         type="file"
