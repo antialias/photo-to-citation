@@ -3,8 +3,8 @@ import { apiFetch } from "@/apiClient";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
-import type { EmailDraft } from "@/lib/caseReport";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
+import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
@@ -143,6 +143,8 @@ export default function CaseChat({
       if (onChat) {
         const result = await onChat([]);
         if (typeof result === "string") {
+          reply = { response: result, actions: [], noop: false };
+        } else if ("response" in result) {
           reply = result;
         } else {
           reply = result.reply;
@@ -156,7 +158,10 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
           reply = data.reply;
           setSystemPrompt(data.system);
         }
@@ -369,6 +374,8 @@ export default function CaseChat({
       if (onChat) {
         const result = await onChat(list);
         if (typeof result === "string") {
+          reply = { response: result, actions: [], noop: false };
+        } else if ("response" in result) {
           reply = result;
         } else {
           reply = result.reply;
@@ -382,7 +389,10 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
           reply = data.reply;
           setSystemPrompt(data.system);
         }
