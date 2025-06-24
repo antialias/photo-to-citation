@@ -42,7 +42,6 @@ export interface Case {
   closed?: boolean;
   note?: string | null;
   photoNotes?: Record<string, string | null>;
-  sessionId?: string | null;
   archived?: boolean;
 }
 

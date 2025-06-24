@@ -3,7 +3,15 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  type MockInstance,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 vi.mock("next/headers", () => ({ cookies: () => ({ get: vi.fn() }) }));
 
 let dataDir: string;
@@ -11,7 +19,7 @@ let tmpDir: string;
 let mod: typeof import("@/app/api/upload/route");
 let caseStore: typeof import("@/lib/caseStore");
 let caseAnalysis: typeof import("@/lib/caseAnalysis");
-let cancelSpy: ReturnType<typeof vi.spyOn>;
+let cancelSpy: MockInstance | undefined;
 
 const terminateMock = vi.fn();
 const worker = Object.assign(new EventEmitter(), {

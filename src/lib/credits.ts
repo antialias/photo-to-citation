@@ -16,14 +16,17 @@ const updateBalance = db.prepare(
 );
 const selectBalance = db.prepare("SELECT credits FROM user WHERE id = ?");
 
-const txAdd = db.transaction((userId: string, amount: number) => {
+const txAdd = db.transaction(((userId: string, amount: number) => {
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
   insertTx.run(id, userId, amount, createdAt);
   updateBalance.run(amount, userId);
   const row = selectBalance.get(userId) as { credits: number } | undefined;
   return row?.credits ?? 0;
-});
+}) as (userId: string, amount: number) => unknown) as (
+  userId: string,
+  amount: number,
+) => number;
 
 export function addCredits(userId: string, amount: number): number {
   return txAdd(userId, amount);

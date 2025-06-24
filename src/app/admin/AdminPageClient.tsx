@@ -31,18 +31,26 @@ const groupOptions = {
 function normalizeRule(rule: RuleInput): RuleInput {
   if (rule.ptype === "p") {
     const v0s = Object.keys(policyOptions) as Array<keyof typeof policyOptions>;
-    if (!rule.v0 || !v0s.includes(rule.v0)) rule.v0 = v0s[0];
+    if (!rule.v0 || !v0s.includes(rule.v0 as keyof typeof policyOptions))
+      rule.v0 = v0s[0];
     const v1s = Object.keys(
       policyOptions[rule.v0 as keyof typeof policyOptions],
     ) as Array<keyof (typeof policyOptions)[keyof typeof policyOptions]>;
-    if (!rule.v1 || !v1s.includes(rule.v1)) rule.v1 = v1s[0];
+    if (
+      !rule.v1 ||
+      !v1s.includes(
+        rule.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions],
+      )
+    )
+      rule.v1 = v1s[0];
     const v2s = policyOptions[rule.v0 as keyof typeof policyOptions][
       rule.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions]
     ] as readonly string[];
     if (!rule.v2 || !v2s.includes(rule.v2)) rule.v2 = v2s[0];
   } else {
     const v0s = Object.keys(groupOptions) as Array<keyof typeof groupOptions>;
-    if (!rule.v0 || !v0s.includes(rule.v0)) rule.v0 = v0s[0];
+    if (!rule.v0 || !v0s.includes(rule.v0 as keyof typeof groupOptions))
+      rule.v0 = v0s[0];
     const v1s = groupOptions[
       rule.v0 as keyof typeof groupOptions
     ] as readonly string[];
