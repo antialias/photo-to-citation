@@ -15,7 +15,12 @@ describe("CaseChat history", () => {
   it("saves chat to localStorage", async () => {
     localStorage.clear();
     const { getByText, getByPlaceholderText, getByLabelText, findByText } =
-      render(<CaseChat caseId="1" onChat={async () => "ok"} />);
+      render(
+        <CaseChat
+          caseId="1"
+          onChat={async () => ({ response: "ok", actions: [], noop: false })}
+        />,
+      );
     fireEvent.click(getByText("Chat"));
     const input = getByPlaceholderText("Ask a question...");
     fireEvent.change(input, { target: { value: "Hello" } });
