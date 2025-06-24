@@ -412,6 +412,13 @@ export default function CaseChat({
     }
   }, [messages]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when draft opens
+  useEffect(() => {
+    if (draftLoading || draftData) {
+      scrollToBottom();
+    }
+  }, [draftData, draftLoading]);
+
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
