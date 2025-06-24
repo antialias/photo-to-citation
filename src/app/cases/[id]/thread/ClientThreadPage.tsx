@@ -146,7 +146,8 @@ export default function ClientThreadPage({
               alt="scan"
               width={150}
               height={100}
-              className="object-contain cursor-pointer"
+              className="cursor-pointer"
+              imgClassName="object-contain"
               onClick={() => setViewImage(img.url)}
             />
             <div className="flex flex-col gap-2 flex-1">

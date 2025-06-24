@@ -95,7 +95,7 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
                 alt={`Case ${c.id}`}
                 width={160}
                 height={120}
-                className="object-cover"
+                imgClassName="object-cover"
               />
               <div>Case {c.id}</div>
             </a>

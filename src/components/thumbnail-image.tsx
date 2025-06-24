@@ -5,6 +5,7 @@ export interface ThumbnailImageProps
   extends React.ComponentPropsWithoutRef<typeof Image> {
   width: number;
   height: number;
+  imgClassName?: string;
 }
 
 export default function ThumbnailImage({
@@ -13,6 +14,7 @@ export default function ThumbnailImage({
   width,
   height,
   className,
+  imgClassName,
   ...props
 }: ThumbnailImageProps) {
   const [ready, setReady] = useState(false);
@@ -25,7 +27,10 @@ export default function ThumbnailImage({
   }, [ready]);
 
   return (
-    <div style={{ width, height }} className={`relative ${className ?? ""}`}>
+    <div
+      style={{ width, height }}
+      className={`relative overflow-hidden ${className ?? ""}`}
+    >
       {!ready && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
           <div className="w-6 h-6 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
@@ -38,7 +43,7 @@ export default function ThumbnailImage({
         height={height}
         onLoad={() => setReady(true)}
         onError={() => setReady(false)}
-        className={`object-cover ${ready ? "" : "invisible"}`}
+        className={`object-cover max-w-full max-h-full ${imgClassName ?? ""} ${ready ? "" : "invisible"}`}
         {...props}
       />
     </div>
