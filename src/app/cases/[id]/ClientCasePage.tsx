@@ -28,6 +28,8 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { config } from "@/lib/config";
+import Tippy from "@tippyjs/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -109,13 +111,12 @@ export default function ClientCasePage({
     initialIsAdmin;
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const addMenuRef = useRef<HTMLDetailsElement>(null);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [hideClaimBanner, setHideClaimBanner] = useState(false);
   const photoMenuRef = useRef<HTMLDetailsElement>(null);
   useCloseOnOutsideClick(photoMenuRef);
-  useCloseOnOutsideClick(addMenuRef);
   const notify = useNotify();
   const showClaimBanner = Boolean(
     caseData?.sessionId && !session?.user && !hideClaimBanner,
@@ -144,6 +145,15 @@ export default function ClientCasePage({
       (location.protocol === "https:" || location.hostname === "localhost")
     ) {
       setHasCamera(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      !(config as Record<string, unknown>).VITEST
+    ) {
+      import("tippy.js/dist/tippy.css");
     }
   }, []);
 
@@ -1001,33 +1011,44 @@ export default function ClientCasePage({
                 );
               })}
               {readOnly ? null : (
-                <details ref={addMenuRef} className="relative">
-                  <summary className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none">
-                    + add image
-                  </summary>
-                  <div
-                    className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-                    role="menu"
+                <>
+                  <Tippy
+                    content={
+                      <div className="bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAddMenuOpen(false);
+                            fileInputRef.current?.click();
+                          }}
+                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                        >
+                          Upload Image
+                        </button>
+                        {hasCamera ? (
+                          <Link
+                            href={`/point?case=${caseId}`}
+                            onClick={() => setAddMenuOpen(false)}
+                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                          >
+                            Take Photo
+                          </Link>
+                        ) : null}
+                      </div>
+                    }
+                    visible={addMenuOpen}
+                    interactive
+                    placement="auto-end"
+                    onClickOutside={() => setAddMenuOpen(false)}
                   >
                     <button
                       type="button"
-                      onClick={() => {
-                        addMenuRef.current?.removeAttribute("open");
-                        fileInputRef.current?.click();
-                      }}
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      onClick={() => setAddMenuOpen((o) => !o)}
+                      className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none"
                     >
-                      Upload Image
+                      + add image
                     </button>
-                    {hasCamera ? (
-                      <Link
-                        href={`/point?case=${caseId}`}
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                      >
-                        Take Photo
-                      </Link>
-                    ) : null}
-                  </div>
+                  </Tippy>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -1036,7 +1057,7 @@ export default function ClientCasePage({
                     onChange={handleUpload}
                     className="hidden"
                   />
-                </details>
+                </>
               )}
             </div>
           </>
