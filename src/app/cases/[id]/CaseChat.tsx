@@ -28,12 +28,17 @@ interface ChatSession {
 export default function CaseChat({
   caseId,
   onChat,
+  expanded: controlledExpanded,
+  onExpandChange,
 }: {
   caseId: string;
   onChat?: (messages: Message[]) => Promise<string>;
+  expanded?: boolean;
+  onExpandChange?: (value: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expandedState, setExpandedState] = useState(false);
+  const expanded = controlledExpanded ?? expandedState;
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -155,7 +160,11 @@ export default function CaseChat({
   function handleOpen() {
     startNew();
     setOpen(true);
-    setExpanded(false);
+    if (controlledExpanded === undefined) {
+      setExpandedState(false);
+    } else {
+      onExpandChange?.(false);
+    }
     void seed();
   }
 
@@ -163,7 +172,11 @@ export default function CaseChat({
     setOpen(false);
     setDraftData(null);
     setDraftLoading(false);
-    setExpanded(false);
+    if (controlledExpanded === undefined) {
+      setExpandedState(false);
+    } else {
+      onExpandChange?.(false);
+    }
     if (messages.length > 0 && sessionId) {
       const firstUser = messages.find((m) => m.role === "user");
       const summary =
@@ -181,7 +194,11 @@ export default function CaseChat({
   }
 
   function toggleExpanded() {
-    setExpanded((e) => !e);
+    const next = !expanded;
+    if (controlledExpanded === undefined) {
+      setExpandedState(next);
+    }
+    onExpandChange?.(next);
   }
   const router = useRouter();
 
@@ -394,9 +411,9 @@ export default function CaseChat({
 
   return (
     <div
-      className={`fixed z-40 text-sm ${
-        expanded ? "inset-y-0 right-0 w-1/2" : "bottom-4 right-4"
-      }`}
+      className={`${
+        expanded ? "relative h-full" : "fixed bottom-4 right-4"
+      } z-40 text-sm`}
     >
       {open ? (
         <div
