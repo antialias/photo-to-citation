@@ -375,8 +375,8 @@ export default function CaseChat({
   return (
     <div
       className={`${
-        expanded ? "relative h-full" : "fixed bottom-4 right-4"
-      } z-40 text-sm`}
+        expanded ? "relative h-full" : "fixed bottom-4 right-4 z-40"
+      } text-sm`}
     >
       {open ? (
         <div
