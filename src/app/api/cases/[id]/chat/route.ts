@@ -70,6 +70,9 @@ export const POST = withCaseAuthorization(
       "When there is no user question yet, decide if you should proactively suggest a next action or useful observation.",
       "If you have nothing helpful, set response to [noop].",
       `Reply in JSON matching this schema: ${schemaDesc}`,
+      "Use {id: ID} objects for case actions.",
+      "Use {field: FIELD, value: VALUE} to edit the case (fields: vin, plate, state, note).",
+      "Use {photo: FILENAME, note: NOTE} to append a note to a photo.",
       available.length > 0 ? `Available actions:\n${actionList}` : "",
     ]
       .filter(Boolean)
