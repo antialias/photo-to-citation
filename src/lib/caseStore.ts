@@ -411,6 +411,13 @@ export function setCaseNote(id: string, note: string | null): Case | undefined {
   return updateCase(id, { note });
 }
 
+export function appendCaseNote(id: string, extra: string): Case | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  const note = current.note ? `${current.note}\n${extra}` : extra;
+  return updateCase(id, { note });
+}
+
 export function setPhotoNote(
   id: string,
   photo: string,

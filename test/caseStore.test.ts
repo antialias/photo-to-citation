@@ -176,6 +176,15 @@ describe("caseStore", () => {
     expect(stored?.note).toBe("hello");
   });
 
+  it("appends to case note", () => {
+    const { createCase, appendCaseNote, getCase } = caseStore;
+    const c = createCase("/note2.jpg", null);
+    appendCaseNote(c.id, "first");
+    appendCaseNote(c.id, "second");
+    const stored = getCase(c.id);
+    expect(stored?.note).toBe("first\nsecond");
+  });
+
   it("sets photo note", () => {
     const { createCase, setPhotoNote, getCase } = caseStore;
     const c = createCase("/p.jpg", null);

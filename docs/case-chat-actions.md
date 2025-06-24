@@ -28,3 +28,17 @@ Available actions:
 
 This list is populated from the `caseActions` export, so new actions become
 available to the chat UI automatically.
+
+## Inline Edit Buttons
+
+The assistant can also suggest quick updates to the case. Use the token
+`[edit:FIELD:VALUE]` to show a button that updates the case when clicked.
+Supported fields are `vin`, `plate`, `state`, and `note`.
+
+Example:
+
+```
+The license plate is visible: [edit:plate:ABC123]
+```
+
+Clicking the button will save `ABC123` as the plate number for the case.

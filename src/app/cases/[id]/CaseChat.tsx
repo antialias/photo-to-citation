@@ -89,25 +89,59 @@ export default function CaseChat({
   const router = useRouter();
 
   function renderContent(text: string) {
-    const parts = text.split(/(\[action:[^\]]+\])/g);
+    const parts = text.split(/(\[(?:action|edit):[^\]]+\])/g);
     return parts.map((p, idx) => {
-      const match = p.match(/^\[action:([^\]]+)\]$/);
+      const match = p.match(/^\[(action|edit):([^\]]+)\]$/);
       if (match) {
-        const act = caseActions.find((a) => a.id === match[1]);
-        if (act) {
-          return (
-            <button
-              key={`${act.id}-${idx}`}
-              type="button"
-              onClick={() => router.push(act.href(caseId))}
-              className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
-            >
-              {act.label}
-            </button>
-          );
+        if (match[1] === "action") {
+          const act = caseActions.find((a) => a.id === match[2]);
+          if (act) {
+            return (
+              <button
+                key={`${act.id}-${idx}`}
+                type="button"
+                onClick={() => router.push(act.href(caseId))}
+                className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
+              >
+                {act.label}
+              </button>
+            );
+          }
+        } else if (match[1] === "edit") {
+          const arg = match[2];
+          const colon = arg.indexOf(":");
+          if (colon !== -1) {
+            const field = arg.slice(0, colon);
+            const value = arg.slice(colon + 1);
+            const labelMap: Record<string, string> = {
+              vin: "Set VIN",
+              plate: "Set Plate",
+              state: "Set State",
+              note: "Add Note",
+            };
+            const label = labelMap[field] ?? `Set ${field}`;
+            return (
+              <button
+                key={`edit-${crypto.randomUUID()}`}
+                type="button"
+                onClick={() => handleEdit(field, value)}
+                className="bg-green-600 text-white px-2 py-1 rounded mx-1"
+              >
+                {label}
+              </button>
+            );
+          }
         }
       }
       return <span key={`text-${idx}-${p}`}>{p}</span>;
+    });
+  }
+
+  async function handleEdit(field: string, value: string) {
+    await apiFetch(`/api/cases/${caseId}/quick-edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ field, value }),
     });
   }
 
