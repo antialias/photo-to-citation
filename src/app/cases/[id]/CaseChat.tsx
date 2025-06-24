@@ -20,6 +20,7 @@ export default function CaseChat({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   async function send() {
     const text = input.trim();
@@ -64,6 +65,10 @@ export default function CaseChat({
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (open && inputRef.current) inputRef.current.focus();
+  }, [open]);
+
   return (
     <div className="fixed bottom-4 right-4 z-40 text-sm">
       {open ? (
@@ -93,6 +98,7 @@ export default function CaseChat({
           </div>
           <div className="border-t p-2 flex gap-2">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
