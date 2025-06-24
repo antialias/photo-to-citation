@@ -1,22 +1,36 @@
 "use client";
+import { apiFetch, queryFn } from "@/apiClient";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useSession } from "../useSession";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ["profile"],
+    queryFn: queryFn<{ name?: string; image?: string }>("/api/profile"),
+    enabled: !!session,
+  });
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
 
   useEffect(() => {
-    if (session) {
-      fetch("/api/profile")
-        .then((r) => r.json())
-        .then((data) => {
-          setName(data.name ?? "");
-          setImage(data.image ?? "");
-        });
+    if (data) {
+      setName(data.name ?? "");
+      setImage(data.image ?? "");
     }
-  }, [session]);
+  }, [data]);
+
+  const mutation = useMutation({
+    mutationFn: (body: { name: string; image: string }) =>
+      apiFetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profile"] }),
+  });
 
   if (!session) {
     return <div className="p-8">You are not logged in.</div>;
@@ -27,11 +41,7 @@ export default function ProfilePage() {
       className="p-8 flex flex-col gap-2"
       onSubmit={async (e) => {
         e.preventDefault();
-        await fetch("/api/profile", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, image }),
-        });
+        mutation.mutate({ name, image });
       }}
     >
       <h1 className="text-xl font-bold mb-4">User Profile</h1>

@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRef } from "react";
 
@@ -17,6 +18,36 @@ export default function MultiCaseToolbar({
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const queryClient = useQueryClient();
+  const reanalyze = useMutation({
+    mutationFn: () =>
+      Promise.all(
+        caseIds.map((id) =>
+          apiFetch(`/api/cases/${id}/reanalyze`, { method: "POST" }),
+        ),
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cases"] }),
+  });
+  const archive = useMutation({
+    mutationFn: () =>
+      Promise.all(
+        caseIds.map((id) =>
+          apiFetch(`/api/cases/${id}/archived`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ archived: true }),
+          }),
+        ),
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cases"] }),
+  });
+  const del = useMutation({
+    mutationFn: () =>
+      Promise.all(
+        caseIds.map((id) => apiFetch(`/api/cases/${id}`, { method: "DELETE" })),
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cases"] }),
+  });
   useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex justify-end">
@@ -41,14 +72,8 @@ export default function MultiCaseToolbar({
         >
           <button
             type="button"
-            onClick={async () => {
-              await Promise.all(
-                caseIds.map((id) =>
-                  apiFetch(`/api/cases/${id}/reanalyze`, {
-                    method: "POST",
-                  }),
-                ),
-              );
+            onClick={() => {
+              reanalyze.mutate();
               window.location.reload();
             }}
             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
@@ -57,16 +82,8 @@ export default function MultiCaseToolbar({
           </button>
           <button
             type="button"
-            onClick={async () => {
-              await Promise.all(
-                caseIds.map((id) =>
-                  apiFetch(`/api/cases/${id}/archived`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ archived: true }),
-                  }),
-                ),
-              );
+            onClick={() => {
+              archive.mutate();
               window.location.reload();
             }}
             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
@@ -101,19 +118,13 @@ export default function MultiCaseToolbar({
           )}
           <button
             type="button"
-            onClick={async () => {
+            onClick={() => {
               const code = Math.random().toString(36).slice(2, 6);
               const input = prompt(
                 `Type '${code}' to confirm deleting these cases.`,
               );
               if (input === code) {
-                await Promise.all(
-                  caseIds.map((id) =>
-                    apiFetch(`/api/cases/${id}`, {
-                      method: "DELETE",
-                    }),
-                  ),
-                );
+                del.mutate();
                 window.location.href = withBasePath("/cases");
               }
             }}

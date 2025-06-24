@@ -1,4 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import AuthProvider from "./auth-provider";
@@ -18,16 +20,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const queryClient = new QueryClient();
   const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <body className="antialiased">
-        <NotificationProvider>
-          <AuthProvider session={session}>
-            <NavBar />
-            {children}
-          </AuthProvider>
-        </NotificationProvider>
+        <QueryClientProvider client={queryClient}>
+          <NotificationProvider>
+            <AuthProvider session={session}>
+              <NavBar />
+              {children}
+            </AuthProvider>
+          </NotificationProvider>
+          {process.env.NODE_ENV === "development" ? (
+            <ReactQueryDevtools />
+          ) : null}
+        </QueryClientProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
 import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRef } from "react";
 
@@ -53,6 +54,43 @@ export default function CaseToolbar({
       ? ((progress.step - 1 + (requestValue ?? 0) / 100) / progress.steps) * 100
       : undefined;
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const queryClient = useQueryClient();
+  const reanalyze = useMutation({
+    mutationFn: () =>
+      apiFetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["cases", caseId] }),
+  });
+  const archive = useMutation({
+    mutationFn: (val: boolean) =>
+      apiFetch(`/api/cases/${caseId}/archived`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: val }),
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["cases", caseId] }),
+  });
+  const cancel = useMutation({
+    mutationFn: () =>
+      apiFetch(`/api/cases/${caseId}/cancel-analysis`, { method: "POST" }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["cases", caseId] }),
+  });
+  const close = useMutation({
+    mutationFn: (val: boolean) =>
+      apiFetch(`/api/cases/${caseId}/closed`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ closed: val }),
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["cases", caseId] }),
+  });
+  const del = useMutation({
+    mutationFn: () => apiFetch(`/api/cases/${caseId}`, { method: "DELETE" }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cases"] }),
+  });
   useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2 flex-1">
@@ -96,10 +134,8 @@ export default function CaseToolbar({
             >
               <button
                 type="button"
-                onClick={async () => {
-                  await apiFetch(`/api/cases/${caseId}/reanalyze`, {
-                    method: "POST",
-                  });
+                onClick={() => {
+                  reanalyze.mutate();
                   window.location.reload();
                 }}
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
@@ -108,12 +144,8 @@ export default function CaseToolbar({
               </button>
               <button
                 type="button"
-                onClick={async () => {
-                  await apiFetch(`/api/cases/${caseId}/archived`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ archived: !archived }),
-                  });
+                onClick={() => {
+                  archive.mutate(!archived);
                   window.location.reload();
                 }}
                 data-testid="archive-case-button"
@@ -126,10 +158,8 @@ export default function CaseToolbar({
                   {progress ? (
                     <button
                       type="button"
-                      onClick={async () => {
-                        await apiFetch(`/api/cases/${caseId}/cancel-analysis`, {
-                          method: "POST",
-                        });
+                      onClick={() => {
+                        cancel.mutate();
                         window.location.reload();
                       }}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
@@ -161,12 +191,8 @@ export default function CaseToolbar({
                   ) : null}
                   <button
                     type="button"
-                    onClick={async () => {
-                      await apiFetch(`/api/cases/${caseId}/closed`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ closed: !closed }),
-                      });
+                    onClick={() => {
+                      close.mutate(!closed);
                       window.location.reload();
                     }}
                     data-testid="close-case-button"
@@ -185,9 +211,7 @@ export default function CaseToolbar({
                       `Type '${code}' to confirm deleting this case.`,
                     );
                     if (input === code) {
-                      await apiFetch(`/api/cases/${caseId}`, {
-                        method: "DELETE",
-                      });
+                      del.mutate();
                       window.location.href = withBasePath("/cases");
                     }
                   }}

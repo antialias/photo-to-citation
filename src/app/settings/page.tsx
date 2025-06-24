@@ -1,33 +1,35 @@
 "use client";
+import { apiFetch, queryFn } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function UserSettingsPage() {
   const { data: session } = useSession();
   const [tab, setTab] = useState<"profile" | "credits">("profile");
   const [balance, setBalance] = useState<number | null>(null);
   const [usd, setUsd] = useState("0");
+  const queryClient = useQueryClient();
+  useQuery({
+    queryKey: ["credits"],
+    queryFn: queryFn<{ balance: number }>("/api/credits/balance"),
+    enabled: tab === "credits",
+    onSuccess: (data) => setBalance(data.balance),
+  });
 
-  useEffect(() => {
-    if (tab === "credits") {
-      fetch("/api/credits/balance")
-        .then((res) => res.json())
-        .then((data) => setBalance(data.balance));
-    }
-  }, [tab]);
+  const addMutation = useMutation({
+    mutationFn: (usdAmount: number) =>
+      apiFetch("/api/credits/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usd: usdAmount }),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["credits"] }),
+  });
 
-  async function addCredits() {
-    await fetch("/api/credits/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usd: Number(usd) }),
-    });
+  function addCredits() {
+    addMutation.mutate(Number(usd));
     setUsd("0");
-    const res = await fetch("/api/credits/balance");
-    if (res.ok) {
-      const data = await res.json();
-      setBalance(data.balance);
-    }
   }
 
   if (!session) {

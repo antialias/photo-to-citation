@@ -1,6 +1,26 @@
 import "@testing-library/jest-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { type ImgHTMLAttributes } from "react";
 import { type TestContext, afterEach, beforeEach, vi } from "vitest";
+
+vi.mock("@testing-library/react", async () => {
+  const mod = await vi.importActual<typeof import("@testing-library/react")>(
+    "@testing-library/react",
+  );
+  return {
+    ...mod,
+    render: (
+      ui: React.ReactElement,
+      options?: Parameters<typeof mod.render>[1],
+    ) => {
+      const client = new QueryClient();
+      return mod.render(
+        <QueryClientProvider client={client}>{ui}</QueryClientProvider>,
+        options,
+      );
+    },
+  };
+});
 
 if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
   class ResizeObserver {
