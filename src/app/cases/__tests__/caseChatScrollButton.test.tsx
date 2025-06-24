@@ -33,4 +33,29 @@ describe("CaseChat scroll button", () => {
     fireEvent.scroll(scroll);
     expect(queryByText("Jump to latest")).toBeNull();
   });
+
+  it("updates button visibility when container resizes", () => {
+    const { getByText, queryByText, container } = render(
+      <CaseChat caseId="1" />,
+    );
+    fireEvent.click(getByText("Chat"));
+    const scroll = container.querySelector(".overflow-y-auto") as HTMLElement;
+    Object.defineProperty(scroll, "scrollHeight", {
+      value: 200,
+      configurable: true,
+    });
+    Object.defineProperty(scroll, "clientHeight", {
+      value: 100,
+      configurable: true,
+    });
+    scroll.scrollTop = 50;
+    fireEvent.scroll(scroll);
+    expect(getByText("Jump to latest")).toBeTruthy();
+    Object.defineProperty(scroll, "clientHeight", {
+      value: 200,
+      configurable: true,
+    });
+    fireEvent(window, new Event("resize"));
+    expect(queryByText("Jump to latest")).toBeNull();
+  });
 });

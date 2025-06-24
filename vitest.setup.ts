@@ -2,6 +2,20 @@ import "@testing-library/jest-dom";
 import React, { type ImgHTMLAttributes } from "react";
 import { type TestContext, afterEach, beforeEach, vi } from "vitest";
 
+if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
+  class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  (
+    window as unknown as { ResizeObserver: typeof ResizeObserver }
+  ).ResizeObserver = ResizeObserver;
+  (
+    globalThis as unknown as { ResizeObserver: typeof ResizeObserver }
+  ).ResizeObserver = ResizeObserver;
+}
+
 // Ensure stable auth configuration during tests
 process.env.NEXTAUTH_SECRET = "test-secret";
 process.env.VITEST = "1";

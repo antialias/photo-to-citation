@@ -456,7 +456,7 @@ export default function CaseChat({
     }
   }, [messages]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: update on open or messages
+  // biome-ignore lint/correctness/useExhaustiveDependencies: update on open, messages, or size changes
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -467,10 +467,15 @@ export default function CaseChat({
     }
     update();
     el.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
     return () => {
       el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      observer.disconnect();
     };
-  }, [open, messages]);
+  }, [open, messages, expanded]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
