@@ -35,6 +35,7 @@ export default function CaseChat({
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const storageKey = `case-chat-${caseId}`;
 
@@ -64,9 +65,42 @@ export default function CaseChat({
     setSessionSummary("");
   }
 
+  async function seed() {
+    setLoading(true);
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      let reply = "";
+      if (onChat) {
+        reply = await onChat([]);
+      } else {
+        const res = await apiFetch(`/api/cases/${caseId}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: [] }),
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { reply: string };
+          reply = data.reply;
+        }
+      }
+      if (!controller.signal.aborted && reply && reply !== "[noop]") {
+        setMessages([
+          { id: crypto.randomUUID(), role: "assistant", content: reply },
+        ]);
+      }
+    } catch {}
+    if (!controller.signal.aborted) {
+      setLoading(false);
+    }
+  }
+
   function handleOpen() {
     startNew();
     setOpen(true);
+    void seed();
   }
 
   function handleClose() {
@@ -111,6 +145,43 @@ export default function CaseChat({
     });
   }
 
+  async function request(list: Message[]) {
+    setLoading(true);
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      let reply = "";
+      if (onChat) {
+        reply = await onChat(list);
+      } else {
+        const res = await apiFetch(`/api/cases/${caseId}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: list }),
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { reply: string };
+          reply = data.reply;
+        }
+      }
+      if (!controller.signal.aborted && reply) {
+        if (reply !== "[noop]") {
+          setMessages([
+            ...list,
+            { id: crypto.randomUUID(), role: "assistant", content: reply },
+          ]);
+        } else {
+          setMessages(list);
+        }
+      }
+    } catch {}
+    if (!controller.signal.aborted) {
+      setLoading(false);
+    }
+  }
+
   async function send() {
     const text = input.trim();
     if (!text) return;
@@ -123,35 +194,7 @@ export default function CaseChat({
     }
     setMessages(list);
     setInput("");
-    setLoading(true);
-    try {
-      let reply = "";
-      if (onChat) {
-        reply = await onChat(list);
-      } else {
-        const res = await apiFetch(`/api/cases/${caseId}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: list }),
-        });
-        if (res.ok) {
-          const data = (await res.json()) as { reply: string };
-          reply = data.reply;
-        }
-      }
-      if (reply) {
-        setMessages([
-          ...list,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant" as const,
-            content: reply,
-          },
-        ]);
-      }
-    } finally {
-      setLoading(false);
-    }
+    await request(list);
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when messages change
@@ -227,6 +270,13 @@ export default function CaseChat({
                 </span>
               </div>
             ))}
+            {loading && (
+              <div className="text-left" key="typing">
+                <span
+                  className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
+                />
+              </div>
+            )}
           </div>
           <div className="border-t p-2 flex gap-2">
             <input

@@ -51,3 +51,18 @@
     border-right-color: rgb(55, 65, 81);
   }
 }
+
+@keyframes typing-ellipsis {
+  to {
+    width: 1.2em;
+  }
+}
+
+.typing::after {
+  content: "...";
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  width: 0;
+  animation: typing-ellipsis 1s steps(4, end) infinite;
+}
