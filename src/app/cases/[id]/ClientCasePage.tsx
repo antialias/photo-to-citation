@@ -1,4 +1,5 @@
 "use client";
+
 import { apiEventSource, apiFetch } from "@/apiClient";
 import CaseChat from "@/app/cases/[id]/CaseChat";
 import useDragReset from "@/app/cases/useDragReset";
@@ -121,6 +122,10 @@ export default function ClientCasePage({
     caseData?.sessionId && !session?.user && !hideClaimBanner,
   );
 
+  /* -------------------------------------------------------------------- */
+  /*                               EFFECTS                                */
+  /* -------------------------------------------------------------------- */
+
   useDragReset(() => {
     setDragging(false);
   });
@@ -200,6 +205,10 @@ export default function ClientCasePage({
       setReanalyzingPhoto(null);
     }
   }, [caseData?.analysisStatus]);
+
+  /* -------------------------------------------------------------------- */
+  /*                            API helpers                               */
+  /* -------------------------------------------------------------------- */
 
   async function uploadFiles(files: FileList) {
     if (!files || files.length === 0) return;
@@ -471,6 +480,10 @@ export default function ClientCasePage({
     }
     await refreshMembers();
   }
+
+  /* -------------------------------------------------------------------- */
+  /*                              RENDER                                  */
+  /* -------------------------------------------------------------------- */
 
   if (!caseData) {
     return (
@@ -843,186 +856,118 @@ export default function ClientCasePage({
                           Invite
                         </button>
                       </div>
-              )}
-            </div>
-          </DebugWrapper>
-
-          {/* background jobs for this case */}
-          <CaseJobList caseId={caseId} isPublic={caseData.public} />
-
-          {selectedPhoto ? (
-            <>
-              <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-                <Image
-                  src={selectedPhoto}
-                  alt="uploaded"
-                  fill
-                  className="object-contain"
-                />
-                {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
-                  <div className="absolute top-0 left-0 right-0">
-                    <Progress
-                      value={requestValue}
-                      indeterminate={requestValue === undefined}
-                    />
-                  </div>
-                ) : null}
-                {readOnly ? null : (
-                  <details
-                    ref={photoMenuRef}
-                    className="absolute top-1 right-1 text-white"
-                    onToggle={() => {
-                      if (photoMenuRef.current?.open) {
-                        photoMenuRef.current
-                          .querySelector<HTMLElement>("button, a")
-                          ?.focus();
-                      }
-                    }}
-                  >
-                    <summary
-                      className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-                      aria-label="Photo actions menu"
-                    >
-                      ⋮
-                    </summary>
-                    <div
-                      className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-                      role="menu"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) =>
-                          reanalyzePhoto(
-                            selectedPhoto,
-                            e.currentTarget.closest("details"),
-                          )
-                        }
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                        disabled={
-                          caseData.analysisStatus === "pending" &&
-                          analysisActive
-                        }
-                      >
-                        Reanalyze Photo
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(selectedPhoto)}
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                      >
-                        Delete Image
-                      </button>
-                    </div>
-                  </details>
-                )}
-                {caseData.analysis ? (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
-                    <ImageHighlights
-                      analysis={caseData.analysis}
-                      photo={selectedPhoto}
-                    />
-                    {progress ? <p>{progressDescription}</p> : null}
-                  </div>
-                ) : (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                    {progressDescription}
-                  </div>
-                )}
-              </div>
-              {(() => {
-                const t = caseData.photoTimes[selectedPhoto];
-                return t ? (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Taken {new Date(t).toLocaleString()}
-                  </p>
-                ) : null;
-              })()}
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                <span className="font-semibold">Note:</span>{" "}
-                {readOnly ? (
-                  <span>{photoNote || ""}</span>
-                ) : (
-                  <EditableText
-                    value={photoNote}
-                    onSubmit={updatePhotoNoteFn}
-                    onClear={
-                      photoNote ? () => updatePhotoNoteFn("") : undefined
-                    }
-                    placeholder="Add note"
-                  />
-                )}
-              </p>
-            </>
-          ) : null}
-
-          <div className="flex gap-2 flex-wrap">
-            {evidencePhotos.map((p) => {
-              const info = {
-                url: p,
-                takenAt: caseData.photoTimes[p] ?? null,
-                gps: caseData.photoGps?.[p] ?? null,
-                analysis: analysisImages[baseName(p)] ?? null,
-              };
-              return (
-                <DebugWrapper key={p} data={info}>
-                  <div className="relative group">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPhoto(p)}
-                      className={
-                        selectedPhoto === p
-                          ? "ring-2 ring-blue-500"
-                          : "ring-1 ring-transparent"
-                      }
-                    >
-                      <div className="relative w-20 aspect-[4/3]">
-                        <ThumbnailImage
-                          src={getThumbnailUrl(p, 128)}
-                          alt="case photo"
-                          width={80}
-                          height={60}
-                          imgClassName="object-contain"
-                        />
-                        {isPhotoReanalysis && reanalyzingPhoto === p ? (
-                          <div className="absolute top-0 left-0 right-0">
-                            <Progress
-                              value={requestValue}
-                              indeterminate={requestValue === undefined}
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                      {(() => {
-                        const t = caseData.photoTimes[p];
-                        return t ? (
-                          <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                            {new Date(t).toLocaleDateString()}
-                          </span>
-                        ) : null;
-                      })()}
-                    </button>
-                    {readOnly ? null : (
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(p)}
-                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
                     )}
                   </div>
-                </DebugWrapper>
-              );
-            })}
-            {readOnly ? null : (
-              <AddImageMenu
-                caseId={caseId}
-                hasCamera={hasCamera}
-                fileInputRef={fileInputRef}
-                onChange={handleUpload}
-              />
-            )}
-          </div>
+                </div>
+              </DebugWrapper>
+
+              {/* NEW: background-job list for this case */}
+              <CaseJobList caseId={caseId} isPublic={caseData.public} />
+
+              {selectedPhoto ? (
+                <>
+                  <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
+                    <Image
+                      src={selectedPhoto}
+                      alt="uploaded"
+                      fill
+                      className="object-contain"
+                    />
+                    {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
+                      <div className="absolute top-0 left-0 right-0">
+                        <Progress
+                          value={requestValue}
+                          indeterminate={requestValue === undefined}
+                        />
+                      </div>
+                    ) : null}
+                    {readOnly ? null : (
+                      <details
+                        ref={photoMenuRef}
+                        className="absolute top-1 right-1 text-white"
+                        onToggle={() => {
+                          if (photoMenuRef.current?.open) {
+                            photoMenuRef.current
+                              .querySelector<HTMLElement>("button, a")
+                              ?.focus();
+                          }
+                        }}
+                      >
+                        <summary
+                          className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
+                          aria-label="Photo actions menu"
+                        >
+                          ⋮
+                        </summary>
+                        <div
+                          className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
+                          role="menu"
+                        >
+                          <button
+                            type="button"
+                            onClick={(e) =>
+                              reanalyzePhoto(
+                                selectedPhoto,
+                                e.currentTarget.closest("details"),
+                              )
+                            }
+                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                            disabled={
+                              caseData.analysisStatus === "pending" &&
+                              analysisActive
+                            }
+                          >
+                            Reanalyze Photo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(selectedPhoto)}
+                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                          >
+                            Delete Image
+                          </button>
+                        </div>
+                      </details>
+                    )}
+                    {caseData.analysis ? (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
+                        <ImageHighlights
+                          analysis={caseData.analysis}
+                          photo={selectedPhoto}
+                        />
+                        {progress ? <p>{progressDescription}</p> : null}
+                      </div>
+                    ) : (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
+                        {progressDescription}
+                      </div>
+                    )}
+                  </div>
+                  {(() => {
+                    const t = caseData.photoTimes[selectedPhoto];
+                    return t ? (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Taken {new Date(t).toLocaleString()}
+                      </p>
+                    ) : null;
+                  })()}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="font-semibold">Note:</span>{" "}
+                    {readOnly ? (
+                      <span>{photoNote || ""}</span>
+                    ) : (
+                      <EditableText
+                        value={photoNote}
+                        onSubmit={updatePhotoNoteFn}
+                        onClear={
+                          photoNote ? () => updatePhotoNoteFn("") : undefined
+                        }
+                        placeholder="Add note"
+                      />
+                    )}
+                  </p>
+                </>
+              ) : null}
               <div className="flex gap-2 flex-wrap">
                 {evidencePhotos.map((p) => {
                   const info = {
@@ -1083,42 +1028,12 @@ export default function ClientCasePage({
                   );
                 })}
                 {readOnly ? null : (
-                  <details ref={addMenuRef} className="relative">
-                    <summary className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none">
-                      + add image
-                    </summary>
-                    <div
-                      className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-                      role="menu"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => {
-                          addMenuRef.current?.removeAttribute("open");
-                          fileInputRef.current?.click();
-                        }}
-                        className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                      >
-                        Upload Image
-                      </button>
-                      {hasCamera ? (
-                        <Link
-                          href={`/point?case=${caseId}`}
-                          className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                        >
-                          Take Photo
-                        </Link>
-                      ) : null}
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleUpload}
-                      className="hidden"
-                    />
-                  </details>
+                  <AddImageMenu
+                    caseId={caseId}
+                    hasCamera={hasCamera}
+                    fileInputRef={fileInputRef}
+                    onChange={handleUpload}
+                  />
                 )}
               </div>
             </>
@@ -1146,7 +1061,9 @@ export default function ClientCasePage({
                         {mail.body}
                       </span>
                       <a
-                        href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
+                        href={`/cases/${caseId}/thread/${encodeURIComponent(
+                          mail.sentAt,
+                        )}`}
                         className="self-start text-blue-500 underline"
                       >
                         View Thread
