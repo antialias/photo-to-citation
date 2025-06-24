@@ -405,12 +405,12 @@ export default function CaseChat({
     await request(list);
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when messages change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when content changes
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, draftData, draftLoading]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
