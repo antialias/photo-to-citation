@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { getAnonSession, getAnonymousSessionId } from "@/lib/anonymousSession";
+import { getAnonymousSessionId } from "@/lib/anonymousSession";
 import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import {
   analyzeCaseInBackground,
@@ -37,7 +37,7 @@ export const POST = withAuthorization(
       const store = await cookies();
       anonId = store.get("anonSession")?.value;
     } catch {
-      anonId = getAnonSession(req);
+      anonId = getAnonymousSessionId(req);
     }
     let setSessionCookie = false;
     if (!anonId) {

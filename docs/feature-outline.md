@@ -91,9 +91,10 @@ Desktop users can access this page from the "Point & Shoot" link in the header.
 Visitors can create cases without signing in. When an unauthenticated user hits
 the landing page on a phone they are redirected straight to `/point`. Each
 upload on this page stores a temporary session identifier in the `anonSession`
-cookie. The identifier is saved on the newly created case so that when the user
-signs in later the case is automatically claimed by their account. A weekly
-cleanup job removes any cases that were never claimed.
+cookie (older `anon_session_id` cookies are still recognized). The identifier is
+saved on the newly created case so that when the user signs in later the case is
+automatically claimed by their account. A weekly cleanup job removes any cases
+that were never claimed.
 
 ## 4. Automatic Analysis
 
