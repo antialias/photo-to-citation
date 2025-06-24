@@ -53,6 +53,7 @@ export const POST = withCaseAuthorization(
           .join("\n")
       : "";
     const available = caseActions.filter((a) => !actionCompleted(c, a.id));
+    const unavailable = caseActions.filter((a) => actionCompleted(c, a.id));
     const actionList = available
       .map((a) => `- ${a.label} (id: ${a.id}) - ${a.description}`)
       .join("\\n");
@@ -94,7 +95,12 @@ export const POST = withCaseAuthorization(
           maxTokens: 800,
         },
       );
-      return NextResponse.json({ reply, system });
+      return NextResponse.json({
+        reply,
+        system,
+        available: available.map((a) => a.id),
+        unavailable: unavailable.map((a) => a.id),
+      });
     } catch (err) {
       if (
         err instanceof Error &&

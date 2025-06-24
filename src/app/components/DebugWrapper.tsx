@@ -35,9 +35,13 @@ function tokenize(json: string): ReactNode[] {
 export default function DebugWrapper({
   data,
   children,
+  availableActions,
+  unavailableActions,
 }: {
   data: unknown;
   children: ReactNode;
+  availableActions?: string[];
+  unavailableActions?: string[];
 }) {
   const enabled = Boolean(config.NEXT_PUBLIC_BROWSER_DEBUG);
   const alt = useAltKey();
@@ -53,7 +57,24 @@ export default function DebugWrapper({
   return (
     <Tooltip
       label={
-        <div className="text-xs bg-black/80 text-white p-2 rounded shadow max-w-sm max-h-60 overflow-auto relative">
+        <div className="text-xs bg-black/80 text-white p-2 rounded shadow max-w-sm max-h-60 overflow-auto relative space-y-1">
+          {(availableActions?.length || unavailableActions?.length) && (
+            <div className="mb-1 space-y-1">
+              {availableActions?.length ? (
+                <p>
+                  <span className="font-semibold">Available:</span>{" "}
+                  {availableActions.join(", ")}
+                </p>
+              ) : null}
+              {unavailableActions?.length ? (
+                <p>
+                  <span className="font-semibold">Unavailable:</span>{" "}
+                  {unavailableActions.join(", ")}
+                </p>
+              ) : null}
+              <hr />
+            </div>
+          )}
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(json)}

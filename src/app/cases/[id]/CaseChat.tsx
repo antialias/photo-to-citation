@@ -29,6 +29,13 @@ interface ChatSession {
   messages: Message[];
 }
 
+interface ChatResponse {
+  reply: CaseChatReply;
+  system?: string;
+  available?: string[];
+  unavailable?: string[];
+}
+
 export default function CaseChat({
   caseId,
   onChat,
@@ -51,6 +58,8 @@ export default function CaseChat({
   const [sessionCreatedAt, setSessionCreatedAt] = useState<string>("");
   const [sessionSummary, setSessionSummary] = useState<string>("");
   const [systemPrompt, setSystemPrompt] = useState<string>("");
+  const [availableActions, setAvailableActions] = useState<string[]>([]);
+  const [unavailableActions, setUnavailableActions] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -100,6 +109,8 @@ export default function CaseChat({
     setSessionCreatedAt(new Date().toISOString());
     setSessionSummary("");
     setSystemPrompt("");
+    setAvailableActions([]);
+    setUnavailableActions([]);
   }
 
   function baseName(filePath: string): string {
@@ -164,8 +175,11 @@ export default function CaseChat({
         } else if ("response" in result) {
           reply = result as CaseChatReply;
         } else if ("reply" in result) {
-          reply = result.reply;
-          if (result.system) setSystemPrompt(result.system);
+          const r = result as ChatResponse;
+          reply = r.reply;
+          if (r.system) setSystemPrompt(r.system);
+          if (r.available) setAvailableActions(r.available);
+          if (r.unavailable) setUnavailableActions(r.unavailable);
         } else {
           reply = result;
         }
@@ -180,9 +194,13 @@ export default function CaseChat({
           const data = (await res.json()) as {
             reply: CaseChatReply;
             system: string;
+            available?: string[];
+            unavailable?: string[];
           };
           reply = data.reply;
           setSystemPrompt(data.system);
+          setAvailableActions(data.available ?? []);
+          setUnavailableActions(data.unavailable ?? []);
         }
       }
       if (!controller.signal.aborted && reply && !reply.noop) {
@@ -410,8 +428,11 @@ export default function CaseChat({
         } else if ("response" in result) {
           reply = result as CaseChatReply;
         } else if ("reply" in result) {
-          reply = result.reply;
-          if (result.system) setSystemPrompt(result.system);
+          const r = result as ChatResponse;
+          reply = r.reply;
+          if (r.system) setSystemPrompt(r.system);
+          if (r.available) setAvailableActions(r.available);
+          if (r.unavailable) setUnavailableActions(r.unavailable);
         } else {
           reply = result;
         }
@@ -426,9 +447,13 @@ export default function CaseChat({
           const data = (await res.json()) as {
             reply: CaseChatReply;
             system: string;
+            available?: string[];
+            unavailable?: string[];
           };
           reply = data.reply;
           setSystemPrompt(data.system);
+          setAvailableActions(data.available ?? []);
+          setUnavailableActions(data.unavailable ?? []);
           setChatError(null);
         } else {
           const err = await res.json().catch(() => ({}));
@@ -588,17 +613,26 @@ export default function CaseChat({
               ×
             </button>
           </div>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-2 space-y-2">
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={
-                  m.role === "user"
-                    ? "flex flex-col items-end"
-                    : "flex flex-col items-start"
-                }
-              >
-                <DebugWrapper data={systemPrompt}>
+          <DebugWrapper
+            data={{
+              system: systemPrompt,
+              available: availableActions,
+              unavailable: unavailableActions,
+            }}
+          >
+            <div
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto p-2 space-y-2"
+            >
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={
+                    m.role === "user"
+                      ? "flex flex-col items-end"
+                      : "flex flex-col items-start"
+                  }
+                >
                   <span
                     className={`${styles.bubble} ${
                       m.role === "user" ? styles.user : styles.assistant
@@ -606,52 +640,52 @@ export default function CaseChat({
                   >
                     {renderContent(m)}
                   </span>
-                </DebugWrapper>
-                {m.role === "assistant" &&
-                  m.actions &&
-                  m.actions.length > 0 &&
-                  renderActions(m.actions)}
-              </div>
-            ))}
-            {loading && (
-              <div className="text-left" key="typing">
-                <span
-                  className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
-                />
-              </div>
-            )}
-            {draftLoading && (
-              <div className="text-left" key="draft-loading">
-                <span className="text-sm">
-                  Drafting email based on case information...
-                </span>
-              </div>
-            )}
-            {draftData && (
-              <div className="text-left" key="draft-preview">
-                <DraftPreview
-                  caseId={caseId}
-                  data={draftData}
-                  onClose={() => setDraftData(null)}
-                />
-              </div>
-            )}
-            {cameraOpen && (
-              <div className="text-left" key="camera-widget">
-                <TakePhotoWidget
-                  caseId={caseId}
-                  onClose={() => setCameraOpen(false)}
-                />
-              </div>
-            )}
-            {chatError && (
-              <div className="text-left" key="chat-error">
-                <span className={`${styles.bubble} ${styles.error}`}>
-                  {chatError}
-                </span>
-              </div>
-            )}
-          </div>
+                  {m.role === "assistant" &&
+                    m.actions &&
+                    m.actions.length > 0 &&
+                    renderActions(m.actions)}
+                </div>
+              ))}
+              {loading && (
+                <div className="text-left" key="typing">
+                  <span
+                    className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
+                  />
+                </div>
+              )}
+              {draftLoading && (
+                <div className="text-left" key="draft-loading">
+                  <span className="text-sm">
+                    Drafting email based on case information...
+                  </span>
+                </div>
+              )}
+              {draftData && (
+                <div className="text-left" key="draft-preview">
+                  <DraftPreview
+                    caseId={caseId}
+                    data={draftData}
+                    onClose={() => setDraftData(null)}
+                  />
+                </div>
+              )}
+              {cameraOpen && (
+                <div className="text-left" key="camera-widget">
+                  <TakePhotoWidget
+                    caseId={caseId}
+                    onClose={() => setCameraOpen(false)}
+                  />
+                </div>
+              )}
+              {chatError && (
+                <div className="text-left" key="chat-error">
+                  <span className={`${styles.bubble} ${styles.error}`}>
+                    {chatError}
+                  </span>
+                </div>
+              )}
+            </div>
+          </DebugWrapper>
           <div className="border-t p-2 flex flex-col gap-2">
             {showJump ? (
               <button
