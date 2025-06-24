@@ -24,7 +24,7 @@ export const POST = withCaseAuthorization(
     const actionList = caseActions
       .map((a) => `- ${a.label} [${a.id}]: ${a.description}`)
       .join("\\n");
-    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}.\nUse [action:ID] tokens to display helpful action buttons for the user. Available actions:\n${actionList}`;
+    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}.\nTo include an action button, insert a token like [action:compose] in your reply. Write the token exactly with no spaces or label text inside. The UI will replace it with a button. Available actions:\n${actionList}`;
 
     const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: system },

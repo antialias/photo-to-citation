@@ -3,9 +3,11 @@
 Case Chat now supports inline buttons suggested by the LLM. The assistant can include
 special tokens in its reply to render a button for any available case action.
 
-Use the syntax `[action:ACTION_ID]` within the message text. When displayed, this
-placeholder becomes a button using the label from the case action list. The
-button opens a modal or page with the requested action.
+Use the token **`[action:ACTION_ID]`** anywhere in a message to display a button.
+Write the token exactly as shown—no spaces or extra text inside the brackets.
+The chat UI replaces that token with a button labeled according to the
+`caseActions` definition, then opens the corresponding page or modal when the
+button is clicked.
 
 Example:
 ```
