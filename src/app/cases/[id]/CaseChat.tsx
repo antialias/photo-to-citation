@@ -1,6 +1,8 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./CaseChat.module.css";
@@ -33,6 +35,7 @@ export default function CaseChat({
   const [sessionSummary, setSessionSummary] = useState<string>("");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -101,6 +104,20 @@ export default function CaseChat({
     startNew();
     setOpen(true);
     void seed();
+    void (async () => {
+      try {
+        const res = await apiFetch(`/api/cases/${caseId}`);
+        if (res.ok) {
+          const data = (await res.json()) as { photos: string[] };
+          const map: Record<string, string> = {};
+          for (const p of data.photos) {
+            const parts = p.split(/[/\\]/);
+            map[parts[parts.length - 1]] = p;
+          }
+          setPhotoMap(map);
+        }
+      } catch {}
+    })();
   }
 
   function handleClose() {
@@ -172,8 +189,21 @@ export default function CaseChat({
     }
   }
 
+  async function handlePhotoNote(name: string, note: string) {
+    const url = photoMap[name];
+    if (!url) return;
+    await apiFetch(`/api/cases/${caseId}/photo-note`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo: url, note }),
+    });
+    router.refresh();
+  }
+
   function renderContent(text: string) {
-    const parts = text.split(/(\[action:[^\]]+\]|\[edit:[^\]]+\])/g);
+    const parts = text.split(
+      /(\[action:[^\]]+\]|\[edit:[^\]]+\]|\[photo-note:[^\]]+\])/g,
+    );
     return parts.map((p, idx) => {
       const actionMatch = p.match(/^\[action:([^\]]+)\]$/);
       if (actionMatch) {
@@ -210,6 +240,32 @@ export default function CaseChat({
             className="bg-green-700 text-white px-2 py-1 rounded mx-1"
           >
             {label}
+          </button>
+        );
+      }
+      const photoMatch = p.match(/^\[photo-note:([^=]+)=([^\]]+)\]$/);
+      if (photoMatch) {
+        const name = photoMatch[1];
+        const note = photoMatch[2];
+        const url = photoMap[name];
+        return (
+          <button
+            key={`photo-note-${name}-${note}`}
+            type="button"
+            onClick={() => void handlePhotoNote(name, note)}
+            className="bg-purple-700 text-white px-2 py-1 rounded mx-1 flex items-center gap-1"
+          >
+            {url ? (
+              <ThumbnailImage
+                src={getThumbnailUrl(url, 32)}
+                alt="thumbnail"
+                width={32}
+                height={24}
+                className="w-8 h-6"
+                imgClassName="object-cover"
+              />
+            ) : null}
+            <span>{`Add note to ${name}: "${note}"`}</span>
           </button>
         );
       }
