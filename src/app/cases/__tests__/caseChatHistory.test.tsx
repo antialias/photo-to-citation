@@ -6,6 +6,11 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
+vi.stubGlobal(
+  "fetch",
+  vi.fn(async () => ({ ok: true, json: async () => ({ photos: [] }) })),
+);
+
 describe("CaseChat history", () => {
   it("saves chat to localStorage", async () => {
     localStorage.clear();
