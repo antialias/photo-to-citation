@@ -66,6 +66,7 @@ export default function CaseChat({
   const [draftLoading, setDraftLoading] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const notify = useNotify();
+  const [chatError, setChatError] = useState<string | null>(null);
 
   const storageKey = `case-chat-${caseId}`;
 
@@ -149,7 +150,19 @@ export default function CaseChat({
       if (onChat) {
         const result = await onChat([]);
         if (typeof result === "string") {
-          reply = result;
+          if (result.startsWith("[action:") && result.endsWith("]")) {
+            reply = {
+              response: "",
+              actions: [{ id: result.slice(8, -1) }],
+              noop: false,
+            };
+          } else if (result === "[noop]") {
+            reply = { response: "", actions: [], noop: true };
+          } else {
+            reply = { response: result, actions: [], noop: false };
+          }
+        } else if ("response" in result) {
+          reply = result as CaseChatReply;
         } else if ("reply" in result) {
           reply = result.reply;
           if (result.system) setSystemPrompt(result.system);
@@ -383,7 +396,19 @@ export default function CaseChat({
       if (onChat) {
         const result = await onChat(list);
         if (typeof result === "string") {
-          reply = result;
+          if (result.startsWith("[action:") && result.endsWith("]")) {
+            reply = {
+              response: "",
+              actions: [{ id: result.slice(8, -1) }],
+              noop: false,
+            };
+          } else if (result === "[noop]") {
+            reply = { response: "", actions: [], noop: true };
+          } else {
+            reply = { response: result, actions: [], noop: false };
+          }
+        } else if ("response" in result) {
+          reply = result as CaseChatReply;
         } else if ("reply" in result) {
           reply = result.reply;
           if (result.system) setSystemPrompt(result.system);
@@ -404,6 +429,19 @@ export default function CaseChat({
           };
           reply = data.reply;
           setSystemPrompt(data.system);
+          setChatError(null);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          if (res.status === 503) {
+            setChatError(
+              err.error || "Case Chat server is unavailable. Please try again.",
+            );
+          } else {
+            setChatError(
+              err.error ||
+                "Case Chat response was invalid. Please try again later.",
+            );
+          }
         }
       }
       if (!controller.signal.aborted && reply) {
@@ -421,7 +459,13 @@ export default function CaseChat({
           setMessages(list);
         }
       }
-    } catch {}
+    } catch {
+      if (!controller.signal.aborted) {
+        setChatError(
+          "Case Chat server is unreachable. Please try again later.",
+        );
+      }
+    }
     if (!controller.signal.aborted) {
       setLoading(false);
     }
@@ -598,6 +642,13 @@ export default function CaseChat({
                   caseId={caseId}
                   onClose={() => setCameraOpen(false)}
                 />
+              </div>
+            )}
+            {chatError && (
+              <div className="text-left" key="chat-error">
+                <span className={`${styles.bubble} ${styles.error}`}>
+                  {chatError}
+                </span>
               </div>
             )}
           </div>

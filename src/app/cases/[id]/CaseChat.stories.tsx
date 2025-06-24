@@ -152,3 +152,62 @@ export const Noop: Story = {
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
 };
+
+function useChatError(status: number) {
+  useEffect(() => {
+    const original = window.fetch;
+    window.fetch = async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/api/cases/1/chat")) {
+        return new Response(JSON.stringify({ error: "fail" }), { status });
+      }
+      if (url.includes("/api/cases/1")) {
+        return new Response(JSON.stringify({ photos: ["/uploads/a.jpg"] }));
+      }
+      return original(input);
+    };
+    return () => {
+      window.fetch = original;
+    };
+  }, [status]);
+}
+
+function useChatNetworkFailure() {
+  useEffect(() => {
+    const original = window.fetch;
+    window.fetch = async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url.includes("/api/cases/1/chat")) {
+        throw new Error("network failure");
+      }
+      if (url.includes("/api/cases/1")) {
+        return new Response(JSON.stringify({ photos: ["/uploads/a.jpg"] }));
+      }
+      return original(input);
+    };
+    return () => {
+      window.fetch = original;
+    };
+  }, []);
+}
+
+export const ServerUnavailable: Story = {
+  render: () => {
+    useChatError(503);
+    return <CaseChat caseId="1" />;
+  },
+};
+
+export const InvalidResponse: Story = {
+  render: () => {
+    useChatError(502);
+    return <CaseChat caseId="1" />;
+  },
+};
+
+export const UnreachableServer: Story = {
+  render: () => {
+    useChatNetworkFailure();
+    return <CaseChat caseId="1" />;
+  },
+};

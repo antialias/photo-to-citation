@@ -7,6 +7,7 @@ import { getLlm } from "@/lib/llm";
 import { chatWithSchema } from "@/lib/llmUtils";
 import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
+import { APIError } from "openai/error";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 function actionCompleted(
@@ -80,15 +81,26 @@ export const POST = withCaseAuthorization(
     ];
 
     const { client, model } = getLlm("draft_email");
-    const reply = await chatWithSchema(
-      client,
-      model,
-      messages,
-      caseChatReplySchema,
-      {
-        maxTokens: 800,
-      },
-    );
-    return NextResponse.json({ reply, system });
+    try {
+      const reply = await chatWithSchema(
+        client,
+        model,
+        messages,
+        caseChatReplySchema,
+        {
+          maxTokens: 800,
+        },
+      );
+      return NextResponse.json({ reply, system });
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        ["parse", "schema", "truncated"].includes(err.message)
+      ) {
+        return NextResponse.json({ error: err.message }, { status: 502 });
+      }
+      const status = err instanceof APIError ? err.status : 503;
+      return NextResponse.json({ error: "server_error" }, { status });
+    }
   },
 );
