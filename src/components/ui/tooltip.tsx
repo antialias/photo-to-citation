@@ -23,6 +23,7 @@ export default function Tooltip({
   open: controlledOpen,
   onOpenChange,
   interactive = false,
+  closeDelay = 0,
 }: {
   label: ReactElement | string;
   children: ReactElement;
@@ -30,6 +31,7 @@ export default function Tooltip({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   interactive?: boolean;
+  closeDelay?: number;
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
@@ -45,6 +47,7 @@ export default function Tooltip({
     enabled: controlledOpen === undefined,
     move: false,
     handleClose: interactive ? safePolygon() : undefined,
+    delay: { close: closeDelay },
   });
   const focus = useFocus(context, { enabled: controlledOpen === undefined });
   const dismiss = useDismiss(context);

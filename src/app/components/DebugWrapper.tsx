@@ -46,9 +46,6 @@ export default function DebugWrapper({
   useEffect(() => {
     if (alt && refHover) setOpen(true);
   }, [alt, refHover]);
-  useEffect(() => {
-    if (!refHover) setOpen(false);
-  }, [refHover]);
   const json = JSON.stringify(data, null, 2);
   const tokens = tokenize(json);
   if (!enabled) return <>{children}</>;
@@ -70,6 +67,7 @@ export default function DebugWrapper({
       open={show}
       onOpenChange={setOpen}
       interactive
+      closeDelay={200}
     >
       <div
         onMouseEnter={() => {
@@ -78,7 +76,6 @@ export default function DebugWrapper({
         }}
         onMouseLeave={() => {
           setRefHover(false);
-          setOpen(false);
         }}
         className="inline-block"
       >
