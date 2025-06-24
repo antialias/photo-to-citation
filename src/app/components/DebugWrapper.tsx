@@ -78,7 +78,6 @@ export default function DebugWrapper({
         }}
         onMouseLeave={() => {
           setRefHover(false);
-          setOpen(false);
         }}
         className="inline-block"
       >
