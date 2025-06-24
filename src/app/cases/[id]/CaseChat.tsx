@@ -3,8 +3,8 @@ import { apiFetch } from "@/apiClient";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
-import type { EmailDraft } from "@/lib/caseReport";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
+import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
@@ -133,6 +133,28 @@ export default function CaseChat({
     setDraftLoading(false);
   }
 
+  function parseReply(
+    result:
+      | CaseChatReply
+      | { reply: string | CaseChatReply; system?: string }
+      | string,
+  ): CaseChatReply | null {
+    if (typeof result === "string") {
+      return { response: result, actions: [], noop: result === "[noop]" };
+    }
+    if ("response" in result && "actions" in result) {
+      return result;
+    }
+    if (result && "reply" in result) {
+      if (result.system) setSystemPrompt(result.system);
+      const r = result.reply;
+      return typeof r === "string"
+        ? { response: r, actions: [], noop: r === "[noop]" }
+        : r;
+    }
+    return null;
+  }
+
   async function seed() {
     setLoading(true);
     abortRef.current?.abort();
@@ -142,12 +164,7 @@ export default function CaseChat({
       let reply: CaseChatReply | null = null;
       if (onChat) {
         const result = await onChat([]);
-        if (typeof result === "string") {
-          reply = result;
-        } else {
-          reply = result.reply;
-          if (result.system) setSystemPrompt(result.system);
-        }
+        reply = parseReply(result);
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
@@ -156,9 +173,11 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
-          reply = data.reply;
-          setSystemPrompt(data.system);
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
+          reply = parseReply(data);
         }
       }
       if (!controller.signal.aborted && reply && !reply.noop) {
@@ -368,12 +387,7 @@ export default function CaseChat({
       let reply: CaseChatReply | null = null;
       if (onChat) {
         const result = await onChat(list);
-        if (typeof result === "string") {
-          reply = result;
-        } else {
-          reply = result.reply;
-          if (result.system) setSystemPrompt(result.system);
-        }
+        reply = parseReply(result);
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
@@ -382,9 +396,11 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
-          reply = data.reply;
-          setSystemPrompt(data.system);
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
+          reply = parseReply(data);
         }
       }
       if (!controller.signal.aborted && reply) {
