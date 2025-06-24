@@ -8,6 +8,7 @@ import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useNotify } from "../../components/NotificationProvider";
+import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
 import styles from "./CaseChat.module.css";
 import DraftPreview from "./draft/DraftPreview";
 
@@ -32,6 +33,7 @@ export default function CaseChat({
   onChat?: (messages: Message[]) => Promise<string>;
 }) {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -153,6 +155,7 @@ export default function CaseChat({
   function handleOpen() {
     startNew();
     setOpen(true);
+    setExpanded(false);
     void seed();
   }
 
@@ -160,6 +163,7 @@ export default function CaseChat({
     setOpen(false);
     setDraftData(null);
     setDraftLoading(false);
+    setExpanded(false);
     if (messages.length > 0 && sessionId) {
       const firstUser = messages.find((m) => m.role === "user");
       const summary =
@@ -174,6 +178,10 @@ export default function CaseChat({
       setHistory(list);
       saveHistory(list);
     }
+  }
+
+  function toggleExpanded() {
+    setExpanded((e) => !e);
   }
   const router = useRouter();
 
@@ -385,9 +393,17 @@ export default function CaseChat({
   }, [open]);
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 text-sm">
+    <div
+      className={`fixed z-40 text-sm ${
+        expanded ? "inset-y-0 right-0 w-1/2" : "bottom-4 right-4"
+      }`}
+    >
       {open ? (
-        <div className="bg-white dark:bg-gray-900 shadow-lg rounded w-80 h-96 flex flex-col">
+        <div
+          className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
+            expanded ? "w-full h-full" : "w-80 h-96"
+          }`}
+        >
           <div className="flex items-center border-b p-2 gap-2">
             <span className="font-semibold flex-none">Case Chat</span>
             <select
@@ -422,6 +438,14 @@ export default function CaseChat({
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              onClick={toggleExpanded}
+              aria-label={expanded ? "Collapse chat" : "Expand chat"}
+              className="text-xl leading-none flex-none"
+            >
+              {expanded ? <FaCompressArrowsAlt /> : <FaExpandArrowsAlt />}
+            </button>
             <button
               type="button"
               onClick={handleClose}
