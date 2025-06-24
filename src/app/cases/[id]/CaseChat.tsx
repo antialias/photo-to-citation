@@ -149,6 +149,8 @@ export default function CaseChat({
       if (onChat) {
         const result = await onChat([]);
         if (typeof result === "string") {
+          reply = { response: result, actions: [], noop: false };
+        } else if ("response" in result) {
           reply = result;
         } else if ("reply" in result) {
           reply = result.reply;
@@ -383,6 +385,8 @@ export default function CaseChat({
       if (onChat) {
         const result = await onChat(list);
         if (typeof result === "string") {
+          reply = { response: result, actions: [], noop: false };
+        } else if ("response" in result) {
           reply = result;
         } else if ("reply" in result) {
           reply = result.reply;
