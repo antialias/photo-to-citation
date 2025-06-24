@@ -64,11 +64,12 @@ export default function DebugWrapper({
           >
             Copy
           </button>
-          <pre className="pt-4">{tokens}</pre>
+          <pre className="pt-4 whitespace-pre-wrap break-words">{tokens}</pre>
         </div>
       }
       open={show}
       onOpenChange={setOpen}
+      interactive
     >
       <div
         onMouseEnter={() => {
@@ -77,7 +78,6 @@ export default function DebugWrapper({
         }}
         onMouseLeave={() => {
           setRefHover(false);
-          setOpen(false);
         }}
         className="inline-block"
       >
