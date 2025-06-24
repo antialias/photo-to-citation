@@ -413,6 +413,12 @@ export default function CaseChat({
   }, [messages]);
 
   useEffect(() => {
+    if (scrollRef.current && (draftLoading || draftData)) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [draftData, draftLoading]);
+
+  useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
