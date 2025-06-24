@@ -28,3 +28,20 @@ Available actions:
 
 This list is populated from the `caseActions` export, so new actions become
 available to the chat UI automatically.
+
+## Case Edits
+
+In addition to standard actions, the assistant can suggest edits to the current case. Use the
+syntax **`[edit:FIELD=VALUE]`** to render a button that applies the update when clicked.
+Supported fields:
+
+- `vin` — set the vehicle's VIN.
+- `plate` — set the license plate number.
+- `state` — set the license plate state.
+- `note` — append text to the case note.
+
+Example:
+```
+The plate appears to be ABC123. [edit:plate=ABC123]
+```
+This creates a button labeled **Set Plate to "ABC123"**. Clicking it updates the case.

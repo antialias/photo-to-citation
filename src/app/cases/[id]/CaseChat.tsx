@@ -88,12 +88,62 @@ export default function CaseChat({
   }
   const router = useRouter();
 
+  async function handleEdit(field: string, value: string) {
+    switch (field) {
+      case "vin":
+        await apiFetch(`/api/cases/${caseId}/vin`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: value }),
+        });
+        router.refresh();
+        break;
+      case "plate":
+        await apiFetch(`/api/cases/${caseId}/override`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vehicle: { licensePlateNumber: value },
+          }),
+        });
+        router.refresh();
+        break;
+      case "state":
+        await apiFetch(`/api/cases/${caseId}/override`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vehicle: { licensePlateState: value },
+          }),
+        });
+        router.refresh();
+        break;
+      case "note":
+        {
+          const res = await apiFetch(`/api/cases/${caseId}`);
+          const data = res.ok
+            ? ((await res.json()) as { note?: string | null })
+            : { note: null };
+          const note = data.note ? `${data.note}\n${value}` : value;
+          await apiFetch(`/api/cases/${caseId}/note`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ note }),
+          });
+          router.refresh();
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   function renderContent(text: string) {
-    const parts = text.split(/(\[action:[^\]]+\])/g);
+    const parts = text.split(/(\[action:[^\]]+\]|\[edit:[^\]]+\])/g);
     return parts.map((p, idx) => {
-      const match = p.match(/^\[action:([^\]]+)\]$/);
-      if (match) {
-        const act = caseActions.find((a) => a.id === match[1]);
+      const actionMatch = p.match(/^\[action:([^\]]+)\]$/);
+      if (actionMatch) {
+        const act = caseActions.find((a) => a.id === actionMatch[1]);
         if (act) {
           return (
             <button
@@ -106,6 +156,28 @@ export default function CaseChat({
             </button>
           );
         }
+      }
+      const editMatch = p.match(/^\[edit:([^=]+)=([^\]]+)\]$/);
+      if (editMatch) {
+        const field = editMatch[1];
+        const value = editMatch[2];
+        const labelMap: Record<string, string> = {
+          vin: `Set VIN to "${value}"`,
+          plate: `Set Plate to "${value}"`,
+          state: `Set State to "${value}"`,
+          note: `Add Note: "${value}"`,
+        };
+        const label = labelMap[field] ?? `Apply ${field}`;
+        return (
+          <button
+            key={`edit-${field}-${value}`}
+            type="button"
+            onClick={() => void handleEdit(field, value)}
+            className="bg-green-700 text-white px-2 py-1 rounded mx-1"
+          >
+            {label}
+          </button>
+        );
       }
       return <span key={`text-${idx}-${p}`}>{p}</span>;
     });
