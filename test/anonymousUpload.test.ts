@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import os from "node:os";
@@ -54,13 +55,13 @@ afterEach(() => {
 });
 
 describe("anonymous upload", () => {
-  // TODO: investigate intermittent timeouts when running this test
-  it.skip("sets session cookie and returns case", async () => {
+  it("sets session cookie and returns case", async () => {
     const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
     const req = new Request("http://test", { method: "POST", body: form });
     const res = await upload.POST(req, { params: Promise.resolve({}) });
+    await new Promise((r) => setImmediate(r));
     worker.emit("exit");
     expect(res.status).toBe(200);
     const setCookie = res.headers.get("set-cookie") ?? "";
