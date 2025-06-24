@@ -29,6 +29,8 @@ export default function CaseChat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionCreatedAt, setSessionCreatedAt] = useState<string>("");
+  const [sessionSummary, setSessionSummary] = useState<string>("");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -58,6 +60,8 @@ export default function CaseChat({
   function startNew() {
     setMessages([]);
     setSessionId(crypto.randomUUID());
+    setSessionCreatedAt(new Date().toISOString());
+    setSessionSummary("");
   }
 
   function handleOpen() {
@@ -69,10 +73,11 @@ export default function CaseChat({
     setOpen(false);
     if (messages.length > 0 && sessionId) {
       const firstUser = messages.find((m) => m.role === "user");
-      const summary = firstUser ? firstUser.content.slice(0, 30) : "";
+      const summary =
+        sessionSummary || (firstUser ? firstUser.content.slice(0, 30) : "");
       const session: ChatSession = {
         id: sessionId,
-        createdAt: new Date().toISOString(),
+        createdAt: sessionCreatedAt,
         summary,
         messages,
       };
@@ -113,6 +118,9 @@ export default function CaseChat({
       ...messages,
       { id: crypto.randomUUID(), role: "user", content: text },
     ];
+    if (messages.length === 0) {
+      setSessionSummary(text.slice(0, 30));
+    }
     setMessages(list);
     setInput("");
     setLoading(true);
@@ -161,7 +169,7 @@ export default function CaseChat({
             <span className="font-semibold flex-1">Case Chat</span>
             <select
               aria-label="Chat history"
-              value={sessionId ?? "new"}
+              value={sessionId ?? ""}
               onChange={(e) => {
                 const val = e.target.value;
                 if (val === "new") {
@@ -171,12 +179,20 @@ export default function CaseChat({
                   if (found) {
                     setMessages(found.messages);
                     setSessionId(found.id);
+                    setSessionCreatedAt(found.createdAt);
+                    setSessionSummary(found.summary);
                   }
                 }
               }}
               className="text-black dark:text-black text-xs"
             >
               <option value="new">New Chat</option>
+              {!history.some((h) => h.id === sessionId) && sessionId && (
+                <option value={sessionId}>
+                  {new Date(sessionCreatedAt).toLocaleString()}
+                  {sessionSummary ? ` - ${sessionSummary}` : ""}
+                </option>
+              )}
               {history.map((h) => (
                 <option key={h.id} value={h.id}>
                   {new Date(h.createdAt).toLocaleString()} - {h.summary}

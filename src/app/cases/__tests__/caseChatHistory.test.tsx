@@ -15,6 +15,6 @@ describe("CaseChat history", () => {
     fireEvent.click(getByLabelText("Close chat"));
     fireEvent.click(getByText("Chat"));
     const select = getByLabelText("Chat history") as HTMLSelectElement;
-    expect(select.options.length).toBe(2);
+    expect(select.options.length).toBe(3);
   });
 });
