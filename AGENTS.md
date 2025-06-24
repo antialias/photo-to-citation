@@ -20,6 +20,8 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - When tests fail, fix the application code if it contains a real bug.
   Do not adjust the application just to satisfy a faulty test, and do not
   modify test code to accept incorrect behavior from the app.
+- No task is complete unless all `e2e:smoke` tests pass. Ideally, run the
+  entire e2e suite and ensure it passes as well.
 
 ## Code Style
 - Use 2‑space indentation and double quotes for strings.
