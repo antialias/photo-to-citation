@@ -34,10 +34,8 @@ afterEach(() => {
 });
 
 describe("anonymous upload", () => {
-  it(
-    "sets session cookie and returns case",
-    async () => {
-      const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
+  it("sets session cookie and returns case", async () => {
+    const file = new File([Buffer.from("a")], "a.jpg", { type: "image/jpeg" });
     const form = new FormData();
     form.append("photo", file);
     const req = new Request("http://test", { method: "POST", body: form });
@@ -49,13 +47,11 @@ describe("anonymous upload", () => {
     const getReq = new Request("http://test", {
       headers: { cookie: setCookie.split(";")[0] },
     });
-      const caseRes = await caseRoute.GET(getReq, {
-        params: Promise.resolve({ id: caseId }),
-      });
-      expect(caseRes.status).toBe(200);
-      const data = await caseRes.json();
-      expect(data.id).toBe(caseId);
-    },
-    15000,
-  );
+    const caseRes = await caseRoute.GET(getReq, {
+      params: Promise.resolve({ id: caseId }),
+    });
+    expect(caseRes.status).toBe(200);
+    const data = await caseRes.json();
+    expect(data.id).toBe(caseId);
+  }, 15000);
 });
