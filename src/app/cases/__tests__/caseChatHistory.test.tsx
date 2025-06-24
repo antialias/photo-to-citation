@@ -18,7 +18,9 @@ describe("CaseChat history", () => {
       render(
         <CaseChat
           caseId="1"
-          onChat={async () => ({ response: "ok", actions: [], noop: false })}
+          onChat={async () => ({
+            reply: { response: "ok", actions: [], noop: false },
+          })}
         />,
       );
     fireEvent.click(getByText("Chat"));

@@ -3,8 +3,8 @@ import { apiFetch } from "@/apiClient";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
-import type { EmailDraft } from "@/lib/caseReport";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
+import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
@@ -55,7 +55,7 @@ export default function CaseChat({
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [inputFocused, setInputFocused] = useState(false);
+  const [showJump, setShowJump] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
   const [draftData, setDraftData] = useState<{
@@ -150,9 +150,11 @@ export default function CaseChat({
         const result = await onChat([]);
         if (typeof result === "string") {
           reply = result;
-        } else {
+        } else if ("reply" in result) {
           reply = result.reply;
           if (result.system) setSystemPrompt(result.system);
+        } else {
+          reply = result;
         }
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
@@ -162,7 +164,10 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
           reply = data.reply;
           setSystemPrompt(data.system);
         }
@@ -379,9 +384,11 @@ export default function CaseChat({
         const result = await onChat(list);
         if (typeof result === "string") {
           reply = result;
-        } else {
+        } else if ("reply" in result) {
           reply = result.reply;
           if (result.system) setSystemPrompt(result.system);
+        } else {
+          reply = result;
         }
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
@@ -391,7 +398,10 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
           reply = data.reply;
           setSystemPrompt(data.system);
         }
@@ -420,6 +430,7 @@ export default function CaseChat({
   function scrollToBottom() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      setShowJump(false);
     }
   }
 
@@ -444,6 +455,22 @@ export default function CaseChat({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: update on open or messages
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    function update() {
+      const canScroll = el.scrollHeight > el.clientHeight + 1;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      setShowJump(canScroll && !atBottom);
+    }
+    update();
+    el.addEventListener("scroll", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+    };
+  }, [open, messages]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
@@ -570,7 +597,7 @@ export default function CaseChat({
             )}
           </div>
           <div className="border-t p-2 flex flex-col gap-2">
-            {inputFocused ? (
+            {showJump ? (
               <button
                 type="button"
                 onClick={scrollToBottom}
@@ -585,8 +612,6 @@ export default function CaseChat({
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();

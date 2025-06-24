@@ -26,7 +26,16 @@ describe("CaseChat take photo action", () => {
       value: null,
     });
     const { getByText, getByPlaceholderText, findByText } = render(
-      <CaseChat caseId="1" onChat={async () => "[action:take-photo]"} />,
+      <CaseChat
+        caseId="1"
+        onChat={async () => ({
+          reply: {
+            response: "",
+            actions: [{ id: "take-photo" }],
+            noop: false,
+          },
+        })}
+      />,
     );
     fireEvent.click(getByText("Chat"));
     const input = getByPlaceholderText("Ask a question...");
