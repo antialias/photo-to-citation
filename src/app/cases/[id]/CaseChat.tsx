@@ -2,10 +2,14 @@
 import { apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
+import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useNotify } from "../../components/NotificationProvider";
 import styles from "./CaseChat.module.css";
+import DraftEditor from "./draft/DraftEditor";
 
 interface Message {
   id: string;
@@ -39,6 +43,12 @@ export default function CaseChat({
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
+  const [draft, setDraft] = useState<{
+    email: EmailDraft;
+    attachments: string[];
+    module: ReportModule;
+  } | null>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
 
   const storageKey = `case-chat-${caseId}`;
 
@@ -87,6 +97,23 @@ export default function CaseChat({
       map[baseName(url)] = url;
     }
     setPhotoMap(map);
+  }
+
+  async function openDraft() {
+    setDraftLoading(true);
+    setDraft(null);
+    const res = await apiFetch(`/api/cases/${caseId}/report`);
+    if (res.ok) {
+      const data = (await res.json()) as {
+        email: EmailDraft;
+        attachments: string[];
+        module: ReportModule;
+      };
+      setDraft(data);
+    } else {
+      notify("Failed to draft report");
+    }
+    setDraftLoading(false);
   }
 
   async function seed() {
@@ -145,6 +172,7 @@ export default function CaseChat({
     }
   }
   const router = useRouter();
+  const notify = useNotify();
 
   async function handleEdit(field: string, value: string) {
     switch (field) {
@@ -222,11 +250,15 @@ export default function CaseChat({
       if (actionMatch) {
         const act = caseActions.find((a) => a.id === actionMatch[1]);
         if (act) {
+          const handle =
+            act.id === "compose"
+              ? openDraft
+              : () => router.push(act.href(caseId));
           return (
             <button
               key={`${act.id}-${idx}`}
               type="button"
-              onClick={() => router.push(act.href(caseId))}
+              onClick={() => void handle()}
               className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
             >
               {act.label}
@@ -336,12 +368,12 @@ export default function CaseChat({
     await request(list);
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when messages change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when messages or draft change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, draft, draftLoading]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
@@ -413,6 +445,24 @@ export default function CaseChat({
               <div className="text-left" key="typing">
                 <span
                   className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
+                />
+              </div>
+            )}
+            {draftLoading && (
+              <div className="text-left" key="draft-loading">
+                <span className={styles.bubble}>
+                  Drafting email based on case information...
+                </span>
+              </div>
+            )}
+            {draft && (
+              <div className="text-left" key="draft-editor">
+                <DraftEditor
+                  caseId={caseId}
+                  initialDraft={draft.email}
+                  attachments={draft.attachments}
+                  module={draft.module}
+                  action="report"
                 />
               </div>
             )}
