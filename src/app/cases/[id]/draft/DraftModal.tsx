@@ -16,15 +16,18 @@ interface DraftData {
 export default function DraftModal({
   caseId,
   onClose,
+  initialData,
 }: {
   caseId: string;
   onClose: () => void;
+  initialData?: DraftData | null;
 }) {
-  const [data, setData] = useState<DraftData | null>(null);
+  const [data, setData] = useState<DraftData | null>(initialData ?? null);
   const [fullScreen, setFullScreen] = useState(false);
   const notify = useNotify();
 
   useEffect(() => {
+    if (initialData) return;
     let canceled = false;
     apiFetch(`/api/cases/${caseId}/report`)
       .then(async (res) => {
@@ -42,7 +45,11 @@ export default function DraftModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, onClose, notify]);
+  }, [caseId, initialData, onClose, notify]);
+
+  useEffect(() => {
+    if (initialData) setData(initialData);
+  }, [initialData]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
