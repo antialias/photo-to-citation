@@ -1,7 +1,9 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
+import { buildCaseChatPrompt } from "@/lib/caseChatPrompt";
 import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
@@ -57,6 +59,7 @@ export default function CaseChat({
     module: ReportModule;
   } | null>(null);
   const [draftLoading, setDraftLoading] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState("");
   const notify = useNotify();
 
   const storageKey = `case-chat-${caseId}`;
@@ -100,12 +103,13 @@ export default function CaseChat({
   async function loadPhotos() {
     const res = await apiFetch(`/api/cases/${caseId}`);
     if (!res.ok) return;
-    const data = (await res.json()) as { photos?: string[] };
+    const data = (await res.json()) as import("@/lib/caseStore").Case;
     const map: Record<string, string> = {};
     for (const url of data.photos ?? []) {
       map[baseName(url)] = url;
     }
     setPhotoMap(map);
+    setSystemPrompt(buildCaseChatPrompt(data));
   }
 
   async function openDraft() {
@@ -479,45 +483,50 @@ export default function CaseChat({
               ×
             </button>
           </div>
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-2 space-y-2">
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={m.role === "user" ? "text-right" : "text-left"}
-              >
-                <span
-                  className={`${styles.bubble} ${
-                    m.role === "user" ? styles.user : styles.assistant
-                  }`}
+          <DebugWrapper data={{ systemPrompt }}>
+            <div
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto p-2 space-y-2"
+            >
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={m.role === "user" ? "text-right" : "text-left"}
                 >
-                  {renderContent(m.content)}
-                </span>
-              </div>
-            ))}
-            {loading && (
-              <div className="text-left" key="typing">
-                <span
-                  className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
-                />
-              </div>
-            )}
-            {draftLoading && (
-              <div className="text-left" key="draft-loading">
-                <span className="text-sm">
-                  Drafting email based on case information...
-                </span>
-              </div>
-            )}
-            {draftData && (
-              <div className="text-left" key="draft-preview">
-                <DraftPreview
-                  caseId={caseId}
-                  data={draftData}
-                  onClose={() => setDraftData(null)}
-                />
-              </div>
-            )}
-          </div>
+                  <span
+                    className={`${styles.bubble} ${
+                      m.role === "user" ? styles.user : styles.assistant
+                    }`}
+                  >
+                    {renderContent(m.content)}
+                  </span>
+                </div>
+              ))}
+              {loading && (
+                <div className="text-left" key="typing">
+                  <span
+                    className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
+                  />
+                </div>
+              )}
+              {draftLoading && (
+                <div className="text-left" key="draft-loading">
+                  <span className="text-sm">
+                    Drafting email based on case information...
+                  </span>
+                </div>
+              )}
+              {draftData && (
+                <div className="text-left" key="draft-preview">
+                  <DraftPreview
+                    caseId={caseId}
+                    data={draftData}
+                    onClose={() => setDraftData(null)}
+                  />
+                </div>
+              )}
+            </div>
+          </DebugWrapper>
           <div className="border-t p-2 flex flex-col gap-2">
             {inputFocused ? (
               <button
