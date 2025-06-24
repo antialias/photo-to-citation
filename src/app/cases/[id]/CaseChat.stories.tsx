@@ -1,6 +1,7 @@
+import type { CaseChatReply } from "@/lib/caseChat";
 import type { Meta, StoryObj } from "@storybook/react";
 import OpenAI from "openai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CaseChat from "./CaseChat";
 
 const meta: Meta<typeof CaseChat> = {
@@ -18,8 +19,8 @@ export const WithLiveLlm: Story = {
 
     async function onChat(
       messages: Array<{ role: "user" | "assistant"; content: string }>,
-    ) {
-      if (!apiKey) return "";
+    ): Promise<CaseChatReply> {
+      if (!apiKey) return { response: "", actions: [], noop: true };
       const client = new OpenAI({
         apiKey,
         baseURL: baseUrl || undefined,
@@ -30,7 +31,12 @@ export const WithLiveLlm: Story = {
         messages,
         max_tokens: 800,
       });
-      return res.choices[0]?.message?.content ?? "";
+      const text = res.choices[0]?.message?.content ?? "";
+      try {
+        return JSON.parse(text) as CaseChatReply;
+      } catch {
+        return { response: text, actions: [], noop: false };
+      }
     }
 
     return (
@@ -57,5 +63,68 @@ export const WithLiveLlm: Story = {
         <CaseChat caseId="story" onChat={onChat} />
       </div>
     );
+  },
+};
+
+function usePhotoStub() {
+  useEffect(() => {
+    const original = window.fetch;
+    window.fetch = async () =>
+      new Response(JSON.stringify({ photos: ["/uploads/a.jpg"] }));
+    return () => {
+      window.fetch = original;
+    };
+  }, []);
+}
+
+export const CaseAction: Story = {
+  render: () => {
+    usePhotoStub();
+    const reply: CaseChatReply = {
+      response: "Notify the owner?",
+      actions: [{ id: "notify-owner" }],
+      noop: false,
+    };
+    return <CaseChat caseId="1" onChat={async () => reply} />;
+  },
+};
+
+export const EditAction: Story = {
+  render: () => {
+    usePhotoStub();
+    const reply: CaseChatReply = {
+      response: "Plate looks like ABC123",
+      actions: [{ field: "plate", value: "ABC123" }],
+      noop: false,
+    };
+    return <CaseChat caseId="1" onChat={async () => reply} />;
+  },
+};
+
+export const PhotoNoteAction: Story = {
+  render: () => {
+    usePhotoStub();
+    const reply: CaseChatReply = {
+      response: "Add note to photo",
+      actions: [{ photo: "a.jpg", note: "Clear" }],
+      noop: false,
+    };
+    return <CaseChat caseId="1" onChat={async () => reply} />;
+  },
+};
+
+export const MixedActions: Story = {
+  render: () => {
+    usePhotoStub();
+    const reply: CaseChatReply = {
+      response: "Multiple suggestions",
+      actions: [
+        { id: "compose" },
+        { field: "state", value: "IL" },
+        { photo: "a.jpg", note: "Zoom here" },
+      ],
+      noop: false,
+    };
+    return <CaseChat caseId="1" onChat={async () => reply} />;
   },
 };
