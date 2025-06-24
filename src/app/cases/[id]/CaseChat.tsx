@@ -1,5 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import { caseActions } from "@/lib/caseActions";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./CaseChat.module.css";
 
@@ -78,6 +80,30 @@ export default function CaseChat({
       setHistory(list);
       saveHistory(list);
     }
+  }
+  const router = useRouter();
+
+  function renderContent(text: string) {
+    const parts = text.split(/(\[action:[^\]]+\])/g);
+    return parts.map((p, idx) => {
+      const match = p.match(/^\[action:([^\]]+)\]$/);
+      if (match) {
+        const act = caseActions.find((a) => a.id === match[1]);
+        if (act) {
+          return (
+            <button
+              key={`${act.id}-${idx}`}
+              type="button"
+              onClick={() => router.push(act.href(caseId))}
+              className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
+            >
+              {act.label}
+            </button>
+          );
+        }
+      }
+      return <span key={`text-${idx}-${p}`}>{p}</span>;
+    });
   }
 
   async function send() {
@@ -177,7 +203,7 @@ export default function CaseChat({
                     m.role === "user" ? styles.user : styles.assistant
                   }`}
                 >
-                  {m.content}
+                  {renderContent(m.content)}
                 </span>
               </div>
             ))}
@@ -207,24 +233,16 @@ export default function CaseChat({
             </button>
           </div>
           <div className="border-t p-2 flex gap-2 justify-end">
-            <a
-              href={`/cases/${caseId}/compose`}
-              className="underline text-blue-500"
-            >
-              Draft Report
-            </a>
-            <a
-              href={`/cases/${caseId}/followup`}
-              className="underline text-blue-500"
-            >
-              Follow Up
-            </a>
-            <a
-              href={`/cases/${caseId}/notify-owner`}
-              className="underline text-blue-500"
-            >
-              Notify Owner
-            </a>
+            {caseActions.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => router.push(a.href(caseId))}
+                className="bg-blue-600 text-white px-2 py-1 rounded"
+              >
+                {a.label}
+              </button>
+            ))}
           </div>
         </div>
       ) : (
