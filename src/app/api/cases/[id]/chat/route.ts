@@ -88,6 +88,6 @@ export const POST = withCaseAuthorization(
       max_tokens: 800,
     });
     const reply = res.choices[0]?.message?.content ?? "";
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, system });
   },
 );

@@ -442,7 +442,7 @@ export default function Example() {
 The provider requests browser permission so these messages can also appear as native notifications when allowed.
 
 ## Browser Debugging
-Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images or details to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
+Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images, details, or chat messages to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
 
 ## Project Links
 

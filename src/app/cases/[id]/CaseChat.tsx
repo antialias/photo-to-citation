@@ -1,5 +1,6 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
 import type { EmailDraft } from "@/lib/caseReport";
@@ -32,7 +33,9 @@ export default function CaseChat({
   onExpandChange,
 }: {
   caseId: string;
-  onChat?: (messages: Message[]) => Promise<string>;
+  onChat?: (
+    messages: Message[],
+  ) => Promise<string | { reply: string; system?: string }>;
   expanded?: boolean;
   onExpandChange?: (value: boolean) => void;
 }) {
@@ -44,6 +47,7 @@ export default function CaseChat({
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionCreatedAt, setSessionCreatedAt] = useState<string>("");
   const [sessionSummary, setSessionSummary] = useState<string>("");
+  const [systemPrompt, setSystemPrompt] = useState<string>("");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -90,6 +94,7 @@ export default function CaseChat({
     setSessionId(crypto.randomUUID());
     setSessionCreatedAt(new Date().toISOString());
     setSessionSummary("");
+    setSystemPrompt("");
   }
 
   function baseName(filePath: string): string {
@@ -134,7 +139,13 @@ export default function CaseChat({
     try {
       let reply = "";
       if (onChat) {
-        reply = await onChat([]);
+        const result = await onChat([]);
+        if (typeof result === "string") {
+          reply = result;
+        } else {
+          reply = result.reply;
+          if (result.system) setSystemPrompt(result.system);
+        }
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
@@ -143,8 +154,9 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: string };
+          const data = (await res.json()) as { reply: string; system: string };
           reply = data.reply;
+          setSystemPrompt(data.system);
         }
       }
       if (!controller.signal.aborted && reply && reply !== "[noop]") {
@@ -355,7 +367,13 @@ export default function CaseChat({
     try {
       let reply = "";
       if (onChat) {
-        reply = await onChat(list);
+        const result = await onChat(list);
+        if (typeof result === "string") {
+          reply = result;
+        } else {
+          reply = result.reply;
+          if (result.system) setSystemPrompt(result.system);
+        }
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
@@ -364,8 +382,9 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: string };
+          const data = (await res.json()) as { reply: string; system: string };
           reply = data.reply;
+          setSystemPrompt(data.system);
         }
       }
       if (!controller.signal.aborted && reply) {
@@ -485,13 +504,15 @@ export default function CaseChat({
                 key={m.id}
                 className={m.role === "user" ? "text-right" : "text-left"}
               >
-                <span
-                  className={`${styles.bubble} ${
-                    m.role === "user" ? styles.user : styles.assistant
-                  }`}
-                >
-                  {renderContent(m.content)}
-                </span>
+                <DebugWrapper data={systemPrompt}>
+                  <span
+                    className={`${styles.bubble} ${
+                      m.role === "user" ? styles.user : styles.assistant
+                    }`}
+                  >
+                    {renderContent(m.content)}
+                  </span>
+                </DebugWrapper>
               </div>
             ))}
             {loading && (

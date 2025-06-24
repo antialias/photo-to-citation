@@ -48,8 +48,9 @@ describe("chat api", () => {
       body: JSON.stringify({ messages: [{ role: "user", content: "Hi" }] }),
     });
     expect(res.status).toBe(200);
-    const data = (await res.json()) as { reply: string };
+    const data = (await res.json()) as { reply: string; system: string };
     expect(data.reply).toBe("hello");
+    expect(data.system).toBeTruthy();
     expect(stub.requests.length).toBeGreaterThan(0);
   });
 });
