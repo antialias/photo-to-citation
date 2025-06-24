@@ -396,8 +396,8 @@ export function setCaseAnalysisOverrides(
       fetchCaseVinInBackground(after as Case);
     }
   }
-  caseEvents.emit("update", updated);
-  return updated;
+  caseEvents.emit("update", after);
+  return after;
 }
 
 export function setCaseVinOverride(
