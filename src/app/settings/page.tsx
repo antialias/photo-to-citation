@@ -41,14 +41,22 @@ export default function UserSettingsPage() {
         <button
           type="button"
           onClick={() => setTab("profile")}
-          className="bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+          className={`px-2 py-1 rounded ${
+            tab === "profile"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-300 dark:bg-gray-700"
+          }`}
         >
           Profile
         </button>
         <button
           type="button"
           onClick={() => setTab("credits")}
-          className="bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+          className={`px-2 py-1 rounded ${
+            tab === "credits"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-300 dark:bg-gray-700"
+          }`}
         >
           Credits
         </button>
