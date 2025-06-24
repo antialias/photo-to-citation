@@ -51,6 +51,7 @@ export const violationReportSchema = z.object({
     z.object({
       representationScore: z.number(),
       highlights: z.string().optional(),
+      context: z.string().optional(),
       violation: z.boolean().optional(),
       paperwork: z.boolean().optional(),
       paperworkText: z.string().optional(),
