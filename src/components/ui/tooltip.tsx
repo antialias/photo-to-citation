@@ -4,6 +4,7 @@ import {
   type Placement,
   flip,
   offset,
+  safePolygon,
   shift,
   useDismiss,
   useFloating,
@@ -41,6 +42,8 @@ export default function Tooltip({
   const hover = useHover(context, {
     enabled: controlledOpen === undefined,
     move: false,
+    handleClose: safePolygon(),
+    delay: { open: 100, close: 100 },
   });
   const focus = useFocus(context, { enabled: controlledOpen === undefined });
   const dismiss = useDismiss(context);
