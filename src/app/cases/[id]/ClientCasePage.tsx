@@ -3,23 +3,17 @@
 import { apiEventSource, apiFetch } from "@/apiClient";
 import CaseChat from "@/app/cases/[id]/CaseChat";
 import useDragReset from "@/app/cases/useDragReset";
-import AddImageMenu from "@/app/components/AddImageMenu";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
 import CaseJobList from "@/app/components/CaseJobList";
 import CaseLayout from "@/app/components/CaseLayout";
 import CaseProgressGraph from "@/app/components/CaseProgressGraph";
-import CaseToolbar from "@/app/components/CaseToolbar";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import EditableText from "@/app/components/EditableText";
-import ImageHighlights from "@/app/components/ImageHighlights";
 import MapPreview from "@/app/components/MapPreview";
 import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
-import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
-import { signIn, useSession } from "@/app/useSession";
+import { useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
-import ThumbnailImage from "@/components/thumbnail-image";
-import { Progress } from "@/components/ui/progress";
-import type { Case, SentEmail } from "@/lib/caseStore";
+import type { Case } from "@/lib/caseStore";
 import {
   getCaseOwnerContact,
   getCasePlateNumber,
@@ -29,38 +23,14 @@ import {
   getRepresentativePhoto,
   hasViolation,
 } from "@/lib/caseUtils";
-import { getThumbnailUrl } from "@/lib/clientThumbnails";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { FaShare } from "react-icons/fa";
 import { useNotify } from "../../components/NotificationProvider";
-
-function buildThreads(c: Case): SentEmail[] {
-  const mails = c.sentEmails ?? [];
-  const threads = new Map<string, SentEmail>();
-  for (const mail of mails) {
-    let root = mail;
-    while (root.replyTo) {
-      const parent = mails.find((m) => m.sentAt === root.replyTo);
-      if (!parent) break;
-      root = parent;
-    }
-    const current = threads.get(root.sentAt);
-    if (!current || new Date(mail.sentAt) > new Date(current.sentAt)) {
-      threads.set(root.sentAt, mail);
-    }
-  }
-  return Array.from(threads.values()).sort(
-    (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
-  );
-}
-
-function baseName(filePath: string): string {
-  const parts = filePath.split(/[\\/]/);
-  return parts[parts.length - 1];
-}
+import CaseExtraInfo from "./components/CaseExtraInfo";
+import CaseHeader from "./components/CaseHeader";
+import ClaimBanner from "./components/ClaimBanner";
+import PhotoGallery from "./components/PhotoGallery";
+import PhotoViewer from "./components/PhotoViewer";
 
 export default function ClientCasePage({
   initialCase,
@@ -115,8 +85,6 @@ export default function ClientCasePage({
   const [dragging, setDragging] = useState(false);
   const [hideClaimBanner, setHideClaimBanner] = useState(false);
   const [chatExpanded, setChatExpanded] = useState(false);
-  const photoMenuRef = useRef<HTMLDetailsElement>(null);
-  useCloseOnOutsideClick(photoMenuRef);
   const notify = useNotify();
   const showClaimBanner = Boolean(
     caseData?.sessionId && !session?.user && !hideClaimBanner,
@@ -611,22 +579,6 @@ export default function ClientCasePage({
     </div>
   );
 
-  const analysisImages = caseData.analysis?.images ?? {};
-  const evidencePhotos = caseData.photos.filter(
-    (p) => !analysisImages[baseName(p)]?.paperwork,
-  );
-  const paperworkPhotos = caseData.photos.filter(
-    (p) => analysisImages[baseName(p)]?.paperwork,
-  );
-  const paperworkScans = (caseData.threadImages ?? []).map((img) => ({
-    url: img.url,
-    time: img.uploadedAt,
-  }));
-  const allPaperwork = [
-    ...paperworkPhotos.map((p) => ({ url: p, time: caseData.photoTimes[p] })),
-    ...paperworkScans,
-  ];
-
   return (
     <div
       className={`relative h-full ${chatExpanded ? "md:grid md:grid-cols-2 gap-4 overflow-hidden" : ""}`}
@@ -658,34 +610,11 @@ export default function ClientCasePage({
             }
       }
     >
-      {showClaimBanner ? (
-        <div
-          className={`bg-yellow-100 border border-yellow-300 text-yellow-800 p-2 flex items-center justify-between ${chatExpanded ? "md:col-span-2" : ""}`}
-        >
-          <span>
-            Sign in to claim this case or it will be lost when the session ends.
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() =>
-                signIn(undefined, { callbackUrl: withBasePath("/claim") })
-              }
-              className="underline"
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => setHideClaimBanner(true)}
-              aria-label="Dismiss"
-              className="text-xl leading-none"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <ClaimBanner
+        show={showClaimBanner}
+        onDismiss={() => setHideClaimBanner(true)}
+        className={chatExpanded ? "md:col-span-2" : undefined}
+      />
       <div
         className={
           chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
@@ -693,40 +622,18 @@ export default function ClientCasePage({
       >
         <CaseLayout
           header={
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/cases"
-                  className="text-blue-500 underline md:hidden"
-                >
-                  Back to Cases
-                </Link>
-                <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
-                {caseData.public ? (
-                  <button
-                    type="button"
-                    onClick={copyPublicUrl}
-                    aria-label="Copy public link"
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FaShare />
-                  </button>
-                ) : null}
-                {copied ? (
-                  <span className="text-sm text-green-600">Copied!</span>
-                ) : null}
-              </div>
-              <CaseToolbar
-                caseId={caseId}
-                disabled={!violationIdentified}
-                hasOwner={Boolean(ownerContact)}
-                progress={isPhotoReanalysis ? null : progress}
-                canDelete={isAdmin}
-                closed={caseData.closed}
-                archived={caseData.archived}
-                readOnly={readOnly}
-              />
-            </div>
+            <CaseHeader
+              caseId={caseId}
+              caseData={caseData}
+              ownerContact={ownerContact}
+              isAdmin={isAdmin}
+              readOnly={readOnly}
+              violationIdentified={violationIdentified}
+              progress={progress}
+              isPhotoReanalysis={isPhotoReanalysis}
+              copyPublicUrl={copyPublicUrl}
+              copied={copied}
+            />
           }
           left={<CaseProgressGraph caseData={caseData} />}
           right={
@@ -861,263 +768,47 @@ export default function ClientCasePage({
                 </div>
               </DebugWrapper>
 
-              {/* NEW: background-job list for this case */}
               <CaseJobList caseId={caseId} isPublic={caseData.public} />
-
               {selectedPhoto ? (
-                <>
-                  <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-                    <Image
-                      src={selectedPhoto}
-                      alt="uploaded"
-                      fill
-                      className="object-contain"
-                    />
-                    {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
-                      <div className="absolute top-0 left-0 right-0">
-                        <Progress
-                          value={requestValue}
-                          indeterminate={requestValue === undefined}
-                        />
-                      </div>
-                    ) : null}
-                    {readOnly ? null : (
-                      <details
-                        ref={photoMenuRef}
-                        className="absolute top-1 right-1 text-white"
-                        onToggle={() => {
-                          if (photoMenuRef.current?.open) {
-                            photoMenuRef.current
-                              .querySelector<HTMLElement>("button, a")
-                              ?.focus();
-                          }
-                        }}
-                      >
-                        <summary
-                          className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-                          aria-label="Photo actions menu"
-                        >
-                          ⋮
-                        </summary>
-                        <div
-                          className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-                          role="menu"
-                        >
-                          <button
-                            type="button"
-                            onClick={(e) =>
-                              reanalyzePhoto(
-                                selectedPhoto,
-                                e.currentTarget.closest("details"),
-                              )
-                            }
-                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                            disabled={
-                              caseData.analysisStatus === "pending" &&
-                              analysisActive
-                            }
-                          >
-                            Reanalyze Photo
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removePhoto(selectedPhoto)}
-                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                          >
-                            Delete Image
-                          </button>
-                        </div>
-                      </details>
-                    )}
-                    {caseData.analysis ? (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
-                        <ImageHighlights
-                          analysis={caseData.analysis}
-                          photo={selectedPhoto}
-                        />
-                        {progress ? <p>{progressDescription}</p> : null}
-                      </div>
-                    ) : (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
-                        {progressDescription}
-                      </div>
-                    )}
-                  </div>
-                  {(() => {
-                    const t = caseData.photoTimes[selectedPhoto];
-                    return t ? (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Taken {new Date(t).toLocaleString()}
-                      </p>
-                    ) : null;
-                  })()}
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Note:</span>{" "}
-                    {readOnly ? (
-                      <span>{photoNote || ""}</span>
-                    ) : (
-                      <EditableText
-                        value={photoNote}
-                        onSubmit={updatePhotoNoteFn}
-                        onClear={
-                          photoNote ? () => updatePhotoNoteFn("") : undefined
-                        }
-                        placeholder="Add note"
-                      />
-                    )}
-                  </p>
-                </>
+                <PhotoViewer
+                  caseData={caseData}
+                  selectedPhoto={selectedPhoto}
+                  progress={progress}
+                  progressDescription={progressDescription}
+                  requestValue={requestValue}
+                  isPhotoReanalysis={isPhotoReanalysis}
+                  reanalyzingPhoto={reanalyzingPhoto}
+                  analysisActive={analysisActive}
+                  readOnly={readOnly}
+                  photoNote={photoNote}
+                  updatePhotoNote={updatePhotoNoteFn}
+                  removePhoto={removePhoto}
+                  reanalyzePhoto={reanalyzePhoto}
+                />
               ) : null}
-              <div className="flex gap-2 flex-wrap">
-                {evidencePhotos.map((p) => {
-                  const info = {
-                    url: p,
-                    takenAt: caseData.photoTimes[p] ?? null,
-                    gps: caseData.photoGps?.[p] ?? null,
-                    analysis: analysisImages[baseName(p)] ?? null,
-                  };
-                  return (
-                    <DebugWrapper key={p} data={info}>
-                      <div className="relative group">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedPhoto(p)}
-                          className={
-                            selectedPhoto === p
-                              ? "ring-2 ring-blue-500"
-                              : "ring-1 ring-transparent"
-                          }
-                        >
-                          <div className="relative w-20 aspect-[4/3]">
-                            <ThumbnailImage
-                              src={getThumbnailUrl(p, 128)}
-                              alt="case photo"
-                              width={80}
-                              height={60}
-                              imgClassName="object-contain"
-                            />
-                            {isPhotoReanalysis && reanalyzingPhoto === p ? (
-                              <div className="absolute top-0 left-0 right-0">
-                                <Progress
-                                  value={requestValue}
-                                  indeterminate={requestValue === undefined}
-                                />
-                              </div>
-                            ) : null}
-                          </div>
-                          {(() => {
-                            const t = caseData.photoTimes[p];
-                            return t ? (
-                              <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                                {new Date(t).toLocaleDateString()}
-                              </span>
-                            ) : null;
-                          })()}
-                        </button>
-                        {readOnly ? null : (
-                          <button
-                            type="button"
-                            onClick={() => removePhoto(p)}
-                            className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            ×
-                          </button>
-                        )}
-                      </div>
-                    </DebugWrapper>
-                  );
-                })}
-                {readOnly ? null : (
-                  <AddImageMenu
-                    caseId={caseId}
-                    hasCamera={hasCamera}
-                    fileInputRef={fileInputRef}
-                    onChange={handleUpload}
-                  />
-                )}
-              </div>
+              <PhotoGallery
+                caseId={caseId}
+                caseData={caseData}
+                selectedPhoto={selectedPhoto}
+                setSelectedPhoto={setSelectedPhoto}
+                handleUpload={handleUpload}
+                fileInputRef={fileInputRef}
+                hasCamera={hasCamera}
+                removePhoto={removePhoto}
+                readOnly={readOnly}
+                isPhotoReanalysis={isPhotoReanalysis}
+                reanalyzingPhoto={reanalyzingPhoto}
+                requestValue={requestValue}
+              />
             </>
           }
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-                <h2 className="font-semibold">Email Log</h2>
-                <ul className="flex flex-col gap-2 text-sm">
-                  {buildThreads(caseData).map((mail) => (
-                    <li
-                      key={mail.sentAt}
-                      id={`email-${mail.sentAt}`}
-                      className="flex flex-col gap-1"
-                    >
-                      <span>
-                        {new Date(mail.sentAt).toLocaleString()} -{" "}
-                        {mail.subject}
-                      </span>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        To: {mail.to}
-                      </span>
-                      <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
-                        {mail.body}
-                      </span>
-                      <a
-                        href={`/cases/${caseId}/thread/${encodeURIComponent(
-                          mail.sentAt,
-                        )}`}
-                        className="self-start text-blue-500 underline"
-                      >
-                        View Thread
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {allPaperwork.length > 0 ? (
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-                <h2 className="font-semibold">Paperwork</h2>
-                <div className="flex gap-2 flex-wrap">
-                  {allPaperwork.map(({ url, time }) => {
-                    const info = {
-                      url,
-                      time,
-                      analysis: analysisImages[baseName(url)] ?? null,
-                    };
-                    return (
-                      <DebugWrapper key={url} data={info}>
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedPhoto(url)}
-                            className={
-                              selectedPhoto === url
-                                ? "ring-2 ring-blue-500"
-                                : "ring-1 ring-transparent"
-                            }
-                          >
-                            <div className="relative w-20 aspect-[4/3]">
-                              <ThumbnailImage
-                                src={getThumbnailUrl(url, 128)}
-                                alt="paperwork"
-                                width={80}
-                                height={60}
-                                imgClassName="object-contain"
-                              />
-                            </div>
-                            {time ? (
-                              <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs rounded px-1">
-                                {new Date(time).toLocaleDateString()}
-                              </span>
-                            ) : null}
-                          </button>
-                        </div>
-                      </DebugWrapper>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : null}
-          </div>
+          <CaseExtraInfo
+            caseId={caseId}
+            caseData={caseData}
+            selectedPhoto={selectedPhoto}
+            setSelectedPhoto={setSelectedPhoto}
+          />
         </CaseLayout>
       </div>
       {readOnly || !dragging ? null : (
