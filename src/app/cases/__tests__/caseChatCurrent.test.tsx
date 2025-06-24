@@ -14,7 +14,12 @@ vi.stubGlobal(
 describe("CaseChat current session", () => {
   it("shows current chat option and updates summary", async () => {
     const { getByText, getByLabelText, getByPlaceholderText, findByText } =
-      render(<CaseChat caseId="1" onChat={async () => "ok"} />);
+      render(
+        <CaseChat
+          caseId="1"
+          onChat={async () => ({ response: "ok", actions: [], noop: false })}
+        />,
+      );
     fireEvent.click(getByText("Chat"));
     const select = getByLabelText("Chat history") as HTMLSelectElement;
     expect(select.options.length).toBe(2);
