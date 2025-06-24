@@ -1,6 +1,7 @@
 import docsmitProvider from "./docsmitProvider";
 import fileProvider from "./fileSnailMailProvider";
 import { runJob } from "./jobScheduler";
+import { log } from "./logger";
 import "./zod-setup";
 
 export interface MailingAddress {
@@ -50,7 +51,7 @@ export const snailMailProviders: Record<string, SnailMailProvider> = {
     label: "Mock Snail Mail Provider",
     docs: "A no-op provider used during development.",
     async send(opts) {
-      console.log("mock snail mail", opts);
+      log("mock snail mail", opts);
       return {
         id: `mock-${Date.now()}`,
         status: "queued",

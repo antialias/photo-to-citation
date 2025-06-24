@@ -5,6 +5,7 @@ import { authOptions } from "./authOptions";
 import { isCaseMember } from "./caseMembers";
 import { getCase } from "./caseStore";
 import { migrationsReady } from "./db";
+import { log } from "./logger";
 import { orm } from "./orm";
 import { casbinRules } from "./schema";
 
@@ -13,7 +14,7 @@ let enforcer: Enforcer | undefined;
 async function loadEnforcer(): Promise<Enforcer> {
   if (enforcer) return enforcer;
   await migrationsReady;
-  console.log("loading casbin enforcer");
+  log("loading casbin enforcer");
   const model = newModelFromString(`
   [request_definition]
   r = sub, obj, act, caseId, userId
@@ -55,7 +56,7 @@ export async function authorize(
   act: string,
   ctx?: { caseId?: string; userId?: string },
 ): Promise<boolean> {
-  console.log("authorize", sub, obj, act, ctx);
+  log("authorize", sub, obj, act, ctx);
   const e = await loadEnforcer();
   return e.enforce(sub, obj, act, ctx?.caseId ?? "", ctx?.userId ?? "");
 }
@@ -110,7 +111,7 @@ export function withAuthorization<
     const { session, role } = await loadAuthContext(ctx);
     const { obj } = opts;
     const act = opts.act ?? methodToAct[req.method as keyof typeof methodToAct];
-    console.log("withAuthorization", role, obj, act);
+    log("withAuthorization", role, obj, act);
     if (!(await authorize(role, obj, act))) {
       return new Response(null, { status: 403 });
     }
@@ -146,7 +147,7 @@ export function withCaseAuthorization<
       caseData.sessionId === anonSessionId;
     const { obj } = opts;
     const act = opts.act ?? methodToAct[req.method as keyof typeof methodToAct];
-    console.log("withCaseAuthorization", role, obj, act, id, userId);
+    log("withCaseAuthorization", role, obj, act, id, userId);
     const authRole = sessionMatch ? "user" : role;
     const authCtx = sessionMatch ? undefined : { caseId: id, userId };
     if (!(await authorize(authRole, obj, act, authCtx))) {

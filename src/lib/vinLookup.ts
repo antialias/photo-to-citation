@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom";
 import type { Case } from "./caseStore";
 import { updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
+import { log } from "./logger";
 import {
   type VinSource,
   defaultVinSources,
@@ -44,10 +45,10 @@ export async function lookupVin(
         const body = src.buildBody(plate, state);
         init.body = typeof body === "string" ? body : JSON.stringify(body);
       }
-      console.log("VIN lookup request", { url, options: init });
+      log("VIN lookup request", { url, options: init });
       const res = await fetch(url, init);
       const text = await res.text();
-      console.log("VIN lookup response", { status: res.status, body: text });
+      log("VIN lookup response", { status: res.status, body: text });
       if (!res.ok) {
         recordVinSourceFailure(src.id);
         continue;
@@ -75,10 +76,10 @@ export async function fetchCaseVin(caseData: Case): Promise<void> {
   try {
     const vin = await lookupVin(plate, state);
     if (vin) {
-      console.log("VIN fetch successful", vin);
+      log("VIN fetch successful", vin);
       updateCase(caseData.id, { vin });
     } else {
-      console.log("VIN fetch unsuccessful");
+      log("VIN fetch unsuccessful");
     }
   } catch (err) {
     console.error("Failed to fetch VIN", err);
