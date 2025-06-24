@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import CaseChat from "./CaseChat";
-import { useState } from "react";
 import OpenAI from "openai";
+import { useState } from "react";
+import CaseChat from "./CaseChat";
 
 const meta: Meta<typeof CaseChat> = {
   component: CaseChat,
@@ -16,7 +16,9 @@ export const WithLiveLlm: Story = {
     const [apiKey, setApiKey] = useState("");
     const [baseUrl, setBaseUrl] = useState("");
 
-    async function onChat(messages: Array<{ role: "user" | "assistant"; content: string }>) {
+    async function onChat(
+      messages: Array<{ role: "user" | "assistant"; content: string }>,
+    ) {
       if (!apiKey) return "";
       const client = new OpenAI({
         apiKey,

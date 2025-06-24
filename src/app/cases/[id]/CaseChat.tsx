@@ -1,5 +1,6 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import { caseActions } from "@/lib/caseActions";
 import { useEffect, useRef, useState } from "react";
 
 interface Message {
@@ -20,6 +21,28 @@ export default function CaseChat({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  function renderContent(text: string) {
+    const parts = text.split(/(\[action:[^\]]+\])/g);
+    return parts.map((p, idx) => {
+      const match = p.match(/^\[action:([^\]]+)\]$/);
+      if (match) {
+        const act = caseActions.find((a) => a.id === match[1]);
+        if (act) {
+          return (
+            <a
+              key={`${act.id}-${idx}`}
+              href={act.href(caseId)}
+              className="underline text-blue-500 mx-1"
+            >
+              {act.label}
+            </a>
+          );
+        }
+      }
+      return <span key={`text-${idx}-${p}`}>{p}</span>;
+    });
+  }
 
   async function send() {
     const text = input.trim();
@@ -86,7 +109,7 @@ export default function CaseChat({
                 className={m.role === "user" ? "text-right" : "text-left"}
               >
                 <span className="inline-block px-2 py-1 rounded bg-gray-200 dark:bg-gray-700">
-                  {m.content}
+                  {renderContent(m.content)}
                 </span>
               </div>
             ))}
@@ -115,24 +138,15 @@ export default function CaseChat({
             </button>
           </div>
           <div className="border-t p-2 flex gap-2 justify-end">
-            <a
-              href={`/cases/${caseId}/compose`}
-              className="underline text-blue-500"
-            >
-              Draft Report
-            </a>
-            <a
-              href={`/cases/${caseId}/followup`}
-              className="underline text-blue-500"
-            >
-              Follow Up
-            </a>
-            <a
-              href={`/cases/${caseId}/notify-owner`}
-              className="underline text-blue-500"
-            >
-              Notify Owner
-            </a>
+            {caseActions.map((a) => (
+              <a
+                key={a.id}
+                href={a.href(caseId)}
+                className="underline text-blue-500"
+              >
+                {a.label}
+              </a>
+            ))}
           </div>
         </div>
       ) : (
