@@ -29,7 +29,25 @@ export const POST = withCaseAuthorization(
     const actionList = caseActions
       .map((a) => `- ${a.label} [${a.id}]: ${a.description}`)
       .join("\\n");
-    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}. ${contextLines ? `\nImage contexts:\n${contextLines}` : ""}. When there is no user question yet, decide if you should proactively suggest a next action or useful observation. If you have nothing helpful, reply with [noop]. \nTo include an action button, insert a token like [action:compose] in your reply. Write the token exactly with no spaces or label text inside.\nFor example: \nYou may want to notify the vehicle owner. [action:notify-owner]\nThe UI will replace the token with a button. Available actions:\n${actionList}`;
+    const system = [
+      "You are a helpful legal assistant for the Photo To Citation app.",
+      "The user is asking about a case with these details:",
+      `Violation: ${analysis?.violationType || ""}`,
+      `Description: ${analysis?.details || ""}`,
+      `Location: ${location}`,
+      `License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}`,
+      `Number of photos: ${c.photos.length}.`,
+      contextLines ? `Image contexts:\n${contextLines}` : "",
+      "When there is no user question yet, decide if you should proactively suggest a next action or useful observation.",
+      "If you have nothing helpful, reply with [noop].",
+      "To include an action button, insert a token like [action:compose] in your reply.",
+      "Write the token exactly with no spaces or label text inside.",
+      "For example:",
+      "You may want to notify the vehicle owner. [action:notify-owner]",
+      "The UI will replace the token with a button.",
+      "You can also suggest edits with [edit:FIELD=VALUE] tokens (fields: vin, plate, state, note).",
+      `Available actions:\n${actionList}`
+    ].filter(Boolean).join("\n");
 
     const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: system },
