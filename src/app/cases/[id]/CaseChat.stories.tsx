@@ -128,3 +128,27 @@ export const MixedActions: Story = {
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
 };
+
+export const ResponseOnly: Story = {
+  render: () => {
+    usePhotoStub();
+    const reply: CaseChatReply = {
+      response: "Just a regular response",
+      actions: [],
+      noop: false,
+    };
+    return <CaseChat caseId="1" onChat={async () => reply} />;
+  },
+};
+
+export const Noop: Story = {
+  render: () => {
+    usePhotoStub();
+    const reply: CaseChatReply = {
+      response: "",
+      actions: [],
+      noop: true,
+    };
+    return <CaseChat caseId="1" onChat={async () => reply} />;
+  },
+};

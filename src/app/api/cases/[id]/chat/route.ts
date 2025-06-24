@@ -53,7 +53,7 @@ export const POST = withCaseAuthorization(
       : "";
     const available = caseActions.filter((a) => !actionCompleted(c, a.id));
     const actionList = available
-      .map((a) => `- ${a.label}: ${a.description}`)
+      .map((a) => `- ${a.label} (id: ${a.id}) - ${a.description}`)
       .join("\\n");
     const schemaDesc =
       "{ response: string, actions: [{ id?: string, field?: string, value?: string, photo?: string, note?: string }], noop: boolean }";
