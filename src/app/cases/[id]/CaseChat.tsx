@@ -9,6 +9,13 @@ interface Message {
   content: string;
 }
 
+interface ChatSession {
+  id: string;
+  createdAt: string;
+  summary: string;
+  messages: Message[];
+}
+
 export default function CaseChat({
   caseId,
   onChat,
@@ -18,10 +25,60 @@ export default function CaseChat({
 }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [history, setHistory] = useState<ChatSession[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const storageKey = `case-chat-${caseId}`;
+
+  function loadHistory() {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return [];
+      return JSON.parse(raw) as ChatSession[];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveHistory(list: ChatSession[]) {
+    localStorage.setItem(storageKey, JSON.stringify(list));
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: storageKey is stable
+  useEffect(() => {
+    setHistory(loadHistory());
+  }, [storageKey]);
+
+  function startNew() {
+    setMessages([]);
+    setSessionId(crypto.randomUUID());
+  }
+
+  function handleOpen() {
+    startNew();
+    setOpen(true);
+  }
+
+  function handleClose() {
+    setOpen(false);
+    if (messages.length > 0 && sessionId) {
+      const firstUser = messages.find((m) => m.role === "user");
+      const summary = firstUser ? firstUser.content.slice(0, 30) : "";
+      const session: ChatSession = {
+        id: sessionId,
+        createdAt: new Date().toISOString(),
+        summary,
+        messages,
+      };
+      const list = [...history, session];
+      setHistory(list);
+      saveHistory(list);
+    }
+  }
 
   async function send() {
     const text = input.trim();
@@ -74,11 +131,35 @@ export default function CaseChat({
     <div className="fixed bottom-4 right-4 z-40 text-sm">
       {open ? (
         <div className="bg-white dark:bg-gray-900 shadow-lg rounded w-80 h-96 flex flex-col">
-          <div className="flex justify-between items-center border-b p-2">
-            <span className="font-semibold">Case Chat</span>
+          <div className="flex justify-between items-center border-b p-2 gap-2">
+            <span className="font-semibold flex-1">Case Chat</span>
+            <select
+              aria-label="Chat history"
+              value={sessionId ?? "new"}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "new") {
+                  startNew();
+                } else {
+                  const found = history.find((h) => h.id === val);
+                  if (found) {
+                    setMessages(found.messages);
+                    setSessionId(found.id);
+                  }
+                }
+              }}
+              className="text-black dark:text-black text-xs"
+            >
+              <option value="new">New Chat</option>
+              {history.map((h) => (
+                <option key={h.id} value={h.id}>
+                  {new Date(h.createdAt).toLocaleString()} - {h.summary}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={handleClose}
               aria-label="Close chat"
               className="text-xl leading-none"
             >
@@ -149,7 +230,7 @@ export default function CaseChat({
       ) : (
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={handleOpen}
           className="bg-blue-600 text-white px-3 py-1 rounded shadow"
         >
           Chat
