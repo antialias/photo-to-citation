@@ -1,3 +1,4 @@
+import { caseChatReplySchema } from "@/generated/zod/caseChat";
 import { withCaseAuthorization } from "@/lib/authz";
 import { caseActions } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
@@ -51,8 +52,10 @@ export const POST = withCaseAuthorization(
       : "";
     const available = caseActions.filter((a) => !actionCompleted(c, a.id));
     const actionList = available
-      .map((a) => `- ${a.label} [action:${a.id}]: ${a.description}`)
+      .map((a) => `- ${a.label}: ${a.description}`)
       .join("\\n");
+    const schemaDesc =
+      "{ response: string, actions: [{ id?: string, field?: string, value?: string, photo?: string, note?: string }] }";
     const system = [
       "You are a helpful legal assistant for the Photo To Citation app.",
       "The user is asking about a case with these details:",
@@ -63,14 +66,8 @@ export const POST = withCaseAuthorization(
       `Number of photos: ${c.photos.length}.`,
       contextLines ? `Image contexts:\n${contextLines}` : "",
       "When there is no user question yet, decide if you should proactively suggest a next action or useful observation.",
-      "If you have nothing helpful, reply with [noop].",
-      "To include an action button, insert a token like [action:compose] in your reply.",
-      "Write the token exactly with no spaces or label text inside.",
-      "For example:",
-      "You may want to notify the vehicle owner. [action:notify-owner]",
-      "The UI will replace the token with a button.",
-      "You can also suggest edits with [edit:FIELD=VALUE] tokens (fields: vin, plate, state, note).",
-      "Add image notes with [photo-note:FILENAME=NOTE] where FILENAME is one of the photo filenames.",
+      "If you have nothing helpful, set response to [noop].",
+      `Reply in JSON matching this schema: ${schemaDesc}`,
       available.length > 0 ? `Available actions:\n${actionList}` : "",
     ]
       .filter(Boolean)
@@ -86,8 +83,10 @@ export const POST = withCaseAuthorization(
       model,
       messages,
       max_tokens: 800,
+      response_format: { type: "json_object" },
     });
-    const reply = res.choices[0]?.message?.content ?? "";
+    const raw = res.choices[0]?.message?.content ?? "{}";
+    const reply = caseChatReplySchema.parse(JSON.parse(raw));
     return NextResponse.json({ reply });
   },
 );

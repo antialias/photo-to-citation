@@ -1,47 +1,21 @@
-# Case Chat Action Buttons
+# Case Chat Actions
 
-Case Chat now supports inline buttons suggested by the LLM. The assistant can include
-special tokens in its reply to render a button for any available case action.
-
-Use the token **`[action:ACTION_ID]`** anywhere in a message to display a button.
-Write the token exactly as shown—no spaces or extra text inside the brackets.
-The chat UI replaces that token with a button labeled according to the
-`caseActions` definition, then opens the corresponding page or modal when the
-button is clicked.
+Case Chat replies are JSON objects with a `response` string and an `actions` array. Each action may reference a case action, suggest an edit, or add a photo note.
 
 Example:
+```json
+{
+  "response": "You may want to notify the vehicle owner.",
+  "actions": [
+    { "id": "notify-owner" },
+    { "field": "plate", "value": "ABC123" },
+    { "photo": "a.jpg", "note": "Clear view" }
+  ]
+}
 ```
-You may want to notify the vehicle owner. [action:notify-owner]
-```
-This produces a **Notify Owner** button in the chat.
 
-Available actions:
+The chat UI renders the `response` as text and creates a button for each entry in `actions`:
 
-- `[action:compose]` — **Draft Report**: open a form to compose an email report
-  to the appropriate authority.
-- `[action:followup]` — **Follow Up**: send another email in an existing thread
-  to ask about citation status.
-- `[action:notify-owner]` — **Notify Owner**: create an anonymous email warning
-  the vehicle owner about their violation.
-- `[action:ownership]` — **Request Ownership Info**: record the request for
-  official ownership details from the state.
-
-This list is populated from the `caseActions` export, so new actions become
-available to the chat UI automatically.
-
-## Case Edits
-
-In addition to standard actions, the assistant can suggest edits to the current case. Use the
-syntax **`[edit:FIELD=VALUE]`** to render a button that applies the update when clicked.
-Supported fields:
-
-- `vin` — set the vehicle's VIN.
-- `plate` — set the license plate number.
-- `state` — set the license plate state.
-- `note` — append text to the case note.
-
-Example:
-```
-The plate appears to be ABC123. [edit:plate=ABC123]
-```
-This creates a button labeled **Set Plate to "ABC123"**. Clicking it updates the case.
+- `id` &mdash; opens the corresponding page from `caseActions`.
+- `field` and `value` &mdash; apply an edit to the case.
+- `photo` and `note` &mdash; append a note to a photo.

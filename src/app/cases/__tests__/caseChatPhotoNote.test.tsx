@@ -18,7 +18,13 @@ describe("CaseChat photo note action", () => {
       vi.fn(async () => ({ ok: true, json: async () => caseData })),
     );
     const { getByText, getByPlaceholderText, findByText } = render(
-      <CaseChat caseId="1" onChat={async () => "[photo-note:a.jpg=test]"} />,
+      <CaseChat
+        caseId="1"
+        onChat={async () => ({
+          response: "here",
+          actions: [{ photo: "a.jpg", note: "test" }],
+        })}
+      />,
     );
     fireEvent.click(getByText("Chat"));
     const input = getByPlaceholderText("Ask a question...");
