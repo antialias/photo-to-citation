@@ -380,7 +380,21 @@ export function setCaseAnalysisOverrides(
 ): Case | undefined {
   const before = getCaseRow(id);
   if (!before) return undefined;
-  const updated = { ...before, analysisOverrides: overrides };
+  let merged: Partial<ViolationReport> | null;
+  if (overrides === null) {
+    merged = null;
+  } else {
+    const prev = before.analysisOverrides ?? {};
+    merged = {
+      ...prev,
+      ...overrides,
+      vehicle: {
+        ...(prev.vehicle ?? {}),
+        ...(overrides.vehicle ?? {}),
+      },
+    };
+  }
+  const updated = { ...before, analysisOverrides: merged };
   saveCase(updated);
   const after = applyOverrides(updated);
   if (after) {
