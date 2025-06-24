@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
 import { useNotify } from "../../components/NotificationProvider";
 import styles from "./CaseChat.module.css";
+import TakePhotoWidget from "./camera/TakePhotoWidget";
 import DraftPreview from "./draft/DraftPreview";
 
 interface Message {
@@ -63,6 +64,7 @@ export default function CaseChat({
     module: ReportModule;
   } | null>(null);
   const [draftLoading, setDraftLoading] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const notify = useNotify();
 
   const storageKey = `case-chat-${caseId}`;
@@ -133,6 +135,10 @@ export default function CaseChat({
     setDraftLoading(false);
   }
 
+  function openCamera() {
+    setCameraOpen(true);
+  }
+
   async function seed() {
     setLoading(true);
     abortRef.current?.abort();
@@ -192,6 +198,7 @@ export default function CaseChat({
     setOpen(false);
     setDraftData(null);
     setDraftLoading(false);
+    setCameraOpen(false);
     if (controlledExpanded === undefined) {
       setExpandedState(false);
     } else {
@@ -301,6 +308,8 @@ export default function CaseChat({
               onClick={() => {
                 if (act.id === "compose") {
                   void openDraft();
+                } else if (act.id === "take-photo") {
+                  openCamera();
                 } else {
                   router.push(act.href(caseId));
                 }
@@ -548,6 +557,14 @@ export default function CaseChat({
                   caseId={caseId}
                   data={draftData}
                   onClose={() => setDraftData(null)}
+                />
+              </div>
+            )}
+            {cameraOpen && (
+              <div className="text-left" key="camera-widget">
+                <TakePhotoWidget
+                  caseId={caseId}
+                  onClose={() => setCameraOpen(false)}
                 />
               </div>
             )}
