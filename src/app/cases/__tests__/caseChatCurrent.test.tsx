@@ -1,6 +1,10 @@
 import CaseChat from "@/app/cases/[id]/CaseChat";
 import { fireEvent, render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
 
 describe("CaseChat current session", () => {
   it("shows current chat option and updates summary", async () => {
