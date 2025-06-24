@@ -34,4 +34,18 @@ export const caseActions: CaseAction[] = [
     description:
       "Record the steps for requesting official ownership details from the state. Use if the license plate is known but contact info is missing.",
   },
+  {
+    id: "upload-photo",
+    label: "Upload Case Photo",
+    href: (id) => `/cases/${id}/upload`,
+    description:
+      "Select one or more images from the device and attach them to the case.",
+  },
+  {
+    id: "take-photo",
+    label: "Take Photo",
+    href: (id) => `/point?case=${id}`,
+    description:
+      "Open the camera interface to capture a new photo for this case.",
+  },
 ];
