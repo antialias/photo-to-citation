@@ -45,3 +45,17 @@ Example:
 The plate appears to be ABC123. [edit:plate=ABC123]
 ```
 This creates a button labeled **Set Plate to "ABC123"**. Clicking it updates the case.
+
+## Photo Notes
+
+You can also attach a note to a specific image. Use the token
+**`[photo-note:FILENAME=NOTE]`**, where `FILENAME` is the base name of the photo
+file (for example `IMG_0001.jpg`). The chat UI shows a button with a small
+thumbnail of the image and the note text. Clicking the button saves the note on
+that photo.
+
+Example:
+
+```
+The sign is hard to read in photo IMG_0001.jpg. [photo-note:IMG_0001.jpg=blurry sign]
+```

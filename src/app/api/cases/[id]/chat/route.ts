@@ -1,3 +1,4 @@
+import path from "node:path";
 import { withCaseAuthorization } from "@/lib/authz";
 import { caseActions } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
@@ -53,6 +54,7 @@ export const POST = withCaseAuthorization(
     const actionList = available
       .map((a) => `- ${a.label} [action:${a.id}]: ${a.description}`)
       .join("\\n");
+    const photoList = c.photos.map((p) => path.basename(p)).join(", ");
     const system = [
       "You are a helpful legal assistant for the Photo To Citation app.",
       "The user is asking about a case with these details:",
@@ -70,6 +72,8 @@ export const POST = withCaseAuthorization(
       "You may want to notify the vehicle owner. [action:notify-owner]",
       "The UI will replace the token with a button.",
       "You can also suggest edits with [edit:FIELD=VALUE] tokens (fields: vin, plate, state, note).",
+      "Add a note to a specific image with [photo-note:FILENAME=NOTE]. Use one of these filenames:",
+      photoList,
       available.length > 0 ? `Available actions:\n${actionList}` : "",
     ]
       .filter(Boolean)
