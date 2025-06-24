@@ -67,7 +67,7 @@ export const POST = withCaseAuthorization(
       `Number of photos: ${c.photos.length}.`,
       contextLines ? `Image contexts:\n${contextLines}` : "",
       "When there is no user question yet, decide if you should proactively suggest a next action or useful observation.",
-      "If you have nothing helpful, set response to [noop].",
+      "If you have nothing helpful, set noop to true.",
       `Reply in JSON matching this schema: ${schemaDesc}`,
       available.length > 0 ? `Available actions:\n${actionList}` : "",
     ]
