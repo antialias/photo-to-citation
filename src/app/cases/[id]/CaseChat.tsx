@@ -7,8 +7,8 @@ import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useNotify } from "../../components/NotificationProvider";
 import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
+import { useNotify } from "../../components/NotificationProvider";
 import styles from "./CaseChat.module.css";
 import DraftPreview from "./draft/DraftPreview";
 
@@ -405,12 +405,12 @@ export default function CaseChat({
     await request(list);
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when messages change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when content changes
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, draftData, draftLoading]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
