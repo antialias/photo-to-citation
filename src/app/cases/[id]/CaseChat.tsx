@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
+import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +12,7 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  actions?: CaseChatAction[];
 }
 
 interface ChatSession {
@@ -25,7 +27,7 @@ export default function CaseChat({
   onChat,
 }: {
   caseId: string;
-  onChat?: (messages: Message[]) => Promise<string>;
+  onChat?: (messages: Message[]) => Promise<CaseChatReply>;
 }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -95,7 +97,7 @@ export default function CaseChat({
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      let reply = "";
+      let reply: CaseChatReply | null = null;
       if (onChat) {
         reply = await onChat([]);
       } else {
@@ -106,13 +108,18 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: string };
+          const data = (await res.json()) as { reply: CaseChatReply };
           reply = data.reply;
         }
       }
-      if (!controller.signal.aborted && reply && reply !== "[noop]") {
+      if (!controller.signal.aborted && reply && !reply.noop) {
         setMessages([
-          { id: crypto.randomUUID(), role: "assistant", content: reply },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: reply.response,
+            actions: reply.actions,
+          },
         ]);
       }
     } catch {}
@@ -213,18 +220,14 @@ export default function CaseChat({
     router.refresh();
   }
 
-  function renderContent(text: string) {
-    const parts = text.split(
-      /(\[action:[^\]]+\]|\[edit:[^\]]+\]|\[photo-note:[^\]]+\])/g,
-    );
-    return parts.map((p, idx) => {
-      const actionMatch = p.match(/^\[action:([^\]]+)\]$/);
-      if (actionMatch) {
-        const act = caseActions.find((a) => a.id === actionMatch[1]);
+  function renderActions(actions: CaseChatAction[]) {
+    const buttons = actions.map((a, idx) => {
+      if ("id" in a) {
+        const act = caseActions.find((c) => c.id === a.id);
         if (act) {
           return (
             <button
-              key={`${act.id}-${idx}`}
+              key={`${a.id}-${idx}`}
               type="button"
               onClick={() => router.push(act.href(caseId))}
               className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
@@ -233,55 +236,52 @@ export default function CaseChat({
             </button>
           );
         }
-      }
-      const editMatch = p.match(/^\[edit:([^=]+)=([^\]]+)\]$/);
-      if (editMatch) {
-        const field = editMatch[1];
-        const value = editMatch[2];
+      } else if ("field" in a && "value" in a) {
         const labelMap: Record<string, string> = {
-          vin: `Set VIN to "${value}"`,
-          plate: `Set Plate to "${value}"`,
-          state: `Set State to "${value}"`,
-          note: `Add Note: "${value}"`,
+          vin: `Set VIN to "${a.value}"`,
+          plate: `Set Plate to "${a.value}"`,
+          state: `Set State to "${a.value}"`,
+          note: `Add Note: "${a.value}"`,
         };
-        const label = labelMap[field] ?? `Apply ${field}`;
+        const label = labelMap[a.field] ?? `Apply ${a.field}`;
         return (
           <button
-            key={`edit-${field}-${value}`}
+            key={`edit-${a.field}-${a.value}`}
             type="button"
-            onClick={() => void handleEdit(field, value)}
+            onClick={() => void handleEdit(a.field, a.value)}
             className="bg-green-700 text-white px-2 py-1 rounded mx-1"
           >
             {label}
           </button>
         );
-      }
-      const photoMatch = p.match(/^\[photo-note:([^=]+)=([^\]]+)\]$/);
-      if (photoMatch) {
-        const name = photoMatch[1];
-        const value = photoMatch[2];
-        const url = photoMap[name];
+      } else if ("photo" in a && "note" in a) {
+        const url = photoMap[a.photo];
         if (url) {
           return (
             <button
-              key={`photo-${name}-${value}`}
+              key={`photo-${a.photo}-${a.note}`}
               type="button"
-              onClick={() => void handlePhotoNote(name, value)}
+              onClick={() => void handlePhotoNote(a.photo, a.note)}
               className="bg-green-700 text-white px-1 py-1 rounded mx-1 flex items-center gap-1"
             >
               <ThumbnailImage
                 src={getThumbnailUrl(url, 64)}
-                alt={name}
+                alt={a.photo}
                 width={32}
                 height={24}
               />
-              <span>{`Add "${value}"`}</span>
+              <span>{`Add "${a.note}"`}</span>
             </button>
           );
         }
       }
-      return <span key={`text-${idx}-${p}`}>{p}</span>;
+      return null;
     });
+    return <div className="mt-1 flex flex-wrap gap-1">{buttons}</div>;
+  }
+
+  function renderContent(m: Message) {
+    return <span>{m.content}</span>;
   }
 
   async function request(list: Message[]) {
@@ -290,7 +290,7 @@ export default function CaseChat({
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      let reply = "";
+      let reply: CaseChatReply | null = null;
       if (onChat) {
         reply = await onChat(list);
       } else {
@@ -301,15 +301,20 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: string };
+          const data = (await res.json()) as { reply: CaseChatReply };
           reply = data.reply;
         }
       }
       if (!controller.signal.aborted && reply) {
-        if (reply !== "[noop]") {
+        if (!reply.noop) {
           setMessages([
             ...list,
-            { id: crypto.randomUUID(), role: "assistant", content: reply },
+            {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: reply.response,
+              actions: reply.actions,
+            },
           ]);
         } else {
           setMessages(list);
@@ -398,15 +403,23 @@ export default function CaseChat({
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={m.role === "user" ? "text-right" : "text-left"}
+                className={
+                  m.role === "user"
+                    ? "flex flex-col items-end"
+                    : "flex flex-col items-start"
+                }
               >
                 <span
                   className={`${styles.bubble} ${
                     m.role === "user" ? styles.user : styles.assistant
                   }`}
                 >
-                  {renderContent(m.content)}
+                  {renderContent(m)}
                 </span>
+                {m.role === "assistant" &&
+                  m.actions &&
+                  m.actions.length > 0 &&
+                  renderActions(m.actions)}
               </div>
             ))}
             {loading && (

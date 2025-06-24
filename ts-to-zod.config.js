@@ -76,4 +76,11 @@ module.exports = [
     skipValidation: true,
     jsDoc: "extended",
   },
+  {
+    name: "caseChat",
+    input: "src/lib/caseChat.ts",
+    output: "src/generated/zod/caseChat.ts",
+    skipValidation: true,
+    jsDoc: "extended",
+  },
 ];
