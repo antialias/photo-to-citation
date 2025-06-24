@@ -291,13 +291,14 @@ export default function CaseChat({
     abortRef.current = controller;
     try {
       let reply: CaseChatReply | null = null;
+      const base = list.map(({ role, content }) => ({ role, content }));
       if (onChat) {
-        reply = await onChat(list);
+        reply = await onChat(base);
       } else {
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: list }),
+          body: JSON.stringify({ messages: base }),
           signal: controller.signal,
         });
         if (res.ok) {
