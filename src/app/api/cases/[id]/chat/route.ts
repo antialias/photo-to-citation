@@ -1,4 +1,5 @@
 import { withCaseAuthorization } from "@/lib/authz";
+import { caseActions } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { NextResponse } from "next/server";
@@ -20,7 +21,10 @@ export const POST = withCaseAuthorization(
       c.streetAddress ||
       c.intersection ||
       (c.gps ? `${c.gps.lat}, ${c.gps.lon}` : "unknown location");
-    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}.`;
+    const actionList = caseActions
+      .map((a) => `- ${a.label} [${a.id}]: ${a.description}`)
+      .join("\\n");
+    const system = `You are a helpful legal assistant for the Photo To Citation app. The user is asking about a case with these details:\nViolation: ${analysis?.violationType || ""}\nDescription: ${analysis?.details || ""}\nLocation: ${location}\nLicense Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\nNumber of photos: ${c.photos.length}.\nUse [action:ID] tokens to display helpful action buttons for the user. Available actions:\n${actionList}`;
 
     const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: system },
