@@ -1,0 +1,20 @@
+import CaseChat from "@/app/cases/[id]/CaseChat";
+import { fireEvent, render } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+describe("CaseChat history", () => {
+  it("saves chat to localStorage", async () => {
+    localStorage.clear();
+    const { getByText, getByPlaceholderText, getByLabelText, findByText } =
+      render(<CaseChat caseId="1" onChat={async () => "ok"} />);
+    fireEvent.click(getByText("Chat"));
+    const input = getByPlaceholderText("Ask a question...");
+    fireEvent.change(input, { target: { value: "Hello" } });
+    fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
+    await findByText("ok");
+    fireEvent.click(getByLabelText("Close chat"));
+    fireEvent.click(getByText("Chat"));
+    const select = getByLabelText("Chat history") as HTMLSelectElement;
+    expect(select.options.length).toBe(2);
+  });
+});
