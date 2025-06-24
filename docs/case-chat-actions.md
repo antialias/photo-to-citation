@@ -28,7 +28,7 @@ Available actions:
 - `[action:upload-photo]` — **Upload Photo**: select and upload an existing
   picture to the current case.
 - `[action:take-photo]` — **Take Photo**: open the camera to capture a new
-  picture for the case.
+  picture for the case using an inline camera widget.
 
 This list is populated from the `caseActions` export, so new actions become
 available to the chat UI automatically.
