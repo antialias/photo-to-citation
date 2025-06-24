@@ -1,11 +1,12 @@
 import path from "node:path";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { z } from "zod";
-import "./zod-setup";
 import type { Case, SentEmail } from "./caseStore";
 import { getLlm } from "./llm";
+import { log } from "./logger";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
+import "./zod-setup";
 
 function logBadResponse(
   attempt: number,
@@ -123,7 +124,7 @@ export async function draftFollowUp(
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
   sender?: { name?: string | null; email?: string | null },
 ): Promise<EmailDraft> {
-  console.log(
+  log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
       .map((m) => `${m.sentAt}:${m.subject}`)
       .join("|")}`,
@@ -172,7 +173,7 @@ Ask about the current citation status and mention that photos are attached again
     { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
 
-  console.log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
+  log(`draftFollowUp prompt: ${prompt.replace(/\n/g, " ")}`);
 
   const messages: ChatCompletionMessageParam[] = [...baseMessages];
   const { client, model } = getLlm("draft_email");

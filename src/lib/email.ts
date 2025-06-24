@@ -2,6 +2,7 @@ import path from "node:path";
 import nodemailer from "nodemailer";
 import { config } from "./config";
 import { addSentEmail } from "./emailStore";
+import { log } from "./logger";
 
 export interface EmailOptions {
   /** @zod.email */
@@ -17,7 +18,7 @@ export async function sendEmail({
   body,
   attachments = [],
 }: EmailOptions): Promise<void> {
-  console.log("sendEmail", to, subject);
+  log("sendEmail", to, subject);
 
   const finalTo = config.MOCK_EMAIL_TO || to;
   if (config.EMAIL_FILE) {
@@ -28,7 +29,7 @@ export async function sendEmail({
       attachments,
       sentAt: new Date().toISOString(),
     });
-    console.log("mock email stored", finalTo);
+    log("mock email stored", finalTo);
     return;
   }
 
@@ -67,5 +68,5 @@ export async function sendEmail({
       path: path.join(process.cwd(), "public", p.replace(/^\//, "")),
     })),
   });
-  console.log("email sent", to);
+  log("email sent", to);
 }

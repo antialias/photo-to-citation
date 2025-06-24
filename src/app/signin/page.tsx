@@ -1,6 +1,7 @@
 "use client";
 import { signIn } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
+import { log } from "@/lib/logger";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -28,7 +29,7 @@ export default function SignInPage() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          console.log("Submitting sign in", email);
+          log("Submitting sign in", email);
           signIn("email", { email, callbackUrl: withBasePath("/") });
         }}
         className="p-4 flex flex-col gap-2"

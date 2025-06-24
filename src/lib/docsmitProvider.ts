@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import FormData from "form-data";
 import { config } from "./config";
+import { log } from "./logger";
 import type {
   MailingAddress,
   SnailMailOptions,
@@ -164,7 +165,7 @@ const provider: SnailMailProvider = {
       statusText = "queued";
     } else if (res.status === 402) {
       shortfall = (await res.json()).shortfall as number | undefined;
-      console.log("Docsmit payment required", { shortfall });
+      log("Docsmit payment required", { shortfall });
       statusText = "shortfall";
     } else {
       statusText = "error";

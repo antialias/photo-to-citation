@@ -1,6 +1,7 @@
 import { getCasbinRules, listUsers } from "@/lib/adminStore";
 import { authOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
+import { log } from "@/lib/logger";
 import { getServerSession } from "next-auth/next";
 import AdminPageClient from "./AdminPageClient";
 
@@ -13,7 +14,7 @@ const handler = withAuthorization(
     { session }: { session?: { user?: { role?: string } } },
   ) => {
     const s = session ?? (await getServerSession(authOptions));
-    console.log("admin page session", s?.user?.role);
+    log("admin page session", s?.user?.role);
     if (s?.user?.role !== "admin" && s?.user?.role !== "superadmin") {
       return new Response(null, { status: 403 });
     }

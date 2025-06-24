@@ -4,6 +4,7 @@ import type { Case, SentEmail } from "@/lib/caseStore";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
 
@@ -39,25 +40,23 @@ export const GET = withCaseAuthorization(
     const { id } = await params;
     const url = new URL(req.url);
     const replyTo = url.searchParams.get("replyTo");
-    console.log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);
+    log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const reportModule = reportModules["oak-park"];
     const thread = getThread(c, replyTo);
-    console.log(
+    log(
       `thread chain: ${thread
         .map((m) => `${m.sentAt}->${m.replyTo ?? "null"}`)
         .join(", ")}`,
     );
     const recipient = thread.at(-1)?.to || reportModule.authorityName;
-    console.log(
-      `drafting followup for ${recipient} with ${thread.length} emails`,
-    );
+    log(`drafting followup for ${recipient} with ${thread.length} emails`);
     const sender = session?.user
       ? { name: session.user.name ?? null, email: session.user.email ?? null }
       : undefined;
     const email = await draftFollowUp(c, recipient, thread, sender);
-    console.log(`drafted email subject: ${email.subject}`);
+    log(`drafted email subject: ${email.subject}`);
     return NextResponse.json({
       email,
       attachments: c.photos,
@@ -96,9 +95,7 @@ export const POST = withAuthorization(
     const target =
       c.sentEmails?.find((e) => e.sentAt === replyTo)?.to ||
       reportModule.authorityEmail;
-    console.log(
-      `followup POST case=${id} to=${target} replyTo=${replyTo ?? "none"}`,
-    );
+    log(`followup POST case=${id} to=${target} replyTo=${replyTo ?? "none"}`);
     const results: Record<string, { success: boolean; error?: string }> = {};
     try {
       await sendEmail({ to: target, subject, body, attachments });

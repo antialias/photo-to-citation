@@ -4,6 +4,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq, sql } from "drizzle-orm";
 import { config } from "./config";
 import { migrationsReady } from "./db";
+import { log } from "./logger";
 import { orm } from "./orm";
 import { users } from "./schema";
 
@@ -14,7 +15,7 @@ export function authAdapter() {
   return {
     ...base,
     async createUser(data: AdapterUser & { id?: string }) {
-      console.log("authAdapter.createUser", data.email);
+      log("authAdapter.createUser", data.email);
       if (!data.id) data.id = crypto.randomUUID();
       if (!base.createUser) throw new Error("createUser not implemented");
       return base.createUser(data);
@@ -44,7 +45,7 @@ export async function seedSuperAdmin(newUser?: {
       newUser ?? orm.select().from(users).orderBy(sql`rowid`).limit(1).get();
   }
   if (target) {
-    console.log("seeding super admin", newUser?.email);
+    log("seeding super admin", newUser?.email);
     orm
       .update(users)
       .set({ role: "superadmin" })
