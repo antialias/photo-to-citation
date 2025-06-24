@@ -20,3 +20,12 @@ The chat UI renders the `response` as text and creates a button for each entry i
 - `id` &mdash; opens the corresponding page from `caseActions`.
 - `field` and `value` &mdash; apply an edit to the case.
 - `photo` and `note` &mdash; append a note to a photo.
+
+The LLM receives a list of available actions formatted like:
+
+```
+- Draft Report (id: compose) - Open a form to draft an email report.
+- Follow Up (id: followup) - Send a follow up email.
+```
+
+Use the `id` value from that list when populating the `actions` array.
