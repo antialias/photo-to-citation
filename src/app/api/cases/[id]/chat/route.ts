@@ -27,7 +27,7 @@ export const POST = withCaseAuthorization(
           .join("\n")
       : "";
     const actionList = caseActions
-      .map((a) => `- ${a.label} [${a.id}]: ${a.description}`)
+      .map((a) => `- ${a.label} [action:${a.id}]: ${a.description}`)
       .join("\\n");
     const system = [
       "You are a helpful legal assistant for the Photo To Citation app.",
