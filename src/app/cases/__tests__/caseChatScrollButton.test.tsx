@@ -12,15 +12,27 @@ vi.stubGlobal(
 );
 
 describe("CaseChat scroll button", () => {
-  it("shows button when input focused", () => {
-    const { getByText, getByPlaceholderText, queryByText } = render(
+  it("shows button when scrolled away from bottom", () => {
+    const { getByText, queryByText, container } = render(
       <CaseChat caseId="1" />,
     );
     fireEvent.click(getByText("Chat"));
-    const input = getByPlaceholderText("Ask a question...");
-    fireEvent.focus(input);
+    const scroll = container.querySelector(
+      "div.overflow-y-auto",
+    ) as HTMLDivElement;
+    Object.defineProperty(scroll, "scrollHeight", {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(scroll, "clientHeight", {
+      value: 100,
+      configurable: true,
+    });
+    scroll.scrollTop = 0;
+    fireEvent.scroll(scroll);
     expect(getByText("Jump to latest")).toBeTruthy();
-    fireEvent.blur(input);
+    scroll.scrollTop = 900;
+    fireEvent.scroll(scroll);
     expect(queryByText("Jump to latest")).toBeNull();
   });
 });

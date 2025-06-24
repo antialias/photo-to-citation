@@ -3,12 +3,12 @@ import { apiFetch } from "@/apiClient";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
-import type { EmailDraft } from "@/lib/caseReport";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
+import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
 import { useNotify } from "../../components/NotificationProvider";
 import styles from "./CaseChat.module.css";
@@ -55,7 +55,7 @@ export default function CaseChat({
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [inputFocused, setInputFocused] = useState(false);
+  const [showJump, setShowJump] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
   const [draftData, setDraftData] = useState<{
@@ -162,7 +162,10 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
           reply = data.reply;
           setSystemPrompt(data.system);
         }
@@ -391,7 +394,10 @@ export default function CaseChat({
           signal: controller.signal,
         });
         if (res.ok) {
-          const data = (await res.json()) as { reply: CaseChatReply; system: string };
+          const data = (await res.json()) as {
+            reply: CaseChatReply;
+            system: string;
+          };
           reply = data.reply;
           setSystemPrompt(data.system);
         }
@@ -420,8 +426,19 @@ export default function CaseChat({
   function scrollToBottom() {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      updateShowJump();
     }
   }
+
+  const updateShowJump = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const threshold = 10;
+    const atBottom =
+      el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
+    const canScroll = el.scrollHeight - el.clientHeight > threshold;
+    setShowJump(canScroll && !atBottom);
+  }, []);
 
   async function send() {
     const text = input.trim();
@@ -442,8 +459,20 @@ export default function CaseChat({
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      updateShowJump();
     }
-  }, [messages]);
+  }, [messages, updateShowJump]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateShowJump();
+    const handler = () => updateShowJump();
+    el.addEventListener("scroll", handler);
+    return () => {
+      el.removeEventListener("scroll", handler);
+    };
+  }, [updateShowJump]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
@@ -570,7 +599,7 @@ export default function CaseChat({
             )}
           </div>
           <div className="border-t p-2 flex flex-col gap-2">
-            {inputFocused ? (
+            {showJump ? (
               <button
                 type="button"
                 onClick={scrollToBottom}
@@ -585,8 +614,6 @@ export default function CaseChat({
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
