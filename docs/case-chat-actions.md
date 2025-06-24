@@ -18,7 +18,8 @@ Example:
 The chat UI renders the `response` as text and creates a button for each entry in `actions`:
 
 - `id` &mdash; opens the corresponding page from `caseActions`.
-- `field` and `value` &mdash; apply an edit to the case.
+- `field` and `value` &mdash; apply an edit to the case. Supported fields:
+  `vin`, `plate`, `state`, and `note`.
 - `photo` and `note` &mdash; append a note to a photo.
 
 The LLM receives a list of available actions formatted like:
