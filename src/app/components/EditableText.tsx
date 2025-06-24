@@ -12,7 +12,7 @@ export default function EditableText({
   onSubmit: (v: string) => Promise<void> | void;
   onClear?: () => Promise<void> | void;
   placeholder?: string;
-  options?: string[];
+  options?: readonly string[];
 }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(value);

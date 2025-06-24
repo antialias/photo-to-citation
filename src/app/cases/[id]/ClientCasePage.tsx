@@ -139,7 +139,8 @@ export default function ClientCasePage({
 
   useEffect(() => {
     if (
-      navigator.mediaDevices?.getUserMedia &&
+      "mediaDevices" in navigator &&
+      typeof navigator.mediaDevices.getUserMedia === "function" &&
       (location.protocol === "https:" || location.hostname === "localhost")
     ) {
       setHasCamera(true);

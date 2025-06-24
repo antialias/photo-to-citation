@@ -50,4 +50,4 @@ export const US_STATES = [
   "WI",
   "WY",
   "DC",
-];
+] as const;

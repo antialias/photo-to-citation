@@ -6,7 +6,7 @@ export const GET = withAuthorization(
   { obj: "credits" },
   async (
     _req: Request,
-    { session }: { session?: { user?: { id?: string } } },
+    { session }: { session?: { user?: { id?: string; role?: string } } },
   ) => {
     if (!session?.user?.id) {
       return new Response(null, { status: 401 });

@@ -7,7 +7,7 @@ export const POST = withAuthorization(
   { obj: "credits", act: "update" },
   async (
     req: Request,
-    { session }: { session?: { user?: { id?: string } } },
+    { session }: { session?: { user?: { id?: string; role?: string } } },
   ) => {
     if (!session?.user?.id) {
       return new Response(null, { status: 401 });

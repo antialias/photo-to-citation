@@ -116,7 +116,7 @@ export default function CaseChat({
     if (!text) return;
     const list = [
       ...messages,
-      { id: crypto.randomUUID(), role: "user", content: text },
+      { id: crypto.randomUUID(), role: "user" as const, content: text },
     ];
     if (messages.length === 0) {
       setSessionSummary(text.slice(0, 30));
@@ -142,7 +142,11 @@ export default function CaseChat({
       if (reply) {
         setMessages([
           ...list,
-          { id: crypto.randomUUID(), role: "assistant", content: reply },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant" as const,
+            content: reply,
+          },
         ]);
       }
     } finally {
