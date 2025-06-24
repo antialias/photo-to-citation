@@ -2,6 +2,10 @@ import "@testing-library/jest-dom";
 import React, { type ImgHTMLAttributes } from "react";
 import { type TestContext, afterEach, beforeEach, vi } from "vitest";
 
+// Ensure stable auth configuration during tests
+process.env.NEXTAUTH_SECRET = "test-secret";
+process.env.VITEST = "1";
+
 vi.mock("next/image", () => ({
   default: (props: ImgHTMLAttributes<HTMLImageElement>) =>
     React.createElement("img", props),
