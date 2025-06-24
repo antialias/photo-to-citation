@@ -2,10 +2,14 @@
 import { apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
+import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useNotify } from "../../components/NotificationProvider";
 import styles from "./CaseChat.module.css";
+import DraftEditor from "./draft/DraftEditor";
 
 interface Message {
   id: string;
@@ -18,6 +22,12 @@ interface ChatSession {
   createdAt: string;
   summary: string;
   messages: Message[];
+}
+
+interface DraftData {
+  email: EmailDraft;
+  attachments: string[];
+  module: ReportModule;
 }
 
 export default function CaseChat({
@@ -35,10 +45,13 @@ export default function CaseChat({
   const [sessionSummary, setSessionSummary] = useState<string>("");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [draftData, setDraftData] = useState<DraftData | null>(null);
+  const [draftLoading, setDraftLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
+  const notify = useNotify();
 
   const storageKey = `case-chat-${caseId}`;
 
@@ -124,11 +137,15 @@ export default function CaseChat({
   function handleOpen() {
     startNew();
     setOpen(true);
+    setDraftData(null);
+    setDraftLoading(false);
     void seed();
   }
 
   function handleClose() {
     setOpen(false);
+    setDraftData(null);
+    setDraftLoading(false);
     if (messages.length > 0 && sessionId) {
       const firstUser = messages.find((m) => m.role === "user");
       const summary =
@@ -213,6 +230,20 @@ export default function CaseChat({
     router.refresh();
   }
 
+  async function openCompose() {
+    setDraftLoading(true);
+    setDraftData(null);
+    const res = await apiFetch(`/api/cases/${caseId}/report`);
+    if (res.ok) {
+      const data = (await res.json()) as DraftData;
+      setDraftData(data);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      notify(err.error || "Failed to draft report");
+    }
+    setDraftLoading(false);
+  }
+
   function renderContent(text: string) {
     const parts = text.split(
       /(\[action:[^\]]+\]|\[edit:[^\]]+\]|\[photo-note:[^\]]+\])/g,
@@ -222,11 +253,18 @@ export default function CaseChat({
       if (actionMatch) {
         const act = caseActions.find((a) => a.id === actionMatch[1]);
         if (act) {
+          const handle = () => {
+            if (act.id === "compose") {
+              void openCompose();
+            } else {
+              router.push(act.href(caseId));
+            }
+          };
           return (
             <button
               key={`${act.id}-${idx}`}
               type="button"
-              onClick={() => router.push(act.href(caseId))}
+              onClick={handle}
               className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
             >
               {act.label}
@@ -414,6 +452,31 @@ export default function CaseChat({
                 <span
                   className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
                 />
+              </div>
+            )}
+            {draftLoading && (
+              <div className="p-2" key="draft-loading">
+                Drafting email based on case information...
+              </div>
+            )}
+            {draftData && (
+              <div key="draft-editor" className="border rounded p-2">
+                <DraftEditor
+                  caseId={caseId}
+                  initialDraft={draftData.email}
+                  attachments={draftData.attachments}
+                  module={draftData.module}
+                  action="report"
+                />
+                <div className="flex justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDraftData(null)}
+                    className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                  >
+                    Close Draft
+                  </button>
+                </div>
               </div>
             )}
           </div>

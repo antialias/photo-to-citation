@@ -17,8 +17,8 @@ This produces a **Notify Owner** button in the chat.
 
 Available actions:
 
-- `[action:compose]` — **Draft Report**: open a form to compose an email report
-  to the appropriate authority.
+- `[action:compose]` — **Draft Report**: display an editable email draft inline
+  in the chat so the user can send it directly to the appropriate authority.
 - `[action:followup]` — **Follow Up**: send another email in an existing thread
   to ask about citation status.
 - `[action:notify-owner]` — **Notify Owner**: create an anonymous email warning
