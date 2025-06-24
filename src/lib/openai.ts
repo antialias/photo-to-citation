@@ -56,7 +56,18 @@ function approxTokens(text: string): number {
 const licensePlateStateSchema = z.enum(US_STATES);
 const licensePlateNumberSchema = z.string();
 
-export const paperworkInfoSchema = z.object({
+export interface PaperworkInfo {
+  contact?: string;
+  vehicle: {
+    vin?: string;
+    registrationStatus?: string;
+    licensePlateState?: string;
+    licensePlateNumber?: string;
+  };
+  callsToAction?: string[];
+}
+
+export const paperworkInfoSchema: z.ZodType<PaperworkInfo> = z.object({
   contact: z.string().optional(),
   vehicle: z
     .object({
@@ -72,14 +83,38 @@ export const paperworkInfoSchema = z.object({
   callsToAction: z.array(z.string()).optional(),
 });
 
-export type PaperworkInfo = z.infer<typeof paperworkInfoSchema>;
-
 export interface PaperworkAnalysis {
   text: string;
   info: PaperworkInfo | null;
 }
 
-export const violationReportSchema = z.object({
+export interface ViolationReport {
+  violationType: string;
+  details: string;
+  location?: string;
+  vehicle: {
+    make?: string;
+    model?: string;
+    type?: string;
+    color?: string;
+    licensePlateState?: string;
+    licensePlateNumber?: string;
+  };
+  images: Record<
+    string,
+    {
+      representationScore: number;
+      highlights?: string;
+      context?: string;
+      violation?: boolean;
+      paperwork?: boolean;
+      paperworkText?: string;
+      paperworkInfo?: PaperworkInfo;
+    }
+  >;
+}
+
+export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
   violationType: z.string(),
   details: z.string(),
   location: z.string().optional(),
@@ -107,8 +142,6 @@ export const violationReportSchema = z.object({
     )
     .default({}),
 });
-
-export type ViolationReport = z.infer<typeof violationReportSchema>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
