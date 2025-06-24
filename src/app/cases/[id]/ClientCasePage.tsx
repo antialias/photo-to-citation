@@ -617,7 +617,7 @@ export default function ClientCasePage({
 
   return (
     <div
-      className={`relative h-full ${chatExpanded ? "md:grid md:grid-cols-2 gap-4" : ""}`}
+      className={`relative h-full ${chatExpanded ? "md:grid md:grid-cols-2 gap-4 overflow-hidden" : ""}`}
       onDragOver={readOnly ? undefined : (e) => e.preventDefault()}
       onDragEnter={
         readOnly
@@ -674,7 +674,11 @@ export default function ClientCasePage({
           </div>
         </div>
       ) : null}
-      <div className={chatExpanded ? "md:col-span-1" : undefined}>
+      <div
+        className={
+          chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
+        }
+      >
         <CaseLayout
           header={
             <div className="flex items-center justify-between">
@@ -1134,11 +1138,17 @@ export default function ClientCasePage({
           Drop to add photos
         </div>
       )}
-      <CaseChat
-        caseId={caseId}
-        expanded={chatExpanded}
-        onExpandChange={setChatExpanded}
-      />
+      <div
+        className={
+          chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
+        }
+      >
+        <CaseChat
+          caseId={caseId}
+          expanded={chatExpanded}
+          onExpandChange={setChatExpanded}
+        />
+      </div>
     </div>
   );
 }

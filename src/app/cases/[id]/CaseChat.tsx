@@ -44,6 +44,7 @@ export default function CaseChat({
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [inputFocused, setInputFocused] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
 
@@ -346,6 +347,12 @@ export default function CaseChat({
     }
   }
 
+  function scrollToBottom() {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }
+
   async function send() {
     const text = input.trim();
     if (!text) return;
@@ -458,29 +465,42 @@ export default function CaseChat({
               </div>
             )}
           </div>
-          <div className="border-t p-2 flex gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  void send();
-                }
-              }}
-              className="flex-1 border rounded px-1 dark:bg-gray-800"
-              placeholder="Ask a question..."
-            />
-            <button
-              type="button"
-              onClick={send}
-              disabled={loading}
-              className="bg-blue-600 text-white px-2 rounded disabled:opacity-50"
-            >
-              Send
-            </button>
+          <div className="border-t p-2 flex flex-col gap-2">
+            {inputFocused ? (
+              <button
+                type="button"
+                onClick={scrollToBottom}
+                className="self-start text-blue-600 underline text-xs"
+              >
+                Jump to latest
+              </button>
+            ) : null}
+            <div className="flex gap-2">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    void send();
+                  }
+                }}
+                className="flex-1 border rounded px-1 dark:bg-gray-800"
+                placeholder="Ask a question..."
+              />
+              <button
+                type="button"
+                onClick={send}
+                disabled={loading}
+                className="bg-blue-600 text-white px-2 rounded disabled:opacity-50"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       ) : (
