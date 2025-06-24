@@ -101,8 +101,8 @@ export const POST = withAuthorization(
       userId ?? null,
     );
     if (!userId) {
-      const anonId = getAnonymousSessionId(req);
-      if (anonId) setCaseSessionId(newCase.id, anonId);
+      const cookieAnon = getAnonymousSessionId(req);
+      setCaseSessionId(newCase.id, cookieAnon ?? anonId);
     }
     const p = updateCase(newCase.id, {
       analysisStatus: "pending",

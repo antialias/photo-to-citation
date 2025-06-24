@@ -1,4 +1,4 @@
-import { getAnonymousSessionId } from "@/lib/anonymousSession";
+import { getAnonSession, getAnonymousSessionId } from "@/lib/anonymousSession";
 import {
   authorize,
   getSessionDetails,
@@ -25,7 +25,10 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   const { role, userId } = await loadAuthContext({ session }, "anonymous");
-  const anonId = getAnonymousSessionId(req);
+  let anonId = getAnonymousSessionId(req);
+  if (!anonId) {
+    anonId = getAnonSession(req);
+  }
   const sessionMatch = anonId && c.sessionId && c.sessionId === anonId;
   const authRole = sessionMatch ? "user" : role;
   if (!(await authorize(authRole, "cases", "read"))) {
