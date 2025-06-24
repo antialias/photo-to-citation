@@ -248,18 +248,6 @@ export default function CaseChat({
               Send
             </button>
           </div>
-          <div className="border-t p-2 flex gap-2 justify-end">
-            {caseActions.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                onClick={() => router.push(a.href(caseId))}
-                className="bg-blue-600 text-white px-2 py-1 rounded"
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
         </div>
       ) : (
         <button
