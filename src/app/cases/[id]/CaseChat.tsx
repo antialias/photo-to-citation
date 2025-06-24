@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useEffect, useRef, useState } from "react";
+import styles from "./CaseChat.module.css";
 
 interface Message {
   id: string;
@@ -91,11 +92,9 @@ export default function CaseChat({
                 className={m.role === "user" ? "text-right" : "text-left"}
               >
                 <span
-                  className={
-                    m.role === "user"
-                      ? "relative inline-block max-w-full px-2 py-1 rounded bg-blue-600 text-white after:content-[''] after:absolute after:-right-1 after:bottom-1 after:border-[0.4rem] after:border-y-transparent after:border-l-blue-600 dark:bg-blue-700 dark:after:border-l-blue-700"
-                      : "relative inline-block max-w-full px-2 py-1 rounded bg-gray-200 after:content-[''] after:absolute after:-left-1 after:bottom-1 after:border-[0.4rem] after:border-y-transparent after:border-r-gray-200 dark:bg-gray-700 dark:text-white dark:after:border-r-gray-700"
-                  }
+                  className={`${styles.bubble} ${
+                    m.role === "user" ? styles.user : styles.assistant
+                  }`}
                 >
                   {m.content}
                 </span>
