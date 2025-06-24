@@ -25,6 +25,10 @@ Available actions:
   the vehicle owner about their violation.
 - `[action:ownership]` — **Request Ownership Info**: record the request for
   official ownership details from the state.
+- `[action:upload-photo]` — **Upload Case Photo**: upload another image as
+  evidence for the case.
+- `[action:take-photo]` — **Take Photo**: open the camera to capture a new photo
+  for this case.
 
 This list is populated from the `caseActions` export, so new actions become
 available to the chat UI automatically.
