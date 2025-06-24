@@ -86,7 +86,12 @@ export default function CaseChat({
       saveHistory(list);
     }
   }
-  const router = useRouter();
+  let router: ReturnType<typeof useRouter> | { push: (url: string) => void };
+  try {
+    router = useRouter();
+  } catch {
+    router = { push: () => {} };
+  }
 
   function renderContent(text: string) {
     const parts = text.split(/(\[action:[^\]]+\])/g);
@@ -165,8 +170,8 @@ export default function CaseChat({
     <div className="fixed bottom-4 right-4 z-40 text-sm">
       {open ? (
         <div className="bg-white dark:bg-gray-900 shadow-lg rounded w-80 h-96 flex flex-col">
-          <div className="flex justify-between items-center border-b p-2 gap-2">
-            <span className="font-semibold flex-1">Case Chat</span>
+          <div className="flex items-center border-b p-2 gap-2">
+            <span className="font-semibold">Case Chat</span>
             <select
               aria-label="Chat history"
               value={sessionId ?? ""}
@@ -184,7 +189,7 @@ export default function CaseChat({
                   }
                 }
               }}
-              className="text-black dark:text-black text-xs"
+              className="flex-1 min-w-0 text-black dark:text-black text-xs"
             >
               <option value="new">New Chat</option>
               {!history.some((h) => h.id === sessionId) && sessionId && (
@@ -203,7 +208,7 @@ export default function CaseChat({
               type="button"
               onClick={handleClose}
               aria-label="Close chat"
-              className="text-xl leading-none"
+              className="text-xl leading-none flex-shrink-0"
             >
               ×
             </button>
