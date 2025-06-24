@@ -1,6 +1,8 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import styles from "./CaseChat.module.css";
@@ -36,6 +38,7 @@ export default function CaseChat({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
 
   const storageKey = `case-chat-${caseId}`;
 
@@ -58,11 +61,32 @@ export default function CaseChat({
     setHistory(loadHistory());
   }, [storageKey]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: caseId is stable
+  useEffect(() => {
+    void loadPhotos();
+  }, [caseId]);
+
   function startNew() {
     setMessages([]);
     setSessionId(crypto.randomUUID());
     setSessionCreatedAt(new Date().toISOString());
     setSessionSummary("");
+  }
+
+  function baseName(filePath: string): string {
+    const parts = filePath.split(/[\\/]/);
+    return parts[parts.length - 1];
+  }
+
+  async function loadPhotos() {
+    const res = await apiFetch(`/api/cases/${caseId}`);
+    if (!res.ok) return;
+    const data = (await res.json()) as { photos?: string[] };
+    const map: Record<string, string> = {};
+    for (const url of data.photos ?? []) {
+      map[baseName(url)] = url;
+    }
+    setPhotoMap(map);
   }
 
   async function seed() {
@@ -172,8 +196,27 @@ export default function CaseChat({
     }
   }
 
+  async function handlePhotoNote(name: string, value: string) {
+    const url = photoMap[name];
+    if (!url) return;
+    const res = await apiFetch(`/api/cases/${caseId}`);
+    const data = res.ok
+      ? ((await res.json()) as { photoNotes?: Record<string, string | null> })
+      : { photoNotes: undefined };
+    const current = data.photoNotes?.[url] ?? null;
+    const note = current ? `${current}\n${value}` : value;
+    await apiFetch(`/api/cases/${caseId}/photo-note`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo: url, note }),
+    });
+    router.refresh();
+  }
+
   function renderContent(text: string) {
-    const parts = text.split(/(\[action:[^\]]+\]|\[edit:[^\]]+\])/g);
+    const parts = text.split(
+      /(\[action:[^\]]+\]|\[edit:[^\]]+\]|\[photo-note:[^\]]+\])/g,
+    );
     return parts.map((p, idx) => {
       const actionMatch = p.match(/^\[action:([^\]]+)\]$/);
       if (actionMatch) {
@@ -212,6 +255,30 @@ export default function CaseChat({
             {label}
           </button>
         );
+      }
+      const photoMatch = p.match(/^\[photo-note:([^=]+)=([^\]]+)\]$/);
+      if (photoMatch) {
+        const name = photoMatch[1];
+        const value = photoMatch[2];
+        const url = photoMap[name];
+        if (url) {
+          return (
+            <button
+              key={`photo-${name}-${value}`}
+              type="button"
+              onClick={() => void handlePhotoNote(name, value)}
+              className="bg-green-700 text-white px-1 py-1 rounded mx-1 flex items-center gap-1"
+            >
+              <ThumbnailImage
+                src={getThumbnailUrl(url, 64)}
+                alt={name}
+                width={32}
+                height={24}
+              />
+              <span>{`Add "${value}"`}</span>
+            </button>
+          );
+        }
       }
       return <span key={`text-${idx}-${p}`}>{p}</span>;
     });

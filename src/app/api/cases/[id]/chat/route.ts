@@ -70,6 +70,7 @@ export const POST = withCaseAuthorization(
       "You may want to notify the vehicle owner. [action:notify-owner]",
       "The UI will replace the token with a button.",
       "You can also suggest edits with [edit:FIELD=VALUE] tokens (fields: vin, plate, state, note).",
+      "Add image notes with [photo-note:FILENAME=NOTE] where FILENAME is one of the photo filenames.",
       available.length > 0 ? `Available actions:\n${actionList}` : "",
     ]
       .filter(Boolean)
