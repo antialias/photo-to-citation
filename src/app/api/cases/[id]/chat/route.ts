@@ -4,6 +4,7 @@ import { caseActions } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
 import { getCaseOwnerContactInfo } from "@/lib/caseUtils";
 import { getLlm } from "@/lib/llm";
+import { chatWithSchema } from "@/lib/llmUtils";
 import { reportModules } from "@/lib/reportModules";
 import { NextResponse } from "next/server";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
@@ -55,7 +56,7 @@ export const POST = withCaseAuthorization(
       .map((a) => `- ${a.label}: ${a.description}`)
       .join("\\n");
     const schemaDesc =
-      "{ response: string, actions: [{ id?: string, field?: string, value?: string, photo?: string, note?: string }] }";
+      "{ response: string, actions: [{ id?: string, field?: string, value?: string, photo?: string, note?: string }], noop: boolean }";
     const system = [
       "You are a helpful legal assistant for the Photo To Citation app.",
       "The user is asking about a case with these details:",
@@ -79,14 +80,15 @@ export const POST = withCaseAuthorization(
     ];
 
     const { client, model } = getLlm("draft_email");
-    const res = await client.chat.completions.create({
+    const reply = await chatWithSchema(
+      client,
       model,
       messages,
-      max_tokens: 800,
-      response_format: { type: "json_object" },
-    });
-    const raw = res.choices[0]?.message?.content ?? "{}";
-    const reply = caseChatReplySchema.parse(JSON.parse(raw));
+      caseChatReplySchema,
+      {
+        maxTokens: 800,
+      },
+    );
     return NextResponse.json({ reply });
   },
 );

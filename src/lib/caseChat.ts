@@ -9,6 +9,7 @@ export type CaseChatAction =
 export interface CaseChatReply {
   response: string;
   actions: CaseChatAction[];
+  noop: boolean;
 }
 
 export const caseChatReplySchema = z.object({
@@ -20,4 +21,5 @@ export const caseChatReplySchema = z.object({
       z.object({ photo: z.string(), note: z.string() }),
     ]),
   ),
+  noop: z.boolean(),
 });

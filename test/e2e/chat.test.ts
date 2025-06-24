@@ -13,7 +13,7 @@ let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({ response: "hello", actions: [] });
+  stub = await startOpenAIStub({ response: "hello", actions: [], noop: false });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-chat-"));
   server = await startServer(3012, {
     NEXTAUTH_SECRET: "secret",
@@ -48,8 +48,11 @@ describe("chat api", () => {
       body: JSON.stringify({ messages: [{ role: "user", content: "Hi" }] }),
     });
     expect(res.status).toBe(200);
-    const data = (await res.json()) as { reply: { response: string } };
+    const data = (await res.json()) as {
+      reply: { response: string; noop: boolean };
+    };
     expect(data.reply.response).toBe("hello");
+    expect(data.reply.noop).toBe(false);
     expect(stub.requests.length).toBeGreaterThan(0);
   });
 });

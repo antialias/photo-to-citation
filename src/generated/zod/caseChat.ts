@@ -18,4 +18,5 @@ export const caseChatActionSchema = z.union([
 export const caseChatReplySchema = z.object({
   response: z.string(),
   actions: z.array(caseChatActionSchema),
+  noop: z.boolean(),
 });

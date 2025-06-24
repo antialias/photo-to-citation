@@ -23,6 +23,7 @@ describe("CaseChat photo note action", () => {
         onChat={async () => ({
           response: "here",
           actions: [{ photo: "a.jpg", note: "test" }],
+          noop: false,
         })}
       />,
     );

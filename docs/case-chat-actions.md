@@ -1,6 +1,6 @@
 # Case Chat Actions
 
-Case Chat replies are JSON objects with a `response` string and an `actions` array. Each action may reference a case action, suggest an edit, or add a photo note.
+Case Chat replies are JSON objects with a `response` string, an `actions` array, and a `noop` boolean. Each action may reference a case action, suggest an edit, or add a photo note. When `noop` is `true` the assistant had nothing useful to add, even if it produced conversational text.
 
 Example:
 ```json
@@ -10,7 +10,8 @@ Example:
     { "id": "notify-owner" },
     { "field": "plate", "value": "ABC123" },
     { "photo": "a.jpg", "note": "Clear view" }
-  ]
+  ],
+  "noop": false
 }
 ```
 

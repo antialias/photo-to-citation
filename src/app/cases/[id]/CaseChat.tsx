@@ -112,7 +112,7 @@ export default function CaseChat({
           reply = data.reply;
         }
       }
-      if (!controller.signal.aborted && reply && reply.response !== "[noop]") {
+      if (!controller.signal.aborted && reply && !reply.noop) {
         setMessages([
           {
             id: crypto.randomUUID(),
@@ -310,7 +310,7 @@ export default function CaseChat({
         }
       }
       if (!controller.signal.aborted && reply) {
-        if (reply.response !== "[noop]") {
+        if (!reply.noop) {
           setMessages([
             ...list,
             {
