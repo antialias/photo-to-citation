@@ -11,15 +11,15 @@ import {
   hasViolation,
 } from "@/lib/caseUtils";
 import { config } from "@/lib/config";
+import {
+  autoUpdate,
+  computePosition,
+  flip,
+  offset,
+  shift,
+} from "@floating-ui/dom";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
-import tippy from "tippy.js";
-if (
-  typeof window !== "undefined" &&
-  !(config as Record<string, unknown>).VITEST
-) {
-  import("tippy.js/dist/tippy.css");
-}
 
 const UPLOADED_PREVIEW_COUNT = 4;
 
@@ -268,9 +268,9 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const instances: Array<import("tippy.js").Instance> = [];
+    const instances: Array<() => void> = [];
     const apply = () => {
-      for (const inst of instances) inst.destroy();
+      for (const cleanup of instances) cleanup();
       instances.length = 0;
       const map: Record<
         string,
@@ -408,12 +408,42 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
             info.preview as string,
           )}</div>`;
         })();
-        const inst = tippy(el, {
-          content,
-          allowHTML: true,
+        const tooltip = document.createElement("div");
+        tooltip.innerHTML = content;
+        tooltip.className =
+          "z-50 rounded bg-black/80 text-white text-xs p-2 shadow";
+        tooltip.style.position = "absolute";
+        let cleanupAuto: (() => void) | null = null;
+        const show = () => {
+          document.body.appendChild(tooltip);
+          const update = () => {
+            computePosition(el, tooltip, {
+              middleware: [offset(6), flip(), shift({ padding: 5 })],
+            }).then(({ x, y }) => {
+              Object.assign(tooltip.style, {
+                left: `${x}px`,
+                top: `${y}px`,
+              });
+            });
+          };
+          cleanupAuto = autoUpdate(el, tooltip, update);
+          update();
+        };
+        const hide = () => {
+          cleanupAuto?.();
+          cleanupAuto = null;
+          tooltip.remove();
+        };
+        const clickHandler = () => window.open(info.url, "_blank");
+        el.addEventListener("mouseenter", show);
+        el.addEventListener("mouseleave", hide);
+        el.addEventListener("click", clickHandler);
+        instances.push(() => {
+          el.removeEventListener("mouseenter", show);
+          el.removeEventListener("mouseleave", hide);
+          el.removeEventListener("click", clickHandler);
+          hide();
         });
-        el.addEventListener("click", () => window.open(info.url, "_blank"));
-        instances.push(inst);
       }
     };
     const observer = new MutationObserver(() => apply());
@@ -422,7 +452,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     return () => {
       observer.disconnect();
       clearTimeout(timer);
-      for (const inst of instances) inst.destroy();
+      for (const cleanup of instances) cleanup();
     };
   }, [caseData]);
 
