@@ -67,8 +67,9 @@ describe("anonymous upload", () => {
     const setCookie = res.headers.get("set-cookie") ?? "";
     expect(setCookie).toMatch(/anon/);
     const { caseId } = await res.json();
+    const cookieValue = setCookie.split(";")[0];
     const getReq = new Request("http://test", {
-      headers: { cookie: setCookie.split(";")[0] },
+      headers: { cookie: cookieValue },
     });
     const caseRes = await caseRoute.GET(getReq, {
       params: Promise.resolve({ id: caseId }),
@@ -76,5 +77,13 @@ describe("anonymous upload", () => {
     expect(caseRes.status).toBe(200);
     const data = await caseRes.json();
     expect(data.id).toBe(caseId);
+
+    const fallbackReq = new Request("http://test", {
+      headers: { cookie: `anon_session_id=${cookieValue.split("=")[1]}` },
+    });
+    const fallbackRes = await caseRoute.GET(fallbackReq, {
+      params: Promise.resolve({ id: caseId }),
+    });
+    expect(fallbackRes.status).toBe(200);
   }, 15000);
 });
