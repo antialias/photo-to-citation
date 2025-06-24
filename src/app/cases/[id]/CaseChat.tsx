@@ -280,12 +280,7 @@ export default function CaseChat({
   }
 
   function renderContent(m: Message) {
-    return (
-      <>
-        <span>{m.content}</span>
-        {m.actions && m.actions.length > 0 && renderActions(m.actions)}
-      </>
-    );
+    return <span>{m.content}</span>;
   }
 
   async function request(list: Message[]) {
@@ -416,6 +411,13 @@ export default function CaseChat({
                 >
                   {renderContent(m)}
                 </span>
+                {m.role === "assistant" &&
+                  m.actions &&
+                  m.actions.length > 0 && (
+                    <div className="mt-1 text-left flex flex-wrap">
+                      {renderActions(m.actions)}
+                    </div>
+                  )}
               </div>
             ))}
             {loading && (

@@ -17,6 +17,8 @@ Example:
 
 The chat UI renders the `response` as text and creates a button for each entry in `actions`:
 
+The buttons appear below the assistant's response bubble.
+
 - `id` &mdash; opens the corresponding page from `caseActions`.
 - `field` and `value` &mdash; apply an edit to the case.
 - `photo` and `note` &mdash; append a note to a photo.
