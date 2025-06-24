@@ -4,6 +4,7 @@ import {
   type Placement,
   flip,
   offset,
+  safePolygon,
   shift,
   useDismiss,
   useFloating,
@@ -21,12 +22,14 @@ export default function Tooltip({
   placement = "top",
   open: controlledOpen,
   onOpenChange,
+  interactive = false,
 }: {
   label: ReactElement | string;
   children: ReactElement;
   placement?: Placement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  interactive?: boolean;
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
@@ -41,6 +44,7 @@ export default function Tooltip({
   const hover = useHover(context, {
     enabled: controlledOpen === undefined,
     move: false,
+    handleClose: interactive ? safePolygon() : undefined,
   });
   const focus = useFocus(context, { enabled: controlledOpen === undefined });
   const dismiss = useDismiss(context);
