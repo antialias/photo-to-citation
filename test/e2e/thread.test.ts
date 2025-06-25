@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { createPhoto } from "./photo";
+import { smokeEnv, smokePort } from "./smokeServer";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -40,11 +41,11 @@ beforeAll(async () => {
   });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
+    ...smokeEnv,
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
-    NEXTAUTH_SECRET: "secret",
     OPENAI_BASE_URL: stub.url,
   };
-  server = await startServer(3006, env);
+  server = await startServer(smokePort, env);
   api = createApi(server);
   await signIn("user@example.com");
 });
@@ -55,7 +56,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("thread page", () => {
+describe("thread page @smoke", () => {
   async function createCase(): Promise<string> {
     const file = createPhoto("a");
     const form = new FormData();
