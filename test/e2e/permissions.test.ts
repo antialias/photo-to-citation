@@ -67,7 +67,12 @@ async function waitForAnalysis(id: string) {
 }
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({ subject: "", body: "" });
+  stub = await startOpenAIStub({
+    violationType: "parking",
+    details: "car parked illegally",
+    vehicle: {},
+    images: {},
+  });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3011, {
     NEXTAUTH_SECRET: "secret",
