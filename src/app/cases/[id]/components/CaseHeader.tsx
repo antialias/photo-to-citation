@@ -1,33 +1,30 @@
 "use client";
 import CaseToolbar from "@/app/components/CaseToolbar";
-import type { Case } from "@/lib/caseStore";
-import type { LlmProgress } from "@/lib/openai";
+import { getCaseOwnerContact } from "@/lib/caseUtils";
 import Link from "next/link";
 import { FaShare } from "react-icons/fa";
+import { useCaseContext } from "../context/CaseContext";
 
 export default function CaseHeader({
   caseId,
-  caseData,
-  ownerContact,
-  isAdmin,
   readOnly = false,
-  violationIdentified,
-  progress,
-  isPhotoReanalysis,
-  copyPublicUrl,
-  copied,
-}: {
-  caseId: string;
-  caseData: Case;
-  ownerContact?: string | null;
-  isAdmin: boolean;
-  readOnly?: boolean;
-  violationIdentified: boolean;
-  progress: LlmProgress | null;
-  isPhotoReanalysis: boolean;
-  copyPublicUrl: () => Promise<void>;
-  copied: boolean;
-}) {
+}: { caseId: string; readOnly?: boolean }) {
+  const { caseData, analysisActive, isAdmin, copyPublicUrl, copied } =
+    useCaseContext();
+  const ownerContact = caseData ? getCaseOwnerContact(caseData) : null;
+  const violationIdentified = Boolean(
+    caseData &&
+      caseData.analysisStatus === "complete" &&
+      caseData.analysis &&
+      caseData.analysis.vehicle,
+  );
+  const progress =
+    caseData?.analysisStatus === "pending" && caseData.analysisProgress
+      ? caseData.analysisProgress
+      : null;
+  const isPhotoReanalysis = Boolean(
+    caseData && caseData.analysisStatus === "pending" && analysisActive,
+  );
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
