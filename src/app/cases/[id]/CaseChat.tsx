@@ -694,11 +694,11 @@ export default function CaseChat({
               available: availableActions,
               unavailable: unavailableActions,
             }}
-            className="flex-1"
+            className="flex flex-col flex-1 min-h-0"
           >
             <div
               ref={scrollRef}
-              className="h-full overflow-y-auto p-2 space-y-2"
+              className="flex-1 overflow-y-auto p-2 space-y-2"
             >
               {messages.map((m) => (
                 <div
