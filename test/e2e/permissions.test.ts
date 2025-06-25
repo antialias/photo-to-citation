@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { createPhoto } from "./photo";
+import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -53,6 +54,18 @@ async function createCase(): Promise<string> {
   return data.caseId;
 }
 
+async function waitForAnalysis(id: string) {
+  await poll(
+    () => api(`/api/cases/${id}`),
+    async (r) => {
+      if (r.status !== 200) return false;
+      const json = (await r.clone().json()) as { analysisStatus?: string };
+      return json.analysisStatus === "complete";
+    },
+    20,
+  );
+}
+
 beforeAll(async () => {
   stub = await startOpenAIStub({ subject: "", body: "" });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
@@ -80,6 +93,7 @@ describe("permissions", () => {
     await signIn("user@example.com");
 
     const id = await createCase();
+    await waitForAnalysis(id);
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
     const caseDom = new JSDOM(casePage);
     const delButton = caseDom.window.document.querySelector(
@@ -100,6 +114,7 @@ describe("permissions", () => {
     await signOut();
     await signIn("admin@example.com");
     const id = await createCase();
+    await waitForAnalysis(id);
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
     const caseDom = new JSDOM(casePage);
     const delButton = getByTestId(
