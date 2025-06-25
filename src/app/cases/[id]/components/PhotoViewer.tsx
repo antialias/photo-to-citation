@@ -2,6 +2,7 @@
 import EditableText from "@/app/components/EditableText";
 import ImageHighlights from "@/app/components/ImageHighlights";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
+import PinchZoom from "@/components/PinchZoom";
 import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
@@ -46,12 +47,15 @@ export default function PhotoViewer({
   return (
     <>
       <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-        <Image
-          src={selectedPhoto}
-          alt="uploaded"
-          fill
-          className="object-contain"
-        />
+        <PinchZoom className="absolute inset-0">
+          <Image
+            src={selectedPhoto}
+            alt="uploaded"
+            fill
+            className="object-contain"
+            draggable={false}
+          />
+        </PinchZoom>
         {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
           <div className="absolute top-0 left-0 right-0">
             <Progress
