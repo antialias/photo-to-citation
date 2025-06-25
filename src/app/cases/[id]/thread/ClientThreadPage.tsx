@@ -3,10 +3,12 @@ import { apiEventSource, apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useNotify } from "../../../components/NotificationProvider";
+import useCase, { caseQueryKey } from "../../hooks/useCase";
 
 function buildThread(c: Case, startId: string): SentEmail[] {
   const list = c.sentEmails ?? [];
@@ -31,30 +33,25 @@ export default function ClientThreadPage({
   initialCase: Case | null;
   startId: string;
 }) {
-  const [caseData, setCaseData] = useState<Case | null>(initialCase);
+  const queryClient = useQueryClient();
+  const { data: caseData } = useCase(caseId, initialCase);
   const [viewImage, setViewImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const notify = useNotify();
 
   useEffect(() => {
-    apiFetch(`/api/cases/${caseId}`).then(async (res) => {
-      if (res.ok) {
-        const data = (await res.json()) as Case;
-        setCaseData(data);
-      }
-    });
     const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       if (data.id !== caseId) return;
       if (data.deleted) {
-        setCaseData(null);
+        queryClient.setQueryData(caseQueryKey(caseId), null);
       } else {
-        setCaseData(data);
+        queryClient.setQueryData(caseQueryKey(caseId), data);
       }
     };
     return () => es.close();
-  }, [caseId]);
+  }, [caseId, queryClient]);
 
   async function uploadScan(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -72,12 +69,7 @@ export default function ClientThreadPage({
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
-    const res = await apiFetch(`/api/cases/${caseId}`);
-    if (res.ok) {
-      setCaseData((await res.json()) as Case);
-    } else {
-      notify("Failed to refresh case data. Please retry.");
-    }
+    queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     if (fileRef.current) fileRef.current.value = "";
   }
 

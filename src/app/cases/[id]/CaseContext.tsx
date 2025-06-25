@@ -4,9 +4,14 @@ import { apiEventSource, apiFetch } from "@/apiClient";
 import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import type { Case } from "@/lib/caseStore";
 import { getRepresentativePhoto } from "@/lib/caseUtils";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNotify } from "../../components/NotificationProvider";
+import useCase, { caseQueryKey } from "../../hooks/useCase";
+import useCaseMembers, {
+  caseMembersQueryKey,
+} from "../../hooks/useCaseMembers";
 
 interface CaseMember {
   userId: string;
@@ -18,7 +23,6 @@ interface CaseMember {
 interface CaseContextValue {
   caseId: string;
   caseData: Case | null;
-  setCaseData: React.Dispatch<React.SetStateAction<Case | null>>;
   members: CaseMember[];
   selectedPhoto: string | null;
   setSelectedPhoto: React.Dispatch<React.SetStateAction<string | null>>;
@@ -43,8 +47,9 @@ export function CaseProvider({
   initialCase: Case | null;
   caseId: string;
 }) {
-  const [caseData, setCaseData] = useState<Case | null>(initialCase);
-  const [members, setMembers] = useState<CaseMember[]>([]);
+  const queryClient = useQueryClient();
+  const { data: caseData } = useCase(caseId, initialCase);
+  const { data: members = [] } = useCaseMembers(caseId);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(
     initialCase ? getRepresentativePhoto(initialCase) : null,
   );
@@ -57,24 +62,19 @@ export function CaseProvider({
   );
 
   useEffect(() => {
-    apiFetch(`/api/cases/${caseId}`).then(async (res) => {
-      if (res.ok) setCaseData((await res.json()) as Case);
-    });
-    apiFetch(`/api/cases/${caseId}/members`).then(async (res) => {
-      if (res.ok) setMembers(await res.json());
-    });
     const es = apiEventSource("/api/cases/stream");
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
       if (data.id !== caseId) return;
-      if (data.deleted) setCaseData(null);
-      else {
-        setCaseData(data);
+      if (data.deleted) {
+        queryClient.setQueryData(caseQueryKey(caseId), null);
+      } else {
+        queryClient.setQueryData(caseQueryKey(caseId), data);
         sessionStorage.removeItem(`preview-${caseId}`);
       }
     };
     return () => es.close();
-  }, [caseId]);
+  }, [caseId, queryClient]);
 
   useEffect(() => {
     if (caseData) {
@@ -117,11 +117,11 @@ export function CaseProvider({
 
   async function refreshCase() {
     const res = await apiFetch(`/api/cases/${caseId}`);
-    if (res.ok) {
-      setCaseData((await res.json()) as Case);
-    } else {
+    if (!res.ok) {
       notify("Failed to refresh case.");
+      return;
     }
+    queryClient.setQueryData(caseQueryKey(caseId), await res.json());
   }
 
   async function updateVehicle(plateNum: string, plateState: string) {
@@ -144,7 +144,8 @@ export function CaseProvider({
 
   async function refreshMembers() {
     const res = await apiFetch(`/api/cases/${caseId}/members`);
-    if (res.ok) setMembers(await res.json());
+    if (res.ok)
+      queryClient.setQueryData(caseMembersQueryKey(caseId), await res.json());
   }
 
   async function inviteMember(userId: string) {
@@ -175,7 +176,6 @@ export function CaseProvider({
   const value: CaseContextValue = {
     caseId,
     caseData,
-    setCaseData,
     members,
     selectedPhoto,
     setSelectedPhoto,
