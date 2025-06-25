@@ -37,11 +37,13 @@ export default function DebugWrapper({
   children,
   availableActions,
   unavailableActions,
+  className,
 }: {
   data: unknown;
   children: ReactNode;
   availableActions?: string[];
   unavailableActions?: string[];
+  className?: string;
 }) {
   const enabled = Boolean(config.NEXT_PUBLIC_BROWSER_DEBUG);
   const alt = useAltKey();
@@ -98,7 +100,7 @@ export default function DebugWrapper({
         onMouseLeave={() => {
           setRefHover(false);
         }}
-        className="inline-block"
+        className={className ?? "inline-block"}
       >
         {children}
       </div>
