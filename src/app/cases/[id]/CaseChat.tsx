@@ -255,6 +255,23 @@ export default function CaseChat({
     }
   }
 
+  function saveCurrentSession() {
+    if (messages.length > 0 && sessionId) {
+      const firstUser = messages.find((m) => m.role === "user");
+      const summary =
+        sessionSummary || (firstUser ? firstUser.content.slice(0, 30) : "");
+      const session: ChatSession = {
+        id: sessionId,
+        createdAt: sessionCreatedAt,
+        summary,
+        messages,
+      };
+      const list = [...history.filter((h) => h.id !== sessionId), session];
+      setHistory(list);
+      saveHistory(list);
+    }
+  }
+
   function handleOpen() {
     startNew();
     setOpen(true);
@@ -276,20 +293,7 @@ export default function CaseChat({
     } else {
       onExpandChange?.(false);
     }
-    if (messages.length > 0 && sessionId) {
-      const firstUser = messages.find((m) => m.role === "user");
-      const summary =
-        sessionSummary || (firstUser ? firstUser.content.slice(0, 30) : "");
-      const session: ChatSession = {
-        id: sessionId,
-        createdAt: sessionCreatedAt,
-        summary,
-        messages,
-      };
-      const list = [...history, session];
-      setHistory(list);
-      saveHistory(list);
-    }
+    saveCurrentSession();
     localStorage.removeItem(stateKey);
   }
 
@@ -587,6 +591,21 @@ export default function CaseChat({
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: saveCurrentSession is stable
+  useEffect(() => {
+    const handler = () => saveCurrentSession();
+    window.addEventListener("beforeunload", handler);
+    return () => {
+      window.removeEventListener("beforeunload", handler);
+      saveCurrentSession();
+    };
+  }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: save when messages change
+  useEffect(() => {
+    if (open) saveCurrentSession();
+  }, [messages]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: saveState is stable
   useEffect(() => {
     const state: ChatState = {
@@ -623,6 +642,7 @@ export default function CaseChat({
               aria-label="Chat history"
               value={sessionId ?? ""}
               onChange={(e) => {
+                saveCurrentSession();
                 const val = e.target.value;
                 if (val === "new") {
                   startNew();
