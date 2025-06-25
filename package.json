@@ -32,14 +32,16 @@
   "dependencies": {
     "@auth/drizzle-adapter": "^1.9.1",
     "@faker-js/faker": "^8.4.1",
+    "@floating-ui/dom": "^1.6.1",
+    "@floating-ui/react": "^0.27.12",
     "@radix-ui/react-dialog": "^1.1.14",
-    "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-popover": "^1.1.7",
+    "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-tooltip": "^1.1.7",
+    "@tanstack/react-query": "^5.81.2",
+    "@tanstack/react-query-devtools": "^5.81.2",
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-backend-wasm": "^4.22.0",
-    "@floating-ui/react": "^0.27.12",
-    "@floating-ui/dom": "^1.6.1",
     "better-sqlite3": "^11.10.0",
     "bree": "^9.2.4",
     "casbin": "^5.38.0",
@@ -47,6 +49,7 @@
     "dotenv": "^16.5.0",
     "exif-parser": "^0.1.12",
     "imapflow": "^1.0.188",
+    "is-mobile": "^5.0.0",
     "jsdom": "^26.1.0",
     "leaflet": "^1.9.4",
     "lodash": "4.17.21",
@@ -69,8 +72,7 @@
     "tsconfig-paths": "^4.2.0",
     "twilio": "^4.23.0",
     "umzug": "^3.8.2",
-    "zod": "^3.23.8",
-    "is-mobile": "^5.0.0"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@11ty/eleventy": "^2.0.0",
