@@ -56,12 +56,10 @@ beforeAll(async () => {
     vehicle: {},
     images: {},
   });
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3021, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);

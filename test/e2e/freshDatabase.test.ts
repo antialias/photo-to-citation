@@ -31,7 +31,6 @@ beforeAll(async () => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-auth-"));
   server = await startServer(smokePort, {
     ...smokeEnv,
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
 });
