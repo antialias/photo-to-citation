@@ -1,4 +1,5 @@
 import ClientCasesPage from "@/app/cases/ClientCasesPage";
+import QueryProvider from "@/app/query-provider";
 import type { Case } from "@/lib/caseStore";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -39,7 +40,9 @@ const closedCase: Case = { ...baseCase, id: "2", closed: true };
 describe("case state filter", () => {
   it("toggles closed case visibility", () => {
     const { getByLabelText, queryByText } = render(
-      <ClientCasesPage initialCases={[baseCase, closedCase]} />,
+      <QueryProvider>
+        <ClientCasesPage initialCases={[baseCase, closedCase]} />
+      </QueryProvider>,
     );
     expect(queryByText(/Case 2/)).toBeNull();
     const select = getByLabelText(/show/i) as HTMLSelectElement;

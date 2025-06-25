@@ -1,12 +1,17 @@
 "use client";
 
 import { apiFetch } from "@/apiClient";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useNotify } from "./components/NotificationProvider";
 
 export default function useNewCaseFromFiles() {
   const router = useRouter();
   const notify = useNotify();
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) =>
+      apiFetch("/api/upload", { method: "POST", body: formData }),
+  });
   return async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const id = Date.now().toString();
@@ -17,10 +22,7 @@ export default function useNewCaseFromFiles() {
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", id);
-        const upload = apiFetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        const upload = uploadMutation.mutateAsync(formData);
         if (idx === 0) {
           upload.then(() => {
             sessionStorage.removeItem(`preview-${id}`);
