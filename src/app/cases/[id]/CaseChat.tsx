@@ -613,7 +613,7 @@ export default function CaseChat({
     >
       {open ? (
         <div
-          className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
+          className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col  ${
             expanded ? "w-full h-full" : "w-80 h-96"
           }`}
         >
