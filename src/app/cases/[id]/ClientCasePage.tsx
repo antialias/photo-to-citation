@@ -22,12 +22,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useNotify } from "../../components/NotificationProvider";
 import CaseDetails from "./components/CaseDetails";
+import { CaseProvider } from "./CaseContext";
 import CaseExtraInfo from "./components/CaseExtraInfo";
 import CaseHeader from "./components/CaseHeader";
 import ClaimBanner from "./components/ClaimBanner";
 import PhotoSection from "./components/PhotoSection";
 
-export default function ClientCasePage({
+function ClientCasePage({
   initialCase,
   caseId,
   initialIsAdmin = false,
@@ -645,5 +646,18 @@ export default function ClientCasePage({
         />
       </div>
     </div>
+  );
+}
+
+export default function ClientCasePageWithProvider(props: {
+  initialCase: Case | null;
+  caseId: string;
+  initialIsAdmin?: boolean;
+  readOnly?: boolean;
+}) {
+  return (
+    <CaseProvider caseId={props.caseId} initialCase={props.initialCase}>
+      <ClientCasePage {...props} />
+    </CaseProvider>
   );
 }
