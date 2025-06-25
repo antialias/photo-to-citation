@@ -36,7 +36,10 @@ export const POST = withCaseAuthorization(
       .map((a) => `- ${a.label} (id: ${a.id}) - ${a.description}`)
       .join("\\n");
     const unavailableList = unavailable
-      .map((a) => `- ${a.label} (id: ${a.id}) - ${a.reason}`)
+      .map(
+        (a) =>
+          `- ${a.label} (id: ${a.id}) - ${a.description} (not applicable: ${a.reason})`,
+      )
       .join("\\n");
     const schemaDesc =
       "{ response: string, actions: [{ id?: string, field?: string, value?: string, photo?: string, note?: string }], noop: boolean }";
