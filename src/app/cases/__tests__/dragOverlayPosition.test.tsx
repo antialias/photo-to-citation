@@ -4,6 +4,7 @@ import type { Case } from "@/lib/caseStore";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 vi.mock("@/app/useSession", () => ({ useSession: () => ({ data: null }) }));
+vi.mock("@/app/useNewCaseFromFiles", () => ({ default: () => async () => {} }));
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({}),

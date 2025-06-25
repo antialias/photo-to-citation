@@ -6,7 +6,7 @@ vi.mock("next/navigation", () => ({
   usePathname: () => mockedUsePathname(),
   useRouter: () => ({ push: vi.fn() }),
 }));
-vi.mock("@/app/components/useNewCaseFromFiles", () => ({
+vi.mock("@/app/useNewCaseFromFiles", () => ({
   default: () => async () => {},
 }));
 
