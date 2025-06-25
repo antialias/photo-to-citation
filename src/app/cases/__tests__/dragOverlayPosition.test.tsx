@@ -1,5 +1,6 @@
 import ClientCasesPage from "@/app/cases/ClientCasesPage";
 import ClientCasePage from "@/app/cases/[id]/ClientCasePage";
+import QueryProvider from "@/app/query-provider";
 import type { Case } from "@/lib/caseStore";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -45,7 +46,11 @@ const baseCase: Case = {
 
 describe("drag overlays", () => {
   it("uses absolute positioning in cases list", () => {
-    const { container } = render(<ClientCasesPage initialCases={[baseCase]} />);
+    const { container } = render(
+      <QueryProvider>
+        <ClientCasesPage initialCases={[baseCase]} />
+      </QueryProvider>,
+    );
     const target = container.firstElementChild as HTMLElement;
     fireEvent.dragEnter(target);
     const overlay = container.querySelector("div.absolute.inset-0");
@@ -54,7 +59,9 @@ describe("drag overlays", () => {
 
   it("uses absolute positioning in single case page", () => {
     const { container } = render(
-      <ClientCasePage initialCase={baseCase} caseId="1" />,
+      <QueryProvider>
+        <ClientCasePage initialCase={baseCase} caseId="1" />
+      </QueryProvider>,
     );
     const target = container.firstElementChild as HTMLElement;
     fireEvent.dragEnter(target);

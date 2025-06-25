@@ -1,3 +1,4 @@
+import QueryProvider from "@/app/query-provider";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -20,14 +21,22 @@ vi.mock("@/app/useSession", () => ({
 describe("NavBar", () => {
   it("shows point and shoot link on normal pages", () => {
     mockedUsePathname.mockReturnValue("/cases");
-    render(<NavBar />);
+    render(
+      <QueryProvider>
+        <NavBar />
+      </QueryProvider>,
+    );
     expect(screen.getByText("Point & Shoot")).toBeInTheDocument();
     expect(screen.getByText("Map View")).toBeInTheDocument();
   });
 
   it("hides the nav except for cases on /point", () => {
     mockedUsePathname.mockReturnValue("/point");
-    render(<NavBar />);
+    render(
+      <QueryProvider>
+        <NavBar />
+      </QueryProvider>,
+    );
     expect(screen.queryByText("Point & Shoot")).toBeNull();
     expect(screen.getByText("Cases")).toBeInTheDocument();
   });

@@ -1,4 +1,5 @@
 import CaseChat from "@/app/cases/[id]/CaseChat";
+import QueryProvider from "@/app/query-provider";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -26,16 +27,18 @@ describe("CaseChat take photo action", () => {
       value: null,
     });
     const { getByText, getByPlaceholderText, findByText } = render(
-      <CaseChat
-        caseId="1"
-        onChat={async () => ({
-          reply: {
-            response: "",
-            actions: [{ id: "take-photo" }],
-            noop: false,
-          },
-        })}
-      />,
+      <QueryProvider>
+        <CaseChat
+          caseId="1"
+          onChat={async () => ({
+            reply: {
+              response: "",
+              actions: [{ id: "take-photo" }],
+              noop: false,
+            },
+          })}
+        />
+      </QueryProvider>,
     );
     fireEvent.click(getByText("Chat"));
     const input = getByPlaceholderText("Ask a question...");
