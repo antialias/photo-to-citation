@@ -67,11 +67,16 @@ async function waitForAnalysis(id: string) {
 }
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({
-    violationType: "parking",
-    details: "car parked illegally",
-    vehicle: {},
-    images: {},
+  stub = await startOpenAIStub((req) => {
+    const text = JSON.stringify(req.body);
+    return text.includes("Analyze the photo")
+      ? {
+          violationType: "parking",
+          details: "car parked illegally",
+          vehicle: {},
+          images: {},
+        }
+      : { subject: "", body: "" };
   });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3011, {
@@ -100,7 +105,7 @@ describe("permissions", () => {
     const id = await createCase();
     await waitForAnalysis(id);
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    const caseDom = new JSDOM(casePage);
+    const caseDom = new JSDOM(casePage, { url: server.url });
     const delButton = caseDom.window.document.querySelector(
       '[data-testid="delete-case-button"]',
     );
@@ -110,7 +115,7 @@ describe("permissions", () => {
     expect(delButton).toBeNull();
     expect(closeButton).toBeNull();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    const draftDom = new JSDOM(draft);
+    const draftDom = new JSDOM(draft, { url: server.url });
     const sendButton = getByTestId(draftDom.window.document, "send-button");
     expect(sendButton.hasAttribute("disabled")).toBe(true);
   });
@@ -121,7 +126,7 @@ describe("permissions", () => {
     const id = await createCase();
     await waitForAnalysis(id);
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    const caseDom = new JSDOM(casePage);
+    const caseDom = new JSDOM(casePage, { url: server.url });
     const delButton = getByTestId(
       caseDom.window.document,
       "delete-case-button",
@@ -133,7 +138,7 @@ describe("permissions", () => {
     expect(delButton).toBeTruthy();
     expect(closeButton).toBeTruthy();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    const draftDom = new JSDOM(draft);
+    const draftDom = new JSDOM(draft, { url: server.url });
     const sendButton = getByTestId(draftDom.window.document, "send-button");
     expect(sendButton.hasAttribute("disabled")).toBe(false);
   });
