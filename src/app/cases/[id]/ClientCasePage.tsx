@@ -21,8 +21,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useNotify } from "../../components/NotificationProvider";
-import CaseDetails from "./components/CaseDetails";
 import { CaseProvider } from "./CaseContext";
+import CaseDetails from "./components/CaseDetails";
 import CaseExtraInfo from "./components/CaseExtraInfo";
 import CaseHeader from "./components/CaseHeader";
 import ClaimBanner from "./components/ClaimBanner";
