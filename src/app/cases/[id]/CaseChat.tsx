@@ -78,6 +78,35 @@ export default function CaseChat({
   const [chatError, setChatError] = useState<string | null>(null);
 
   const storageKey = `case-chat-${caseId}`;
+  const sessionKey = `case-chat-state-${caseId}`;
+
+  function loadSessionState() {
+    try {
+      const raw = sessionStorage.getItem(sessionKey);
+      if (!raw) return null;
+      return JSON.parse(raw) as {
+        open: boolean;
+        expanded: boolean;
+        sessionId: string | null;
+        sessionCreatedAt: string;
+        sessionSummary: string;
+        messages: Message[];
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function saveSessionState(state: {
+    open: boolean;
+    expanded: boolean;
+    sessionId: string | null;
+    sessionCreatedAt: string;
+    sessionSummary: string;
+    messages: Message[];
+  }) {
+    sessionStorage.setItem(sessionKey, JSON.stringify(state));
+  }
 
   function loadHistory() {
     try {
@@ -102,6 +131,22 @@ export default function CaseChat({
   useEffect(() => {
     void loadPhotos();
   }, [caseId]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: sessionKey is stable
+  useEffect(() => {
+    const data = loadSessionState();
+    if (!data) return;
+    setOpen(data.open);
+    if (controlledExpanded === undefined) {
+      setExpandedState(data.expanded);
+    } else {
+      onExpandChange?.(data.expanded);
+    }
+    setSessionId(data.sessionId);
+    setSessionCreatedAt(data.sessionCreatedAt);
+    setSessionSummary(data.sessionSummary);
+    setMessages(data.messages);
+  }, [sessionKey]);
 
   function startNew() {
     setMessages([]);
@@ -545,6 +590,18 @@ export default function CaseChat({
       observer.disconnect();
     };
   }, [open, messages, expanded]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: sessionKey is stable
+  useEffect(() => {
+    saveSessionState({
+      open,
+      expanded,
+      sessionId,
+      sessionCreatedAt,
+      sessionSummary,
+      messages,
+    });
+  }, [open, expanded, sessionId, sessionCreatedAt, sessionSummary, messages]);
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
