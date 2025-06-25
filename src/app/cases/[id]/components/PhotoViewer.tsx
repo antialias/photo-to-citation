@@ -1,11 +1,11 @@
 "use client";
 import EditableText from "@/app/components/EditableText";
 import ImageHighlights from "@/app/components/ImageHighlights";
+import ZoomableImage from "@/app/components/ZoomableImage";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
-import Image from "next/image";
 import { useRef } from "react";
 
 export default function PhotoViewer({
@@ -46,12 +46,7 @@ export default function PhotoViewer({
   return (
     <>
       <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-        <Image
-          src={selectedPhoto}
-          alt="uploaded"
-          fill
-          className="object-contain"
-        />
+        <ZoomableImage src={selectedPhoto} alt="uploaded" />
         {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
           <div className="absolute top-0 left-0 right-0">
             <Progress
