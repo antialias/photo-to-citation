@@ -30,3 +30,11 @@ The LLM receives a list of available actions formatted like:
 ```
 
 Use the `id` value from that list when populating the `actions` array.
+
+When the system prompt includes an **Unavailable actions** section, each line
+lists the action description followed by why it does not apply. It mirrors the
+available actions format but adds the reason in parentheses:
+
+```
+- Follow Up (id: followup) - Send a follow up email. (not applicable: no prior report)
+```
