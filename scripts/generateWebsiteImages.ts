@@ -80,6 +80,7 @@ function fetchRemote(dir: string, file: string): Buffer | null {
       const data = execSync(`git show origin/gh-pages:${p}`, {
         encoding: "buffer",
       });
+      if (!data || data.length === 0) throw new Error();
       return Buffer.from(data);
     } catch {
       // ignore
