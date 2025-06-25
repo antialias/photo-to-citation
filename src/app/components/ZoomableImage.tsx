@@ -2,6 +2,44 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+export interface Transform {
+  scale: number;
+  x: number;
+  y: number;
+}
+
+export function constrainPan(
+  container: { width: number; height: number } | undefined,
+  natural: { width: number; height: number } | undefined,
+  t: Transform,
+): Transform {
+  if (!container || !natural) return t;
+  const ratio = natural.width / natural.height;
+  const containerRatio = container.width / container.height;
+  let baseWidth: number;
+  let baseHeight: number;
+  if (ratio > containerRatio) {
+    baseWidth = container.width;
+    baseHeight = container.width / ratio;
+  } else {
+    baseHeight = container.height;
+    baseWidth = container.height * ratio;
+  }
+  const width = baseWidth * t.scale;
+  const height = baseHeight * t.scale;
+  const extraX = container.width - width;
+  const extraY = container.height - height;
+  const minX = extraX >= 0 ? extraX / 2 : extraX;
+  const maxX = extraX >= 0 ? extraX / 2 : 0;
+  const minY = extraY >= 0 ? extraY / 2 : extraY;
+  const maxY = extraY >= 0 ? extraY / 2 : 0;
+  return {
+    scale: t.scale,
+    x: Math.min(maxX, Math.max(minX, t.x)),
+    y: Math.min(maxY, Math.max(minY, t.y)),
+  };
+}
+
 interface Props {
   src: string;
   alt: string;
@@ -10,6 +48,11 @@ interface Props {
 export default function ZoomableImage({ src, alt }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [naturalSize, setNaturalSize] = useState<{
+    width: number;
+    height: number;
+  }>();
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const lastDistance = useRef<number | null>(null);
   const lastCenter = useRef<{ x: number; y: number } | null>(null);
@@ -49,12 +92,19 @@ export default function ZoomableImage({ src, alt }: Props) {
         const originY = (center.y - rect.top - t.y) / t.scale;
         const x = t.x - (scale - t.scale) * originX + dx;
         const y = t.y - (scale - t.scale) * originY + dy;
-        return { scale, x, y };
+        return constrainPan(rect, naturalSize, { scale, x, y });
       });
     } else if (pointers.current.size === 1 && lastDistance.current === null) {
       const dx = cur.x - prev.x;
       const dy = cur.y - prev.y;
-      setTransform((t) => ({ ...t, x: t.x + dx, y: t.y + dy }));
+      setTransform((t) => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        return constrainPan(rect, naturalSize, {
+          scale: t.scale,
+          x: t.x + dx,
+          y: t.y + dy,
+        });
+      });
     }
   }
 
@@ -66,22 +116,25 @@ export default function ZoomableImage({ src, alt }: Props) {
     }
   }
 
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault();
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const cursorX = e.clientX - rect.left;
-    const cursorY = e.clientY - rect.top;
-    const zoom = Math.exp(-e.deltaY / 200);
-    setTransform((t) => {
-      const scale = Math.min(5, Math.max(1, t.scale * zoom));
-      const originX = (cursorX - t.x) / t.scale;
-      const originY = (cursorY - t.y) / t.scale;
-      const x = t.x - (scale - t.scale) * originX;
-      const y = t.y - (scale - t.scale) * originY;
-      return { scale, x, y };
-    });
-  }, []);
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const cursorX = e.clientX - rect.left;
+      const cursorY = e.clientY - rect.top;
+      const zoom = Math.exp(-e.deltaY / 200);
+      setTransform((t) => {
+        const scale = Math.min(5, Math.max(1, t.scale * zoom));
+        const originX = (cursorX - t.x) / t.scale;
+        const originY = (cursorY - t.y) / t.scale;
+        const x = t.x - (scale - t.scale) * originX;
+        const y = t.y - (scale - t.scale) * originY;
+        return constrainPan(rect, naturalSize, { scale, x, y });
+      });
+    },
+    [naturalSize],
+  );
 
   useEffect(() => {
     const el = containerRef.current;
@@ -105,6 +158,10 @@ export default function ZoomableImage({ src, alt }: Props) {
         src={src}
         alt={alt}
         fill
+        ref={imgRef}
+        onLoadingComplete={(img) =>
+          setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
+        }
         draggable={false}
         className="object-contain select-none"
         style={{
