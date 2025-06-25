@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
+vi.mock("@/app/useAddFilesToCase", () => ({ default: () => async () => {} }));
 
 const caseData = { photos: [] };
 

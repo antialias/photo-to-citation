@@ -1,11 +1,19 @@
 "use client";
 
 import { apiFetch } from "@/apiClient";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useNotify } from "./components/NotificationProvider";
 
 export default function useAddFilesToCase(caseId: string) {
   const router = useRouter();
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) =>
+      apiFetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      }),
+  });
   const notify = useNotify();
   return async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -14,10 +22,7 @@ export default function useAddFilesToCase(caseId: string) {
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", caseId);
-        return apiFetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        return mutation.mutateAsync(formData);
       }),
     );
     if (results.some((r) => !r.ok)) {
