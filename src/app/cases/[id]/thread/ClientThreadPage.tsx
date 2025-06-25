@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useNotify } from "../../../components/NotificationProvider";
-import useCase, { caseQueryKey } from "../../hooks/useCase";
+import useCase, { caseQueryKey } from "../../../hooks/useCase";
 
 function buildThread(c: Case, startId: string): SentEmail[] {
   const list = c.sentEmails ?? [];
