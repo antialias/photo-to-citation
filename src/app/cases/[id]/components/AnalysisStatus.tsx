@@ -1,46 +1,27 @@
 "use client";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
-import type { Case } from "@/lib/caseStore";
-import type { LlmProgress } from "@/lib/openai";
+import { useCaseContext } from "../CaseContext";
+import useCaseActions from "../useCaseActions";
+import useCaseProgress from "../useCaseProgress";
 
 export default function AnalysisStatus({
-  caseData,
-  progress,
-  readOnly,
-  plateNumberOverridden,
-  plateStateOverridden,
-  updatePlateNumber,
-  updatePlateState,
-  clearPlateNumber,
-  clearPlateState,
-  retryAnalysis,
-}: {
-  caseData: Case;
-  progress: LlmProgress | null;
-  readOnly: boolean;
-  plateNumberOverridden: boolean;
-  plateStateOverridden: boolean;
-  updatePlateNumber: (v: string) => Promise<void>;
-  updatePlateState: (v: string) => Promise<void>;
-  clearPlateNumber: () => Promise<void>;
-  clearPlateState: () => Promise<void>;
-  retryAnalysis: () => Promise<void>;
-}) {
-  const progressDescription = progress
-    ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${
-        progress.stage === "upload"
-          ? progress.index > 0
-            ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor((progress.index / progress.total) * 100)}%)`
-            : "Uploading photos..."
-          : progress.done
-            ? "Processing results..."
-            : `Analyzing... ${progress.received} of ${progress.total} tokens`
-      }`
-    : caseData.analysisStatus === "pending"
-      ? "Analyzing photo..."
-      : caseData.analysisStatus === "canceled"
-        ? "Analysis canceled."
-        : "Analysis failed.";
+  readOnly = false,
+}: { readOnly?: boolean }) {
+  const { caseData } = useCaseContext();
+  const {
+    updatePlateNumber,
+    updatePlateState,
+    clearPlateNumber,
+    clearPlateState,
+    retryAnalysis,
+    reanalyzingPhoto,
+  } = useCaseActions();
+  const { progress, progressDescription } = useCaseProgress(reanalyzingPhoto);
+
+  const plateNumberOverridden =
+    caseData.analysisOverrides?.vehicle?.licensePlateNumber !== undefined;
+  const plateStateOverridden =
+    caseData.analysisOverrides?.vehicle?.licensePlateState !== undefined;
 
   const failureReason = caseData.analysisError
     ? caseData.analysisError === "truncated"

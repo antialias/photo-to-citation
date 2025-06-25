@@ -1,5 +1,7 @@
 "use client";
+import { useSession } from "@/app/useSession";
 import { useState } from "react";
+import { useCaseContext } from "../CaseContext";
 
 export type Member = {
   userId: string;
@@ -9,19 +11,17 @@ export type Member = {
 };
 
 export default function MemberList({
-  members,
-  readOnly,
-  canManageMembers,
-  inviteMember,
-  removeMember,
-}: {
-  members: Member[];
-  readOnly: boolean;
-  canManageMembers: boolean;
-  inviteMember: (userId: string) => Promise<void>;
-  removeMember: (userId: string) => Promise<void>;
-}) {
+  readOnly = false,
+}: { readOnly?: boolean }) {
+  const { members, inviteMember, removeMember } = useCaseContext();
   const [inviteUserId, setInviteUserId] = useState("");
+  const { data: session } = useSession();
+  const isOwner = members.some(
+    (m) => m.userId === session?.user?.id && m.role === "owner",
+  );
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "superadmin";
+  const canManageMembers = isAdmin || isOwner;
   return (
     <div>
       <span className="font-semibold">Members:</span>
