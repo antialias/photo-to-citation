@@ -1,8 +1,8 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useNotify } from "../components/NotificationProvider";
 import AppConfigurationTab from "./AppConfigurationTab";
 
 const policyOptions = {
@@ -80,6 +80,8 @@ export interface CasbinRule {
 
 export type RuleInput = Omit<CasbinRule, "id">;
 
+const USERS_QUERY_KEY = ["/api/users"] as const;
+
 export default function AdminPageClient({
   initialUsers,
   initialRules,
@@ -87,7 +89,11 @@ export default function AdminPageClient({
   initialUsers: UserRecord[];
   initialRules: RuleInput[];
 }) {
-  const [users, setUsers] = useState(initialUsers);
+  const queryClient = useQueryClient();
+  const { data: users = [] } = useQuery<UserRecord[]>({
+    queryKey: USERS_QUERY_KEY,
+    initialData: initialUsers,
+  });
   const [rules, setRules] = useState(() =>
     initialRules.map((r) => ({ ...normalizeRule(r), id: crypto.randomUUID() })),
   );
@@ -96,41 +102,50 @@ export default function AdminPageClient({
   const { data: session } = useSession();
   const isSuperadmin = session?.user?.role === "superadmin";
 
-  async function refreshUsers() {
-    const res = await apiFetch("/api/users");
-    if (res.ok) setUsers(await res.json());
-  }
+  const inviteMutation = useMutation({
+    async mutationFn() {
+      await apiFetch("/api/users/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail }),
+      });
+    },
+    onSuccess() {
+      setInviteEmail("");
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+    },
+  });
 
-  async function invite() {
-    await apiFetch("/api/users/invite", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: inviteEmail }),
-    });
-    setInviteEmail("");
-    refreshUsers();
-  }
+  const disableMutation = useMutation({
+    async mutationFn(id: string) {
+      await apiFetch(`/api/users/${id}/disable`, { method: "PUT" });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+    },
+  });
 
-  async function disable(id: string) {
-    await apiFetch(`/api/users/${id}/disable`, { method: "PUT" });
-    refreshUsers();
-  }
+  const changeRoleMutation = useMutation({
+    async mutationFn({ id, role }: { id: string; role: string }) {
+      await apiFetch(`/api/users/${id}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role }),
+      });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+    },
+  });
 
-  async function changeRole(id: string, role: string) {
-    await apiFetch(`/api/users/${id}/role`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role }),
-    });
-    refreshUsers();
-  }
-
-  async function remove(id: string) {
-    await apiFetch(`/api/users/${id}`, { method: "DELETE" });
-    refreshUsers();
-  }
-
-  const notify = useNotify();
+  const removeMutation = useMutation({
+    async mutationFn(id: string) {
+      await apiFetch(`/api/users/${id}`, { method: "DELETE" });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+    },
+  });
 
   function updateRule(
     id: string,
@@ -155,43 +170,45 @@ export default function AdminPageClient({
     setRules((curr) => curr.filter((r) => r.id !== id));
   }
 
-  async function saveRules() {
-    if (!isSuperadmin) return;
-    const cleaned = rules.map((r) => ({
-      ptype: r.ptype,
-      v0: r.v0 || null,
-      v1: r.v1 || null,
-      v2: r.v2 || null,
-      v3: r.v3 || null,
-      v4: r.v4 || null,
-      v5: r.v5 || null,
-    }));
-    const hasEdit = cleaned.some(
-      (r) =>
-        r.ptype === "p" &&
-        r.v0 === "superadmin" &&
-        r.v1 === "superadmin" &&
-        r.v2 === "update",
-    );
-    if (!hasEdit) {
-      const confirmed = window.confirm(
-        "These changes will remove your ability to edit Casbin rules. Continue?",
+  const saveRulesMutation = useMutation({
+    async mutationFn() {
+      if (!isSuperadmin) return;
+      const cleaned = rules.map((r) => ({
+        ptype: r.ptype,
+        v0: r.v0 || null,
+        v1: r.v1 || null,
+        v2: r.v2 || null,
+        v3: r.v3 || null,
+        v4: r.v4 || null,
+        v5: r.v5 || null,
+      }));
+      const hasEdit = cleaned.some(
+        (r) =>
+          r.ptype === "p" &&
+          r.v0 === "superadmin" &&
+          r.v1 === "superadmin" &&
+          r.v2 === "update",
       );
-      if (!confirmed) return;
-    }
-    const res = await apiFetch("/api/casbin-rules", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cleaned),
-    });
-    if (res.ok)
-      setRules(
-        (await res.json()).map((r: RuleInput) => ({
-          ...r,
-          id: crypto.randomUUID(),
-        })),
-      );
-  }
+      if (!hasEdit) {
+        const confirmed = window.confirm(
+          "These changes will remove your ability to edit Casbin rules. Continue?",
+        );
+        if (!confirmed) return;
+      }
+      const res = await apiFetch("/api/casbin-rules", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleaned),
+      });
+      if (res.ok)
+        setRules(
+          (await res.json()).map((r: RuleInput) => ({
+            ...r,
+            id: crypto.randomUUID(),
+          })),
+        );
+    },
+  });
 
   return (
     <div className="p-8">
@@ -223,7 +240,7 @@ export default function AdminPageClient({
             />
             <button
               type="button"
-              onClick={invite}
+              onClick={() => inviteMutation.mutate()}
               className="bg-blue-600 text-white px-2 py-1 rounded"
             >
               Invite
@@ -235,7 +252,12 @@ export default function AdminPageClient({
                 <span className="flex-1">{u.email ?? u.id}</span>
                 <select
                   value={u.role}
-                  onChange={(e) => changeRole(u.id, e.target.value)}
+                  onChange={(e) =>
+                    changeRoleMutation.mutate({
+                      id: u.id,
+                      role: e.target.value,
+                    })
+                  }
                   className="border rounded p-1 bg-white dark:bg-gray-900"
                 >
                   <option value="user">user</option>
@@ -246,7 +268,7 @@ export default function AdminPageClient({
                 {u.role !== "disabled" && (
                   <button
                     type="button"
-                    onClick={() => disable(u.id)}
+                    onClick={() => disableMutation.mutate(u.id)}
                     className="bg-yellow-500 text-white px-2 py-1 rounded"
                   >
                     Disable
@@ -254,7 +276,7 @@ export default function AdminPageClient({
                 )}
                 <button
                   type="button"
-                  onClick={() => remove(u.id)}
+                  onClick={() => removeMutation.mutate(u.id)}
                   className="bg-red-500 text-white px-2 py-1 rounded"
                 >
                   Delete
@@ -402,7 +424,7 @@ export default function AdminPageClient({
           </div>
           <button
             type="button"
-            onClick={saveRules}
+            onClick={() => saveRulesMutation.mutate()}
             disabled={!isSuperadmin}
             className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50"
           >
