@@ -1,34 +1,32 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function UserSettingsPage() {
   const { data: session } = useSession();
   const [tab, setTab] = useState<"profile" | "credits">("profile");
-  const [balance, setBalance] = useState<number | null>(null);
   const [usd, setUsd] = useState("0");
-
-  useEffect(() => {
-    if (tab === "credits") {
-      fetch("/api/credits/balance")
-        .then((res) => res.json())
-        .then((data) => setBalance(data.balance));
-    }
-  }, [tab]);
-
-  async function addCredits() {
-    await fetch("/api/credits/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usd: Number(usd) }),
-    });
-    setUsd("0");
-    const res = await fetch("/api/credits/balance");
-    if (res.ok) {
-      const data = await res.json();
-      setBalance(data.balance);
-    }
-  }
+  const { data: balanceData } = useQuery({
+    queryKey: ["/api/credits/balance"],
+    enabled: tab === "credits",
+  });
+  const queryClient = useQueryClient();
+  const addCreditsMutation = useMutation({
+    async mutationFn() {
+      await apiFetch("/api/credits/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usd: Number(usd) }),
+      });
+    },
+    onSuccess() {
+      setUsd("0");
+      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance"] });
+    },
+  });
+  const balance = balanceData?.balance ?? 0;
 
   if (!session) {
     return <div className="p-8">You are not logged in.</div>;
@@ -79,7 +77,7 @@ export default function UserSettingsPage() {
             />
             <button
               type="button"
-              onClick={addCredits}
+              onClick={() => addCreditsMutation.mutate()}
               className="bg-blue-600 text-white px-2 py-1 rounded"
             >
               Add
