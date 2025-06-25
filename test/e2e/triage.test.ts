@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
 import { createPhoto } from "./photo";
+import { smokeEnv, smokePort } from "./smokeServer";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -19,7 +20,7 @@ async function createCase(): Promise<string> {
 }
 
 beforeAll(async () => {
-  server = await startServer(3040, { NEXTAUTH_SECRET: "secret" });
+  server = await startServer(smokePort, smokeEnv);
   api = createApi(server);
   ({ signIn } = createAuthHelpers(api, server));
   await signIn("user@example.com");

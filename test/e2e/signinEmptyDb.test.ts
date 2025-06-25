@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
+import { smokeEnv, smokePort } from "./smokeServer";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -11,11 +12,9 @@ let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 beforeAll(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
-  server = await startServer(3013, {
+  server = await startServer(smokePort, {
+    ...smokeEnv,
     CASE_STORE_FILE: path.join(dataDir, "cases.sqlite"),
-    NEXTAUTH_SECRET: "secret",
-    NODE_ENV: "test",
-    SMTP_FROM: "test@example.com",
   });
   api = createApi(server);
 });
