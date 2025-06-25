@@ -1,6 +1,7 @@
 "use client";
 
 import { apiEventSource, apiFetch } from "@/apiClient";
+import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import type { Case } from "@/lib/caseStore";
 import { getRepresentativePhoto } from "@/lib/caseUtils";
 import { useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ interface CaseContextValue {
   uploadFiles: (files: FileList) => Promise<void>;
   handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   removeMember: (userId: string) => Promise<void>;
+  analysisActive: boolean;
 }
 
 const CaseContext = createContext<CaseContextValue | null>(null);
@@ -49,6 +51,10 @@ export function CaseProvider({
   const notify = useNotify();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const analysisActive = useCaseAnalysisActive(
+    caseId,
+    caseData?.public ?? false,
+  );
 
   useEffect(() => {
     apiFetch(`/api/cases/${caseId}`).then(async (res) => {
@@ -180,6 +186,7 @@ export function CaseProvider({
     uploadFiles,
     handleUpload,
     removeMember,
+    analysisActive,
   };
   return <CaseContext.Provider value={value}>{children}</CaseContext.Provider>;
 }
