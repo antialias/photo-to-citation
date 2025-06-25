@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
 import Image from "next/image";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export default function PhotoViewer({
   caseData,
@@ -42,15 +42,118 @@ export default function PhotoViewer({
 }) {
   const photoMenuRef = useRef<HTMLDetailsElement>(null);
   useCloseOnOutsideClick(photoMenuRef);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const lastDistance = useRef<number | null>(null);
+  const lastCenter = useRef<{ x: number; y: number } | null>(null);
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+
+  const pointFromEvent = useCallback((e: PointerEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }, []);
+
+  const applyZoom = useCallback(
+    (newScale: number, center: { x: number; y: number }) => {
+      setScale((old) => {
+        const s = Math.min(10, Math.max(1, newScale));
+        setOffset((o) => ({
+          x: center.x - ((center.x - o.x) * s) / old,
+          y: center.y - ((center.y - o.y) * s) / old,
+        }));
+        return s;
+      });
+    },
+    [],
+  );
+
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      pointers.current.set(e.pointerId, pointFromEvent(e.nativeEvent));
+      (e.target as Element).setPointerCapture(e.pointerId);
+      lastPointer.current = pointFromEvent(e.nativeEvent);
+    },
+    [pointFromEvent],
+  );
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!pointers.current.has(e.pointerId)) return;
+      pointers.current.set(e.pointerId, pointFromEvent(e.nativeEvent));
+      const pts = Array.from(pointers.current.values());
+      if (pts.length === 2) {
+        const [p1, p2] = pts;
+        const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+        const center = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+        if (lastDistance.current !== null && lastCenter.current) {
+          const prev = lastCenter.current;
+          const ds = dist / lastDistance.current;
+          applyZoom(scale * ds, center);
+          setOffset((o) => ({
+            x: o.x + (center.x - prev.x),
+            y: o.y + (center.y - prev.y),
+          }));
+        }
+        lastDistance.current = dist;
+        lastCenter.current = center;
+      } else if (pts.length === 1 && scale > 1) {
+        const p = pts[0];
+        if (lastPointer.current) {
+          const prev = lastPointer.current;
+          setOffset((o) => ({
+            x: o.x + (p.x - prev.x),
+            y: o.y + (p.y - prev.y),
+          }));
+        }
+        lastPointer.current = p;
+      }
+    },
+    [applyZoom, scale, pointFromEvent],
+  );
+
+  const onPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    pointers.current.delete(e.pointerId);
+    lastDistance.current = null;
+    lastCenter.current = null;
+    lastPointer.current = null;
+  }, []);
+
+  const onWheel = useCallback(
+    (e: React.WheelEvent<HTMLDivElement>) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      const delta = -e.deltaY;
+      const factor = delta > 0 ? 1.1 : 0.9;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const center = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      applyZoom(scale * factor, center);
+    },
+    [applyZoom, scale],
+  );
   const t = caseData.photoTimes[selectedPhoto];
   return (
     <>
-      <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
+      <div
+        ref={containerRef}
+        className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0 overflow-hidden touch-none"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onWheel={onWheel}
+      >
         <Image
           src={selectedPhoto}
           alt="uploaded"
           fill
           className="object-contain"
+          style={{
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+            transformOrigin: "0 0",
+          }}
         />
         {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
           <div className="absolute top-0 left-0 right-0">
