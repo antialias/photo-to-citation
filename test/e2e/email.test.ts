@@ -43,7 +43,6 @@ beforeAll(async () => {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     EMAIL_FILE: path.join(tmpDir, "emails.json"),
     MOCK_EMAIL_TO: "",
     OPENAI_BASE_URL: stub.url,
