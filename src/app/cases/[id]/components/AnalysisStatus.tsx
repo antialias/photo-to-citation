@@ -1,31 +1,19 @@
 "use client";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
-import type { Case } from "@/lib/caseStore";
-import type { LlmProgress } from "@/lib/openai";
+import { useCaseContext } from "../CaseContext";
 
-export default function AnalysisStatus({
-  caseData,
-  progress,
-  readOnly,
-  plateNumberOverridden,
-  plateStateOverridden,
-  updatePlateNumber,
-  updatePlateState,
-  clearPlateNumber,
-  clearPlateState,
-  retryAnalysis,
-}: {
-  caseData: Case;
-  progress: LlmProgress | null;
-  readOnly: boolean;
-  plateNumberOverridden: boolean;
-  plateStateOverridden: boolean;
-  updatePlateNumber: (v: string) => Promise<void>;
-  updatePlateState: (v: string) => Promise<void>;
-  clearPlateNumber: () => Promise<void>;
-  clearPlateState: () => Promise<void>;
-  retryAnalysis: () => Promise<void>;
-}) {
+export default function AnalysisStatus({ readOnly }: { readOnly: boolean }) {
+  const {
+    caseData,
+    progress,
+    plateNumberOverridden,
+    plateStateOverridden,
+    updatePlateNumber,
+    updatePlateState,
+    clearPlateNumber,
+    clearPlateState,
+    retryAnalysis,
+  } = useCaseContext();
   const progressDescription = progress
     ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${
         progress.stage === "upload"

@@ -1,33 +1,26 @@
 "use client";
 import CaseToolbar from "@/app/components/CaseToolbar";
-import type { Case } from "@/lib/caseStore";
-import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 import { FaShare } from "react-icons/fa";
+import { useCaseContext } from "../CaseContext";
 
 export default function CaseHeader({
   caseId,
-  caseData,
-  ownerContact,
-  isAdmin,
   readOnly = false,
-  violationIdentified,
-  progress,
-  isPhotoReanalysis,
-  copyPublicUrl,
-  copied,
 }: {
   caseId: string;
-  caseData: Case;
-  ownerContact?: string | null;
-  isAdmin: boolean;
   readOnly?: boolean;
-  violationIdentified: boolean;
-  progress: LlmProgress | null;
-  isPhotoReanalysis: boolean;
-  copyPublicUrl: () => Promise<void>;
-  copied: boolean;
 }) {
+  const {
+    caseData,
+    ownerContact,
+    isAdmin,
+    violationIdentified,
+    progress,
+    isPhotoReanalysis,
+    copyPublicUrl,
+    copied,
+  } = useCaseContext();
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
