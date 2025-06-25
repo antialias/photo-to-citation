@@ -1,11 +1,11 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import ThumbnailImage from "@/components/thumbnail-image";
+import { caseActions } from "@/lib/caseActions";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
 import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
-import { caseActions } from "@/lib/caseActions";
-import ThumbnailImage from "@/components/thumbnail-image";
 import { useRouter } from "next/navigation";
 import {
   type ReactNode,
