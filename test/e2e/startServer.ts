@@ -3,9 +3,12 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 
+export const caseStorePath = path.join(os.tmpdir(), "e2e-cases.sqlite");
+
 export interface TestServer {
   url: string;
   close: () => Promise<void>;
+  reset: () => Promise<void>;
 }
 
 function waitForServer(port: number): Promise<void> {
@@ -28,6 +31,7 @@ export async function startServer(
   // so no real messages are sent during tests.
   const emailFile =
     env.EMAIL_FILE ?? path.join(os.tmpdir(), `e2e-emails-${port}.json`);
+  env.CASE_STORE_FILE = caseStorePath;
   const proc = spawn(nextBin, ["dev", "-p", String(port), "--turbo"], {
     env: {
       ...process.env,
@@ -60,7 +64,7 @@ export async function startServer(
     output += String(c);
   });
   await waitForServer(port);
-  return {
+  const server: TestServer = {
     url: `http://localhost:${port}`,
     close: () =>
       new Promise((resolve) => {
@@ -70,5 +74,10 @@ export async function startServer(
         });
         proc.kill();
       }),
+    reset: async () => {
+      await fetch(`${server.url}/api/test/reset`, { method: "POST" });
+    },
   };
+  (globalThis as unknown as { testServer?: TestServer }).testServer = server;
+  return server;
 }
