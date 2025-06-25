@@ -12,6 +12,9 @@ vi.stubGlobal(
 );
 
 describe("CaseChat scroll button", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
   it("shows button when scrolled away from bottom", () => {
     const { getByText, queryByText, container } = render(
       <CaseChat caseId="1" />,

@@ -78,6 +78,13 @@ export default function CaseChat({
   const [chatError, setChatError] = useState<string | null>(null);
 
   const storageKey = `case-chat-${caseId}`;
+  const stateKey = `case-chat-state-${caseId}`;
+
+  interface ChatState {
+    open: boolean;
+    expanded: boolean;
+    session?: ChatSession;
+  }
 
   function loadHistory() {
     try {
@@ -93,6 +100,20 @@ export default function CaseChat({
     localStorage.setItem(storageKey, JSON.stringify(list));
   }
 
+  function loadState(): ChatState | null {
+    try {
+      const raw = localStorage.getItem(stateKey);
+      if (!raw) return null;
+      return JSON.parse(raw) as ChatState;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveState(state: ChatState) {
+    localStorage.setItem(stateKey, JSON.stringify(state));
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: storageKey is stable
   useEffect(() => {
     setHistory(loadHistory());
@@ -102,6 +123,21 @@ export default function CaseChat({
   useEffect(() => {
     void loadPhotos();
   }, [caseId]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: stateKey is stable
+  useEffect(() => {
+    const state = loadState();
+    if (!state) return;
+    if (state.open) setOpen(true);
+    if (controlledExpanded === undefined && state.expanded)
+      setExpandedState(state.expanded);
+    if (state.session) {
+      setMessages(state.session.messages);
+      setSessionId(state.session.id);
+      setSessionCreatedAt(state.session.createdAt);
+      setSessionSummary(state.session.summary);
+    }
+  }, [stateKey]);
 
   function startNew() {
     setMessages([]);
@@ -254,6 +290,7 @@ export default function CaseChat({
       setHistory(list);
       saveHistory(list);
     }
+    localStorage.removeItem(stateKey);
   }
 
   function toggleExpanded() {
@@ -549,6 +586,24 @@ export default function CaseChat({
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: saveState is stable
+  useEffect(() => {
+    const state: ChatState = {
+      open,
+      expanded,
+      session:
+        sessionId && sessionCreatedAt
+          ? {
+              id: sessionId,
+              createdAt: sessionCreatedAt,
+              summary: sessionSummary,
+              messages,
+            }
+          : undefined,
+    };
+    saveState(state);
+  }, [open, expanded, messages, sessionId, sessionCreatedAt, sessionSummary]);
 
   return (
     <div
