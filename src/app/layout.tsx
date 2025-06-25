@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import AuthProvider from "./auth-provider";
 import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
+import QueryProvider from "./query-provider";
 import "./globals.css";
 
 export const runtime = "nodejs";
@@ -22,12 +23,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <NotificationProvider>
-          <AuthProvider session={session}>
-            <NavBar />
-            {children}
-          </AuthProvider>
-        </NotificationProvider>
+        <QueryProvider>
+          <NotificationProvider>
+            <AuthProvider session={session}>
+              <NavBar />
+              {children}
+            </AuthProvider>
+          </NotificationProvider>
+        </QueryProvider>
       </body>
     </html>
   );
