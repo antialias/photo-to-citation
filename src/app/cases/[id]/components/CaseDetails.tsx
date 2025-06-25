@@ -1,67 +1,40 @@
 "use client";
 import EditableText from "@/app/components/EditableText";
 import MapPreview from "@/app/components/MapPreview";
-import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps } from "@/lib/caseUtils";
-import type { LlmProgress } from "@/lib/openai";
+import { useCaseContext } from "../CaseContext";
 import AnalysisStatus from "./AnalysisStatus";
-import MemberList, { type Member } from "./MemberList";
+import MemberList from "./MemberList";
 
-export default function CaseDetails({
-  caseData,
-  progress,
-  readOnly,
-  ownerContact,
-  vin,
-  vinOverridden,
-  note,
-  plateNumberOverridden,
-  plateStateOverridden,
-  updateVin,
-  clearVin,
-  updateNote,
-  updatePlateNumber,
-  updatePlateState,
-  clearPlateNumber,
-  clearPlateState,
-  retryAnalysis,
-  canTogglePublic,
-  canToggleStatus,
-  togglePublic,
-  toggleClosed,
-  toggleArchived,
-  members,
-  canManageMembers,
-  inviteMember,
-  removeMember,
-}: {
-  caseData: Case;
-  progress: LlmProgress | null;
-  readOnly: boolean;
-  ownerContact: string | null;
-  vin: string;
-  vinOverridden: boolean;
-  note: string;
-  plateNumberOverridden: boolean;
-  plateStateOverridden: boolean;
-  updateVin: (v: string) => Promise<void>;
-  clearVin: () => Promise<void>;
-  updateNote: (v: string) => Promise<void>;
-  updatePlateNumber: (v: string) => Promise<void>;
-  updatePlateState: (v: string) => Promise<void>;
-  clearPlateNumber: () => Promise<void>;
-  clearPlateState: () => Promise<void>;
-  retryAnalysis: () => Promise<void>;
-  canTogglePublic: boolean;
-  canToggleStatus: boolean;
-  togglePublic: () => Promise<void>;
-  toggleClosed: () => Promise<void>;
-  toggleArchived: () => Promise<void>;
-  members: Member[];
-  canManageMembers: boolean;
-  inviteMember: (userId: string) => Promise<void>;
-  removeMember: (userId: string) => Promise<void>;
-}) {
+export default function CaseDetails() {
+  const {
+    caseData,
+    progress,
+    readOnly,
+    ownerContact,
+    vin,
+    vinOverridden,
+    note,
+    plateNumberOverridden,
+    plateStateOverridden,
+    updateVin,
+    clearVin,
+    updateNote,
+    updatePlateNumber,
+    updatePlateState,
+    clearPlateNumber,
+    clearPlateState,
+    retryAnalysis,
+    canTogglePublic,
+    canToggleStatus,
+    togglePublic,
+    toggleClosed,
+    toggleArchived,
+    members,
+    canManageMembers,
+    inviteMember,
+    removeMember,
+  } = useCaseContext();
   const gps = getOfficialCaseGps(caseData);
   return (
     <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
@@ -170,13 +143,7 @@ export default function CaseDetails({
           />
         )}
       </p>
-      <MemberList
-        members={members}
-        readOnly={readOnly}
-        canManageMembers={canManageMembers}
-        inviteMember={inviteMember}
-        removeMember={removeMember}
-      />
+      <MemberList />
     </div>
   );
 }

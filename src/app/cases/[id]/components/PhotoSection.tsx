@@ -1,52 +1,31 @@
 "use client";
 import CaseJobList from "@/app/components/CaseJobList";
-import type { Case } from "@/lib/caseStore";
-import type { LlmProgress } from "@/lib/openai";
+import { useCaseContext } from "../CaseContext";
 import PhotoGallery from "./PhotoGallery";
 import PhotoViewer from "./PhotoViewer";
 
 export default function PhotoSection({
   caseId,
-  caseData,
-  selectedPhoto,
-  setSelectedPhoto,
-  handleUpload,
-  fileInputRef,
-  hasCamera,
-  removePhoto,
   readOnly,
-  isPhotoReanalysis,
-  reanalyzingPhoto,
-  requestValue,
-  progress,
-  progressDescription,
-  analysisActive,
-  photoNote,
-  updatePhotoNote,
-  reanalyzePhoto,
-}: {
-  caseId: string;
-  caseData: Case;
-  selectedPhoto: string | null;
-  setSelectedPhoto: (photo: string) => void;
-  handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
-  fileInputRef: React.RefObject<HTMLInputElement> | null;
-  hasCamera: boolean;
-  removePhoto: (photo: string) => Promise<void>;
-  readOnly: boolean;
-  isPhotoReanalysis: boolean;
-  reanalyzingPhoto: string | null;
-  requestValue: number | undefined;
-  progress: LlmProgress | null;
-  progressDescription: string;
-  analysisActive: boolean;
-  photoNote: string;
-  updatePhotoNote: (value: string) => Promise<void>;
-  reanalyzePhoto: (
-    photo: string,
-    detailsEl?: HTMLDetailsElement | null,
-  ) => Promise<void>;
-}) {
+}: { caseId: string; readOnly: boolean }) {
+  const {
+    caseData,
+    selectedPhoto,
+    setSelectedPhoto,
+    handleUpload,
+    fileInputRef,
+    hasCamera,
+    removePhoto,
+    isPhotoReanalysis,
+    reanalyzingPhoto,
+    requestValue,
+    progress,
+    progressDescription,
+    analysisActive,
+    photoNote,
+    updatePhotoNote,
+    reanalyzePhoto,
+  } = useCaseContext();
   return (
     <>
       <CaseJobList caseId={caseId} isPublic={caseData.public} />

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useCaseContext } from "../CaseContext";
 
 export type Member = {
   userId: string;
@@ -8,19 +9,9 @@ export type Member = {
   email: string | null;
 };
 
-export default function MemberList({
-  members,
-  readOnly,
-  canManageMembers,
-  inviteMember,
-  removeMember,
-}: {
-  members: Member[];
-  readOnly: boolean;
-  canManageMembers: boolean;
-  inviteMember: (userId: string) => Promise<void>;
-  removeMember: (userId: string) => Promise<void>;
-}) {
+export default function MemberList() {
+  const { members, readOnly, canManageMembers, inviteMember, removeMember } =
+    useCaseContext();
   const [inviteUserId, setInviteUserId] = useState("");
   return (
     <div>
