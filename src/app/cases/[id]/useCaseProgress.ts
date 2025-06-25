@@ -1,14 +1,9 @@
 "use client";
-import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import type { LlmProgress } from "@/lib/openai";
 import { useCaseContext } from "./CaseContext";
 
 export default function useCaseProgress(reanalyzingPhoto: string | null) {
-  const { caseId, caseData } = useCaseContext();
-  const analysisActive = useCaseAnalysisActive(
-    caseId,
-    caseData?.public ?? false,
-  );
+  const { caseData, analysisActive } = useCaseContext();
 
   const progress: LlmProgress | null =
     caseData?.analysisStatus === "pending" && caseData.analysisProgress
