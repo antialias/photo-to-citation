@@ -65,7 +65,6 @@ beforeAll(async () => {
   });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
@@ -85,6 +84,10 @@ beforeAll(async () => {
   api = createApi(server);
   await signIn("admin@example.com");
   await signOut();
+  await signIn("user@example.com");
+});
+
+beforeEach(async () => {
   await signIn("user@example.com");
 });
 

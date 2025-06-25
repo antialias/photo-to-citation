@@ -53,7 +53,6 @@ beforeAll(async () => {
   });
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-snail-"));
   const env: NodeJS.ProcessEnv & {
-    CASE_STORE_FILE: string;
     VIN_SOURCE_FILE: string;
     OPENAI_BASE_URL: string;
     SNAIL_MAIL_PROVIDER_FILE: string;
@@ -64,7 +63,6 @@ beforeAll(async () => {
     NODE_ENV: string;
     NEXTAUTH_SECRET: string;
   } = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     SNAIL_MAIL_PROVIDER_FILE: path.join(tmpDir, "providers.json"),
@@ -99,6 +97,10 @@ beforeAll(async () => {
   );
   server = await startServer(3008, env);
   api = createApi(server);
+  await signIn("admin@example.com");
+});
+
+beforeEach(async () => {
   await signIn("admin@example.com");
 });
 

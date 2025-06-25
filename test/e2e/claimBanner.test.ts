@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
 import { getByText } from "@testing-library/dom";
 import { JSDOM } from "jsdom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -10,12 +7,9 @@ import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
-let dataDir: string;
 
 beforeAll(async () => {
-  dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   server = await startServer(3035, {
-    CASE_STORE_FILE: path.join(dataDir, "cases.sqlite"),
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
   });
@@ -24,7 +18,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await server.close();
-  fs.rmSync(dataDir, { recursive: true, force: true });
 });
 
 describe("claim banner", () => {

@@ -55,12 +55,10 @@ async function createCase(): Promise<string> {
 
 beforeAll(async () => {
   stub = await startOpenAIStub({ subject: "", body: "" });
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3011, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
     SMTP_FROM: "test@example.com",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);

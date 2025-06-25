@@ -38,10 +38,8 @@ beforeAll(async () => {
     vehicle: {},
     images: {},
   });
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(smokePort, {
     ...smokeEnv,
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     OPENAI_BASE_URL: stub.url,
   });
   api = createApi(server);

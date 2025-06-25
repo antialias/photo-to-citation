@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -10,15 +9,12 @@ import { type TestServer, startServer } from "./startServer";
 let server: TestServer;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let stub: OpenAIStub;
-let tmpDir: string;
 
 beforeAll(async () => {
   stub = await startOpenAIStub({ response: "hello", actions: [], noop: false });
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-chat-"));
   server = await startServer(3012, {
     NEXTAUTH_SECRET: "secret",
     OPENAI_BASE_URL: stub.url,
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
 });
@@ -26,7 +22,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await server.close();
   await stub.close();
-  fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
 describe("chat api", () => {

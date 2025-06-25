@@ -7,21 +7,17 @@ import { smokeEnv, smokePort } from "./smokeServer";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
-let dataDir: string;
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
 
 beforeAll(async () => {
-  dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   server = await startServer(smokePort, {
     ...smokeEnv,
-    CASE_STORE_FILE: path.join(dataDir, "cases.sqlite"),
   });
   api = createApi(server);
 });
 
 afterAll(async () => {
   await server.close();
-  fs.rmSync(dataDir, { recursive: true, force: true });
 });
 
 describe("sign in with empty db @smoke", () => {
