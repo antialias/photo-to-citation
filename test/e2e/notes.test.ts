@@ -35,11 +35,9 @@ async function createCase(): Promise<string> {
 }
 
 beforeAll(async () => {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3023, {
     NEXTAUTH_SECRET: "secret",
     NODE_ENV: "test",
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
   });
   api = createApi(server);
 });

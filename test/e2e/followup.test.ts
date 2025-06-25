@@ -7,6 +7,7 @@ import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { createPhoto } from "./photo";
 import { poll } from "./poll";
+import { casesDb } from "./smokeServer";
 import { type TestServer, startServer } from "./startServer";
 
 let api: (path: string, opts?: RequestInit) => Promise<Response>;
@@ -48,7 +49,6 @@ beforeAll(async () => {
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
-    CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
@@ -103,8 +103,7 @@ describe("follow up", () => {
 
   it("passes prior emails to openai", async () => {
     const id = await createCase();
-    const caseFile = path.join(tmpDir, "cases.sqlite");
-    const db = new Database(caseFile);
+    const db = new Database(casesDb());
     const row = db.prepare("SELECT data FROM cases WHERE id = ?").get(id) as {
       data: string;
     };
