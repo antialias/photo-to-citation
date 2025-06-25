@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: "./vitest.setup.ts",
+    setupFiles: "./vitest.setup.tsx",
     exclude: [...configDefaults.exclude, "test/e2e/**"],
     coverage: {
       provider: "v8",
