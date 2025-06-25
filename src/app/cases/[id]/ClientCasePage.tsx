@@ -3,13 +3,9 @@
 import { apiEventSource, apiFetch } from "@/apiClient";
 import CaseChat from "@/app/cases/[id]/CaseChat";
 import useDragReset from "@/app/cases/useDragReset";
-import AnalysisInfo from "@/app/components/AnalysisInfo";
-import CaseJobList from "@/app/components/CaseJobList";
 import CaseLayout from "@/app/components/CaseLayout";
 import CaseProgressGraph from "@/app/components/CaseProgressGraph";
 import DebugWrapper from "@/app/components/DebugWrapper";
-import EditableText from "@/app/components/EditableText";
-import MapPreview from "@/app/components/MapPreview";
 import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import { useSession } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
@@ -19,18 +15,17 @@ import {
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
-  getOfficialCaseGps,
   getRepresentativePhoto,
   hasViolation,
 } from "@/lib/caseUtils";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useNotify } from "../../components/NotificationProvider";
+import CaseDetails from "./components/CaseDetails";
 import CaseExtraInfo from "./components/CaseExtraInfo";
 import CaseHeader from "./components/CaseHeader";
 import ClaimBanner from "./components/ClaimBanner";
-import PhotoGallery from "./components/PhotoGallery";
-import PhotoViewer from "./components/PhotoViewer";
+import PhotoSection from "./components/PhotoSection";
 
 export default function ClientCasePage({
   initialCase,
@@ -71,7 +66,6 @@ export default function ClientCasePage({
       email: string | null;
     }>
   >([]);
-  const [inviteUserId, setInviteUserId] = useState("");
   const [copied, setCopied] = useState(false);
   const [reanalyzingPhoto, setReanalyzingPhoto] = useState<string | null>(null);
   const { data: session } = useSession();
@@ -423,18 +417,17 @@ export default function ClientCasePage({
     if (res.ok) setMembers(await res.json());
   }
 
-  async function inviteMember() {
-    if (!inviteUserId) return;
+  async function inviteMember(userId: string) {
+    if (!userId) return;
     const res = await apiFetch(`/api/cases/${caseId}/invite`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: inviteUserId }),
+      body: JSON.stringify({ userId }),
     });
     if (!res.ok) {
       notify("Failed to invite collaborator.");
       return;
     }
-    setInviteUserId("");
     await refreshMembers();
   }
 
@@ -513,71 +506,6 @@ export default function ClientCasePage({
       : caseData.analysisStatus === "canceled"
         ? "Analysis canceled."
         : "Analysis failed.";
-  const failureReason = caseData.analysisError
-    ? caseData.analysisError === "truncated"
-      ? "Analysis failed because the AI response was cut off."
-      : caseData.analysisError === "parse"
-        ? "Analysis failed due to invalid JSON from the AI."
-        : caseData.analysisError === "images"
-          ? "Analysis failed because no images were provided or some photo files were missing."
-          : "Analysis failed because the AI response did not match the expected format."
-    : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400
-      ? "Analysis failed. Please try again later."
-      : "Analysis failed.";
-  const analysisBlock = caseData.analysis ? (
-    <>
-      <AnalysisInfo
-        analysis={caseData.analysis}
-        onPlateChange={readOnly ? undefined : updatePlateNumber}
-        onStateChange={readOnly ? undefined : updatePlateStateFn}
-        onClearPlate={
-          readOnly
-            ? undefined
-            : plateNumberOverridden
-              ? clearPlateNumber
-              : undefined
-        }
-        onClearState={
-          readOnly
-            ? undefined
-            : plateStateOverridden
-              ? clearPlateState
-              : undefined
-        }
-      />
-    </>
-  ) : caseData.analysisStatus === "canceled" ? (
-    <p className="text-sm text-red-600">Analysis canceled.</p>
-  ) : caseData.analysisStatus === "pending" && progress ? (
-    <p className="text-sm text-gray-500 dark:text-gray-400">
-      {progressDescription}
-    </p>
-  ) : (
-    <div className="text-sm text-red-600 flex flex-col gap-1">
-      <p>{failureReason}</p>
-      {readOnly ? null : (
-        <button
-          type="button"
-          onClick={retryAnalysis}
-          className="underline w-fit"
-        >
-          Retry
-        </button>
-      )}
-      <details>
-        <summary className="cursor-pointer underline">More info</summary>
-        <p className="mt-1">
-          Last attempt: {new Date(caseData.updatedAt).toLocaleString()}
-        </p>
-        <p className="mt-1">Possible causes:</p>
-        <ul className="list-disc ml-4">
-          <li>Missing photo files</li>
-          <li>Invalid JSON response</li>
-          <li>Server error</li>
-        </ul>
-      </details>
-    </div>
-  );
 
   return (
     <div
@@ -639,154 +567,37 @@ export default function ClientCasePage({
           right={
             <>
               <DebugWrapper data={caseData}>
-                <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
-                  {analysisBlock}
-                  {ownerContact ? (
-                    <p>
-                      <span className="font-semibold">Owner:</span>{" "}
-                      {ownerContact}
-                    </p>
-                  ) : null}
-                  <p>
-                    <span className="font-semibold">Created:</span>{" "}
-                    {new Date(caseData.createdAt).toLocaleString()}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Visibility:</span>{" "}
-                    {caseData.public ? "Public" : "Private"}
-                    {(isAdmin || session?.user) && !readOnly && (
-                      <button
-                        type="button"
-                        onClick={togglePublic}
-                        className="ml-2 text-blue-500 underline"
-                        data-testid="toggle-public-button"
-                      >
-                        Make {caseData.public ? "Private" : "Public"}
-                      </button>
-                    )}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Status:</span>{" "}
-                    {caseData.archived
-                      ? "Archived"
-                      : caseData.closed
-                        ? "Closed"
-                        : "Open"}
-                  </p>
-                  {caseData.streetAddress ? (
-                    <p>
-                      <span className="font-semibold">Address:</span>{" "}
-                      {caseData.streetAddress}
-                    </p>
-                  ) : null}
-                  {caseData.intersection ? (
-                    <p>
-                      <span className="font-semibold">Intersection:</span>{" "}
-                      {caseData.intersection}
-                    </p>
-                  ) : null}
-                  {(() => {
-                    const g = getOfficialCaseGps(caseData);
-                    return g ? (
-                      <MapPreview
-                        lat={g.lat}
-                        lon={g.lon}
-                        width={600}
-                        height={300}
-                        className="w-full aspect-[2/1] md:max-w-xl"
-                        link={`https://www.google.com/maps?q=${g.lat},${g.lon}`}
-                      />
-                    ) : null;
-                  })()}
-                  <p>
-                    <span className="font-semibold">VIN:</span>{" "}
-                    {readOnly ? (
-                      <span>{vin || ""}</span>
-                    ) : (
-                      <EditableText
-                        value={vin}
-                        onSubmit={updateVinFn}
-                        onClear={vinOverridden ? clearVin : undefined}
-                        placeholder="VIN"
-                      />
-                    )}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Note:</span>{" "}
-                    {readOnly ? (
-                      <span>{note || ""}</span>
-                    ) : (
-                      <EditableText
-                        value={note}
-                        onSubmit={updateCaseNoteFn}
-                        onClear={note ? () => updateCaseNoteFn("") : undefined}
-                        placeholder="Add note"
-                      />
-                    )}
-                  </p>
-                  <div>
-                    <span className="font-semibold">Members:</span>
-                    <ul className="ml-2 mt-1 flex flex-col gap-1">
-                      {members.map((m) => (
-                        <li key={m.userId} className="flex items-center gap-2">
-                          <span className="flex-1">
-                            {m.name ?? m.email ?? m.userId} ({m.role})
-                          </span>
-                          {readOnly ||
-                          !canManageMembers ||
-                          m.role === "owner" ? null : (
-                            <button
-                              type="button"
-                              onClick={() => removeMember(m.userId)}
-                              className="text-red-600"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                    {readOnly || !canManageMembers ? null : (
-                      <div className="flex gap-2 mt-2">
-                        <input
-                          type="text"
-                          value={inviteUserId}
-                          onChange={(e) => setInviteUserId(e.target.value)}
-                          placeholder="User ID"
-                          className="border rounded p-1 flex-1 bg-white dark:bg-gray-900"
-                        />
-                        <button
-                          type="button"
-                          onClick={inviteMember}
-                          className="bg-blue-600 text-white px-2 py-1 rounded"
-                        >
-                          Invite
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <CaseDetails
+                  caseData={caseData}
+                  progress={progress}
+                  readOnly={readOnly}
+                  ownerContact={ownerContact}
+                  vin={vin}
+                  vinOverridden={vinOverridden}
+                  note={note}
+                  plateNumberOverridden={plateNumberOverridden}
+                  plateStateOverridden={plateStateOverridden}
+                  updateVin={updateVinFn}
+                  clearVin={clearVin}
+                  updateNote={updateCaseNoteFn}
+                  updatePlateNumber={updatePlateNumber}
+                  updatePlateState={updatePlateStateFn}
+                  clearPlateNumber={clearPlateNumber}
+                  clearPlateState={clearPlateState}
+                  retryAnalysis={retryAnalysis}
+                  canTogglePublic={(isAdmin || session?.user) && !readOnly}
+                  canToggleStatus={(isAdmin || isOwner) && !readOnly}
+                  togglePublic={togglePublic}
+                  toggleClosed={toggleClosed}
+                  toggleArchived={toggleArchived}
+                  members={members}
+                  canManageMembers={canManageMembers}
+                  inviteMember={inviteMember}
+                  removeMember={removeMember}
+                />
               </DebugWrapper>
 
-              <CaseJobList caseId={caseId} isPublic={caseData.public} />
-              {selectedPhoto ? (
-                <PhotoViewer
-                  caseData={caseData}
-                  selectedPhoto={selectedPhoto}
-                  progress={progress}
-                  progressDescription={progressDescription}
-                  requestValue={requestValue}
-                  isPhotoReanalysis={isPhotoReanalysis}
-                  reanalyzingPhoto={reanalyzingPhoto}
-                  analysisActive={analysisActive}
-                  readOnly={readOnly}
-                  photoNote={photoNote}
-                  updatePhotoNote={updatePhotoNoteFn}
-                  removePhoto={removePhoto}
-                  reanalyzePhoto={reanalyzePhoto}
-                />
-              ) : null}
-              <PhotoGallery
+              <PhotoSection
                 caseId={caseId}
                 caseData={caseData}
                 selectedPhoto={selectedPhoto}
@@ -799,6 +610,12 @@ export default function ClientCasePage({
                 isPhotoReanalysis={isPhotoReanalysis}
                 reanalyzingPhoto={reanalyzingPhoto}
                 requestValue={requestValue}
+                progress={progress}
+                progressDescription={progressDescription}
+                analysisActive={analysisActive}
+                photoNote={photoNote}
+                updatePhotoNote={updatePhotoNoteFn}
+                reanalyzePhoto={reanalyzePhoto}
               />
             </>
           }
