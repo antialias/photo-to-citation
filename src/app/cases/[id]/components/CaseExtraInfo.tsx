@@ -1,12 +1,21 @@
 "use client";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
+import type { Case } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
-import { useCaseContext } from "../CaseContext";
 import { baseName, buildThreads } from "../utils";
 
-export default function CaseExtraInfo({ caseId }: { caseId: string }) {
-  const { caseData, selectedPhoto, setSelectedPhoto } = useCaseContext();
+export default function CaseExtraInfo({
+  caseId,
+  caseData,
+  selectedPhoto,
+  setSelectedPhoto,
+}: {
+  caseId: string;
+  caseData: Case;
+  selectedPhoto: string | null;
+  setSelectedPhoto: (photo: string) => void;
+}) {
   const analysisImages = caseData.analysis?.images ?? {};
   const paperworkScans = (caseData.threadImages ?? []).map((img) => ({
     url: img.url,

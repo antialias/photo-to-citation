@@ -1,26 +1,33 @@
 "use client";
 import CaseToolbar from "@/app/components/CaseToolbar";
-import { useSession } from "@/app/useSession";
-import { getCaseOwnerContact, hasViolation } from "@/lib/caseUtils";
+import type { Case } from "@/lib/caseStore";
+import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 import { FaShare } from "react-icons/fa";
-import { useCaseContext } from "../CaseContext";
-import useCaseActions from "../useCaseActions";
-import useCaseProgress from "../useCaseProgress";
 
 export default function CaseHeader({
   caseId,
+  caseData,
+  ownerContact,
+  isAdmin,
   readOnly = false,
-}: { caseId: string; readOnly?: boolean }) {
-  const { caseData } = useCaseContext();
-  const { copied, copyPublicUrl, reanalyzingPhoto } = useCaseActions();
-  const { progress, isPhotoReanalysis } = useCaseProgress(reanalyzingPhoto);
-  const { data: session } = useSession();
-  const isAdmin =
-    session?.user?.role === "admin" || session?.user?.role === "superadmin";
-  const ownerContact = getCaseOwnerContact(caseData);
-  const violationIdentified =
-    caseData.analysisStatus === "complete" && hasViolation(caseData.analysis);
+  violationIdentified,
+  progress,
+  isPhotoReanalysis,
+  copyPublicUrl,
+  copied,
+}: {
+  caseId: string;
+  caseData: Case;
+  ownerContact?: string | null;
+  isAdmin: boolean;
+  readOnly?: boolean;
+  violationIdentified: boolean;
+  progress: LlmProgress | null;
+  isPhotoReanalysis: boolean;
+  copyPublicUrl: () => Promise<void>;
+  copied: boolean;
+}) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">

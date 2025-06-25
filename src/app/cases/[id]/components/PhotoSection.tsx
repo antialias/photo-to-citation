@@ -1,45 +1,52 @@
 "use client";
 import CaseJobList from "@/app/components/CaseJobList";
-import { useEffect, useState } from "react";
-import { useCaseContext } from "../CaseContext";
-import useCaseActions from "../useCaseActions";
-import useCaseProgress from "../useCaseProgress";
+import type { Case } from "@/lib/caseStore";
+import type { LlmProgress } from "@/lib/openai";
 import PhotoGallery from "./PhotoGallery";
 import PhotoViewer from "./PhotoViewer";
 
 export default function PhotoSection({
   caseId,
-  readOnly = false,
-}: { caseId: string; readOnly?: boolean }) {
-  const { caseData, selectedPhoto, setSelectedPhoto, fileInputRef } =
-    useCaseContext();
-  const {
-    handleUpload,
-    removePhoto,
-    reanalyzePhoto,
-    reanalyzingPhoto,
-    updatePhotoNote,
-  } = useCaseActions();
-  const {
-    progress,
-    progressDescription,
-    requestValue,
-    analysisActive,
-    isPhotoReanalysis,
-  } = useCaseProgress(reanalyzingPhoto);
-  const [hasCamera, setHasCamera] = useState(false);
-  useEffect(() => {
-    if (
-      "mediaDevices" in navigator &&
-      typeof navigator.mediaDevices.getUserMedia === "function" &&
-      (location.protocol === "https:" || location.hostname === "localhost")
-    ) {
-      setHasCamera(true);
-    }
-  }, []);
-  const photoNote = selectedPhoto
-    ? caseData.photoNotes?.[selectedPhoto] || ""
-    : "";
+  caseData,
+  selectedPhoto,
+  setSelectedPhoto,
+  handleUpload,
+  fileInputRef,
+  hasCamera,
+  removePhoto,
+  readOnly,
+  isPhotoReanalysis,
+  reanalyzingPhoto,
+  requestValue,
+  progress,
+  progressDescription,
+  analysisActive,
+  photoNote,
+  updatePhotoNote,
+  reanalyzePhoto,
+}: {
+  caseId: string;
+  caseData: Case;
+  selectedPhoto: string | null;
+  setSelectedPhoto: (photo: string) => void;
+  handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  fileInputRef: React.RefObject<HTMLInputElement> | null;
+  hasCamera: boolean;
+  removePhoto: (photo: string) => Promise<void>;
+  readOnly: boolean;
+  isPhotoReanalysis: boolean;
+  reanalyzingPhoto: string | null;
+  requestValue: number | undefined;
+  progress: LlmProgress | null;
+  progressDescription: string;
+  analysisActive: boolean;
+  photoNote: string;
+  updatePhotoNote: (value: string) => Promise<void>;
+  reanalyzePhoto: (
+    photo: string,
+    detailsEl?: HTMLDetailsElement | null,
+  ) => Promise<void>;
+}) {
   return (
     <>
       <CaseJobList caseId={caseId} isPublic={caseData.public} />
@@ -55,7 +62,7 @@ export default function PhotoSection({
           analysisActive={analysisActive}
           readOnly={readOnly}
           photoNote={photoNote}
-          updatePhotoNote={(v) => updatePhotoNote(selectedPhoto, v)}
+          updatePhotoNote={updatePhotoNote}
           removePhoto={removePhoto}
           reanalyzePhoto={reanalyzePhoto}
         />
