@@ -1,7 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface VinSourceStatus {
   id: string;
@@ -16,40 +16,50 @@ interface SnailMailProviderStatus {
 }
 
 export default function AppConfigurationTab() {
-  const [sources, setSources] = useState<VinSourceStatus[]>([]);
-  const [mailProviders, setMailProviders] = useState<SnailMailProviderStatus[]>(
-    [],
-  );
+  const queryClient = useQueryClient();
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
 
-  useEffect(() => {
-    apiFetch("/api/vin-sources")
-      .then((res) => res.json())
-      .then((data) => setSources(data));
-    apiFetch("/api/snail-mail-providers")
-      .then((res) => res.json())
-      .then((data) => setMailProviders(data));
-  }, []);
+  const { data: sources = [] } = useQuery<VinSourceStatus[]>({
+    queryKey: ["vin-sources"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/vin-sources");
+      if (!res.ok) throw new Error("Failed to fetch vin sources");
+      return res.json();
+    },
+  });
 
-  async function toggle(id: string, enabled: boolean) {
-    await apiFetch(`/api/vin-sources/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled }),
-    });
-    const res = await apiFetch("/api/vin-sources");
-    if (res.ok) setSources(await res.json());
-  }
+  const { data: mailProviders = [] } = useQuery<SnailMailProviderStatus[]>({
+    queryKey: ["snail-mail-providers"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/snail-mail-providers");
+      if (!res.ok) throw new Error("Failed to fetch snail mail providers");
+      return res.json();
+    },
+  });
 
-  async function activateProvider(id: string) {
-    await apiFetch(`/api/snail-mail-providers/${id}`, {
-      method: "PUT",
-    });
-    const res = await apiFetch("/api/snail-mail-providers");
-    if (res.ok) setMailProviders(await res.json());
-  }
+  const toggleMutation = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
+      await apiFetch(`/api/vin-sources/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vin-sources"] });
+    },
+  });
+
+  const activateProviderMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiFetch(`/api/snail-mail-providers/${id}`, { method: "PUT" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["snail-mail-providers"] });
+    },
+  });
 
   return (
     <div>
@@ -62,7 +72,9 @@ export default function AppConfigurationTab() {
             </span>
             <button
               type="button"
-              onClick={() => toggle(s.id, !s.enabled)}
+              onClick={() =>
+                toggleMutation.mutate({ id: s.id, enabled: !s.enabled })
+              }
               disabled={!isAdmin}
               className={
                 s.enabled
@@ -89,7 +101,7 @@ export default function AppConfigurationTab() {
             ) : (
               <button
                 type="button"
-                onClick={() => activateProvider(p.id)}
+                onClick={() => activateProviderMutation.mutate(p.id)}
                 disabled={!isAdmin}
                 className="bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
               >
