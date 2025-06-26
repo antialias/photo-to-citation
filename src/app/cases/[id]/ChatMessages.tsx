@@ -18,6 +18,10 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
     scrollRef,
     setDraftData,
     setCameraOpen,
+    draftAnchorId,
+    setDraftAnchorId,
+    cameraAnchorId,
+    setCameraAnchorId,
     systemPrompt,
     availableActions,
     unavailableActions,
@@ -49,7 +53,26 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
             {m.role === "assistant" &&
               m.actions &&
               m.actions.length > 0 &&
-              renderActions(m.actions)}
+              renderActions(m.actions, m.id)}
+            {draftData && draftAnchorId === m.id && (
+              <DraftPreview
+                caseId={caseId}
+                data={draftData}
+                onClose={() => {
+                  setDraftData(null);
+                  setDraftAnchorId(null);
+                }}
+              />
+            )}
+            {cameraOpen && cameraAnchorId === m.id && (
+              <TakePhotoWidget
+                caseId={caseId}
+                onClose={() => {
+                  setCameraOpen(false);
+                  setCameraAnchorId(null);
+                }}
+              />
+            )}
           </div>
         ))}
         {loading && (
@@ -64,23 +87,6 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
             <span className="text-sm">
               Drafting email based on case information...
             </span>
-          </div>
-        )}
-        {draftData && (
-          <div className="text-left" key="draft-preview">
-            <DraftPreview
-              caseId={caseId}
-              data={draftData}
-              onClose={() => setDraftData(null)}
-            />
-          </div>
-        )}
-        {cameraOpen && (
-          <div className="text-left" key="camera-widget">
-            <TakePhotoWidget
-              caseId={caseId}
-              onClose={() => setCameraOpen(false)}
-            />
           </div>
         )}
         {chatError && (
