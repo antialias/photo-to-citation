@@ -10,7 +10,6 @@ import {
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
-import { config } from "@/lib/config";
 import {
   autoUpdate,
   computePosition,

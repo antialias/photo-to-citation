@@ -6,7 +6,6 @@ import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useNotify } from "../../../components/NotificationProvider";
