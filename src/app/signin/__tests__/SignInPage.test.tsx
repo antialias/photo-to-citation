@@ -1,10 +1,11 @@
 import SignInPage from "@/app/signin/page";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/useSession", () => ({
   signIn: vi.fn(),
 }));
+import { signIn } from "@/app/useSession";
 
 const mockGet = vi.fn();
 vi.mock("next/navigation", () => ({
@@ -38,5 +39,13 @@ describe("SignInPage", () => {
       "href",
       "https://antialias.github.io/photo-to-citation/website/",
     );
+  });
+
+  it("allows signing in with Google", () => {
+    mockGet.mockReturnValueOnce(null);
+    render(<SignInPage />);
+    const btn = screen.getByRole("button", { name: /sign in with google/i });
+    fireEvent.click(btn);
+    expect(signIn).toHaveBeenCalledWith("google", { callbackUrl: "/" });
   });
 });

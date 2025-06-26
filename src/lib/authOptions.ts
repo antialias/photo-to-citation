@@ -4,6 +4,7 @@ import path from "node:path";
 import type { NextAuthOptions, Session, User } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
+import GoogleProvider from "next-auth/providers/google";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { config } from "./config";
 import { sendEmail } from "./email";
@@ -31,6 +32,10 @@ export const authOptions: NextAuthOptions = {
         log("Verification email sent", identifier);
       },
       from: config.SMTP_FROM,
+    }),
+    GoogleProvider({
+      clientId: config.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
     }),
   ],
   pages: { signIn: "/signin" },

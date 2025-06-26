@@ -45,6 +45,13 @@ export default function SignInPage() {
         <button type="submit" className="bg-blue-500 text-white px-4 py-2">
           Sign In
         </button>
+        <button
+          type="button"
+          onClick={() => signIn("google", { callbackUrl: withBasePath("/") })}
+          className="bg-red-500 text-white px-4 py-2 mt-2"
+        >
+          Sign in with Google
+        </button>
       </form>
       <a href={MARKETING_URL} className="underline mt-2">
         Back to Website

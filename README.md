@@ -56,6 +56,18 @@ The sign‑in flow sends a verification email, so set `SMTP_HOST`, `SMTP_PORT`,
 `SMTP_USER`, `SMTP_PASS`, and `SMTP_FROM` in your environment. Without these
 values login emails cannot be delivered.
 
+To enable Google sign‑in, also provide `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET`. A Terraform module under `terraform/google-oauth`
+creates these credentials:
+
+```bash
+cd terraform/google-oauth
+terraform init
+terraform apply
+```
+
+Copy the outputs into `.env.local` for the production deployment.
+
 ## Generating Zod Schemas
 
 When interfaces in `src/lib` change, update the runtime schemas and verify the output with:
