@@ -63,11 +63,7 @@ export default function Tooltip({
 
   return (
     <>
-      {cloneElement(
-        children,
-        referenceProps as Record<string, unknown>,
-        /* biome-ignore lint/suspicious/noExplicitAny: ref typing from cloneElement */
-      as any)}
+      {cloneElement(children, referenceProps as Record<string, unknown>)}
       {open && (
         <FloatingPortal>
           <div
