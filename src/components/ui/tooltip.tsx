@@ -59,12 +59,14 @@ export default function Tooltip({
     role,
   ]);
 
+  const referenceProps = getReferenceProps({ ref: refs.setReference });
+
   return (
     <>
-      {cloneElement(children as ReactElement, {
-        ref: refs.setReference,
-        ...getReferenceProps(),
-      })}
+      {cloneElement(
+        children as ReactElement,
+        referenceProps as Record<string, unknown>,
+      )}
       {open && (
         <FloatingPortal>
           <div
