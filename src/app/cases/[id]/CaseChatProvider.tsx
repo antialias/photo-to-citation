@@ -134,7 +134,13 @@ export function CaseChatProvider({
   const inputRef = useRef<HTMLInputElement>(null);
   const [showJump, setShowJump] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const openRef = useRef(open);
+  const saveCurrentSessionRef = useRef<() => void>(() => {});
   const [photoMap, setPhotoMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
   const [draftData, setDraftData] = useState<{
     email: EmailDraft;
     attachments: string[];
@@ -339,6 +345,10 @@ export function CaseChatProvider({
     history,
     saveHistory,
   ]);
+
+  useEffect(() => {
+    saveCurrentSessionRef.current = saveCurrentSession;
+  }, [saveCurrentSession]);
 
   function selectSession(val: string | "new") {
     saveCurrentSession();
@@ -676,17 +686,21 @@ export function CaseChatProvider({
   }, [open]);
 
   useEffect(() => {
-    const handler = () => saveCurrentSession();
+    const handler = () => saveCurrentSessionRef.current();
     window.addEventListener("beforeunload", handler);
     return () => {
       window.removeEventListener("beforeunload", handler);
-      saveCurrentSession();
+      handler();
     };
-  }, [saveCurrentSession]);
+  }, []);
 
   useEffect(() => {
-    if (open) saveCurrentSession();
-  }, [open, saveCurrentSession]);
+    if (openRef.current) {
+      saveCurrentSessionRef.current();
+    }
+    // reference messages to satisfy exhaustive-deps
+    void messages.length;
+  }, [messages]);
 
   useEffect(() => {
     const state: ChatState = {
