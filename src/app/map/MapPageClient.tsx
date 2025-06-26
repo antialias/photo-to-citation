@@ -69,7 +69,7 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   );
   return (
     <MapContainerAny
-      style={{ height: "calc(100vh - 4rem)", width: "100%" }}
+      style={{ height: "calc(100dvh - 4rem)", width: "100%" }}
       center={[0, 0] as [number, number]}
       zoom={2}
       scrollWheelZoom={true}
