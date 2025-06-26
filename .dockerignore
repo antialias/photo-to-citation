@@ -1,0 +1,23 @@
+# Ignore node modules and build output
+node_modules
+.next
+
+# Ignore tests and sample data
+coverage
+data
+test
+
+# Documentation and marketing site
+website
+docs
+
+# Development files
+terraform
+.storybook
+.github
+
+# Misc
+*.log
+.DS_Store
+.env*
+
