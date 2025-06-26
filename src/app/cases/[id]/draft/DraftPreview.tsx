@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useNotify } from "../../../components/NotificationProvider";
+import { ChatWidget, WidgetActions } from "../widgets";
 
 interface DraftData {
   email: EmailDraft;
@@ -82,7 +83,7 @@ export default function DraftPreview({
           ))}
         </div>
       )}
-      <div className="flex gap-1 flex-wrap">
+      <WidgetActions wrap>
         <button
           type="button"
           onClick={send}
@@ -104,12 +105,12 @@ export default function DraftPreview({
         >
           Full Editor
         </Link>
-      </div>
+      </WidgetActions>
     </div>
   );
 
   return (
-    <div className="bg-blue-600 text-white px-2 py-1 rounded mx-1 text-xs space-y-1">
+    <ChatWidget>
       <Tooltip label={tooltipContent} interactive>
         <button
           type="button"
@@ -119,7 +120,7 @@ export default function DraftPreview({
           <strong>{data.email.subject}</strong> {previewBody}
         </button>
       </Tooltip>
-      <div className="flex gap-1">
+      <WidgetActions>
         <button
           type="button"
           onClick={send}
@@ -135,7 +136,7 @@ export default function DraftPreview({
         >
           Close
         </button>
-      </div>
-    </div>
+      </WidgetActions>
+    </ChatWidget>
   );
 }
