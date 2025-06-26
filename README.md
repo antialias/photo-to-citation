@@ -24,7 +24,7 @@ npm install
 npm run dev
 ```
 
-Use [`Biome`](https://biomejs.dev/) for consistent formatting and linting:
+Use [`Biome`](https://biomejs.dev/) and ESLint for consistent formatting and linting:
 
 ```bash
 npm run lint

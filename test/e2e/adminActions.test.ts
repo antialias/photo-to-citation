@@ -61,7 +61,7 @@ afterAll(async () => {
 describe("admin actions", () => {
   it("promotes and demotes users", async () => {
     await signIn("admin@example.com");
-    const adminUser = await setUserRoleAndLogIn({
+    await setUserRoleAndLogIn({
       email: "admin@example.com",
       role: "admin",
       promoted_by: "super@example.com",
