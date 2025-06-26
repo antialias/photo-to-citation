@@ -7,7 +7,9 @@ import { useSearchParams } from "next/navigation";
 export default function UploadPage() {
   const params = useSearchParams();
   const caseId = params.get("case");
-  const uploadCase = caseId ? useAddFilesToCase(caseId) : useNewCaseFromFiles();
+  const addFilesToCase = useAddFilesToCase(caseId ?? "");
+  const newCase = useNewCaseFromFiles();
+  const uploadCase = caseId ? addFilesToCase : newCase;
   return (
     <div className="p-8">
       <input
