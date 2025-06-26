@@ -10,6 +10,23 @@ const dbFile = config.CASE_STORE_FILE
 
 fs.mkdirSync(path.dirname(dbFile), { recursive: true });
 
-export const db = new Database(dbFile);
+let db: Database;
+let migrationsReady: undefined;
 
-export const migrationsReady = runMigrations(db);
+if ((globalThis as Record<string, unknown>).__db) {
+  db = (globalThis as Record<string, Database>).__db;
+  migrationsReady = (globalThis as Record<string, undefined>).__migrationsReady;
+} else {
+  db = new Database(dbFile);
+  migrationsReady = runMigrations(db);
+  (globalThis as Record<string, unknown>).__db = db;
+  (globalThis as Record<string, unknown>).__migrationsReady = migrationsReady;
+}
+
+export { db, migrationsReady };
+
+export function closeDb(): void {
+  db.close();
+  (globalThis as Record<string, unknown>).__db = undefined;
+  (globalThis as Record<string, unknown>).__migrationsReady = undefined;
+}

@@ -10,12 +10,13 @@ let mod: typeof import("@/app/api/system/jobs/route");
 let jobScheduler: typeof import("@/lib/jobScheduler");
 let orm: typeof import("@/lib/orm").orm;
 let schema: typeof import("@/lib/schema");
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   ({ orm } = await import("@/lib/orm"));
   schema = await import("@/lib/schema");
@@ -29,9 +30,10 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  db.closeDb();
   jobScheduler.activeJobs.clear();
-  fs.rmSync(dataDir, { recursive: true, force: true });
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
 });
 

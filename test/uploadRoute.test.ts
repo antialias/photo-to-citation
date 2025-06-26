@@ -20,6 +20,7 @@ let mod: typeof import("@/app/api/upload/route");
 let caseStore: typeof import("@/lib/caseStore");
 let caseAnalysis: typeof import("@/lib/caseAnalysis");
 let cancelSpy: MockInstance | undefined;
+let db: typeof import("@/lib/db");
 
 const terminateMock = vi.fn();
 const worker = Object.assign(new EventEmitter(), {
@@ -53,7 +54,7 @@ beforeEach(async () => {
       has: vi.fn(),
     }),
   }));
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   caseStore = await import("@/lib/caseStore");
   caseAnalysis = await import("@/lib/caseAnalysis");
@@ -65,6 +66,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  db.closeDb();
   fs.rmSync(dataDir, { recursive: true, force: true });
   fs.rmSync(tmpDir, { recursive: true, force: true });
   fs.rmSync(path.join(process.cwd(), "public", "uploads"), {

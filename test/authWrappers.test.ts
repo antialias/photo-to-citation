@@ -8,6 +8,7 @@ let caseStore: typeof import("@/lib/caseStore");
 let orm: typeof import("@/lib/orm").orm;
 let schema: typeof import("@/lib/schema");
 let dataDir: string;
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   process.env.VITEST = "1";
@@ -15,7 +16,7 @@ beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   ({ orm } = await import("@/lib/orm"));
   schema = await import("@/lib/schema");
@@ -35,8 +36,9 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  fs.rmSync(dataDir, { recursive: true, force: true });
+  db.closeDb();
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
   process.env.VITEST = undefined as unknown as string;
 });
