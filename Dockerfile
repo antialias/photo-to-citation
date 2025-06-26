@@ -3,7 +3,7 @@
 # Install dependencies only, no dev dependencies after build
 FROM node:20-bookworm AS deps
 WORKDIR /app
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
 # Build the application
