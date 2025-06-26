@@ -144,6 +144,16 @@ export function CaseChatProvider({
   const notify = useNotify();
   const [chatError, setChatError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [open]);
+
   const storageKey = `case-chat-${caseId}`;
   const stateKey = `case-chat-state-${caseId}`;
 

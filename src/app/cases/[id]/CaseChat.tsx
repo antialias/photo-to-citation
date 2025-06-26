@@ -36,14 +36,14 @@ function CaseChatInner({ caseId }: { caseId: string }) {
         expanded
           ? "relative h-full"
           : open
-            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-40"
+            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-40 touch-pan-y overscroll-none"
             : "fixed bottom-4 right-4 z-40"
       } text-sm`}
     >
       {open ? (
         <div
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen h-screen sm:w-80 sm:h-96"
+            expanded ? "w-full h-full" : "w-screen h-[100dvh] sm:w-80 sm:h-96"
           }`}
         >
           <ChatHeader />
