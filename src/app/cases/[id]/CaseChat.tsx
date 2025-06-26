@@ -1,5 +1,7 @@
 "use client";
 import type { CaseChatReply } from "@/lib/caseChat";
+import useBodyScrollLock from "../../useBodyScrollLock";
+import useViewportHeight from "../../useViewportHeight";
 import {
   CaseChatProvider,
   type ChatResponse,
@@ -30,6 +32,8 @@ export default function CaseChat(props: {
 
 function CaseChatInner({ caseId }: { caseId: string }) {
   const { open, expanded, handleOpen } = useCaseChat();
+  useBodyScrollLock(open);
+  useViewportHeight(open);
   return (
     <div
       className={`${
@@ -43,8 +47,11 @@ function CaseChatInner({ caseId }: { caseId: string }) {
       {open ? (
         <div
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen h-screen sm:w-80 sm:h-96"
+            expanded ? "w-full h-full" : "w-screen sm:w-80"
           }`}
+          style={
+            expanded ? undefined : { height: "calc(var(--vh, 1vh) * 100)" }
+          }
         >
           <ChatHeader />
           <ChatMessages caseId={caseId} />
