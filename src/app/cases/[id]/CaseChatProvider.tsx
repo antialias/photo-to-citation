@@ -670,6 +670,33 @@ export function CaseChatProvider({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: saveCurrentSession stable
   useEffect(() => {
+    if (!open) return;
+    if (
+      !(
+        typeof matchMedia !== "undefined" &&
+        matchMedia("(max-width: 640px)").matches
+      )
+    )
+      return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevOverflow = html.style.overflow;
+    const prevTouch = body.style.touchAction;
+    const prevBehaviorHtml = html.style.overscrollBehaviorY;
+    const prevBehaviorBody = body.style.overscrollBehaviorY;
+    html.style.overflow = "hidden";
+    html.style.overscrollBehaviorY = "contain";
+    body.style.touchAction = "none";
+    body.style.overscrollBehaviorY = "contain";
+    return () => {
+      html.style.overflow = prevOverflow;
+      html.style.overscrollBehaviorY = prevBehaviorHtml;
+      body.style.touchAction = prevTouch;
+      body.style.overscrollBehaviorY = prevBehaviorBody;
+    };
+  }, [open]);
+
+  useEffect(() => {
     const handler = () => saveCurrentSession();
     window.addEventListener("beforeunload", handler);
     return () => {
