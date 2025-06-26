@@ -231,15 +231,16 @@ export default function useCaseActions() {
   const updateVin = (value: string) => updateVinMutation.mutateAsync(value);
   const clearVin = () => clearVinMutation.mutateAsync();
   const updateNote = (value: string) => updateNoteMutation.mutateAsync(value);
-  const updatePhotoNote = (photo: string, value: string) =>
-    updatePhotoNoteMutation.mutateAsync({ photo, value });
+  const updatePhotoNote = (photo: string, value: string): Promise<void> =>
+    updatePhotoNoteMutation.mutateAsync({ photo, value }).then(() => {});
   const togglePublic = () => togglePublicMutation.mutate();
   const toggleClosed = () => toggleClosedMutation.mutate();
   const toggleArchived = () => toggleArchivedMutation.mutate();
   const reanalyzePhoto = (
     photo: string,
     detailsEl?: HTMLDetailsElement | null,
-  ) => reanalyzePhotoMutation.mutate({ photo, detailsEl });
+  ): Promise<void> =>
+    reanalyzePhotoMutation.mutateAsync({ photo, detailsEl }).then(() => {});
   const retryAnalysis = () => retryAnalysisMutation.mutate();
   const removePhoto = (photo: string) => removePhotoMutation.mutateAsync(photo);
 

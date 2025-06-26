@@ -8,6 +8,7 @@ export default function AnalysisStatus({
   readOnly = false,
 }: { readOnly?: boolean }) {
   const { caseData } = useCaseContext();
+  if (!caseData) return null;
   const {
     updatePlateNumber,
     updatePlateState,

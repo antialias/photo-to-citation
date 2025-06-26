@@ -13,6 +13,7 @@ export default function CaseHeader({
   readOnly = false,
 }: { caseId: string; readOnly?: boolean }) {
   const { caseData } = useCaseContext();
+  if (!caseData) return null;
   const { copied, copyPublicUrl, reanalyzingPhoto } = useCaseActions();
   const { progress, isPhotoReanalysis } = useCaseProgress(reanalyzingPhoto);
   const { data: session } = useSession();

@@ -26,7 +26,7 @@ export default function PhotoGallery({
   selectedPhoto: string | null;
   setSelectedPhoto: (photo: string) => void;
   handleUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
-  fileInputRef: React.RefObject<HTMLInputElement> | null;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   hasCamera: boolean;
   removePhoto: (photo: string) => Promise<void>;
   readOnly: boolean;

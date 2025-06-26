@@ -11,7 +11,7 @@ export default function AddImageMenu({
 }: {
   caseId: string;
   hasCamera: boolean;
-  fileInputRef: RefObject<HTMLInputElement>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const [open, setOpen] = useState(false);

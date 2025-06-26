@@ -17,6 +17,7 @@ export default function CaseDetails({
   readOnly = false,
 }: { readOnly?: boolean }) {
   const { caseData, members } = useCaseContext();
+  if (!caseData) return null;
   const {
     updateVin,
     clearVin,

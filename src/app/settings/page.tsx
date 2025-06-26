@@ -8,8 +8,12 @@ export default function UserSettingsPage() {
   const { data: session } = useSession();
   const [tab, setTab] = useState<"profile" | "credits">("profile");
   const [usd, setUsd] = useState("0");
-  const { data: balanceData } = useQuery({
+  const { data: balanceData } = useQuery<{ balance: number }>({
     queryKey: ["/api/credits/balance"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/credits/balance");
+      return (await res.json()) as { balance: number };
+    },
     enabled: tab === "credits",
   });
   const queryClient = useQueryClient();

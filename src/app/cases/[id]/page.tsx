@@ -14,11 +14,5 @@ export default async function CasePage({
   const session = await getServerSession(authOptions);
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
-  return (
-    <ClientCasePage
-      caseId={id}
-      initialCase={c ?? null}
-      initialIsAdmin={isAdmin}
-    />
-  );
+  return <ClientCasePage caseId={id} initialCase={c ?? null} />;
 }

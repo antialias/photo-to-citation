@@ -7,8 +7,12 @@ import { useSession } from "../useSession";
 export default function ProfilePage() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const { data } = useQuery<{ name?: string; image?: string }>({
     queryKey: ["/api/profile"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/profile");
+      return (await res.json()) as { name?: string; image?: string };
+    },
     enabled: !!session,
   });
   const [name, setName] = useState("");
