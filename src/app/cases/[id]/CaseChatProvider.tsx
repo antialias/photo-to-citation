@@ -71,11 +71,13 @@ export interface CaseChatContextValue {
   toggleExpanded: () => void;
   send: () => Promise<void>;
   scrollToBottom: () => void;
-  renderActions: (actions: CaseChatAction[]) => ReactElement;
+  renderActions: (actions: CaseChatAction[], msgId: string) => ReactElement;
   renderContent: (m: Message) => ReactElement;
   expandedState: boolean;
   setInput: (val: string) => void;
-  openDraft: () => Promise<void>;
+  openDraft: (anchorId?: string) => Promise<void>;
+  draftAnchorId: string | null;
+  setDraftAnchorId: (id: string | null) => void;
   draftData: {
     email: EmailDraft;
     attachments: string[];
@@ -88,6 +90,8 @@ export interface CaseChatContextValue {
       module: ReportModule;
     } | null,
   ) => void;
+  cameraAnchorId: string | null;
+  setCameraAnchorId: (id: string | null) => void;
   setCameraOpen: (v: boolean) => void;
   selectSession: (id: string | "new") => void;
 }
@@ -148,6 +152,8 @@ export function CaseChatProvider({
   } | null>(null);
   const [draftLoading, setDraftLoading] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [draftAnchorId, setDraftAnchorId] = useState<string | null>(null);
+  const [cameraAnchorId, setCameraAnchorId] = useState<string | null>(null);
   const notify = useNotify();
   const [chatError, setChatError] = useState<string | null>(null);
 
@@ -230,9 +236,12 @@ export function CaseChatProvider({
     setSystemPrompt("");
     setAvailableActions([]);
     setUnavailableActions([]);
+    setDraftAnchorId(null);
+    setCameraAnchorId(null);
   }
 
-  async function openDraft() {
+  async function openDraft(anchorId?: string) {
+    setDraftAnchorId(anchorId ?? null);
     setDraftLoading(true);
     setDraftData(null);
     const res = await apiFetch(`/api/cases/${caseId}/report`);
@@ -250,7 +259,8 @@ export function CaseChatProvider({
     setDraftLoading(false);
   }
 
-  function openCamera() {
+  function openCamera(anchorId?: string) {
+    setCameraAnchorId(anchorId ?? null);
     setCameraOpen(true);
   }
 
@@ -381,6 +391,8 @@ export function CaseChatProvider({
     setDraftData(null);
     setDraftLoading(false);
     setCameraOpen(false);
+    setDraftAnchorId(null);
+    setCameraAnchorId(null);
     if (controlledExpanded === undefined) {
       setExpandedState(false);
     } else {
@@ -466,7 +478,7 @@ export function CaseChatProvider({
     router.refresh();
   }
 
-  function renderActions(actions: CaseChatAction[]) {
+  function renderActions(actions: CaseChatAction[], msgId: string) {
     const buttons = actions.map((a, idx) => {
       if ("id" in a) {
         const act = caseActions.find((c) => c.id === a.id);
@@ -477,9 +489,9 @@ export function CaseChatProvider({
               type="button"
               onClick={() => {
                 if (act.id === "compose") {
-                  void openDraft();
+                  void openDraft(msgId);
                 } else if (act.id === "take-photo") {
-                  openCamera();
+                  openCamera(msgId);
                 } else {
                   router.push(act.href(caseId));
                 }
@@ -759,8 +771,12 @@ export function CaseChatProvider({
         renderContent,
         setInput,
         openDraft,
+        draftAnchorId,
+        setDraftAnchorId,
         draftData,
         setDraftData,
+        cameraAnchorId,
+        setCameraAnchorId,
         setCameraOpen,
         selectSession,
       }}
