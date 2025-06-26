@@ -26,18 +26,6 @@ async function signIn(email: string) {
   );
 }
 
-async function signOut() {
-  const csrf = await api("/api/auth/csrf").then((r) => r.json());
-  await api("/api/auth/signout", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      csrfToken: csrf.csrfToken,
-      callbackUrl: server.url,
-    }),
-  });
-}
-
 let server: TestServer;
 let stub: OpenAIStub;
 let tmpDir: string;

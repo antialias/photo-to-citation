@@ -1,2 +1,3 @@
-const cp = require("node:child_process");
-cp.execSync = () => Buffer.from("");
+import * as cp from "node:child_process";
+
+(cp as unknown as { execSync: () => Buffer }).execSync = () => Buffer.from("");

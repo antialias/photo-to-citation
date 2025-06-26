@@ -9,8 +9,7 @@ declare module "better-sqlite3" {
     prepare<T = unknown>(sql: string): Statement<T>;
     exec(sql: string): this;
     close(): void;
-    // biome-ignore lint/suspicious/noExplicitAny: upstream library lacks types
-    transaction<T extends (...args: any[]) => any>(fn: T): T;
+    transaction<T extends (...args: unknown[]) => unknown>(fn: T): T;
   }
 
   interface DatabaseConstructor {

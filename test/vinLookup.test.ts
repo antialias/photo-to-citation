@@ -42,17 +42,18 @@ describe("vinLookup", () => {
       ok: true,
       text: () => Promise.resolve(json),
     });
-    // biome-ignore lint/suspicious/noExplicitAny: test mock
-    const globalAny: any = global;
-    const originalFetch = globalAny.fetch;
-    globalAny.fetch = fetchMock;
+    const globalWithFetch = global as typeof globalThis & {
+      fetch: typeof fetch;
+    };
+    const originalFetch = globalWithFetch.fetch;
+    globalWithFetch.fetch = fetchMock as unknown as typeof fetch;
     const { lookupVin } = await import("@/lib/vinLookup");
     const vin = await lookupVin("ABC123", "IL");
     expect(fetchMock).toHaveBeenCalled();
     const callArgs = fetchMock.mock.calls[0];
     expect(callArgs[1]?.method).toBe("POST");
     expect(vin).toBe("1HGCM82633A004352");
-    globalAny.fetch = originalFetch;
+    globalWithFetch.fetch = originalFetch;
   });
 
   it("logs request and response", async () => {
@@ -61,10 +62,11 @@ describe("vinLookup", () => {
       ok: true,
       text: () => Promise.resolve(json),
     });
-    // biome-ignore lint/suspicious/noExplicitAny: test mock
-    const globalAny: any = global;
-    const originalFetch = globalAny.fetch;
-    globalAny.fetch = fetchMock;
+    const globalWithFetch = global as typeof globalThis & {
+      fetch: typeof fetch;
+    };
+    const originalFetch = globalWithFetch.fetch;
+    globalWithFetch.fetch = fetchMock as unknown as typeof fetch;
     const logSpy = vi.spyOn(console, "log");
     const { fetchCaseVin } = await import("@/lib/vinLookup");
     const caseStore = await import("@/lib/caseStore");
@@ -83,7 +85,7 @@ describe("vinLookup", () => {
       "VIN fetch successful",
       "1HGCM82633A004352",
     );
-    globalAny.fetch = originalFetch;
+    globalWithFetch.fetch = originalFetch;
     logSpy.mockRestore();
   });
 
@@ -97,10 +99,11 @@ describe("vinLookup", () => {
       ok: true,
       text: () => Promise.resolve(json),
     });
-    // biome-ignore lint/suspicious/noExplicitAny: test mock
-    const globalAny: any = global;
-    const originalFetch = globalAny.fetch;
-    globalAny.fetch = fetchMock;
+    const globalWithFetch2 = global as typeof globalThis & {
+      fetch: typeof fetch;
+    };
+    const originalFetch = globalWithFetch2.fetch;
+    globalWithFetch2.fetch = fetchMock as unknown as typeof fetch;
     const c = createCase("/foo.jpg");
     updateCase(c.id, {
       analysis: {
@@ -116,7 +119,7 @@ describe("vinLookup", () => {
     expect(final?.vin).toBe("1HGCM82633A004352");
     const callArgs = fetchMock.mock.calls[0];
     expect(callArgs[1]?.method).toBe("POST");
-    globalAny.fetch = originalFetch;
+    globalWithFetch2.fetch = originalFetch;
   });
 
   it("falls back to the next source", async () => {
@@ -126,14 +129,15 @@ describe("vinLookup", () => {
       .fn()
       .mockResolvedValueOnce({ ok: true, text: () => Promise.resolve(html1) })
       .mockResolvedValueOnce({ ok: true, text: () => Promise.resolve(html2) });
-    // biome-ignore lint/suspicious/noExplicitAny: test mock
-    const globalAny: any = global;
-    const originalFetch = globalAny.fetch;
-    globalAny.fetch = fetchMock;
+    const globalWithFetch3 = global as typeof globalThis & {
+      fetch: typeof fetch;
+    };
+    const originalFetch = globalWithFetch3.fetch;
+    globalWithFetch3.fetch = fetchMock as unknown as typeof fetch;
     const { lookupVin } = await import("@/lib/vinLookup");
     const vin = await lookupVin("A", "B");
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(vin).toBe("1HGCM82633A004352");
-    globalAny.fetch = originalFetch;
+    globalWithFetch3.fetch = originalFetch;
   });
 });
