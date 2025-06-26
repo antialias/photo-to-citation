@@ -5,7 +5,6 @@ import MapPreview from "@/app/components/MapPreview";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
-import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { distanceBetween } from "@/lib/distance";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
