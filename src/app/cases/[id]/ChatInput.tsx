@@ -5,7 +5,12 @@ export default function ChatInput() {
   const { input, setInput, send, loading, showJump, scrollToBottom, inputRef } =
     useCaseChat();
   return (
-    <div className="border-t p-2 flex flex-col gap-2">
+    <div
+      className="border-t p-2 flex flex-col gap-2"
+      style={{
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)",
+      }}
+    >
       {showJump ? (
         <button
           type="button"
