@@ -23,6 +23,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+body.case-chat-open {
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
 /* Hide mermaid diagrams until the library finishes styling them */
 .mermaid:not([data-processed]) {
   visibility: hidden;

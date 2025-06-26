@@ -43,7 +43,7 @@ function CaseChatInner({ caseId }: { caseId: string }) {
       {open ? (
         <div
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen h-screen sm:w-80 sm:h-96"
+            expanded ? "w-full h-full" : "w-screen h-[100dvh] sm:w-80 sm:h-96"
           }`}
         >
           <ChatHeader />
