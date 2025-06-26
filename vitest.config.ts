@@ -15,6 +15,7 @@ export default defineConfig({
     globals: true,
     setupFiles: "./vitest.setup.ts",
     exclude: [...configDefaults.exclude, "test/e2e/**"],
+    maxThreads: 2,
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

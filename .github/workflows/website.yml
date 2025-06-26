@@ -30,6 +30,7 @@ jobs:
         env:
           PATH_PREFIX: /photo-to-citation/website/
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NODE_OPTIONS: '--max-old-space-size=6144'
       - name: Deploy Website to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
