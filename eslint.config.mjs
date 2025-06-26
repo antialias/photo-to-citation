@@ -1,24 +1,23 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import tsParser from "@typescript-eslint/parser";
+import eslintComments from "eslint-plugin-eslint-comments";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+export default [
   {
+    files: ["**/*.{js,ts,tsx,jsx}"],
+    languageOptions: {
+      parser: tsParser,
+    },
+    plugins: {
+      "eslint-comments": eslintComments,
+    },
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
+      "eslint-comments/no-use": "error",
+    },
+  },
+  {
+    files: ["src/jobs/workerWrapper.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
 ];
-
-export default eslintConfig;

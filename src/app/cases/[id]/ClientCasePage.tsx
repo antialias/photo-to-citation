@@ -8,6 +8,7 @@ import DebugWrapper from "@/app/components/DebugWrapper";
 import { useSession } from "@/app/useSession";
 import type { Case } from "@/lib/caseStore";
 import { getCaseOwnerContact, hasViolation } from "@/lib/caseUtils";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CaseProvider, useCaseContext } from "./CaseContext";
 import CaseDetails from "./components/CaseDetails";
@@ -45,8 +46,13 @@ function ClientCasePage({
       <div className="p-8 flex flex-col gap-4">
         <h1 className="text-xl font-semibold">Uploading...</h1>
         {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="preview" className="max-w-full" />
+          <Image
+            src={preview}
+            alt="preview"
+            className="max-w-full"
+            fill
+            sizes="100vw"
+          />
         ) : null}
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Uploading photo...
