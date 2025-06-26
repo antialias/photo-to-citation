@@ -17,7 +17,6 @@ export default function CaseDetails({
   readOnly = false,
 }: { readOnly?: boolean }) {
   const { caseData, members } = useCaseContext();
-  if (!caseData) return null;
   const {
     updateVin,
     clearVin,
@@ -29,6 +28,7 @@ export default function CaseDetails({
   } = useCaseActions();
   const { progress } = useCaseProgress(reanalyzingPhoto);
   const { data: session } = useSession();
+  if (!caseData) return null;
   const ownerContact = getCaseOwnerContact(caseData);
   const isOwner = members.some(
     (m) => m.userId === session?.user?.id && m.role === "owner",

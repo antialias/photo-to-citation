@@ -13,7 +13,6 @@ export default function PhotoSection({
 }: { caseId: string; readOnly?: boolean }) {
   const { caseData, selectedPhoto, setSelectedPhoto, fileInputRef } =
     useCaseContext();
-  if (!caseData) return null;
   const {
     handleUpload,
     removePhoto,
@@ -28,6 +27,7 @@ export default function PhotoSection({
     analysisActive,
     isPhotoReanalysis,
   } = useCaseProgress(reanalyzingPhoto);
+  if (!caseData) return null;
   const [hasCamera, setHasCamera] = useState(false);
   useEffect(() => {
     if (
