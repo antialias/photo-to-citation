@@ -27,7 +27,6 @@ export default function PhotoSection({
     analysisActive,
     isPhotoReanalysis,
   } = useCaseProgress(reanalyzingPhoto);
-  if (!caseData) return null;
   const [hasCamera, setHasCamera] = useState(false);
   useEffect(() => {
     if (
@@ -38,6 +37,7 @@ export default function PhotoSection({
       setHasCamera(true);
     }
   }, []);
+  if (!caseData) return null;
   const photoNote = selectedPhoto
     ? caseData.photoNotes?.[selectedPhoto] || ""
     : "";
