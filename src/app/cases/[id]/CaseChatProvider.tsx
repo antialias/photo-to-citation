@@ -11,6 +11,7 @@ import {
   type ReactElement,
   type ReactNode,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -147,7 +148,7 @@ export function CaseChatProvider({
   const storageKey = `case-chat-${caseId}`;
   const stateKey = `case-chat-state-${caseId}`;
 
-  function loadHistory() {
+  const loadHistory = useCallback(() => {
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) return [];
@@ -155,13 +156,16 @@ export function CaseChatProvider({
     } catch {
       return [];
     }
-  }
+  }, [storageKey]);
 
-  function saveHistory(list: ChatSession[]) {
-    localStorage.setItem(storageKey, JSON.stringify(list));
-  }
+  const saveHistory = useCallback(
+    (list: ChatSession[]) => {
+      localStorage.setItem(storageKey, JSON.stringify(list));
+    },
+    [storageKey],
+  );
 
-  function loadState(): ChatState | null {
+  const loadState = useCallback((): ChatState | null => {
     try {
       const raw = localStorage.getItem(stateKey);
       if (!raw) return null;
@@ -169,23 +173,35 @@ export function CaseChatProvider({
     } catch {
       return null;
     }
-  }
+  }, [stateKey]);
 
-  function saveState(state: ChatState) {
-    localStorage.setItem(stateKey, JSON.stringify(state));
-  }
+  const saveState = useCallback(
+    (state: ChatState) => {
+      localStorage.setItem(stateKey, JSON.stringify(state));
+    },
+    [stateKey],
+  );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: storageKey stable
   useEffect(() => {
     setHistory(loadHistory());
-  }, [storageKey]);
+  }, [loadHistory]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: caseId stable
-  useEffect(() => {
-    void loadPhotos();
+  const loadPhotos = useCallback(async () => {
+    const res = await apiFetch(`/api/cases/${caseId}`);
+    if (!res.ok) return;
+    const data = (await res.json()) as { photos?: string[] };
+    const map: Record<string, string> = {};
+    for (const url of data.photos ?? []) {
+      const parts = url.split(/[\\/]/);
+      map[parts[parts.length - 1]] = url;
+    }
+    setPhotoMap(map);
   }, [caseId]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: stateKey stable
+  useEffect(() => {
+    void loadPhotos();
+  }, [loadPhotos]);
+
   useEffect(() => {
     const state = loadState();
     if (!state) return;
@@ -198,7 +214,7 @@ export function CaseChatProvider({
       setSessionCreatedAt(state.session.createdAt);
       setSessionSummary(state.session.summary);
     }
-  }, [stateKey]);
+  }, [controlledExpanded, loadState]);
 
   function startNew() {
     setMessages([]);
@@ -208,22 +224,6 @@ export function CaseChatProvider({
     setSystemPrompt("");
     setAvailableActions([]);
     setUnavailableActions([]);
-  }
-
-  function baseName(filePath: string): string {
-    const parts = filePath.split(/[\\/]/);
-    return parts[parts.length - 1];
-  }
-
-  async function loadPhotos() {
-    const res = await apiFetch(`/api/cases/${caseId}`);
-    if (!res.ok) return;
-    const data = (await res.json()) as { photos?: string[] };
-    const map: Record<string, string> = {};
-    for (const url of data.photos ?? []) {
-      map[baseName(url)] = url;
-    }
-    setPhotoMap(map);
   }
 
   async function openDraft() {
@@ -316,7 +316,7 @@ export function CaseChatProvider({
     }
   }
 
-  function saveCurrentSession() {
+  const saveCurrentSession = useCallback(() => {
     if (messages.length > 0 && sessionId) {
       const firstUser = messages.find((m) => m.role === "user");
       const summary =
@@ -331,7 +331,14 @@ export function CaseChatProvider({
       setHistory(list);
       saveHistory(list);
     }
-  }
+  }, [
+    messages,
+    sessionId,
+    sessionCreatedAt,
+    sessionSummary,
+    history,
+    saveHistory,
+  ]);
 
   function selectSession(val: string | "new") {
     saveCurrentSession();
@@ -668,7 +675,6 @@ export function CaseChatProvider({
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: saveCurrentSession stable
   useEffect(() => {
     const handler = () => saveCurrentSession();
     window.addEventListener("beforeunload", handler);
@@ -676,14 +682,12 @@ export function CaseChatProvider({
       window.removeEventListener("beforeunload", handler);
       saveCurrentSession();
     };
-  }, []);
+  }, [saveCurrentSession]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: save when messages change
   useEffect(() => {
     if (open) saveCurrentSession();
-  }, [messages]);
+  }, [open, saveCurrentSession]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: saveState stable
   useEffect(() => {
     const state: ChatState = {
       open,
@@ -699,7 +703,15 @@ export function CaseChatProvider({
           : undefined,
     };
     saveState(state);
-  }, [open, expanded, messages, sessionId, sessionCreatedAt, sessionSummary]);
+  }, [
+    open,
+    expanded,
+    messages,
+    sessionId,
+    sessionCreatedAt,
+    sessionSummary,
+    saveState,
+  ]);
 
   return (
     <CaseChatContext.Provider

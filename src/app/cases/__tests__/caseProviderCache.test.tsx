@@ -33,6 +33,7 @@ vi.stubGlobal(
     onmessage: ((e: MessageEvent) => void) | null = null;
     close() {}
     constructor() {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       es = this;
     }
   },

@@ -7,7 +7,6 @@ import CaseProgressGraph from "@/app/components/CaseProgressGraph";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import { useSession } from "@/app/useSession";
 import type { Case } from "@/lib/caseStore";
-import { getCaseOwnerContact, hasViolation } from "@/lib/caseUtils";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CaseProvider, useCaseContext } from "./CaseContext";
@@ -16,14 +15,12 @@ import CaseExtraInfo from "./components/CaseExtraInfo";
 import CaseHeader from "./components/CaseHeader";
 import ClaimBanner from "./components/ClaimBanner";
 import PhotoSection from "./components/PhotoSection";
-import useCaseActions from "./useCaseActions";
 
 function ClientCasePage({
   caseId,
   readOnly = false,
 }: { caseId: string; readOnly?: boolean }) {
   const { caseData, uploadFiles } = useCaseContext();
-  const { reanalyzingPhoto } = useCaseActions();
   const { data: session } = useSession();
   const [dragging, setDragging] = useState(false);
   const [hideClaimBanner, setHideClaimBanner] = useState(false);
@@ -60,10 +57,6 @@ function ClientCasePage({
       </div>
     );
   }
-
-  const violationIdentified =
-    caseData.analysisStatus === "complete" && hasViolation(caseData.analysis);
-  const ownerContact = getCaseOwnerContact(caseData);
 
   return (
     <div
