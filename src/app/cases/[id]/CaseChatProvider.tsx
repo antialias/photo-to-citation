@@ -689,6 +689,17 @@ export function CaseChatProvider({
   }, [open, saveCurrentSession]);
 
   useEffect(() => {
+    const cls = "case-chat-open";
+    const body = document.body;
+    if (open) {
+      body.classList.add(cls);
+    } else {
+      body.classList.remove(cls);
+    }
+    return () => body.classList.remove(cls);
+  }, [open]);
+
+  useEffect(() => {
     const state: ChatState = {
       open,
       expanded,
