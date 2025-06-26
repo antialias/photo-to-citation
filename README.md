@@ -404,6 +404,7 @@ with prebuilt Node.js binaries.
 When commits land on `main`, the `docker-build.yml` workflow pushes the image to
 GitHub Container Registry as `ghcr.io/<OWNER>/photo-to-citation:latest`. Point
 Watchtower at this tag so your Synology NAS automatically pulls updates and redeploys.
+The workflow caches build layers with GitHub Actions so subsequent runs reuse these layers and finish faster.
 The `docker-build-photo-citation.yml` workflow publishes a second image tagged
 `photo-citation` for NAS deployments requiring `NEXT_PUBLIC_BASE_PATH=/photo-citation`.
 
