@@ -13,10 +13,10 @@ export default function CaseHeader({
   readOnly = false,
 }: { caseId: string; readOnly?: boolean }) {
   const { caseData } = useCaseContext();
-  if (!caseData) return null;
   const { copied, copyPublicUrl, reanalyzingPhoto } = useCaseActions();
   const { progress, isPhotoReanalysis } = useCaseProgress(reanalyzingPhoto);
   const { data: session } = useSession();
+  if (!caseData) return null;
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const ownerContact = getCaseOwnerContact(caseData);
