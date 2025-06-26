@@ -3,7 +3,7 @@ import useAltKey from "@/app/useAltKey";
 import Tooltip from "@/components/ui/tooltip";
 import { config } from "@/lib/config";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function tokenize(json: string): ReactNode[] {
   const tokens: ReactNode[] = [];

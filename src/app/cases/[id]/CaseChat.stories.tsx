@@ -13,7 +13,7 @@ export default meta;
 type Story = StoryObj<typeof CaseChat>;
 
 export const WithLiveLlm: Story = {
-  render: function WithLiveLlmStory() {
+  render: () => {
     const [apiKey, setApiKey] = useState("");
     const [baseUrl, setBaseUrl] = useState("");
 
@@ -78,7 +78,7 @@ function usePhotoStub() {
 }
 
 export const CaseAction: Story = {
-  render: function CaseActionStory() {
+  render: () => {
     usePhotoStub();
     const reply: CaseChatReply = {
       response: "Notify the owner?",
@@ -90,7 +90,7 @@ export const CaseAction: Story = {
 };
 
 export const EditAction: Story = {
-  render: function EditActionStory() {
+  render: () => {
     usePhotoStub();
     const reply: CaseChatReply = {
       response: "Plate looks like ABC123",
@@ -102,7 +102,7 @@ export const EditAction: Story = {
 };
 
 export const PhotoNoteAction: Story = {
-  render: function PhotoNoteActionStory() {
+  render: () => {
     usePhotoStub();
     const reply: CaseChatReply = {
       response: "Add note to photo",
@@ -114,7 +114,7 @@ export const PhotoNoteAction: Story = {
 };
 
 export const MixedActions: Story = {
-  render: function MixedActionsStory() {
+  render: () => {
     usePhotoStub();
     const reply: CaseChatReply = {
       response: "Multiple suggestions",
@@ -130,7 +130,7 @@ export const MixedActions: Story = {
 };
 
 export const ResponseOnly: Story = {
-  render: function ResponseOnlyStory() {
+  render: () => {
     usePhotoStub();
     const reply: CaseChatReply = {
       response: "Just a regular response",
@@ -142,7 +142,7 @@ export const ResponseOnly: Story = {
 };
 
 export const Noop: Story = {
-  render: function NoopStory() {
+  render: () => {
     usePhotoStub();
     const reply: CaseChatReply = {
       response: "",
@@ -192,21 +192,21 @@ function useChatNetworkFailure() {
 }
 
 export const ServerUnavailable: Story = {
-  render: function ServerUnavailableStory() {
+  render: () => {
     useChatError(503);
     return <CaseChat caseId="1" />;
   },
 };
 
 export const InvalidResponse: Story = {
-  render: function InvalidResponseStory() {
+  render: () => {
     useChatError(502);
     return <CaseChat caseId="1" />;
   },
 };
 
 export const UnreachableServer: Story = {
-  render: function UnreachableServerStory() {
+  render: () => {
     useChatNetworkFailure();
     return <CaseChat caseId="1" />;
   },

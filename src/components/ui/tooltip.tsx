@@ -64,9 +64,10 @@ export default function Tooltip({
   return (
     <>
       {cloneElement(
-        children as ReactElement,
+        children,
         referenceProps as Record<string, unknown>,
-      )}
+        /* biome-ignore lint/suspicious/noExplicitAny: ref typing from cloneElement */
+      as any)}
       {open && (
         <FloatingPortal>
           <div

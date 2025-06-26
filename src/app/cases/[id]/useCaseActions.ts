@@ -9,12 +9,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useNotify } from "../../components/NotificationProvider";
 import { caseQueryKey } from "../../hooks/useCase";
+import { caseMembersQueryKey } from "../../hooks/useCaseMembers";
 import { useCaseContext } from "./CaseContext";
 
 export default function useCaseActions() {
   const {
     caseId,
     caseData,
+    refreshCase,
     updateVehicle,
     inviteMember,
     removeMember,

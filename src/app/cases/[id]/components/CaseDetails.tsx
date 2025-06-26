@@ -17,6 +17,7 @@ export default function CaseDetails({
   readOnly = false,
 }: { readOnly?: boolean }) {
   const { caseData, members } = useCaseContext();
+  if (!caseData) return null;
   const {
     updateVin,
     clearVin,
@@ -26,9 +27,8 @@ export default function CaseDetails({
     toggleArchived,
     reanalyzingPhoto,
   } = useCaseActions();
-  useCaseProgress(reanalyzingPhoto);
+  const { progress } = useCaseProgress(reanalyzingPhoto);
   const { data: session } = useSession();
-  if (!caseData) return null;
   const ownerContact = getCaseOwnerContact(caseData);
   const isOwner = members.some(
     (m) => m.userId === session?.user?.id && m.role === "owner",
@@ -40,6 +40,10 @@ export default function CaseDetails({
   const vin = getCaseVin(caseData) || "";
   const vinOverridden = caseData.vinOverride !== null;
   const note = caseData.note || "";
+  const plateNumberOverridden =
+    caseData.analysisOverrides?.vehicle?.licensePlateNumber !== undefined;
+  const plateStateOverridden =
+    caseData.analysisOverrides?.vehicle?.licensePlateState !== undefined;
   const gps = getOfficialCaseGps(caseData);
   return (
     <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">

@@ -150,7 +150,7 @@ function rowToCase(row: {
 }
 
 function saveCase(c: Case) {
-  const { photos, photoTimes, photoGps, photoNotes, ...rest } = c;
+  const { photos, photoTimes, photoGps, photoNotes, sessionId, ...rest } = c;
   const images = rest.analysis?.images ?? {};
   if (photoNotes) {
     (rest as Partial<Case>).photoNotes = photoNotes;

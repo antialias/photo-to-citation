@@ -13,6 +13,7 @@ export default function PhotoSection({
 }: { caseId: string; readOnly?: boolean }) {
   const { caseData, selectedPhoto, setSelectedPhoto, fileInputRef } =
     useCaseContext();
+  if (!caseData) return null;
   const {
     handleUpload,
     removePhoto,
@@ -37,7 +38,6 @@ export default function PhotoSection({
       setHasCamera(true);
     }
   }, []);
-  if (!caseData) return null;
   const photoNote = selectedPhoto
     ? caseData.photoNotes?.[selectedPhoto] || ""
     : "";

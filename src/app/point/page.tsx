@@ -24,9 +24,7 @@ export default function PointAndShootPage() {
   const [uploading, setUploading] = useState(false);
   const params = useSearchParams();
   const caseId = params.get("case") || null;
-  const addFiles = useAddFilesToCase(caseId ?? "");
-  const newCase = useNewCaseFromFiles();
-  const uploadCase = caseId ? addFiles : newCase;
+  const uploadCase = caseId ? useAddFilesToCase(caseId) : useNewCaseFromFiles();
 
   useEffect(() => {
     async function startCamera() {

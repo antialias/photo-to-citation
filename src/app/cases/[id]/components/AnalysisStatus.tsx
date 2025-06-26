@@ -8,6 +8,7 @@ export default function AnalysisStatus({
   readOnly = false,
 }: { readOnly?: boolean }) {
   const { caseData } = useCaseContext();
+  if (!caseData) return null;
   const {
     updatePlateNumber,
     updatePlateState,
@@ -17,7 +18,6 @@ export default function AnalysisStatus({
     reanalyzingPhoto,
   } = useCaseActions();
   const { progress, progressDescription } = useCaseProgress(reanalyzingPhoto);
-  if (!caseData) return null;
 
   const plateNumberOverridden =
     caseData.analysisOverrides?.vehicle?.licensePlateNumber !== undefined;

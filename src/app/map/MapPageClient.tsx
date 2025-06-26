@@ -3,6 +3,7 @@ import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import type React from "react";
