@@ -2,6 +2,7 @@
 import type { CaseChatReply } from "@/lib/caseChat";
 import {
   CaseChatProvider,
+  type ChatResponse,
   type Message,
   useCaseChat,
 } from "./CaseChatProvider";
@@ -13,7 +14,9 @@ export default function CaseChat(props: {
   caseId: string;
   onChat?: (
     messages: Message[],
-  ) => Promise<CaseChatReply | { reply: string; system?: string } | string>;
+  ) => Promise<
+    CaseChatReply | { reply: string; system?: string } | ChatResponse | string
+  >;
   expanded?: boolean;
   onExpandChange?: (value: boolean) => void;
 }) {

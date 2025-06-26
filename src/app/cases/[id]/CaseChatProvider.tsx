@@ -8,6 +8,7 @@ import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import {
+  type ReactElement,
   type ReactNode,
   createContext,
   useContext,
@@ -31,7 +32,7 @@ interface ChatSession {
   messages: Message[];
 }
 
-interface ChatResponse {
+export interface ChatResponse {
   reply: CaseChatReply;
   system?: string;
   available?: string[];
@@ -62,15 +63,15 @@ export interface CaseChatContextValue {
   availableActions: string[];
   unavailableActions: string[];
   showJump: boolean;
-  scrollRef: React.RefObject<HTMLDivElement>;
-  inputRef: React.RefObject<HTMLInputElement>;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   handleOpen: () => void;
   handleClose: () => void;
   toggleExpanded: () => void;
   send: () => Promise<void>;
   scrollToBottom: () => void;
-  renderActions: (actions: CaseChatAction[]) => JSX.Element;
-  renderContent: (m: Message) => JSX.Element;
+  renderActions: (actions: CaseChatAction[]) => ReactElement;
+  renderContent: (m: Message) => ReactElement;
   expandedState: boolean;
   setInput: (val: string) => void;
   openDraft: () => Promise<void>;
@@ -79,7 +80,13 @@ export interface CaseChatContextValue {
     attachments: string[];
     module: ReportModule;
   } | null;
-  setDraftData: (val: typeof draftData) => void;
+  setDraftData: (
+    val: {
+      email: EmailDraft;
+      attachments: string[];
+      module: ReportModule;
+    } | null,
+  ) => void;
   setCameraOpen: (v: boolean) => void;
   selectSession: (id: string | "new") => void;
 }
@@ -102,7 +109,9 @@ export function CaseChatProvider({
   caseId: string;
   onChat?: (
     messages: Message[],
-  ) => Promise<CaseChatReply | { reply: string; system?: string }>;
+  ) => Promise<
+    CaseChatReply | { reply: string; system?: string } | ChatResponse | string
+  >;
   expanded?: boolean;
   onExpandChange?: (value: boolean) => void;
   children: ReactNode;
@@ -635,20 +644,21 @@ export function CaseChatProvider({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: update on open, messages, or size changes
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
+    if (!scrollRef.current) return;
+    const current = scrollRef.current;
     function update() {
-      const canScroll = el.scrollHeight > el.clientHeight + 1;
-      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      const canScroll = current.scrollHeight > current.clientHeight + 1;
+      const atBottom =
+        current.scrollTop + current.clientHeight >= current.scrollHeight - 1;
       setShowJump(canScroll && !atBottom);
     }
     update();
-    el.addEventListener("scroll", update);
+    current.addEventListener("scroll", update);
     window.addEventListener("resize", update);
     const observer = new ResizeObserver(update);
-    observer.observe(el);
+    observer.observe(current);
     return () => {
-      el.removeEventListener("scroll", update);
+      current.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       observer.disconnect();
     };

@@ -7,6 +7,7 @@ import { baseName, buildThreads } from "../utils";
 
 export default function CaseExtraInfo({ caseId }: { caseId: string }) {
   const { caseData, selectedPhoto, setSelectedPhoto } = useCaseContext();
+  if (!caseData) return null;
   const analysisImages = caseData.analysis?.images ?? {};
   const paperworkScans = (caseData.threadImages ?? []).map((img) => ({
     url: img.url,

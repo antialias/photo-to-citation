@@ -26,7 +26,7 @@ interface CaseContextValue {
   members: CaseMember[];
   selectedPhoto: string | null;
   setSelectedPhoto: React.Dispatch<React.SetStateAction<string | null>>;
-  fileInputRef: React.RefObject<HTMLInputElement> | null;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   refreshCase: () => Promise<void>;
   updateVehicle: (plateNum: string, plateState: string) => Promise<void>;
   inviteMember: (userId: string) => Promise<void>;
@@ -48,7 +48,7 @@ export function CaseProvider({
   caseId: string;
 }) {
   const queryClient = useQueryClient();
-  const { data: caseData } = useCase(caseId, initialCase);
+  const { data: caseData = null } = useCase(caseId, initialCase);
   const { data: members = [] } = useCaseMembers(caseId);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(
     initialCase ? getRepresentativePhoto(initialCase) : null,

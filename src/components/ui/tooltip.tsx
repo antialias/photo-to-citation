@@ -64,7 +64,8 @@ export default function Tooltip({
       {cloneElement(children, {
         ref: refs.setReference,
         ...getReferenceProps(),
-      })}
+        /* biome-ignore lint/suspicious/noExplicitAny: ref typing from cloneElement */
+      } as any)}
       {open && (
         <FloatingPortal>
           <div

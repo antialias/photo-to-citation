@@ -71,7 +71,7 @@ export async function chatWithSchema<T>(
     const total = maxTokens;
     let received = 0;
     if (progress) {
-      for await (const chunk of res as AsyncIterable<ChatCompletionChunk>) {
+      for await (const chunk of res as unknown as AsyncIterable<ChatCompletionChunk>) {
         const delta = chunk.choices[0]?.delta?.content ?? "";
         text += delta;
         finish = chunk.choices[0]?.finish_reason || null;

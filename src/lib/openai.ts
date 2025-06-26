@@ -81,7 +81,7 @@ export const paperworkInfoSchema: z.ZodType<PaperworkInfo> = z.object({
     })
     .default({}),
   callsToAction: z.array(z.string()).optional(),
-});
+}) as z.ZodType<PaperworkInfo>;
 
 export interface PaperworkAnalysis {
   text: string;
@@ -141,7 +141,7 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
       }),
     )
     .default({}),
-});
+}) as z.ZodType<ViolationReport>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,

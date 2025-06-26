@@ -31,12 +31,11 @@ export default function DraftPreview({
 
   function openCompose() {
     const url = `/cases/${caseId}/compose`;
-    router.push(url).then(() => {
-      if (typeof history !== "undefined") {
-        const st = history.state ?? {};
-        history.replaceState({ ...st, draftData: data }, "", url);
-      }
-    });
+    router.push(url);
+    if (typeof history !== "undefined") {
+      const st = history.state ?? {};
+      history.replaceState({ ...st, draftData: data }, "", url);
+    }
   }
 
   async function send() {
