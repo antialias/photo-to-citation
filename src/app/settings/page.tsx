@@ -1,35 +1,15 @@
 "use client";
-import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import useAddCredits from "../hooks/useAddCredits";
+import useCreditBalance from "../hooks/useCreditBalance";
 
 export default function UserSettingsPage() {
   const { data: session } = useSession();
   const [tab, setTab] = useState<"profile" | "credits">("profile");
   const [usd, setUsd] = useState("0");
-  const { data: balanceData } = useQuery<{ balance: number }>({
-    queryKey: ["/api/credits/balance"],
-    queryFn: async () => {
-      const res = await apiFetch("/api/credits/balance");
-      return (await res.json()) as { balance: number };
-    },
-    enabled: tab === "credits",
-  });
-  const queryClient = useQueryClient();
-  const addCreditsMutation = useMutation({
-    async mutationFn() {
-      await apiFetch("/api/credits/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usd: Number(usd) }),
-      });
-    },
-    onSuccess() {
-      setUsd("0");
-      queryClient.invalidateQueries({ queryKey: ["/api/credits/balance"] });
-    },
-  });
+  const { data: balanceData } = useCreditBalance(tab === "credits");
+  const addCreditsMutation = useAddCredits();
   const balance = balanceData?.balance ?? 0;
 
   if (!session) {
@@ -81,7 +61,13 @@ export default function UserSettingsPage() {
             />
             <button
               type="button"
-              onClick={() => addCreditsMutation.mutate()}
+              onClick={() =>
+                addCreditsMutation.mutate(Number(usd), {
+                  onSuccess() {
+                    setUsd("0");
+                  },
+                })
+              }
               className="bg-blue-600 text-white px-2 py-1 rounded"
             >
               Add
