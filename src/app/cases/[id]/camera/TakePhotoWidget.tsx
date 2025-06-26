@@ -1,6 +1,7 @@
 "use client";
 import useAddFilesToCase from "@/app/useAddFilesToCase";
 import { useEffect, useRef, useState } from "react";
+import { ChatWidget, WidgetActions } from "../widgets";
 
 export default function TakePhotoWidget({
   caseId,
@@ -71,13 +72,13 @@ export default function TakePhotoWidget({
   }
 
   return (
-    <div className="bg-blue-600 text-white px-2 py-1 rounded mx-1 text-xs space-y-1 w-48">
+    <ChatWidget className="w-48">
       <video ref={videoRef} className="w-full h-32 bg-black rounded">
         <track kind="captions" label="" />
       </video>
       <canvas ref={canvasRef} className="hidden" />
       {error && <div className="text-red-200 text-center">{error}</div>}
-      <div className="flex gap-1 justify-center">
+      <WidgetActions centered>
         <button
           type="button"
           onClick={takePicture}
@@ -93,7 +94,7 @@ export default function TakePhotoWidget({
         >
           Close
         </button>
-      </div>
-    </div>
+      </WidgetActions>
+    </ChatWidget>
   );
 }
