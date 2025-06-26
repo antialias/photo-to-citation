@@ -1,6 +1,9 @@
 import { getCases } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
-import MapPageClient from "./MapPageClient";
+import nextDynamic from "next/dynamic";
+const MapPageClient = nextDynamic(() => import("./MapPageClient"), {
+  ssr: false,
+});
 
 export const dynamic = "force-dynamic";
 
