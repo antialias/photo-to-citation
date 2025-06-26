@@ -3,9 +3,8 @@ import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type React from "react";
 import {
   MapContainer,
@@ -37,13 +36,6 @@ const markerSvg = `
   </svg>
 `;
 
-const markerIcon = L.divIcon({
-  html: markerSvg,
-  className: "",
-  iconSize: [25, 41],
-  iconAnchor: [12.5, 41],
-});
-
 export interface MapCase {
   id: string;
   gps: { lat: number; lon: number };
@@ -65,6 +57,16 @@ function FitBounds({ cases }: { cases: MapCase[] }) {
 
 export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   const router = useRouter();
+  const markerIcon = useMemo(
+    () =>
+      L.divIcon({
+        html: markerSvg,
+        className: "",
+        iconSize: [25, 41],
+        iconAnchor: [12.5, 41],
+      }),
+    [],
+  );
   return (
     <MapContainerAny
       style={{ height: "calc(100vh - 4rem)", width: "100%" }}
