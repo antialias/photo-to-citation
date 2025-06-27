@@ -1,8 +1,12 @@
 "use client";
+import useIsMobile from "@/lib/useIsMobile";
+import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
 import { useCaseChat } from "./CaseChatProvider";
 
 export default function ChatHeader() {
   const {
+    expanded,
+    toggleExpanded,
     handleClose,
     history,
     sessionId,
@@ -10,6 +14,7 @@ export default function ChatHeader() {
     sessionSummary,
     selectSession,
   } = useCaseChat();
+  const isMobile = useIsMobile();
   return (
     <div className="flex items-center border-b p-2 gap-2">
       <span className="font-semibold flex-none">Case Chat</span>
@@ -32,6 +37,16 @@ export default function ChatHeader() {
           </option>
         ))}
       </select>
+      {!isMobile && (
+        <button
+          type="button"
+          onClick={toggleExpanded}
+          aria-label={expanded ? "Collapse chat" : "Expand chat"}
+          className="text-xl leading-none flex-none"
+        >
+          {expanded ? <FaCompressArrowsAlt /> : <FaExpandArrowsAlt />}
+        </button>
+      )}
       <button
         type="button"
         onClick={handleClose}

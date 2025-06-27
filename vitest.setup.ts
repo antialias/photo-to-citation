@@ -74,6 +74,13 @@ beforeEach((context) => {
     }
     navigator.mediaDevices.getUserMedia = vi.fn(async () => new MediaStream());
   }
+  if (typeof window !== "undefined" && !window.matchMedia) {
+    window.matchMedia = vi.fn(() => ({
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+  }
 });
 
 afterEach((context) => {

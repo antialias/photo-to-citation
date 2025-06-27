@@ -23,14 +23,16 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  touch-action: pan-y;
+@media (pointer: coarse) {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+  }
 }
 
 /* Hide mermaid diagrams until the library finishes styling them */
