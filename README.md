@@ -138,11 +138,12 @@ image analysis so the resulting `PaperworkInfo` object fits alongside the
 violation report data.
 
 When a user uploads a photo, the API stores the case immediately and then
-triggers analysis by the configured language model in the background. These asynchronous tasks are
-managed by [Bree](https://github.com/breejs/bree), which spawns worker threads
-to handle image analysis and reverse geocoding. The resulting JSON is persisted
-alongside the case record once the analysis completes, so uploads are never
-blocked waiting for the LLM.
+triggers analysis by the configured language model in the background. These
+asynchronous tasks are launched with `runJob` from `src/lib/jobScheduler.ts`.
+Each job runs in a worker thread via `src/jobs/workerWrapper.js` to handle image
+analysis and reverse geocoding. The resulting JSON is persisted alongside the
+case record once the analysis completes, so uploads are never blocked waiting
+for the LLM.
 
 If a case ends up without analysis or the last attempt failed with a retryable
 error code, you can trigger a new pass with:
