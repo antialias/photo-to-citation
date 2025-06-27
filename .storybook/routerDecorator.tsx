@@ -16,14 +16,17 @@ const router = {
   prefetch: () => Promise.resolve(),
 };
 
-export const withRouter: Decorator = (Story: StoryFn) => (
-  <AppRouterContext.Provider value={router}>
-    <PathnameContext.Provider value="/">
-      <SearchParamsContext.Provider value={new URLSearchParams()}>
-        <PathParamsContext.Provider value={{}}>
-          {Story()}
-        </PathParamsContext.Provider>
-      </SearchParamsContext.Provider>
-    </PathnameContext.Provider>
-  </AppRouterContext.Provider>
-);
+export const withRouter: Decorator = (Story: StoryFn) => {
+  const StoryComponent = Story as unknown as React.FC;
+  return (
+    <AppRouterContext.Provider value={router}>
+      <PathnameContext.Provider value="/">
+        <SearchParamsContext.Provider value={new URLSearchParams()}>
+          <PathParamsContext.Provider value={{}}>
+            <StoryComponent />
+          </PathParamsContext.Provider>
+        </SearchParamsContext.Provider>
+      </PathnameContext.Provider>
+    </AppRouterContext.Provider>
+  );
+};
