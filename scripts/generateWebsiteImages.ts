@@ -3,8 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import dotenv from "dotenv";
-import jsdom from "jsdom";
-const { JSDOM } = jsdom;
+import { JSDOM } from "jsdom";
 import OpenAI from "openai";
 import type { ImageGenerateParams } from "openai/resources/images";
 import sharp from "sharp";
