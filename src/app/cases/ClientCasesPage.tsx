@@ -233,6 +233,7 @@ export default function ClientCasesPage({
                         alt="case thumbnail"
                         width={80}
                         height={60}
+                        unoptimized
                       />
                     ) : null;
                   })()}

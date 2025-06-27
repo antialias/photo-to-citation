@@ -48,6 +48,7 @@ function ClientCasePage({
             alt="preview"
             className="max-w-full"
             fill
+            unoptimized
             sizes="100vw"
           />
         ) : null}
