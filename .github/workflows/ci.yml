@@ -15,7 +15,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - run: npm ci
+      - name: Install dependencies
+        run: |
+          npm ci || (npm cache clean --force && npm ci)
       - run: npm run lint
       - run: npm run typecheck
 
@@ -28,7 +30,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - run: npm ci
+      - name: Install dependencies
+        run: |
+          npm ci || (npm cache clean --force && npm ci)
       - run: npm test -- --bail 1
         env:
           NODE_OPTIONS: '--max-old-space-size=6144'
@@ -42,7 +46,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - run: npm ci
+      - name: Install dependencies
+        run: |
+          npm ci || (npm cache clean --force && npm ci)
       - run: npm run e2e -- --bail 1
         env:
           NODE_OPTIONS: '--max-old-space-size=6144'
@@ -61,7 +67,9 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      - run: npm ci
+      - name: Install dependencies
+        run: |
+          npm ci || (npm cache clean --force && npm ci)
       - run: npm run build-storybook
         env:
           STORYBOOK_DISABLE_TELEMETRY: "1"
