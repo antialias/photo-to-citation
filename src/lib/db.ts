@@ -10,6 +10,29 @@ const dbFile = config.CASE_STORE_FILE
 
 fs.mkdirSync(path.dirname(dbFile), { recursive: true });
 
-export const db = new Database(dbFile);
+declare global {
+  // biome-ignore lint/style/useSingleVarDeclarator: group globals
+  var __db: Database.Database | undefined;
+  var __migrationsReady: void | undefined;
+}
 
-export const migrationsReady = runMigrations(db);
+let db: Database.Database;
+let migrationsReady: void | undefined;
+
+if (globalThis.__db) {
+  db = globalThis.__db;
+  migrationsReady = globalThis.__migrationsReady;
+} else {
+  db = new Database(dbFile);
+  migrationsReady = runMigrations(db);
+  globalThis.__db = db;
+  globalThis.__migrationsReady = migrationsReady;
+}
+
+export { db, migrationsReady };
+
+export function closeDb(): void {
+  db.close();
+  globalThis.__db = undefined;
+  globalThis.__migrationsReady = undefined;
+}

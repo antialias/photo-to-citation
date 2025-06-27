@@ -28,6 +28,7 @@ vi.mock("@/lib/caseLocation", () => ({
 let dataDir: string;
 let upload: typeof import("@/app/api/upload/route");
 let caseRoute: typeof import("@/app/api/cases/[id]/route");
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
@@ -42,15 +43,16 @@ beforeEach(async () => {
       has: vi.fn(),
     }),
   }));
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   upload = await import("@/app/api/upload/route");
   caseRoute = await import("@/app/api/cases/[id]/route");
 });
 
 afterEach(() => {
-  fs.rmSync(dataDir, { recursive: true, force: true });
+  db.closeDb();
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
 });
 

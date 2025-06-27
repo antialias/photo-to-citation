@@ -5,12 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let dataDir: string;
 let caseStore: typeof import("@/lib/caseStore");
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   caseStore = await import("@/lib/caseStore");
   const { orm } = await import("@/lib/orm");
@@ -22,8 +23,9 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  fs.rmSync(dataDir, { recursive: true, force: true });
+  db.closeDb();
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
 });
 

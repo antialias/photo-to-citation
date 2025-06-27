@@ -5,6 +5,7 @@ import type { Case } from "@/lib/caseStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let dataDir: string;
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "cases-"));
@@ -18,13 +19,14 @@ beforeEach(async () => {
   }));
   fs.writeFileSync(process.env.VIN_SOURCE_FILE, JSON.stringify(statuses));
   vi.resetModules();
-  const dbModule = await import("@/lib/db");
-  await dbModule.migrationsReady;
+  db = await import("@/lib/db");
+  await db.migrationsReady;
 });
 
 afterEach(() => {
-  fs.rmSync(dataDir, { recursive: true, force: true });
+  db.closeDb();
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.CASE_STORE_FILE = undefined;
   process.env.VIN_SOURCE_FILE = undefined;
 });

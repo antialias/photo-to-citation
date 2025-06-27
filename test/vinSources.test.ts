@@ -4,13 +4,14 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let dataDir: string;
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "sources-"));
   process.env.VIN_SOURCE_FILE = path.join(dataDir, "vinSources.json");
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   const { defaultVinSources } = await import("@/lib/vinSources");
   const statuses = defaultVinSources.map((s: { id: string }) => ({
@@ -22,8 +23,9 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  fs.rmSync(dataDir, { recursive: true, force: true });
+  db.closeDb();
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.VIN_SOURCE_FILE = undefined;
   process.env.CASE_STORE_FILE = undefined;
 });

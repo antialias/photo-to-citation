@@ -4,13 +4,14 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 let dataDir: string;
+let db: typeof import("@/lib/db");
 
 beforeEach(async () => {
   dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "mailprov-"));
   process.env.SNAIL_MAIL_PROVIDER_FILE = path.join(dataDir, "providers.json");
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
-  const db = await import("@/lib/db");
+  db = await import("@/lib/db");
   await db.migrationsReady;
   const { snailMailProviders } = await import("@/lib/snailMail");
   const statuses = Object.keys(snailMailProviders).map((id, idx) => ({
@@ -25,8 +26,9 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  fs.rmSync(dataDir, { recursive: true, force: true });
+  db.closeDb();
   vi.resetModules();
+  fs.rmSync(dataDir, { recursive: true, force: true });
   process.env.SNAIL_MAIL_PROVIDER_FILE = undefined;
   process.env.CASE_STORE_FILE = undefined;
 });
