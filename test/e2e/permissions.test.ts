@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
 import { createPhoto } from "./photo";
+import { poll } from "./poll";
 import { type TestServer, startServer } from "./startServer";
 
 let server: TestServer;
@@ -53,8 +54,30 @@ async function createCase(): Promise<string> {
   return data.caseId;
 }
 
+async function waitForAnalysis(id: string) {
+  await poll(
+    () => api(`/api/cases/${id}`),
+    async (r) => {
+      if (r.status !== 200) return false;
+      const json = (await r.clone().json()) as { analysisStatus?: string };
+      return json.analysisStatus === "complete";
+    },
+    20,
+  );
+}
+
 beforeAll(async () => {
-  stub = await startOpenAIStub({ subject: "", body: "" });
+  stub = await startOpenAIStub((req) => {
+    const text = JSON.stringify(req.body);
+    return text.includes("Analyze the photo")
+      ? {
+          violationType: "parking",
+          details: "car parked illegally",
+          vehicle: {},
+          images: {},
+        }
+      : { subject: "", body: "" };
+  });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3011, {
     NEXTAUTH_SECRET: "secret",
@@ -80,8 +103,9 @@ describe("permissions", () => {
     await signIn("user@example.com");
 
     const id = await createCase();
+    await waitForAnalysis(id);
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    const caseDom = new JSDOM(casePage);
+    const caseDom = new JSDOM(casePage, { url: server.url });
     const delButton = caseDom.window.document.querySelector(
       '[data-testid="delete-case-button"]',
     );
@@ -91,7 +115,7 @@ describe("permissions", () => {
     expect(delButton).toBeNull();
     expect(closeButton).toBeNull();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    const draftDom = new JSDOM(draft);
+    const draftDom = new JSDOM(draft, { url: server.url });
     const sendButton = getByTestId(draftDom.window.document, "send-button");
     expect(sendButton.hasAttribute("disabled")).toBe(true);
   });
@@ -100,8 +124,9 @@ describe("permissions", () => {
     await signOut();
     await signIn("admin@example.com");
     const id = await createCase();
+    await waitForAnalysis(id);
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    const caseDom = new JSDOM(casePage);
+    const caseDom = new JSDOM(casePage, { url: server.url });
     const delButton = getByTestId(
       caseDom.window.document,
       "delete-case-button",
@@ -113,7 +138,7 @@ describe("permissions", () => {
     expect(delButton).toBeTruthy();
     expect(closeButton).toBeTruthy();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    const draftDom = new JSDOM(draft);
+    const draftDom = new JSDOM(draft, { url: server.url });
     const sendButton = getByTestId(draftDom.window.document, "send-button");
     expect(sendButton.hasAttribute("disabled")).toBe(false);
   });
