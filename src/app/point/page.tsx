@@ -158,6 +158,14 @@ export default function PointAndShootPage() {
           Uploading photo...
         </div>
       ) : null}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+        <div
+          className="bg-black/40 text-white px-2 py-1 rounded text-xl"
+          data-testid="hint"
+        >
+          {analysisHint ?? "Nothing has been detected"}
+        </div>
+      </div>
       <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 pointer-events-none">
         <input
           ref={inputRef}
@@ -183,23 +191,6 @@ export default function PointAndShootPage() {
         >
           Take Picture
         </button>
-        {!analysisHint && (
-          <div
-            className="pointer-events-none text-white text-sm text-center"
-            data-testid="instructions"
-          >
-            Point your camera at the vehicle. We&apos;ll guess the plate or
-            violation below.
-          </div>
-        )}
-        {analysisHint && (
-          <div
-            className="pointer-events-none text-white text-sm"
-            data-testid="hint"
-          >
-            {analysisHint}
-          </div>
-        )}
         <Link
           href={caseId ? `/cases/${caseId}` : "/cases"}
           className="pointer-events-auto text-xs text-white underline mt-2"
