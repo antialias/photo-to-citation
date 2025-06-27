@@ -37,6 +37,7 @@ export default function ThumbnailImage({
         </div>
       )}
       <Image
+        unoptimized
         src={`${src}${attempt ? `?${attempt}` : ""}`}
         alt={alt}
         width={width}
