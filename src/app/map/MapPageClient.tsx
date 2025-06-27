@@ -1,40 +1,14 @@
 "use client";
-import * as L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useRouter } from "next/navigation";
+import { Marker, Overlay, Map as PigeonMap } from "pigeon-maps";
+import { osm } from "pigeon-maps/providers";
+import { useEffect, useRef, useState } from "react";
+import type React from "react";
+
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
-import type React from "react";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
-
-const MapContainerAny = MapContainer as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const MarkerAny = Marker as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const TooltipAny = Tooltip as unknown as React.ComponentType<
-  Record<string, unknown>
->;
 
 import "@/app/globals.css";
-
-const markerSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-    <path
-      d="M12.5 1c6 0 11 5 11 11 0 9-11 28-11 28S1.5 21 1.5 12C1.5 6 6.5 1 12.5 1z"
-      fill="#2563eb" stroke="white" stroke-width="2"
-    />
-    <circle cx="12.5" cy="12" r="3" fill="white" />
-  </svg>
-`;
 
 export interface MapCase {
   id: string;
@@ -42,68 +16,113 @@ export interface MapCase {
   photo: string;
 }
 
-function FitBounds({ cases }: { cases: MapCase[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (cases.length > 0) {
-      const bounds = L.latLngBounds(
-        cases.map((c) => [c.gps.lat, c.gps.lon]),
-      ).pad(0.2);
-      map.fitBounds(bounds);
-    }
-  }, [cases, map]);
-  return null;
+function computeView(
+  cases: MapCase[],
+  width: number,
+  height: number,
+): { center: [number, number]; zoom: number } {
+  if (!cases.length) return { center: [0, 0], zoom: 2 };
+  let minLat = cases[0].gps.lat;
+  let maxLat = cases[0].gps.lat;
+  let minLon = cases[0].gps.lon;
+  let maxLon = cases[0].gps.lon;
+  for (const c of cases) {
+    if (c.gps.lat < minLat) minLat = c.gps.lat;
+    if (c.gps.lat > maxLat) maxLat = c.gps.lat;
+    if (c.gps.lon < minLon) minLon = c.gps.lon;
+    if (c.gps.lon > maxLon) maxLon = c.gps.lon;
+  }
+  const center: [number, number] = [
+    (minLat + maxLat) / 2,
+    (minLon + maxLon) / 2,
+  ];
+  const WORLD_DIM = { width: 256, height: 256 };
+  const ZOOM_MAX = 18;
+  const latRad = (lat: number) => {
+    const sin = Math.sin((lat * Math.PI) / 180);
+    const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+    return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+  };
+  const zoom = (mapPx: number, worldPx: number, fraction: number) => {
+    return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
+  };
+  const latFraction = (latRad(maxLat) - latRad(minLat)) / Math.PI;
+  const lngDiff = maxLon - minLon;
+  const lngFraction = (lngDiff < 0 ? lngDiff + 360 : lngDiff) / 360;
+  const latZoom =
+    latFraction === 0 ? ZOOM_MAX : zoom(height, WORLD_DIM.height, latFraction);
+  const lngZoom =
+    lngFraction === 0 ? ZOOM_MAX : zoom(width, WORLD_DIM.width, lngFraction);
+  const bestZoom = Math.min(latZoom, lngZoom, ZOOM_MAX);
+  return { center, zoom: Number.isFinite(bestZoom) ? bestZoom : 2 };
 }
 
 export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   const router = useRouter();
-  const markerIcon = useMemo(
-    () =>
-      L.divIcon({
-        html: markerSvg,
-        className: "",
-        iconSize: [25, 41],
-        iconAnchor: [12.5, 41],
-      }),
-    [],
-  );
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mapSize, setMapSize] = useState({ width: 800, height: 600 });
+  const [view, setView] = useState<{ center: [number, number]; zoom: number }>({
+    center: [0, 0],
+    zoom: 2,
+  });
+  const [hover, setHover] = useState<string | null>(null);
+
+  useEffect(() => {
+    function update() {
+      const width = containerRef.current?.clientWidth ?? 800;
+      const height = containerRef.current?.clientHeight ?? 600;
+      setMapSize({ width, height });
+      setView(computeView(cases, width, height));
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [cases]);
+
   return (
-    <MapContainerAny
+    <div
+      ref={containerRef}
       style={{ height: "calc(100dvh - 4rem)", width: "100%" }}
-      center={[0, 0] as [number, number]}
-      zoom={2}
-      scrollWheelZoom={true}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <FitBounds cases={cases} />
-      {cases.map((c) => (
-        <MarkerAny
-          key={c.id}
-          position={[c.gps.lat, c.gps.lon] as [number, number]}
-          icon={markerIcon}
-          eventHandlers={{ click: () => router.push(`/cases/${c.id}`) }}
-        >
-          <TooltipAny direction="top">
-            <a
-              href={`/cases/${c.id}`}
-              className="w-40 cursor-pointer block"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push(`/cases/${c.id}`);
-              }}
-            >
-              <ThumbnailImage
-                src={getThumbnailUrl(c.photo, 256)}
-                alt={`Case ${c.id}`}
-                width={160}
-                height={120}
-                imgClassName="object-cover"
-              />
-              <div>Case {c.id}</div>
-            </a>
-          </TooltipAny>
-        </MarkerAny>
-      ))}
-    </MapContainerAny>
+      <PigeonMap
+        width={mapSize.width}
+        height={mapSize.height}
+        center={view.center}
+        zoom={view.zoom}
+        provider={osm}
+      >
+        {cases.map((c) => (
+          <React.Fragment key={c.id}>
+            <Marker
+              anchor={[c.gps.lat, c.gps.lon] as [number, number]}
+              onClick={() => router.push(`/cases/${c.id}`)}
+              onMouseOver={() => setHover(c.id)}
+              onMouseOut={() => setHover((h) => (h === c.id ? null : h))}
+            />
+            {hover === c.id && (
+              <Overlay anchor={[c.gps.lat, c.gps.lon]} offset={[80, 100]}>
+                <a
+                  href={`/cases/${c.id}`}
+                  className="w-40 cursor-pointer block"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push(`/cases/${c.id}`);
+                  }}
+                >
+                  <ThumbnailImage
+                    src={getThumbnailUrl(c.photo, 256)}
+                    alt={`Case ${c.id}`}
+                    width={160}
+                    height={120}
+                    imgClassName="object-cover"
+                  />
+                  <div>Case {c.id}</div>
+                </a>
+              </Overlay>
+            )}
+          </React.Fragment>
+        ))}
+      </PigeonMap>
+    </div>
   );
 }
