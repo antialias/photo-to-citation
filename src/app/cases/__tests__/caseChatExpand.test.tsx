@@ -12,13 +12,9 @@ vi.stubGlobal(
 );
 
 describe("CaseChat expanded view", () => {
-  it("toggles expanded state", () => {
-    const { getByText, getByLabelText } = render(<CaseChat caseId="1" />);
+  it("does not render expand button", () => {
+    const { getByText, queryByLabelText } = render(<CaseChat caseId="1" />);
     fireEvent.click(getByText("Chat"));
-    const expandBtn = getByLabelText("Expand chat");
-    fireEvent.click(expandBtn);
-    expect(getByLabelText("Collapse chat")).toBeTruthy();
-    fireEvent.click(getByLabelText("Collapse chat"));
-    expect(getByLabelText("Expand chat")).toBeTruthy();
+    expect(queryByLabelText("Expand chat")).toBeNull();
   });
 });

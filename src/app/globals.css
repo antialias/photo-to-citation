@@ -30,7 +30,7 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 /* Hide mermaid diagrams until the library finishes styling them */

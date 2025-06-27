@@ -1,11 +1,8 @@
 "use client";
-import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
 import { useCaseChat } from "./CaseChatProvider";
 
 export default function ChatHeader() {
   const {
-    expanded,
-    toggleExpanded,
     handleClose,
     history,
     sessionId,
@@ -35,14 +32,6 @@ export default function ChatHeader() {
           </option>
         ))}
       </select>
-      <button
-        type="button"
-        onClick={toggleExpanded}
-        aria-label={expanded ? "Collapse chat" : "Expand chat"}
-        className="text-xl leading-none flex-none"
-      >
-        {expanded ? <FaCompressArrowsAlt /> : <FaExpandArrowsAlt />}
-      </button>
       <button
         type="button"
         onClick={handleClose}

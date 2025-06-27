@@ -2,6 +2,7 @@ import { authOptions } from "@/lib/authOptions";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import AuthProvider from "./auth-provider";
+import DisablePinchZoom from "./components/DisablePinchZoom";
 import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
 import QueryProvider from "./query-provider";
@@ -32,6 +33,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <DisablePinchZoom />
         <QueryProvider>
           <NotificationProvider>
             <AuthProvider session={session}>
