@@ -3,6 +3,8 @@
   "compilerOptions": {
     "outDir": "dist/jobs",
     "module": "CommonJS",
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
     "noEmit": false,
     "rootDir": "src/jobs"
   },
