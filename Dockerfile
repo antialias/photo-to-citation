@@ -13,7 +13,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_BASE_PATH=""
 ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
-RUN npm run build && npm prune --production
+RUN npm run build && npm run build:jobs && npm prune --production
 
 # Runtime image
 FROM node:20-bookworm AS runner
@@ -27,7 +27,7 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/tsconfig.generated.json ./tsconfig.generated.json
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/src/jobs ./src/jobs
+COPY --from=builder /app/dist/jobs ./dist/jobs
 COPY --from=builder /app/src/lib ./src/lib
 EXPOSE 3000
 CMD ["npm", "start"]
