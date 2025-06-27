@@ -3,7 +3,7 @@ import CaseToolbar from "@/app/components/CaseToolbar";
 import { useSession } from "@/app/useSession";
 import { getCaseOwnerContact, hasViolation } from "@/lib/caseUtils";
 import Link from "next/link";
-import { FaShare } from "react-icons/fa";
+import { FaArrowLeft, FaShare } from "react-icons/fa";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
 import useCaseProgress from "../useCaseProgress";
@@ -25,8 +25,12 @@ export default function CaseHeader({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <Link href="/cases" className="text-blue-500 underline md:hidden">
-          Back to Cases
+        <Link
+          href="/cases"
+          aria-label="Back to Cases"
+          className="md:hidden text-xl p-2 text-blue-500 hover:text-blue-700"
+        >
+          <FaArrowLeft />
         </Link>
         <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
         {caseData.public ? (
