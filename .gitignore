@@ -12,3 +12,4 @@ public/uploads
 
 .terraform/
 terraform.tfstate*
+dist/
