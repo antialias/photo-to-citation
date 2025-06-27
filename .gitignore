@@ -7,6 +7,7 @@ data
 storybook-static
 storybook-screenshots
 coverage
+dist
 *.tsbuildinfo
 public/uploads
 
