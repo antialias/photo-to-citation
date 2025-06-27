@@ -7,6 +7,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { FaBars } from "react-icons/fa";
+import i18n from "../../i18n";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -134,7 +136,7 @@ export default function NavBar() {
         href="/"
         className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
       >
-        Photo To Citation
+        {i18n.t("title")}
       </Link>
       <input
         type="file"
@@ -144,8 +146,9 @@ export default function NavBar() {
         ref={inputRef}
         onChange={(e) => uploadCase(e.target.files)}
       />
-      <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm">
+      <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm items-center">
         {navLinks}
+        <LanguageSwitcher />
       </div>
       <Popover.Root open={menuOpen} onOpenChange={setMenuOpen}>
         <Popover.Trigger asChild>
@@ -163,6 +166,7 @@ export default function NavBar() {
             className="sm:hidden flex flex-col gap-2 text-sm bg-gray-100 dark:bg-gray-900 border rounded shadow p-4"
           >
             {navLinks}
+            <LanguageSwitcher />
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
