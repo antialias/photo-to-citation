@@ -27,7 +27,7 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/tsconfig.generated.json ./tsconfig.generated.json
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/src/jobs ./src/jobs
+COPY --from=builder /app/dist/jobs ./dist/jobs
 COPY --from=builder /app/src/lib ./src/lib
 EXPOSE 3000
 CMD ["npm", "start"]

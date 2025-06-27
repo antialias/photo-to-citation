@@ -71,11 +71,15 @@ export function runJob(
   jobData: unknown,
   opts?: { caseId?: string },
 ): Worker {
-  const jobPath = path.join(process.cwd(), "src", "jobs", `${name}.ts`);
-  const wrapper = path.join(process.cwd(), "src", "jobs", "workerWrapper.js");
-  const worker = new Worker(wrapper, {
-    workerData: { path: jobPath, jobData },
-  });
+  const isProd = process.env.NODE_ENV === "production";
+  const jobPath = isProd
+    ? path.join(process.cwd(), "dist", "jobs", `${name}.js`)
+    : path.join(process.cwd(), "src", "jobs", `${name}.ts`);
+  const worker = isProd
+    ? new Worker(jobPath, { workerData: { jobData } })
+    : new Worker(path.join(process.cwd(), "src", "jobs", "workerWrapper.js"), {
+        workerData: { path: jobPath, jobData },
+      });
   activeJobs.set(worker.threadId, {
     type: name,
     worker,
