@@ -172,6 +172,7 @@ export default function ClientThreadPage({
                 src={viewImage}
                 alt="scan full size"
                 fill
+                unoptimized
                 className="object-contain"
               />
             </div>

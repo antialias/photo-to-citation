@@ -158,6 +158,7 @@ export default function ZoomableImage({ src, alt }: Props) {
         src={src}
         alt={alt}
         fill
+        unoptimized
         ref={imgRef}
         onLoadingComplete={(img) =>
           setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })

@@ -39,6 +39,7 @@ export default function MapPreview({
         src={url}
         alt={`Map preview at ${lat}, ${lon}`}
         fill
+        unoptimized
         className="object-cover"
         sizes="100vw"
       />
