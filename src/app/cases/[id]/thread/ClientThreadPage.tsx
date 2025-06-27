@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { FaArrowLeft } from "react-icons/fa";
 import { useNotify } from "../../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../../hooks/useCase";
 
@@ -97,8 +98,12 @@ export default function ClientThreadPage({
     <div className="p-8 flex flex-col gap-4">
       <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex justify-between items-center border-b pb-2">
         <div className="flex items-center gap-2">
-          <Link href={`/cases/${caseId}`} className="text-blue-500 underline">
-            Back to Case
+          <Link
+            href={`/cases/${caseId}`}
+            aria-label="Back to Case"
+            className="text-xl p-2 text-blue-500 hover:text-blue-700"
+          >
+            <FaArrowLeft />
           </Link>
           <h1 className="text-xl font-semibold">Thread</h1>
         </div>
