@@ -1,40 +1,33 @@
 "use client";
-import * as L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { Marker, Overlay, Map as PigeonMap, ZoomControl } from "pigeon-maps";
+import type { Bounds, Map as MapInstance } from "pigeon-maps";
+import { useEffect, useRef } from "react";
 import type React from "react";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
-
-const MapContainerAny = MapContainer as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const MarkerAny = Marker as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const TooltipAny = Tooltip as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-
 import "@/app/globals.css";
 
-const markerSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-    <path
-      d="M12.5 1c6 0 11 5 11 11 0 9-11 28-11 28S1.5 21 1.5 12C1.5 6 6.5 1 12.5 1z"
-      fill="#2563eb" stroke="white" stroke-width="2"
-    />
-    <circle cx="12.5" cy="12" r="3" fill="white" />
-  </svg>
-`;
+function MarkerIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="25"
+      height="41"
+      viewBox="0 0 25 41"
+      aria-label="marker"
+      role="img"
+    >
+      <path
+        d="M12.5 1c6 0 11 5 11 11 0 9-11 28-11 28S1.5 21 1.5 12C1.5 6 6.5 1 12.5 1z"
+        fill="#2563eb"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <circle cx="12.5" cy="12" r="3" fill="white" />
+    </svg>
+  );
+}
 
 export interface MapCase {
   id: string;
@@ -42,48 +35,70 @@ export interface MapCase {
   photo: string;
 }
 
-function FitBounds({ cases }: { cases: MapCase[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (cases.length > 0) {
-      const bounds = L.latLngBounds(
-        cases.map((c) => [c.gps.lat, c.gps.lon]),
-      ).pad(0.2);
-      map.fitBounds(bounds);
-    }
-  }, [cases, map]);
-  return null;
+function computeZoom(bounds: Bounds, width: number, height: number) {
+  const WORLD_DIM = { height: 256, width: 256 };
+  const ZOOM_MAX = 18;
+  const latRad = (lat: number) => {
+    const sin = Math.sin((lat * Math.PI) / 180);
+    const rad = Math.log((1 + sin) / (1 - sin)) / 2;
+    return Math.max(Math.min(rad, Math.PI), -Math.PI) / 2;
+  };
+  const latFraction = (latRad(bounds.ne[0]) - latRad(bounds.sw[0])) / Math.PI;
+  const lngDiff = bounds.ne[1] - bounds.sw[1];
+  const lngFraction = (lngDiff < 0 ? lngDiff + 360 : lngDiff) / 360;
+  const latZoom = Math.floor(
+    Math.log(height / WORLD_DIM.height / latFraction) / Math.LN2,
+  );
+  const lngZoom = Math.floor(
+    Math.log(width / WORLD_DIM.width / lngFraction) / Math.LN2,
+  );
+  return Math.min(latZoom, lngZoom, ZOOM_MAX);
 }
 
 export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   const router = useRouter();
-  const markerIcon = useMemo(
-    () =>
-      L.divIcon({
-        html: markerSvg,
-        className: "",
-        iconSize: [25, 41],
-        iconAnchor: [12.5, 41],
-      }),
-    [],
-  );
+  const mapRef = useRef<MapInstance | null>(null);
+
+  useEffect(() => {
+    if (!mapRef.current || cases.length === 0) return;
+    const lats = cases.map((c) => c.gps.lat);
+    const lons = cases.map((c) => c.gps.lon);
+    const bounds: Bounds = {
+      ne: [Math.max(...lats), Math.max(...lons)],
+      sw: [Math.min(...lats), Math.min(...lons)],
+    };
+    const center: [number, number] = [
+      (bounds.ne[0] + bounds.sw[0]) / 2,
+      (bounds.ne[1] + bounds.sw[1]) / 2,
+    ];
+    const width = mapRef.current.state.width || window.innerWidth;
+    const height = mapRef.current.state.height || window.innerHeight;
+    const zoom = computeZoom(bounds, width, height);
+    mapRef.current.setCenterZoom(center, zoom);
+  }, [cases]);
+
   return (
-    <MapContainerAny
-      style={{ height: "calc(100dvh - 4rem)", width: "100%" }}
-      center={[0, 0] as [number, number]}
-      zoom={2}
-      scrollWheelZoom={true}
+    <PigeonMap
+      ref={mapRef}
+      height={typeof window === "undefined" ? 600 : window.innerHeight - 64}
+      defaultCenter={[0, 0]}
+      defaultZoom={2}
+      twoFingerDrag={false}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <FitBounds cases={cases} />
+      <ZoomControl />
       {cases.map((c) => (
-        <MarkerAny
-          key={c.id}
-          position={[c.gps.lat, c.gps.lon] as [number, number]}
-          icon={markerIcon}
-          eventHandlers={{ click: () => router.push(`/cases/${c.id}`) }}
-        >
-          <TooltipAny direction="top">
+        <React.Fragment key={c.id}>
+          <Marker
+            anchor={[c.gps.lat, c.gps.lon] as [number, number]}
+            width={25}
+            height={41}
+            onClick={() => router.push(`/cases/${c.id}`)}
+          >
+            <div style={{ transform: "translate(-12px, -41px)" }}>
+              <MarkerIcon />
+            </div>
+          </Marker>
+          <Overlay anchor={[c.gps.lat, c.gps.lon]} offset={[0, 45]}>
             <a
               href={`/cases/${c.id}`}
               className="w-40 cursor-pointer block"
@@ -101,9 +116,9 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
               />
               <div>Case {c.id}</div>
             </a>
-          </TooltipAny>
-        </MarkerAny>
+          </Overlay>
+        </React.Fragment>
       ))}
-    </MapContainerAny>
+    </PigeonMap>
   );
 }
