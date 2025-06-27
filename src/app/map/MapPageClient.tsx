@@ -1,28 +1,10 @@
 "use client";
-import * as L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
-import type React from "react";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
+import { Map, Marker, Overlay } from "pigeon-maps";
+import { osm } from "pigeon-maps/providers";
 
-const MapContainerAny = MapContainer as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const MarkerAny = Marker as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const TooltipAny = Tooltip as unknown as React.ComponentType<
-  Record<string, unknown>
->;
 
 import "@/app/globals.css";
 
@@ -42,68 +24,47 @@ export interface MapCase {
   photo: string;
 }
 
-function FitBounds({ cases }: { cases: MapCase[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (cases.length > 0) {
-      const bounds = L.latLngBounds(
-        cases.map((c) => [c.gps.lat, c.gps.lon]),
-      ).pad(0.2);
-      map.fitBounds(bounds);
-    }
-  }, [cases, map]);
-  return null;
-}
 
 export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   const router = useRouter();
-  const markerIcon = useMemo(
-    () =>
-      L.divIcon({
-        html: markerSvg,
-        className: "",
-        iconSize: [25, 41],
-        iconAnchor: [12.5, 41],
-      }),
-    [],
-  );
   return (
-    <MapContainerAny
-      style={{ height: "calc(100dvh - 4rem)", width: "100%" }}
-      center={[0, 0] as [number, number]}
-      zoom={2}
-      scrollWheelZoom={true}
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <FitBounds cases={cases} />
-      {cases.map((c) => (
-        <MarkerAny
-          key={c.id}
-          position={[c.gps.lat, c.gps.lon] as [number, number]}
-          icon={markerIcon}
-          eventHandlers={{ click: () => router.push(`/cases/${c.id}`) }}
-        >
-          <TooltipAny direction="top">
-            <a
-              href={`/cases/${c.id}`}
-              className="w-40 cursor-pointer block"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push(`/cases/${c.id}`);
-              }}
-            >
-              <ThumbnailImage
-                src={getThumbnailUrl(c.photo, 256)}
-                alt={`Case ${c.id}`}
-                width={160}
-                height={120}
-                imgClassName="object-cover"
+    <div style={{ height: "calc(100dvh - 4rem)", width: "100%" }}>
+      <Map defaultCenter={[0, 0]} defaultZoom={2} provider={osm}>
+        {cases.map((c) => (
+          <Marker
+            key={c.id}
+            anchor={[c.gps.lat, c.gps.lon] as [number, number]}
+            width={25}
+            onClick={() => router.push(`/cases/${c.id}`)}
+          >
+            <div style={{ pointerEvents: "auto" }} className="group relative">
+              <div
+                dangerouslySetInnerHTML={{ __html: markerSvg }}
+                className="w-[25px] h-[41px]"
               />
-              <div>Case {c.id}</div>
-            </a>
-          </TooltipAny>
-        </MarkerAny>
-      ))}
-    </MapContainerAny>
+              <div className="absolute left-1/2 -translate-x-1/2 -translate-y-full hidden group-hover:block">
+                <a
+                  href={`/cases/${c.id}`}
+                  className="w-40 cursor-pointer block"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push(`/cases/${c.id}`);
+                  }}
+                >
+                  <ThumbnailImage
+                    src={getThumbnailUrl(c.photo, 256)}
+                    alt={`Case ${c.id}`}
+                    width={160}
+                    height={120}
+                    imgClassName="object-cover"
+                  />
+                  <div>Case {c.id}</div>
+                </a>
+              </div>
+            </div>
+          </Marker>
+        ))}
+      </Map>
+    </div>
   );
 }
