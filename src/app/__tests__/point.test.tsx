@@ -20,4 +20,9 @@ describe("Point and Shoot page", () => {
     render(<PointAndShootPage />);
     expect(screen.getByText("Cases")).toBeInTheDocument();
   });
+
+  it("shows default hint when nothing detected", () => {
+    render(<PointAndShootPage />);
+    expect(screen.getByText("Nothing has been detected")).toBeInTheDocument();
+  });
 });

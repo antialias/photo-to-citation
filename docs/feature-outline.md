@@ -113,9 +113,9 @@ before being stored in the case record.
 The mobile `/point` page performs a quick pass using a lightweight WASM model
 running in a Web Worker. Each captured frame is evaluated locally so the user
 gets instant feedback on the likely violation type or detected license plate
-numbers. These hints appear below the camera view while the image uploads in
-the background. The final server‑side OpenAI workflow refines the results once
-the photo reaches the server.
+numbers. These hints appear centered over the camera view with a translucent
+background while the image uploads in the background. The final server‑side
+OpenAI workflow refines the results once the photo reaches the server.
 
 ### 4.3 Handling Errors
 
