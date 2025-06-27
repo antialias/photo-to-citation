@@ -4,7 +4,6 @@ import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
@@ -168,12 +167,11 @@ export default function ClientThreadPage({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-900 rounded shadow max-w-3xl w-full">
             <div className="relative w-full h-[80vh]">
-              <Image
+              <img
                 src={viewImage}
                 alt="scan full size"
-                fill
-                unoptimized
-                className="object-contain"
+                className="object-contain absolute inset-0 w-full h-full"
+                loading="lazy"
               />
             </div>
             <div className="flex justify-end p-2">

@@ -7,7 +7,6 @@ import CaseProgressGraph from "@/app/components/CaseProgressGraph";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import { useSession } from "@/app/useSession";
 import type { Case } from "@/lib/caseStore";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CaseProvider, useCaseContext } from "./CaseContext";
 import CaseDetails from "./components/CaseDetails";
@@ -43,13 +42,11 @@ function ClientCasePage({
       <div className="p-8 flex flex-col gap-4">
         <h1 className="text-xl font-semibold">Uploading...</h1>
         {preview ? (
-          <Image
+          <img
             src={preview}
             alt="preview"
             className="max-w-full"
-            fill
-            unoptimized
-            sizes="100vw"
+            loading="lazy"
           />
         ) : null}
         <p className="text-sm text-gray-500 dark:text-gray-400">
