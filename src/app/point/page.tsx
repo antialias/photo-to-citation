@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 const AnalyzerWorker = () =>
   typeof Worker === "undefined"
     ? null
-    : new Worker(new URL("./localAnalyzer.worker.ts", import.meta.url), {
+    : new Worker(new URL("../../workers/analyzer.worker.ts", import.meta.url), {
         type: "module",
       });
 import useAddFilesToCase from "@/app/useAddFilesToCase";
@@ -17,9 +17,11 @@ import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 export default function PointAndShootPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const overlayRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
+  const [platePreview, setPlatePreview] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const params = useSearchParams();
@@ -71,7 +73,7 @@ export default function PointAndShootPage() {
     const w = AnalyzerWorker();
     if (w) {
       workerRef.current = w;
-      w.postMessage({ type: "load", modelUrl: "/models/demo.onnx" });
+      w.postMessage({ type: "load" });
       w.onmessage = (e) => {
         if (e.data.type === "result") {
           const r = e.data.result as {
@@ -81,6 +83,30 @@ export default function PointAndShootPage() {
           setAnalysisHint(
             r.vehicle?.licensePlateNumber ?? r.violationType ?? null,
           );
+        } else if (e.data.type === "debug") {
+          console.log("worker", e.data.stage, e.data);
+          if (e.data.stage === "detector") {
+            const box = e.data.box as number[];
+            const overlay = overlayRef.current;
+            const video = videoRef.current;
+            if (!overlay || !video) return;
+            overlay.width = video.videoWidth;
+            overlay.height = video.videoHeight;
+            const ctx = overlay.getContext("2d");
+            if (!ctx) return;
+            ctx.clearRect(0, 0, overlay.width, overlay.height);
+            ctx.strokeStyle = "#f00";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(box[0], box[1], box[2] - box[0], box[3] - box[1]);
+          } else if (e.data.stage === "crop") {
+            const img: ImageData = e.data.image;
+            const c = document.createElement("canvas");
+            c.width = img.width;
+            c.height = img.height;
+            const ctx = c.getContext("2d");
+            ctx?.putImageData(img, 0, 0);
+            setPlatePreview(c.toDataURL());
+          }
         }
       };
     }
@@ -89,11 +115,19 @@ export default function PointAndShootPage() {
     handle = window.setInterval(() => {
       const video = videoRef.current;
       const canvas = canvasRef.current;
+      const overlay = overlayRef.current;
       if (!video || !canvas || !w) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      if (overlay) {
+        overlay.width = video.videoWidth;
+        overlay.height = video.videoHeight;
+        overlay
+          .getContext("2d")
+          ?.clearRect(0, 0, overlay.width, overlay.height);
+      }
       if (canvas.width === 0 || canvas.height === 0) return;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -152,7 +186,18 @@ export default function PointAndShootPage() {
       >
         <track kind="captions" label="" />
       </video>
+      <canvas
+        ref={overlayRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-10"
+      />
       <canvas ref={canvasRef} className="hidden" />
+      {platePreview ? (
+        <img
+          src={platePreview}
+          alt="plate preview"
+          className="absolute bottom-2 left-2 z-20 w-24 h-auto pointer-events-none border border-white"
+        />
+      ) : null}
       {uploading ? (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
           Uploading photo...
