@@ -34,7 +34,9 @@ describe("SignInPage", () => {
   it("links to marketing website", () => {
     mockGet.mockReturnValueOnce(null);
     render(<SignInPage />);
-    const link = screen.getByRole("link", { name: /back to website/i });
+    const link = screen.getByRole("link", {
+      name: /learn more about photo to citation/i,
+    });
     expect(link).toHaveAttribute(
       "href",
       "https://antialias.github.io/photo-to-citation/website/",
