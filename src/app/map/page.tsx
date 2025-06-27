@@ -1,6 +1,13 @@
 import { getCases } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
-import MapPageClient from "./MapPageClient";
+import nextDynamic from "next/dynamic";
+
+// Leaflet relies on the `window` object which isn't available on the server.
+// Dynamically import the client component to ensure it only loads in the
+// browser.
+const MapPageClient = nextDynamic(() => import("./MapPageClient"), {
+  ssr: false,
+});
 
 export const dynamic = "force-dynamic";
 
