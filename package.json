@@ -30,6 +30,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@auth/core": "^0.40.0",
     "@auth/drizzle-adapter": "^1.9.1",
     "@faker-js/faker": "^8.4.1",
     "@floating-ui/dom": "^1.6.1",
@@ -50,6 +51,7 @@
     "commander": "^11.1.0",
     "dotenv": "^16.5.0",
     "exif-parser": "^0.1.12",
+    "form-data": "^4.0.0",
     "i18next": "^25.2.1",
     "imapflow": "^1.0.188",
     "is-mobile": "^5.0.0",
