@@ -54,7 +54,7 @@ export default function SignInPage() {
         </button>
       </form>
       <a href={MARKETING_URL} className="underline mt-2">
-        Back to Website
+        Learn more about Photo to Citation
       </a>
     </>
   );
