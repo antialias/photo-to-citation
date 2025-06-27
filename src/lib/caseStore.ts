@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import path from "node:path";
 import { eq, sql } from "drizzle-orm";
 import { caseEvents } from "./caseEvents";
@@ -283,7 +284,7 @@ export function createCase(
   sessionId?: string | null,
 ): Case {
   const newCase: Case = {
-    id: id ?? Date.now().toString(),
+    id: id ?? crypto.randomUUID(),
     photos: [photo],
     photoTimes: { [photo]: takenAt ?? null },
     photoGps: { [photo]: gps },

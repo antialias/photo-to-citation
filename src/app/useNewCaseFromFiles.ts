@@ -14,7 +14,7 @@ export default function useNewCaseFromFiles() {
   });
   return async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const id = Date.now().toString();
+    const id = crypto.randomUUID();
     const preview = URL.createObjectURL(files[0]);
     sessionStorage.setItem(`preview-${id}`, preview);
     const results = await Promise.all(
