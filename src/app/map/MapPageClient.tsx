@@ -1,40 +1,38 @@
 "use client";
-import * as L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
-import type React from "react";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
-
-const MapContainerAny = MapContainer as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const MarkerAny = Marker as unknown as React.ComponentType<
-  Record<string, unknown>
->;
-const TooltipAny = Tooltip as unknown as React.ComponentType<
-  Record<string, unknown>
->;
+import { Marker, Overlay, Map as PigeonMap } from "pigeon-maps";
+import { useEffect, useState } from "react";
 
 import "@/app/globals.css";
 
-const markerSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-    <path
-      d="M12.5 1c6 0 11 5 11 11 0 9-11 28-11 28S1.5 21 1.5 12C1.5 6 6.5 1 12.5 1z"
-      fill="#2563eb" stroke="white" stroke-width="2"
-    />
-    <circle cx="12.5" cy="12" r="3" fill="white" />
-  </svg>
-`;
+function computeView(cases: MapCase[]) {
+  if (cases.length === 0)
+    return { center: [0, 0] as [number, number], zoom: 2 };
+  let minLat = Number.POSITIVE_INFINITY;
+  let maxLat = Number.NEGATIVE_INFINITY;
+  let minLon = Number.POSITIVE_INFINITY;
+  let maxLon = Number.NEGATIVE_INFINITY;
+  for (const c of cases) {
+    minLat = Math.min(minLat, c.gps.lat);
+    maxLat = Math.max(maxLat, c.gps.lat);
+    minLon = Math.min(minLon, c.gps.lon);
+    maxLon = Math.max(maxLon, c.gps.lon);
+  }
+  const center: [number, number] = [
+    (minLat + maxLat) / 2,
+    (minLon + maxLon) / 2,
+  ];
+  const diff = Math.max(maxLat - minLat, maxLon - minLon);
+  let zoom = 2;
+  if (diff < 0.01) zoom = 12;
+  else if (diff < 0.1) zoom = 10;
+  else if (diff < 1) zoom = 8;
+  else if (diff < 5) zoom = 6;
+  else if (diff < 20) zoom = 4;
+  return { center, zoom };
+}
 
 export interface MapCase {
   id: string;
@@ -42,68 +40,64 @@ export interface MapCase {
   photo: string;
 }
 
-function FitBounds({ cases }: { cases: MapCase[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (cases.length > 0) {
-      const bounds = L.latLngBounds(
-        cases.map((c) => [c.gps.lat, c.gps.lon]),
-      ).pad(0.2);
-      map.fitBounds(bounds);
-    }
-  }, [cases, map]);
-  return null;
-}
-
 export default function MapPageClient({ cases }: { cases: MapCase[] }) {
   const router = useRouter();
-  const markerIcon = useMemo(
-    () =>
-      L.divIcon({
-        html: markerSvg,
-        className: "",
-        iconSize: [25, 41],
-        iconAnchor: [12.5, 41],
-      }),
-    [],
-  );
+  const [{ center, zoom }, setView] = useState(computeView(cases));
+  const [hover, setHover] = useState<string | null>(null);
+
+  useEffect(() => {
+    setView(computeView(cases));
+  }, [cases]);
+
   return (
-    <MapContainerAny
+    <PigeonMap
+      center={center}
+      zoom={zoom}
+      animate={true}
+      onBoundsChanged={({ center: c, zoom: z }) =>
+        setView({ center: c, zoom: z })
+      }
       style={{ height: "calc(100dvh - 4rem)", width: "100%" }}
-      center={[0, 0] as [number, number]}
-      zoom={2}
-      scrollWheelZoom={true}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <FitBounds cases={cases} />
       {cases.map((c) => (
-        <MarkerAny
+        <Marker
           key={c.id}
-          position={[c.gps.lat, c.gps.lon] as [number, number]}
-          icon={markerIcon}
-          eventHandlers={{ click: () => router.push(`/cases/${c.id}`) }}
-        >
-          <TooltipAny direction="top">
-            <a
-              href={`/cases/${c.id}`}
-              className="w-40 cursor-pointer block"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push(`/cases/${c.id}`);
-              }}
-            >
-              <ThumbnailImage
-                src={getThumbnailUrl(c.photo, 256)}
-                alt={`Case ${c.id}`}
-                width={160}
-                height={120}
-                imgClassName="object-cover"
-              />
-              <div>Case {c.id}</div>
-            </a>
-          </TooltipAny>
-        </MarkerAny>
+          anchor={[c.gps.lat, c.gps.lon] as [number, number]}
+          width={30}
+          color="#2563eb"
+          onClick={() => router.push(`/cases/${c.id}`)}
+          onMouseOver={() => setHover(c.id)}
+          onMouseOut={() => setHover(null)}
+        />
       ))}
-    </MapContainerAny>
+      {cases.map(
+        (c) =>
+          hover === c.id && (
+            <Overlay
+              key={`${c.id}-overlay`}
+              anchor={[c.gps.lat, c.gps.lon] as [number, number]}
+              offset={[-80, -130]}
+            >
+              <a
+                href={`/cases/${c.id}`}
+                className="w-40 cursor-pointer block"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(`/cases/${c.id}`);
+                }}
+              >
+                <ThumbnailImage
+                  src={getThumbnailUrl(c.photo, 256)}
+                  alt={`Case ${c.id}`}
+                  width={160}
+                  height={120}
+                  imgClassName="object-cover"
+                />
+                <div>Case {c.id}</div>
+              </a>
+            </Overlay>
+          ),
+      )}
+    </PigeonMap>
   );
 }
