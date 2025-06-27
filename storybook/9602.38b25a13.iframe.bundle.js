@@ -1,1 +1,0 @@
-(self.webpackChunkapp_scaffold=self.webpackChunkapp_scaffold||[]).push([[9602],{"?633a":()=>{},"?6cf7":()=>{},"?9a43":()=>{},"?cb39":()=>{},"?cedb":()=>{},"?d4c0":()=>{},"?ee47":()=>{},"?f551":()=>{}}]);
