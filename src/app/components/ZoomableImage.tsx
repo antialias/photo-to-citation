@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface Transform {
@@ -154,17 +153,19 @@ export default function ZoomableImage({ src, alt }: Props) {
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
-      <Image
+      <img
         src={src}
         alt={alt}
-        fill
-        unoptimized
         ref={imgRef}
-        onLoadingComplete={(img) =>
-          setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
+        onLoad={(e) =>
+          setNaturalSize({
+            width: (e.currentTarget as HTMLImageElement).naturalWidth,
+            height: (e.currentTarget as HTMLImageElement).naturalHeight,
+          })
         }
         draggable={false}
-        className="object-contain select-none"
+        className="object-contain select-none absolute inset-0 w-full h-full"
+        loading="lazy"
         style={{
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
           transformOrigin: "0 0",

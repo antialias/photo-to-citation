@@ -1,8 +1,12 @@
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { type ImgHTMLAttributes, useEffect, useState } from "react";
 
 export interface ThumbnailImageProps
-  extends React.ComponentPropsWithoutRef<typeof Image> {
+  extends Omit<
+    ImgHTMLAttributes<HTMLImageElement>,
+    "src" | "width" | "height" | "alt"
+  > {
+  src: string;
+  alt: string;
   width: number;
   height: number;
   imgClassName?: string;
@@ -36,15 +40,16 @@ export default function ThumbnailImage({
           <div className="w-6 h-6 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-      <Image
-        unoptimized
+      {/* biome-ignore lint/a11y/useAltText: alt text provided via props */}
+      <img
         src={`${src}${attempt ? `?${attempt}` : ""}`}
-        alt={alt}
+        alt={alt ?? ""}
         width={width}
         height={height}
         onLoad={() => setReady(true)}
         onError={() => setReady(false)}
         className={`object-cover max-w-full max-h-full ${imgClassName ?? ""} ${ready ? "" : "invisible"}`}
+        loading="lazy"
         {...props}
       />
     </div>

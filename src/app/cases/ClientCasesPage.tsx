@@ -6,7 +6,6 @@ import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
-import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useNotify } from "../components/NotificationProvider";
@@ -228,12 +227,12 @@ export default function ClientCasesPage({
                   {(() => {
                     const photo = getRepresentativePhoto(c);
                     return photo ? (
-                      <Image
+                      <img
                         src={photo}
                         alt="case thumbnail"
                         width={80}
                         height={60}
-                        unoptimized
+                        loading="lazy"
                       />
                     ) : null;
                   })()}

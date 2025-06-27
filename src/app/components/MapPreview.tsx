@@ -1,5 +1,4 @@
 import { config } from "@/lib/config";
-import Image from "next/image";
 
 export default function MapPreview({
   lat,
@@ -35,13 +34,11 @@ export default function MapPreview({
           <span className="sr-only">View on map</span>
         </a>
       ) : null}
-      <Image
+      <img
         src={url}
         alt={`Map preview at ${lat}, ${lon}`}
-        fill
-        unoptimized
-        className="object-cover"
-        sizes="100vw"
+        className="object-cover absolute inset-0 w-full h-full"
+        loading="lazy"
       />
     </div>
   );
