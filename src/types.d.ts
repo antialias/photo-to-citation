@@ -6,7 +6,6 @@ declare module "react-mermaid2" {
   }>;
   export default Mermaid;
 }
-declare module "leaflet";
 declare module "nodemailer";
 declare module "exif-parser";
 declare module "imapflow";
