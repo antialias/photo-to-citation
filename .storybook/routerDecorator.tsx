@@ -1,5 +1,5 @@
 "use client";
-import type { Decorator } from "@storybook/react";
+import type { Decorator, StoryFn } from "@storybook/react";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import {
   PathParamsContext,
@@ -16,7 +16,7 @@ const router = {
   prefetch: () => Promise.resolve(),
 };
 
-export const withRouter: Decorator = (Story) => (
+export const withRouter: Decorator = (Story: StoryFn) => (
   <AppRouterContext.Provider value={router}>
     <PathnameContext.Provider value="/">
       <SearchParamsContext.Provider value={new URLSearchParams()}>

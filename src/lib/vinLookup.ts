@@ -1,4 +1,5 @@
-import { JSDOM } from "jsdom";
+import jsdom from "jsdom";
+const { JSDOM } = jsdom;
 import type { Case } from "./caseStore";
 import { updateCase } from "./caseStore";
 import { runJob } from "./jobScheduler";
