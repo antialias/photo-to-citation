@@ -57,6 +57,7 @@ export default function ZoomableImage({ src, alt }: Props) {
   const lastCenter = useRef<{ x: number; y: number } | null>(null);
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("button")) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
   }
@@ -120,17 +121,54 @@ export default function ZoomableImage({ src, alt }: Props) {
       e.preventDefault();
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
-      const zoom = Math.exp(-e.deltaY / 200);
-      setTransform((t) => {
-        const scale = Math.min(5, Math.max(1, t.scale * zoom));
-        const originX = (cursorX - t.x) / t.scale;
-        const originY = (cursorY - t.y) / t.scale;
-        const x = t.x - (scale - t.scale) * originX;
-        const y = t.y - (scale - t.scale) * originY;
-        return constrainPan(rect, naturalSize, { scale, x, y });
-      });
+      if (e.ctrlKey) {
+        let cursorX = e.clientX - rect.left;
+        let cursorY = e.clientY - rect.top;
+        const zoom = Math.exp(-e.deltaY / 200);
+        setTransform((t) => {
+          const baseRatio =
+            (naturalSize?.width ?? 1) / (naturalSize?.height ?? 1);
+          const containerRatio = rect.width / rect.height;
+          let baseWidth: number;
+          let baseHeight: number;
+          if (baseRatio > containerRatio) {
+            baseWidth = rect.width;
+            baseHeight = rect.width / baseRatio;
+          } else {
+            baseHeight = rect.height;
+            baseWidth = rect.height * baseRatio;
+          }
+          const imgWidth = baseWidth * t.scale;
+          const imgHeight = baseHeight * t.scale;
+          const left = t.x;
+          const top = t.y;
+          const right = left + imgWidth;
+          const bottom = top + imgHeight;
+          if (
+            cursorX < left ||
+            cursorX > right ||
+            cursorY < top ||
+            cursorY > bottom
+          ) {
+            cursorX = left + imgWidth / 2;
+            cursorY = top + imgHeight / 2;
+          }
+          const scale = Math.min(5, Math.max(1, t.scale * zoom));
+          const originX = (cursorX - t.x) / t.scale;
+          const originY = (cursorY - t.y) / t.scale;
+          const x = t.x - (scale - t.scale) * originX - e.deltaX;
+          const y = t.y - (scale - t.scale) * originY - e.deltaY;
+          return constrainPan(rect, naturalSize, { scale, x, y });
+        });
+      } else {
+        setTransform((t) =>
+          constrainPan(rect, naturalSize, {
+            scale: t.scale,
+            x: t.x - e.deltaX,
+            y: t.y - e.deltaY,
+          }),
+        );
+      }
     },
     [naturalSize],
   );
@@ -171,6 +209,15 @@ export default function ZoomableImage({ src, alt }: Props) {
           transformOrigin: "0 0",
         }}
       />
+      {(transform.scale !== 1 || transform.x !== 0 || transform.y !== 0) && (
+        <button
+          className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
+          type="button"
+          onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
+        >
+          Reset zoom
+        </button>
+      )}
     </div>
   );
 }
