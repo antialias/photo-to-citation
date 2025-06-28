@@ -138,8 +138,8 @@ export default function ZoomableImage({ src, alt }: Props) {
           const scale = Math.min(5, Math.max(1, t.scale * zoom));
           const originX = (cursorX - t.x) / t.scale;
           const originY = (cursorY - t.y) / t.scale;
-          const x = t.x - (scale - t.scale) * originX - e.deltaX;
-          const y = t.y - (scale - t.scale) * originY - e.deltaY;
+          const x = t.x - (scale - t.scale) * originX;
+          const y = t.y - (scale - t.scale) * originY;
           return constrainPan(rect, naturalSize, { scale, x, y });
         });
       } else {
