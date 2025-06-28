@@ -1,4 +1,5 @@
-import { getCase } from "@/lib/caseStore";
+import { getAuthorizedCase } from "@/lib/caseAccess";
+import { notFound } from "next/navigation";
 import ClientCasePage from "./ClientCasePage";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,7 @@ export default async function CasePage({
   params,
 }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const c = getCase(id);
-  return <ClientCasePage caseId={id} initialCase={c ?? null} />;
+  const c = await getAuthorizedCase(id);
+  if (!c) notFound();
+  return <ClientCasePage caseId={id} initialCase={c} />;
 }

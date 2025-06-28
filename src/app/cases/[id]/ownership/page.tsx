@@ -1,5 +1,6 @@
-import { getCase } from "@/lib/caseStore";
+import { getAuthorizedCase } from "@/lib/caseAccess";
 import { ownershipModules } from "@/lib/ownershipModules";
+import { notFound } from "next/navigation";
 import OwnershipEditor from "./OwnershipEditor";
 
 export const dynamic = "force-dynamic";
@@ -8,8 +9,8 @@ export default async function OwnershipPage({
   params,
 }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const c = getCase(id);
-  if (!c) return <div className="p-8">Case not found</div>;
+  const c = await getAuthorizedCase(id);
+  if (!c) notFound();
   const state = c.analysis?.vehicle?.licensePlateState?.toLowerCase();
   const mod = state ? ownershipModules[state] : undefined;
   if (!mod) {
