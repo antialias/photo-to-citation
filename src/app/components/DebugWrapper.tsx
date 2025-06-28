@@ -1,7 +1,7 @@
 "use client";
 import useAltKey from "@/app/useAltKey";
 import Tooltip from "@/components/ui/tooltip";
-import { config } from "@/lib/config";
+import { getPublicEnv } from "@/publicEnv";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
@@ -45,7 +45,8 @@ export default function DebugWrapper({
   unavailableActions?: string[];
   className?: string;
 }) {
-  const enabled = Boolean(config.NEXT_PUBLIC_BROWSER_DEBUG);
+  const { NEXT_PUBLIC_BROWSER_DEBUG } = getPublicEnv();
+  const enabled = Boolean(NEXT_PUBLIC_BROWSER_DEBUG);
   const alt = useAltKey();
   const [refHover, setRefHover] = useState(false);
   const [open, setOpen] = useState(false);

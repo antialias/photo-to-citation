@@ -1,4 +1,5 @@
 import { authOptions } from "@/lib/authOptions";
+import { config } from "@/lib/config";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { cookies, headers } from "next/headers";
@@ -39,9 +40,21 @@ export default async function RootLayout({
     }
     storedLang = storedLang ?? "en";
   }
+  const publicEnv = {
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: config.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    NEXT_PUBLIC_BASE_PATH: config.NEXT_PUBLIC_BASE_PATH,
+    NEXT_PUBLIC_BROWSER_DEBUG: config.NEXT_PUBLIC_BROWSER_DEBUG,
+  };
   return (
     <html lang={storedLang}>
       <body className="antialiased">
+        <script
+          id="public-env"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: injecting runtime config
+          dangerouslySetInnerHTML={{
+            __html: `window.PUBLIC_ENV=${JSON.stringify(publicEnv)};`,
+          }}
+        />
         <QueryProvider>
           <I18nProvider lang={storedLang}>
             <NotificationProvider>
