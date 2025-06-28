@@ -11,7 +11,7 @@ afterEach(() => {
 
 describe("analyzeViolation", () => {
   it("rejects when no images are provided", async () => {
-    await expect(analyzeViolation([])).rejects.toMatchObject({
+    await expect(analyzeViolation([], "en")).rejects.toMatchObject({
       kind: "images",
     });
   });
@@ -21,7 +21,7 @@ describe("analyzeViolation", () => {
       choices: [{ message: { content: "{" }, finish_reason: "length" }],
     } as unknown as ChatCompletion);
 
-    await expect(analyzeViolation(imgs)).rejects.toMatchObject({
+    await expect(analyzeViolation(imgs, "en")).rejects.toMatchObject({
       kind: "truncated",
     });
   });
@@ -32,7 +32,7 @@ describe("analyzeViolation", () => {
       choices: [{ message: { content: "oops" }, finish_reason: "stop" }],
     } as unknown as ChatCompletion);
 
-    await expect(analyzeViolation(imgs)).rejects.toMatchObject({
+    await expect(analyzeViolation(imgs, "en")).rejects.toMatchObject({
       kind: "parse",
     });
   });
@@ -43,7 +43,7 @@ describe("analyzeViolation", () => {
       choices: [{ message: { content: "{}" }, finish_reason: "stop" }],
     } as unknown as ChatCompletion);
 
-    await expect(analyzeViolation(imgs)).rejects.toMatchObject({
+    await expect(analyzeViolation(imgs, "en")).rejects.toMatchObject({
       kind: "schema",
     });
   });
@@ -60,7 +60,7 @@ describe("analyzeViolation", () => {
       choices: [{ message: { content: reply }, finish_reason: "stop" }],
     } as unknown as ChatCompletion);
 
-    await expect(analyzeViolation(imgs)).rejects.toMatchObject({
+    await expect(analyzeViolation(imgs, "en")).rejects.toMatchObject({
       kind: "schema",
     });
   });
