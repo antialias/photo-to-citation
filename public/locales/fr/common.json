@@ -2,8 +2,23 @@
   "title": "Photo à Citation",
   "landingDescription": "Prenez rapidement en photo les pistes cyclables ou trottoirs obstrués et laissez l'application gérer la paperasse.",
   "signIn": "Connectez-vous pour commencer",
-  "casesLastWeek": "cas créés la semaine dernière",
-  "authorityNotifications": "notifications envoyées aux autorités",
+  "casesLastWeek": "{{count}} cas créé la semaine dernière",
+  "casesLastWeek_plural": "{{count}} cas créés la semaine dernière",
+  "authorityNotifications": "{{count}} notification envoyée aux autorités",
+  "authorityNotifications_plural": "{{count}} notifications envoyées aux autorités",
   "avgTimeToNotify": "temps moyen pour notifier les autorités",
-  "casesWithNotification": "cas avec notification aux autorités"
+  "casesWithNotification": "cas avec notification aux autorités",
+  "nav": {
+    "newCaseFromImage": "Nouveau cas à partir d'une image",
+    "pointAndShoot": "Pointer & photographier",
+    "cases": "Cas",
+    "mapView": "Vue carte",
+    "triage": "Triage",
+    "admin": "Admin",
+    "systemStatus": "État du système",
+    "userSettings": "Paramètres",
+    "profile": "Profil",
+    "signOut": "Se déconnecter",
+    "signIn": "Se connecter"
+  }
 }

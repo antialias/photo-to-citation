@@ -1,3 +1,4 @@
+import I18nProvider from "@/app/i18n-provider";
 import QueryProvider from "@/app/query-provider";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -23,7 +24,9 @@ describe("NavBar", () => {
     mockedUsePathname.mockReturnValue("/cases");
     render(
       <QueryProvider>
-        <NavBar />
+        <I18nProvider lang="en">
+          <NavBar />
+        </I18nProvider>
       </QueryProvider>,
     );
     expect(screen.getByText("Point & Shoot")).toBeInTheDocument();
@@ -34,7 +37,9 @@ describe("NavBar", () => {
     mockedUsePathname.mockReturnValue("/point");
     render(
       <QueryProvider>
-        <NavBar />
+        <I18nProvider lang="en">
+          <NavBar />
+        </I18nProvider>
       </QueryProvider>,
     );
     expect(screen.queryByText("Point & Shoot")).toBeNull();
