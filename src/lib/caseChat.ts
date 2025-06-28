@@ -11,6 +11,7 @@ export interface CaseChatReply {
   response: import("./openai").LocalizedText;
   actions: CaseChatAction[];
   noop: boolean;
+  lang: string;
 }
 
 export const caseChatReplySchema = z.object({
@@ -23,4 +24,5 @@ export const caseChatReplySchema = z.object({
     ]),
   ),
   noop: z.boolean(),
+  lang: z.string(),
 });
