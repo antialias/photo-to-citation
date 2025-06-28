@@ -46,5 +46,50 @@
   "deleteCase": "Supprimer le cas",
   "confirmDelete": "Tapez '{{code}}' pour confirmer la suppression de ce cas.",
   "actions": "Actions",
-  "caseActionsMenu": "Menu d'actions du cas"
+  "caseActionsMenu": "Menu d'actions du cas",
+  "notLoggedIn": "Vous n'êtes pas connecté.",
+  "profileTab": "Profil",
+  "creditsTab": "Crédits",
+  "balanceCredits": "Solde : {{balance}} crédits",
+  "add": "Ajouter",
+  "userProfile": "Profil utilisateur",
+  "nameLabel": "Nom",
+  "imageUrlLabel": "URL de l'image",
+  "emailLabel": "Email :",
+  "roleLabel": "Rôle :",
+  "save": "Enregistrer",
+  "caseTriage": "Triage des cas",
+  "noCasesAvailable": "Aucun cas disponible.",
+  "noOpenViolations": "Aucune infraction ouverte.",
+  "caseLabel": "Cas {{id}}",
+  "violationLabel": "Infraction : {{type}}",
+  "severityLabel": "Gravité : {{severity}}%",
+  "notFound": {
+    "title": "Page non trouvée",
+    "message": "Désolé, nous n'avons pas trouvé cette page.",
+    "back": "Retour à l'accueil"
+  },
+  "error": {
+    "title": "Une erreur est survenue",
+    "message": "Veuillez réessayer ou signaler le problème.",
+    "retry": "Réessayer",
+    "reportIssue": "Signaler le problème"
+  },
+  "claimBanner": {
+    "message": "Connectez-vous pour réclamer ce cas ou il sera perdu à la fin de la session.",
+    "signIn": "Connexion",
+    "dismiss": "Fermer"
+  },
+  "admin": {
+    "userManagement": "Gestion des utilisateurs",
+    "appConfiguration": "Configuration de l'application",
+    "users": "Utilisateurs",
+    "invite": "Inviter",
+    "disable": "Désactiver",
+    "delete": "Supprimer",
+    "casbinRules": "Règles Casbin",
+    "addRule": "Ajouter une règle",
+    "saveRules": "Enregistrer les règles"
+  },
+  "menu": "Menu"
 }

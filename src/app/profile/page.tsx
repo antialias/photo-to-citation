@@ -2,10 +2,12 @@
 import { apiFetch } from "@/apiClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSession } from "../useSession";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data } = useQuery<{ name?: string; image?: string }>({
     queryKey: ["/api/profile"],
@@ -39,7 +41,7 @@ export default function ProfilePage() {
   });
 
   if (!session) {
-    return <div className="p-8">You are not logged in.</div>;
+    return <div className="p-8">{t("notLoggedIn")}</div>;
   }
 
   return (
@@ -50,15 +52,15 @@ export default function ProfilePage() {
         mutation.mutate();
       }}
     >
-      <h1 className="text-xl font-bold mb-4">User Profile</h1>
-      <label htmlFor="name">Name</label>
+      <h1 className="text-xl font-bold mb-4">{t("userProfile")}</h1>
+      <label htmlFor="name">{t("nameLabel")}</label>
       <input
         id="name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="border p-2"
       />
-      <label htmlFor="image">Image URL</label>
+      <label htmlFor="image">{t("imageUrlLabel")}</label>
       <input
         id="image"
         value={image}
@@ -66,7 +68,7 @@ export default function ProfilePage() {
         className="border p-2"
       />
       <button type="submit" className="bg-blue-500 text-white px-4 py-2">
-        Save
+        {t("save")}
       </button>
     </form>
   );

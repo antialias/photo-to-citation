@@ -3,6 +3,7 @@ import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import AppConfigurationTab from "./AppConfigurationTab";
 
 const policyOptions = {
@@ -210,6 +211,7 @@ export default function AdminPageClient({
     },
   });
 
+  const { t } = useTranslation();
   return (
     <div className="p-8">
       <div className="flex gap-4 mb-4">
@@ -218,19 +220,19 @@ export default function AdminPageClient({
           onClick={() => setTab("users")}
           className={tab === "users" ? "font-bold underline" : ""}
         >
-          User Management
+          {t("admin.userManagement")}
         </button>
         <button
           type="button"
           onClick={() => setTab("config")}
           className={tab === "config" ? "font-bold underline" : ""}
         >
-          App Configuration
+          {t("admin.appConfiguration")}
         </button>
       </div>
       {tab === "users" && (
         <>
-          <h1 className="text-xl font-bold mb-4">Users</h1>
+          <h1 className="text-xl font-bold mb-4">{t("admin.users")}</h1>
           <div className="mb-4 flex gap-2">
             <input
               type="email"
@@ -243,7 +245,7 @@ export default function AdminPageClient({
               onClick={() => inviteMutation.mutate()}
               className="bg-blue-600 text-white px-2 py-1 rounded"
             >
-              Invite
+              {t("admin.invite")}
             </button>
           </div>
           <ul className="grid gap-2">
@@ -271,7 +273,7 @@ export default function AdminPageClient({
                     onClick={() => disableMutation.mutate(u.id)}
                     className="bg-yellow-500 text-white px-2 py-1 rounded"
                   >
-                    Disable
+                    {t("admin.disable")}
                   </button>
                 )}
                 <button
@@ -279,12 +281,12 @@ export default function AdminPageClient({
                   onClick={() => removeMutation.mutate(u.id)}
                   className="bg-red-500 text-white px-2 py-1 rounded"
                 >
-                  Delete
+                  {t("admin.delete")}
                 </button>
               </li>
             ))}
           </ul>
-          <h1 className="text-xl font-bold my-4">Casbin Rules</h1>
+          <h1 className="text-xl font-bold my-4">{t("admin.casbinRules")}</h1>
           <table className="mb-2 border-collapse w-full">
             <thead>
               <tr>
@@ -419,7 +421,7 @@ export default function AdminPageClient({
               onClick={addRule}
               className="bg-green-600 text-white px-2 py-1 rounded"
             >
-              Add Rule
+              {t("admin.addRule")}
             </button>
           </div>
           <button
@@ -428,7 +430,7 @@ export default function AdminPageClient({
             disabled={!isSuperadmin}
             className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50"
           >
-            Save Rules
+            {t("admin.saveRules")}
           </button>
         </>
       )}

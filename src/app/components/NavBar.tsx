@@ -156,7 +156,7 @@ export default function NavBar() {
           <button
             type="button"
             className="sm:hidden text-xl p-2 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label="Menu"
+            aria-label={t("menu")}
           >
             <FaBars />
           </button>

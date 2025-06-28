@@ -46,5 +46,50 @@
   "deleteCase": "Eliminar caso",
   "confirmDelete": "Escribe '{{code}}' para confirmar la eliminación de este caso.",
   "actions": "Acciones",
-  "caseActionsMenu": "Menú de acciones del caso"
+  "caseActionsMenu": "Menú de acciones del caso",
+  "notLoggedIn": "No has iniciado sesión.",
+  "profileTab": "Perfil",
+  "creditsTab": "Créditos",
+  "balanceCredits": "Saldo: {{balance}} créditos",
+  "add": "Agregar",
+  "userProfile": "Perfil de usuario",
+  "nameLabel": "Nombre",
+  "imageUrlLabel": "URL de imagen",
+  "emailLabel": "Correo:",
+  "roleLabel": "Rol:",
+  "save": "Guardar",
+  "caseTriage": "Triaje de casos",
+  "noCasesAvailable": "No hay casos disponibles.",
+  "noOpenViolations": "No hay infracciones abiertas.",
+  "caseLabel": "Caso {{id}}",
+  "violationLabel": "Infracción: {{type}}",
+  "severityLabel": "Severidad: {{severity}}%",
+  "notFound": {
+    "title": "Página no encontrada",
+    "message": "Lo sentimos, no pudimos encontrar esa página.",
+    "back": "Volver al inicio"
+  },
+  "error": {
+    "title": "Algo salió mal",
+    "message": "Inténtalo de nuevo o informa del problema.",
+    "retry": "Reintentar",
+    "reportIssue": "Informar problema"
+  },
+  "claimBanner": {
+    "message": "Inicia sesión para reclamar este caso o se perderá cuando termine la sesión.",
+    "signIn": "Iniciar sesión",
+    "dismiss": "Descartar"
+  },
+  "admin": {
+    "userManagement": "Gestión de usuarios",
+    "appConfiguration": "Configuración de la app",
+    "users": "Usuarios",
+    "invite": "Invitar",
+    "disable": "Deshabilitar",
+    "delete": "Eliminar",
+    "casbinRules": "Reglas Casbin",
+    "addRule": "Agregar regla",
+    "saveRules": "Guardar reglas"
+  },
+  "menu": "Menú"
 }
