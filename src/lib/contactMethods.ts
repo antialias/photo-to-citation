@@ -8,7 +8,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import twilio from "twilio";
-import { getConfig } from "./config";
+import { config, getConfig } from "./config";
 
 import {
   type MailingAddress,
@@ -134,7 +134,7 @@ export async function sendSnailMail(options: {
     y -= fontSize * 1.2;
   }
   for (const att of options.attachments) {
-    const abs = path.join(process.cwd(), att.replace(/^\/+/, ""));
+    const abs = path.join(config.UPLOAD_DIR, att.replace(/^\/uploads\//, ""));
     if (!fs.existsSync(abs)) continue;
     const bytes = fs.readFileSync(abs);
     const ext = path.extname(abs).toLowerCase();

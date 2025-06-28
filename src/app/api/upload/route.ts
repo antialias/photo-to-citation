@@ -1,6 +1,10 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+
 import { getAnonymousSessionId } from "@/lib/anonymousSession";
 import { getSessionDetails, withAuthorization } from "@/lib/authz";
 import {
@@ -15,10 +19,9 @@ import {
   setCaseSessionId,
   updateCase,
 } from "@/lib/caseStore";
+import { config } from "@/lib/config";
 import { extractGps, extractTimestamp } from "@/lib/exif";
 import { generateThumbnailsInBackground } from "@/lib/thumbnails";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
 
 export const POST = withAuthorization(
   { obj: "upload" },
@@ -56,7 +59,7 @@ export const POST = withAuthorization(
 
     const gps = extractGps(buffer);
     const takenAt = extractTimestamp(buffer);
-    const uploadDir = path.join(process.cwd(), "uploads");
+    const uploadDir = config.UPLOAD_DIR;
     fs.mkdirSync(uploadDir, { recursive: true });
     const ext = path.extname(file.name || "jpg") || ".jpg";
     const filename = `${crypto.randomUUID()}${ext}`;

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
+import { config } from "@/lib/config";
 import {
   type MockInstance,
   afterEach,
@@ -58,7 +59,7 @@ beforeEach(async () => {
   caseStore = await import("@/lib/caseStore");
   caseAnalysis = await import("@/lib/caseAnalysis");
   cancelSpy = vi.spyOn(caseAnalysis, "cancelCaseAnalysis");
-  fs.mkdirSync(path.join(process.cwd(), "uploads"), {
+  fs.mkdirSync(config.UPLOAD_DIR, {
     recursive: true,
   });
   mod = await import("@/app/api/upload/route");
@@ -67,7 +68,7 @@ beforeEach(async () => {
 afterEach(() => {
   fs.rmSync(dataDir, { recursive: true, force: true });
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  fs.rmSync(path.join(process.cwd(), "uploads"), {
+  fs.rmSync(config.UPLOAD_DIR, {
     recursive: true,
     force: true,
   });

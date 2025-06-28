@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
+import { config } from "./config";
 import { runJob } from "./jobScheduler";
 
 export const THUMB_SIZES = [64, 128, 256, 512];
@@ -10,7 +11,7 @@ export async function generateThumbnails(
   filename: string,
 ): Promise<void> {
   const base = path.basename(filename);
-  const uploadDir = path.join(process.cwd(), "uploads", "thumbs");
+  const uploadDir = path.join(config.UPLOAD_DIR, "thumbs");
   try {
     await sharp(buffer).metadata();
   } catch (err) {

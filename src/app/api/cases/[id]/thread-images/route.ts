@@ -1,11 +1,14 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+
+import { NextResponse } from "next/server";
+
 import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseThreadImage, getCase } from "@/lib/caseStore";
+import { config } from "@/lib/config";
 import { ocrPaperwork } from "@/lib/openai";
 import { generateThumbnailsInBackground } from "@/lib/thumbnails";
-import { NextResponse } from "next/server";
 
 export const POST = withCaseAuthorization(
   { obj: "cases", act: "update" },
@@ -29,7 +32,7 @@ export const POST = withCaseAuthorization(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const ext = path.extname(file.name || "jpg") || ".jpg";
-    const uploadDir = path.join(process.cwd(), "uploads");
+    const uploadDir = config.UPLOAD_DIR;
     fs.mkdirSync(uploadDir, { recursive: true });
     const filename = `${crypto.randomUUID()}${ext}`;
     fs.writeFileSync(path.join(uploadDir, filename), buffer);

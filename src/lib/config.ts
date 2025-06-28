@@ -1,3 +1,4 @@
+import path from "node:path";
 import dotenv from "dotenv";
 import { z } from "zod";
 
@@ -51,6 +52,7 @@ const envSchema = z
     IMAP_PASS: z.string().optional(),
     IMAP_TLS: z.coerce.boolean().default(true),
     INBOX_STATE_FILE: z.string().optional(),
+    UPLOAD_DIR: z.string().default("uploads"),
     NEXT_PUBLIC_BROWSER_DEBUG: z.coerce.boolean().default(false),
     NEXT_PUBLIC_BASE_PATH: z.string().default(""),
   })
@@ -69,3 +71,4 @@ export const config: Config = {
   NEXT_PUBLIC_BROWSER_DEBUG: process.env.NEXT_PUBLIC_BROWSER_DEBUG === "true",
   NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
+config.UPLOAD_DIR = path.resolve(config.UPLOAD_DIR);
