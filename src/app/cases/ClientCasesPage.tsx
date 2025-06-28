@@ -228,7 +228,7 @@ export default function ClientCasesPage({
                     const photo = getRepresentativePhoto(c);
                     return photo ? (
                       <img
-                        src={photo}
+                        src={`/uploads/${photo}`}
                         alt="case thumbnail"
                         width={80}
                         height={60}
