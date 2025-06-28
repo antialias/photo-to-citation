@@ -6,8 +6,8 @@ import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaBars } from "react-icons/fa";
-import i18n from "../../i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function NavBar() {
@@ -15,6 +15,7 @@ export default function NavBar() {
   const uploadCase = useNewCaseFromFiles();
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: session } = useSession();
+  const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   if (pathname.startsWith("/point")) {
     return (
@@ -136,7 +137,7 @@ export default function NavBar() {
         href="/"
         className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
       >
-        {i18n.t("title")}
+        {t("title")}
       </Link>
       <input
         type="file"
