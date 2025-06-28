@@ -2,6 +2,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { type RefObject, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function AddImageMenu({
   caseId,
@@ -15,6 +16,7 @@ export default function AddImageMenu({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
   return (
     <>
       <Popover.Root open={open} onOpenChange={setOpen}>
@@ -23,7 +25,7 @@ export default function AddImageMenu({
             type="button"
             className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none"
           >
-            + add image
+            {t("addImage")}
           </button>
         </Popover.Trigger>
         <Popover.Portal>
@@ -39,7 +41,7 @@ export default function AddImageMenu({
               }}
               className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
             >
-              Upload Image
+              {t("uploadImage")}
             </button>
             {hasCamera ? (
               <Link
@@ -47,7 +49,7 @@ export default function AddImageMenu({
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 onClick={() => setOpen(false)}
               >
-                Take Photo
+                {t("takePhoto")}
               </Link>
             ) : null}
           </Popover.Content>

@@ -8,6 +8,7 @@ import DebugWrapper from "@/app/components/DebugWrapper";
 import { useSession } from "@/app/useSession";
 import type { Case } from "@/lib/caseStore";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CaseProvider, useCaseContext } from "./CaseContext";
 import CaseDetails from "./components/CaseDetails";
 import CaseExtraInfo from "./components/CaseExtraInfo";
@@ -21,6 +22,7 @@ function ClientCasePage({
 }: { caseId: string; readOnly?: boolean }) {
   const { caseData, uploadFiles } = useCaseContext();
   const { data: session } = useSession();
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
   const [hideClaimBanner, setHideClaimBanner] = useState(false);
   const [chatExpanded, setChatExpanded] = useState(false);
@@ -40,7 +42,7 @@ function ClientCasePage({
   if (!caseData) {
     return (
       <div className="p-8 flex flex-col gap-4">
-        <h1 className="text-xl font-semibold">Uploading...</h1>
+        <h1 className="text-xl font-semibold">{t("uploading")}</h1>
         {preview ? (
           <img
             src={preview}
@@ -50,7 +52,7 @@ function ClientCasePage({
           />
         ) : null}
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Uploading photo...
+          {t("uploadingPhoto")}
         </p>
       </div>
     );
@@ -114,7 +116,7 @@ function ClientCasePage({
       </div>
       {readOnly || !dragging ? null : (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
-          Drop to add photos
+          {t("dropToAddPhotos")}
         </div>
       )}
       <div

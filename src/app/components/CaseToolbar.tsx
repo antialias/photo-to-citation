@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function CaseToolbar({
   caseId,
@@ -26,16 +27,23 @@ export default function CaseToolbar({
   archived?: boolean;
   readOnly?: boolean;
 }) {
+  const { t } = useTranslation();
   const reqText = progress
     ? progress.stage === "upload"
       ? progress.index > 0
-        ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor(
-            (progress.index / progress.total) * 100,
-          )}%)`
-        : "Uploading photos..."
+        ? t("uploadingProgress", {
+            index: progress.index,
+            total: progress.total,
+            percent: Math.floor((progress.index / progress.total) * 100),
+            count: progress.total,
+          })
+        : t("uploadingPhotos")
       : progress.done
-        ? "Processing results..."
-        : `Analyzing... ${progress.received} of ${progress.total} tokens`
+        ? t("processingResults")
+        : t("analyzingTokens", {
+            received: progress.received,
+            total: progress.total,
+          })
     : null;
   const progressText = progress
     ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${reqText}`
@@ -86,9 +94,9 @@ export default function CaseToolbar({
           >
             <summary
               className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-              aria-label="Case actions menu"
+              aria-label={t("caseActionsMenu")}
             >
-              Actions
+              {t("actions")}
             </summary>
             <div
               className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
@@ -104,7 +112,7 @@ export default function CaseToolbar({
                 }}
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
               >
-                Re-run Analysis
+                {t("rerunAnalysis")}
               </button>
               <button
                 type="button"
@@ -119,7 +127,7 @@ export default function CaseToolbar({
                 data-testid="archive-case-button"
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
               >
-                {archived ? "Unarchive Case" : "Archive Case"}
+                {archived ? t("unarchiveCase") : t("archiveCase")}
               </button>
               {disabled ? null : (
                 <>
@@ -134,21 +142,21 @@ export default function CaseToolbar({
                       }}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                     >
-                      Cancel Analysis
+                      {t("cancelAnalysis")}
                     </button>
                   ) : null}
                   <Link
                     href={`/cases/${caseId}/compose`}
                     className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    Draft Email to Authorities
+                    {t("draftEmail")}
                   </Link>
                   {hasOwner ? null : (
                     <Link
                       href={`/cases/${caseId}/ownership`}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      Request Ownership Info
+                      {t("requestOwnershipInfo")}
                     </Link>
                   )}
                   {hasOwner ? (
@@ -156,7 +164,7 @@ export default function CaseToolbar({
                       href={`/cases/${caseId}/notify-owner`}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      Notify Registered Owner
+                      {t("notifyRegisteredOwner")}
                     </Link>
                   ) : null}
                   <button
@@ -172,7 +180,7 @@ export default function CaseToolbar({
                     data-testid="close-case-button"
                     className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                   >
-                    {closed ? "Reopen Case" : "Close Case"}
+                    {closed ? t("reopenCase") : t("closeCase")}
                   </button>
                 </>
               )}
@@ -181,9 +189,7 @@ export default function CaseToolbar({
                   type="button"
                   onClick={async () => {
                     const code = Math.random().toString(36).slice(2, 6);
-                    const input = prompt(
-                      `Type '${code}' to confirm deleting this case.`,
-                    );
+                    const input = prompt(t("confirmDelete", { code }));
                     if (input === code) {
                       await apiFetch(`/api/cases/${caseId}`, {
                         method: "DELETE",
@@ -194,7 +200,7 @@ export default function CaseToolbar({
                   data-testid="delete-case-button"
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 >
-                  Delete Case
+                  {t("deleteCase")}
                 </button>
               ) : null}
             </div>

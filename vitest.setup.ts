@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import React, { type ImgHTMLAttributes } from "react";
-import { type TestContext, afterEach, beforeEach, vi } from "vitest";
+import { type TestContext, afterEach, beforeAll, beforeEach, vi } from "vitest";
+import { initI18n } from "./src/i18n";
 
 if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
   class ResizeObserver {
@@ -19,6 +20,10 @@ if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
 // Ensure stable auth configuration during tests
 process.env.NEXTAUTH_SECRET = "test-secret";
 process.env.VITEST = "1";
+
+beforeAll(async () => {
+  await initI18n("en");
+});
 
 vi.mock("next/image", () => ({
   default: (props: ImgHTMLAttributes<HTMLImageElement>) =>
