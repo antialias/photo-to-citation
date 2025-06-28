@@ -24,6 +24,7 @@ export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  lang: string;
   actions?: CaseChatAction[];
 }
 
@@ -135,7 +136,7 @@ export function CaseChatProvider({
   const [unavailableActions, setUnavailableActions] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showJump, setShowJump] = useState(false);
@@ -166,7 +167,11 @@ export function CaseChatProvider({
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) return [];
-      return JSON.parse(raw) as ChatSession[];
+      const data = JSON.parse(raw) as ChatSession[];
+      return data.map((s) => ({
+        ...s,
+        messages: s.messages.map((m) => ({ lang: "en", ...m })),
+      }));
     } catch {
       return [];
     }
@@ -310,7 +315,7 @@ export function CaseChatProvider({
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: [] }),
+          body: JSON.stringify({ messages: [], lang: i18n.language }),
           signal: controller.signal,
         });
         if (res.ok) {
@@ -336,6 +341,7 @@ export function CaseChatProvider({
               reply.response.en ??
               Object.values(reply.response)[0] ??
               "",
+            lang: reply.lang,
             actions: reply.actions,
           },
         ]);
@@ -561,7 +567,17 @@ export function CaseChatProvider({
   }
 
   function renderContent(m: Message) {
-    return <span>{m.content}</span>;
+    const needsTranslation = m.lang !== i18n.language;
+    return (
+      <span>
+        {m.content}
+        {needsTranslation ? (
+          <button type="button" className="ml-2 text-blue-500 underline">
+            {t("translate")}
+          </button>
+        ) : null}
+      </span>
+    );
   }
 
   async function request(list: Message[]) {
@@ -608,7 +624,7 @@ export function CaseChatProvider({
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: list }),
+          body: JSON.stringify({ messages: list, lang: i18n.language }),
           signal: controller.signal,
         });
         if (res.ok) {
@@ -649,6 +665,7 @@ export function CaseChatProvider({
                 reply.response.en ??
                 Object.values(reply.response)[0] ??
                 "",
+              lang: reply.lang,
               actions: reply.actions,
             },
           ]);
@@ -680,7 +697,12 @@ export function CaseChatProvider({
     if (!text) return;
     const list = [
       ...messages,
-      { id: crypto.randomUUID(), role: "user" as const, content: text },
+      {
+        id: crypto.randomUUID(),
+        role: "user" as const,
+        content: text,
+        lang: i18n.language,
+      },
     ];
     if (messages.length === 0) {
       setSessionSummary(text.slice(0, 30));

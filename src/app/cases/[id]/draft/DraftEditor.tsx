@@ -30,9 +30,21 @@ export default function DraftEditor({
 }) {
   const { i18n } = useTranslation();
   const [subject, setSubject] = useState(
-    initialDraft?.subject[i18n.language] || "",
+    typeof initialDraft?.subject === "string"
+      ? initialDraft.subject
+      : (initialDraft?.subject[i18n.language] ??
+          initialDraft?.subject.en ??
+          (initialDraft ? Object.values(initialDraft.subject)[0] : "") ??
+          ""),
   );
-  const [body, setBody] = useState(initialDraft?.body[i18n.language] || "");
+  const [body, setBody] = useState(
+    typeof initialDraft?.body === "string"
+      ? initialDraft.body
+      : (initialDraft?.body[i18n.language] ??
+          initialDraft?.body.en ??
+          (initialDraft ? Object.values(initialDraft.body)[0] : "") ??
+          ""),
+  );
   const [sending, setSending] = useState(false);
   const [snailMail, setSnailMail] = useState(false);
   const [snailMailDisabled, setSnailMailDisabled] = useState(false);
@@ -49,8 +61,22 @@ export default function DraftEditor({
 
   useEffect(() => {
     if (initialDraft) {
-      setSubject(initialDraft.subject[i18n.language] || "");
-      setBody(initialDraft.body[i18n.language] || "");
+      const sub =
+        typeof initialDraft.subject === "string"
+          ? initialDraft.subject
+          : (initialDraft.subject[i18n.language] ??
+            initialDraft.subject.en ??
+            Object.values(initialDraft.subject)[0] ??
+            "");
+      const bodyText =
+        typeof initialDraft.body === "string"
+          ? initialDraft.body
+          : (initialDraft.body[i18n.language] ??
+            initialDraft.body.en ??
+            Object.values(initialDraft.body)[0] ??
+            "");
+      setSubject(sub);
+      setBody(bodyText);
     }
   }, [initialDraft, i18n.language]);
 
