@@ -36,7 +36,7 @@ export default function AnalysisInfo({
           <button
             type="button"
             onClick={() => onTranslate?.("analysis.details", i18n.language)}
-            className="ml-2 text-blue-500 underline"
+            className="ml-2 text-blue-500 underline inline bg-transparent p-0 border-none cursor-pointer"
           >
             {t("translate")}
           </button>

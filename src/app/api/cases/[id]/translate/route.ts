@@ -3,7 +3,7 @@ import { getCase, setCaseTranslation } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { NextResponse } from "next/server";
 
-function getValueByPath(obj: unknown, path: string): unknown {
+export function getValueByPath(obj: unknown, path: string): unknown {
   const parts = path.replace(/\[(\w+)\]/g, ".$1").split(".");
   let current: unknown = obj;
   for (let i = 0; i < parts.length; i++) {
