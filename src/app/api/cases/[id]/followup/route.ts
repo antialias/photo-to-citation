@@ -40,6 +40,7 @@ export const GET = withCaseAuthorization(
     const { id } = await params;
     const url = new URL(req.url);
     const replyTo = url.searchParams.get("replyTo");
+    const lang = url.searchParams.get("lang") ?? "en";
     log(`followup GET case=${id} replyTo=${replyTo ?? "none"}`);
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -55,7 +56,7 @@ export const GET = withCaseAuthorization(
     const sender = session?.user
       ? { name: session.user.name ?? null, email: session.user.email ?? null }
       : undefined;
-    const email = await draftFollowUp(c, recipient, thread, sender);
+    const email = await draftFollowUp(c, recipient, thread, sender, lang);
     log(`drafted email subject: ${email.subject}`);
     return NextResponse.json({
       email,

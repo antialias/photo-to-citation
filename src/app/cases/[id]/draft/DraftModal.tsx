@@ -4,6 +4,7 @@ import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
 import DraftEditor from "./DraftEditor";
 
@@ -25,11 +26,12 @@ export default function DraftModal({
   const [data, setData] = useState<DraftData | null>(initialData ?? null);
   const [fullScreen, setFullScreen] = useState(false);
   const notify = useNotify();
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     if (initialData) return;
     let canceled = false;
-    apiFetch(`/api/cases/${caseId}/report`)
+    apiFetch(`/api/cases/${caseId}/report?lang=${i18n.language}`)
       .then(async (res) => {
         if (res.ok) {
           return res.json();
@@ -45,7 +47,7 @@ export default function DraftModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, initialData, onClose, notify]);
+  }, [caseId, initialData, onClose, notify, i18n.language]);
 
   useEffect(() => {
     if (initialData) setData(initialData);

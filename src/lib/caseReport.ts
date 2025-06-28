@@ -34,6 +34,7 @@ export async function draftEmail(
   caseData: Case,
   mod: ReportModule,
   sender?: { name?: string | null; email?: string | null },
+  lang = "en",
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -58,7 +59,10 @@ export async function draftEmail(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const paperworkTexts = analysis?.images
     ? Object.values(analysis.images)
@@ -93,7 +97,7 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: "You create email drafts for municipal authorities.",
+      content: `You create email drafts for municipal authorities. Reply in ${lang}.`,
     },
     { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
@@ -130,6 +134,7 @@ export async function draftFollowUp(
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
   sender?: { name?: string | null; email?: string | null },
+  lang = "en",
 ): Promise<EmailDraft> {
   log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
@@ -150,7 +155,10 @@ export async function draftFollowUp(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const code = await getViolationCode(
     "oak-park",
@@ -179,7 +187,7 @@ Ask about the current citation status and mention that photos are attached again
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: "You create email drafts for municipal authorities.",
+      content: `You create email drafts for municipal authorities. Reply in ${lang}.`,
     },
     ...history,
     { role: "user", content: prompt } as ChatCompletionMessageParam,
@@ -216,6 +224,7 @@ Ask about the current citation status and mention that photos are attached again
 export async function draftOwnerNotification(
   caseData: Case,
   authorities: string[],
+  lang = "en",
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -240,7 +249,10 @@ export async function draftOwnerNotification(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const authorityList = authorities.join(", ");
   const authorityLine =
@@ -262,8 +274,7 @@ export async function draftOwnerNotification(
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You create anonymous notification emails for vehicle owners about violations.",
+      content: `You create anonymous notification emails for vehicle owners about violations. Reply in ${lang}.`,
     },
     { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
