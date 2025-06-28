@@ -5,7 +5,10 @@ import os from "node:os";
 import path from "node:path";
 import type { Worker } from "node:worker_threads";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-vi.mock("next/headers", () => ({ cookies: () => ({ get: vi.fn() }) }));
+vi.mock("next/headers", () => ({
+  cookies: () => ({ get: vi.fn() }),
+  headers: () => new Headers(),
+}));
 
 const terminateMock = vi.fn();
 const worker = Object.assign(new EventEmitter(), {
@@ -41,6 +44,7 @@ beforeEach(async () => {
       getAll: () => [],
       has: vi.fn(),
     }),
+    headers: () => new Headers(),
   }));
   const db = await import("@/lib/db");
   await db.migrationsReady;

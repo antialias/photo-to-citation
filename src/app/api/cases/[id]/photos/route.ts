@@ -9,6 +9,7 @@ import {
   removeCasePhoto,
   updateCase,
 } from "@/lib/caseStore";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const DELETE = withCaseAuthorization(
@@ -48,6 +49,21 @@ export const POST = withCaseAuthorization(
     },
   ) => {
     const { id } = await params;
+    const store = await cookies();
+    let storedLang = store.get("language")?.value;
+    if (!storedLang) {
+      const headerList = await headers();
+      const accept = headerList.get("accept-language") ?? "";
+      const supported = ["en", "es", "fr"];
+      for (const part of accept.split(",")) {
+        const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+        if (supported.includes(code)) {
+          storedLang = code;
+          break;
+        }
+      }
+      storedLang = storedLang ?? "en";
+    }
     const { photo, takenAt, gps } = (await req.json()) as {
       photo: string;
       takenAt?: string | null;
@@ -61,7 +77,7 @@ export const POST = withCaseAuthorization(
       analysisStatus: "pending",
       analysisProgress: { stage: "upload", index: 0, total: 1 },
     });
-    analyzePhotoInBackground(p || updated, photo);
+    analyzePhotoInBackground(p || updated, photo, storedLang);
     const layered = getCase(id);
     return NextResponse.json(layered);
   },

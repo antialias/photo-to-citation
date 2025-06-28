@@ -42,11 +42,11 @@ describe("analyzeCaseInBackground", () => {
       note: null,
       photoNotes: { "/a.jpg": null },
     };
-    analyzeCaseInBackground(c);
+    analyzeCaseInBackground(c, "en");
     expect(runJobMock).toHaveBeenCalledTimes(1);
     expect(isCaseAnalysisActive(c.id)).toBe(true);
 
-    analyzeCaseInBackground(c);
+    analyzeCaseInBackground(c, "en");
     expect(runJobMock).toHaveBeenCalledTimes(1);
 
     worker.emit("exit");

@@ -6,9 +6,9 @@ import { migrationsReady } from "@/lib/db";
 (async () => {
   await migrationsReady;
   const { jobData } = workerData as {
-    jobData: { caseData: Case; photo: string };
+    jobData: { caseData: Case; photo: string; lang: string };
   };
-  await reanalyzePhoto(jobData.caseData, jobData.photo);
+  await reanalyzePhoto(jobData.caseData, jobData.photo, jobData.lang);
   if (parentPort) parentPort.postMessage("done");
 })().catch((err) => {
   console.error("analyzePhoto job failed", err);

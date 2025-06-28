@@ -5,8 +5,10 @@ import { migrationsReady } from "@/lib/db";
 
 (async () => {
   await migrationsReady;
-  const { jobData } = workerData as { jobData: Case };
-  await analyzeCase(jobData);
+  const { jobData } = workerData as {
+    jobData: { caseData: Case; lang: string };
+  };
+  await analyzeCase(jobData.caseData, jobData.lang);
   if (parentPort) parentPort.postMessage("done");
 })().catch((err) => {
   console.error("analyzeCase job failed", err);

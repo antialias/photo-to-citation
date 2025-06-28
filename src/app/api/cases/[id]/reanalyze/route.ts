@@ -4,6 +4,7 @@ import {
   cancelCaseAnalysis,
 } from "@/lib/caseAnalysis";
 import { getCase, updateCase } from "@/lib/caseStore";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export const POST = withCaseAuthorization(
@@ -19,6 +20,21 @@ export const POST = withCaseAuthorization(
     },
   ) => {
     const { id } = await params;
+    const store = await cookies();
+    let storedLang = store.get("language")?.value;
+    if (!storedLang) {
+      const headerList = await headers();
+      const accept = headerList.get("accept-language") ?? "";
+      const supported = ["en", "es", "fr"];
+      for (const part of accept.split(",")) {
+        const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+        if (supported.includes(code)) {
+          storedLang = code;
+          break;
+        }
+      }
+      storedLang = storedLang ?? "en";
+    }
     const c = getCase(id);
     if (!c) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -31,7 +47,7 @@ export const POST = withCaseAuthorization(
     if (!updated) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    analyzeCaseInBackground(updated);
+    analyzeCaseInBackground(updated, storedLang);
     const layered = getCase(id);
     return NextResponse.json(layered);
   },
