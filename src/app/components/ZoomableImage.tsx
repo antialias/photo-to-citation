@@ -171,6 +171,23 @@ export default function ZoomableImage({ src, alt }: Props) {
           transformOrigin: "0 0",
         }}
       />
+      {transform.scale > 1 ? (
+        <button
+          type="button"
+          onClick={() =>
+            setTransform((t) =>
+              constrainPan(
+                containerRef.current?.getBoundingClientRect(),
+                naturalSize,
+                { scale: 1, x: 0, y: 0 },
+              ),
+            )
+          }
+          className="absolute top-1 right-1 bg-black/60 text-white text-xs rounded px-1 z-10"
+        >
+          Reset Zoom
+        </button>
+      ) : null}
     </div>
   );
 }
