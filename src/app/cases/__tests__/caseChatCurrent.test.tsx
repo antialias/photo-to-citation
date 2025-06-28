@@ -19,6 +19,7 @@ describe("CaseChat current session", () => {
           caseId="1"
           onChat={async () => ({
             reply: {
+              lang: "en",
               response: { en: "ok" },
               actions: [],
               noop: false,

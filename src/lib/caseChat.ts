@@ -8,12 +8,14 @@ export type CaseChatAction =
   | { photo: string; note: string };
 
 export interface CaseChatReply {
+  lang: string;
   response: import("./openai").LocalizedText;
   actions: CaseChatAction[];
   noop: boolean;
 }
 
 export const caseChatReplySchema = z.object({
+  lang: z.string(),
   response: localizedTextSchema,
   actions: z.array(
     z.union([
