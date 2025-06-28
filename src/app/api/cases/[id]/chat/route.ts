@@ -4,6 +4,7 @@ import { getCaseActionStatus } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { chatWithSchema } from "@/lib/llmUtils";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { APIError } from "openai/error";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
@@ -14,7 +15,23 @@ export const POST = withCaseAuthorization(
     const { id } = await params;
     const body = (await req.json()) as {
       messages: Array<{ role: "user" | "assistant"; content: string }>;
+      lang?: string;
     };
+    const headerList = await headers();
+    const store = await cookies();
+    let storedLang = body.lang ?? store.get("language")?.value;
+    if (!storedLang) {
+      const accept = headerList.get("accept-language") ?? "";
+      const supported = ["en", "es", "fr"];
+      for (const part of accept.split(",")) {
+        const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+        if (supported.includes(code)) {
+          storedLang = code;
+          break;
+        }
+      }
+      storedLang = storedLang ?? "en";
+    }
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -62,6 +79,7 @@ export const POST = withCaseAuthorization(
       unavailable.length > 0
         ? `Unavailable actions (not applicable):\n${unavailableList}`
         : "",
+      `Reply in ${storedLang} unless instructed otherwise.`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -82,7 +100,7 @@ export const POST = withCaseAuthorization(
           maxTokens: 800,
         },
       );
-      const lang = (raw as { language?: string }).language ?? "en";
+      const lang = (raw as { language?: string }).language ?? storedLang;
       const reply: import("@/lib/caseChat").CaseChatReply = {
         response:
           typeof raw.response === "string"
@@ -90,6 +108,7 @@ export const POST = withCaseAuthorization(
             : raw.response,
         actions: raw.actions,
         noop: raw.noop,
+        lang,
       };
       return NextResponse.json({
         reply,

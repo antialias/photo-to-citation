@@ -19,4 +19,5 @@ export const caseChatReplySchema = z.object({
   response: z.any(),
   actions: z.array(caseChatActionSchema),
   noop: z.boolean(),
+  lang: z.string(),
 });
