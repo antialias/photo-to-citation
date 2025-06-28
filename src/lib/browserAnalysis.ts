@@ -90,7 +90,7 @@ export async function analyzeViolationLocal(
   const best = results[0] ?? {};
   return {
     violationType: best.type ?? "unknown",
-    details: "", // local model provides minimal detail
+    details: { en: "" }, // local model provides minimal detail
     vehicle: {
       licensePlateNumber: best.plate,
     },

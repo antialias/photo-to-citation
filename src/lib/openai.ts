@@ -88,9 +88,15 @@ export interface PaperworkAnalysis {
   info: PaperworkInfo | null;
 }
 
+export const localizedTextSchema = z.record(z.string());
+
+export interface LocalizedText {
+  [lang: string]: string;
+}
+
 export interface ViolationReport {
   violationType: string;
-  details: string;
+  details: LocalizedText;
   location?: string;
   vehicle: {
     make?: string;
@@ -104,8 +110,8 @@ export interface ViolationReport {
     string,
     {
       representationScore: number;
-      highlights?: string;
-      context?: string;
+      highlights?: LocalizedText;
+      context?: LocalizedText;
       violation?: boolean;
       paperwork?: boolean;
       paperworkText?: string;
@@ -116,7 +122,7 @@ export interface ViolationReport {
 
 export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
   violationType: z.string(),
-  details: z.string(),
+  details: z.union([z.string(), localizedTextSchema]),
   location: z.string().optional(),
   vehicle: z
     .object({
@@ -132,8 +138,8 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
     .record(
       z.object({
         representationScore: z.number().min(0).max(1),
-        highlights: z.string().optional(),
-        context: z.string().optional(),
+        highlights: z.union([z.string(), localizedTextSchema]).optional(),
+        context: z.union([z.string(), localizedTextSchema]).optional(),
         violation: z.boolean().optional(),
         paperwork: z.boolean().optional(),
         paperworkText: z.string().optional(),
@@ -280,7 +286,25 @@ export async function analyzeViolation(
     }
 
     try {
-      return violationReportSchema.parse(parsed);
+      const lang = (parsed as { language?: string }).language ?? "en";
+      const raw = violationReportSchema.parse(parsed);
+      const details =
+        typeof raw.details === "string" ? { [lang]: raw.details } : raw.details;
+      const images: ViolationReport["images"] = {};
+      for (const [k, v] of Object.entries(raw.images)) {
+        images[k] = {
+          ...v,
+          ...(v.highlights &&
+            (typeof v.highlights === "string"
+              ? { highlights: { [lang]: v.highlights } }
+              : { highlights: v.highlights })),
+          ...(v.context &&
+            (typeof v.context === "string"
+              ? { context: { [lang]: v.context } }
+              : { context: v.context })),
+        };
+      }
+      return { ...raw, details, images };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) throw new AnalysisError("schema");

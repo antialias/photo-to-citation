@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../components/NotificationProvider";
 
 export interface Message {
@@ -134,6 +135,7 @@ export function CaseChatProvider({
   const [unavailableActions, setUnavailableActions] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const { i18n } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showJump, setShowJump] = useState(false);
@@ -276,14 +278,22 @@ export function CaseChatProvider({
         if (typeof result === "string") {
           if (result.startsWith("[action:") && result.endsWith("]")) {
             reply = {
-              response: "",
+              response: { en: "" },
               actions: [{ id: result.slice(8, -1) }],
               noop: false,
             };
           } else if (result === "[noop]") {
-            reply = { response: "", actions: [], noop: true };
+            reply = {
+              response: { en: "" },
+              actions: [],
+              noop: true,
+            };
           } else {
-            reply = { response: result, actions: [], noop: false };
+            reply = {
+              response: { en: result },
+              actions: [],
+              noop: false,
+            };
           }
         } else if ("response" in result) {
           reply = result as CaseChatReply;
@@ -321,7 +331,11 @@ export function CaseChatProvider({
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: reply.response,
+            content:
+              reply.response[i18n.language] ??
+              reply.response.en ??
+              Object.values(reply.response)[0] ??
+              "",
             actions: reply.actions,
           },
         ]);
@@ -562,14 +576,22 @@ export function CaseChatProvider({
         if (typeof result === "string") {
           if (result.startsWith("[action:") && result.endsWith("]")) {
             reply = {
-              response: "",
+              response: { en: "" },
               actions: [{ id: result.slice(8, -1) }],
               noop: false,
             };
           } else if (result === "[noop]") {
-            reply = { response: "", actions: [], noop: true };
+            reply = {
+              response: { en: "" },
+              actions: [],
+              noop: true,
+            };
           } else {
-            reply = { response: result, actions: [], noop: false };
+            reply = {
+              response: { en: result },
+              actions: [],
+              noop: false,
+            };
           }
         } else if ("response" in result) {
           reply = result as CaseChatReply;
@@ -622,7 +644,11 @@ export function CaseChatProvider({
             {
               id: crypto.randomUUID(),
               role: "assistant",
-              content: reply.response,
+              content:
+                reply.response[i18n.language] ??
+                reply.response.en ??
+                Object.values(reply.response)[0] ??
+                "",
               actions: reply.actions,
             },
           ]);

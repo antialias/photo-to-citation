@@ -35,9 +35,11 @@ export const paperworkAnalysisSchema = z.object({
   info: paperworkInfoSchema.nullable(),
 });
 
+export const localizedTextSchema = z.record(z.string());
+
 export const violationReportSchema = z.object({
   violationType: z.string(),
-  details: z.string(),
+  details: localizedTextSchema,
   location: z.string().optional(),
   vehicle: z.object({
     make: z.string().optional(),
@@ -50,8 +52,8 @@ export const violationReportSchema = z.object({
   images: z.record(
     z.object({
       representationScore: z.number(),
-      highlights: z.string().optional(),
-      context: z.string().optional(),
+      highlights: localizedTextSchema.optional(),
+      context: localizedTextSchema.optional(),
       violation: z.boolean().optional(),
       paperwork: z.boolean().optional(),
       paperworkText: z.string().optional(),

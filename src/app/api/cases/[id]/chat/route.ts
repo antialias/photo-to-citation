@@ -73,7 +73,7 @@ export const POST = withCaseAuthorization(
 
     const { client, model } = getLlm("draft_email");
     try {
-      const reply = await chatWithSchema(
+      const raw = await chatWithSchema(
         client,
         model,
         messages,
@@ -82,6 +82,15 @@ export const POST = withCaseAuthorization(
           maxTokens: 800,
         },
       );
+      const lang = (raw as { language?: string }).language ?? "en";
+      const reply: import("@/lib/caseChat").CaseChatReply = {
+        response:
+          typeof raw.response === "string"
+            ? { [lang]: raw.response }
+            : raw.response,
+        actions: raw.actions,
+        noop: raw.noop,
+      };
       return NextResponse.json({
         reply,
         system,

@@ -28,8 +28,11 @@ export default function DraftEditor({
   replyTo?: string;
   to?: string;
 }) {
-  const [subject, setSubject] = useState(initialDraft?.subject || "");
-  const [body, setBody] = useState(initialDraft?.body || "");
+  const { i18n } = useTranslation();
+  const [subject, setSubject] = useState(
+    initialDraft?.subject[i18n.language] || "",
+  );
+  const [body, setBody] = useState(initialDraft?.body[i18n.language] || "");
   const [sending, setSending] = useState(false);
   const [snailMail, setSnailMail] = useState(false);
   const [snailMailDisabled, setSnailMailDisabled] = useState(false);
@@ -46,10 +49,10 @@ export default function DraftEditor({
 
   useEffect(() => {
     if (initialDraft) {
-      setSubject(initialDraft.subject);
-      setBody(initialDraft.body);
+      setSubject(initialDraft.subject[i18n.language] || "");
+      setBody(initialDraft.body[i18n.language] || "");
     }
-  }, [initialDraft]);
+  }, [initialDraft, i18n.language]);
 
   async function sendEmail() {
     setSending(true);

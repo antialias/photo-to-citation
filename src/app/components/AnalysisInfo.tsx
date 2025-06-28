@@ -1,5 +1,6 @@
 import type { ViolationReport } from "@/lib/openai";
 import { US_STATES } from "@/lib/usStates";
+import { useTranslation } from "react-i18next";
 import EditableText from "./EditableText";
 
 export default function AnalysisInfo({
@@ -15,13 +16,21 @@ export default function AnalysisInfo({
   onClearPlate?: () => Promise<void> | void;
   onClearState?: () => Promise<void> | void;
 }) {
+  const { i18n } = useTranslation();
   const { violationType, details, location, vehicle = {} } = analysis;
+  const detailText =
+    typeof details === "string"
+      ? details
+      : (details[i18n.language] ??
+        details.en ??
+        Object.values(details)[0] ??
+        "");
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p>
         <span className="font-semibold">Violation:</span> {violationType}
       </p>
-      <p>{details}</p>
+      <p>{detailText}</p>
       {location ? (
         <p>
           <span className="font-semibold">Location clues:</span> {location}
