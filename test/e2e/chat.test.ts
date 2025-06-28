@@ -49,10 +49,10 @@ describe("chat api", () => {
     });
     expect(res.status).toBe(200);
     const data = (await res.json()) as {
-      reply: { response: string; noop: boolean };
+      reply: { response: Record<string, string>; noop: boolean };
       system: string;
     };
-    expect(data.reply.response).toBe("hello");
+    expect(data.reply.response).toEqual({ en: "hello" });
     expect(data.reply.noop).toBe(false);
     expect(data.system).toBeTruthy();
     expect(stub.requests.length).toBeGreaterThan(0);
