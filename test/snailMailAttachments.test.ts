@@ -102,7 +102,7 @@ describe("sendSnailMail attachments", () => {
       address: "You\n2 B St\nSomewhere, ST 67890",
       subject: "Hello",
       body: "Body",
-      attachments: ["/uploads/img.png"],
+      attachments: ["img.png"],
     });
     expect(mockSend).toHaveBeenCalled();
     expect(createdPdf?.getPageCount()).toBe(2);

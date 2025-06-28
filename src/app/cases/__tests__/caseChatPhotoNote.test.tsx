@@ -7,7 +7,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const caseData = {
-  photos: ["/uploads/a.jpg"],
+  photos: ["a.jpg"],
   photoNotes: {},
 };
 

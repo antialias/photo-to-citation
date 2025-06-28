@@ -144,7 +144,7 @@ export default function ClientThreadPage({
               height={100}
               className="cursor-pointer"
               imgClassName="object-contain"
-              onClick={() => setViewImage(img.url)}
+              onClick={() => setViewImage(`/uploads/${img.url}`)}
             />
             <div className="flex flex-col gap-2 flex-1">
               <button

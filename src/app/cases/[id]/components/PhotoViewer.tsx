@@ -46,7 +46,7 @@ export default function PhotoViewer({
   return (
     <>
       <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-        <ZoomableImage src={selectedPhoto} alt="uploaded" />
+        <ZoomableImage src={`/uploads/${selectedPhoto}`} alt="uploaded" />
         {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
           <div className="absolute top-0 left-0 right-0">
             <Progress
