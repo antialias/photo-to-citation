@@ -46,5 +46,50 @@
   "deleteCase": "Delete Case",
   "confirmDelete": "Type '{{code}}' to confirm deleting this case.",
   "actions": "Actions",
-  "caseActionsMenu": "Case actions menu"
+  "caseActionsMenu": "Case actions menu",
+  "notLoggedIn": "You are not logged in.",
+  "profileTab": "Profile",
+  "creditsTab": "Credits",
+  "balanceCredits": "Balance: {{balance}} credits",
+  "add": "Add",
+  "userProfile": "User Profile",
+  "nameLabel": "Name",
+  "imageUrlLabel": "Image URL",
+  "emailLabel": "Email:",
+  "roleLabel": "Role:",
+  "save": "Save",
+  "caseTriage": "Case Triage",
+  "noCasesAvailable": "No cases available.",
+  "noOpenViolations": "No open violations.",
+  "caseLabel": "Case {{id}}",
+  "violationLabel": "Violation: {{type}}",
+  "severityLabel": "Severity: {{severity}}%",
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "Sorry, we couldn't find that page.",
+    "back": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "message": "Please try again or report the issue.",
+    "retry": "Retry",
+    "reportIssue": "Report Issue"
+  },
+  "claimBanner": {
+    "message": "Sign in to claim this case or it will be lost when the session ends.",
+    "signIn": "Sign In",
+    "dismiss": "Dismiss"
+  },
+  "admin": {
+    "userManagement": "User Management",
+    "appConfiguration": "App Configuration",
+    "users": "Users",
+    "invite": "Invite",
+    "disable": "Disable",
+    "delete": "Delete",
+    "casbinRules": "Casbin Rules",
+    "addRule": "Add Rule",
+    "saveRules": "Save Rules"
+  },
+  "menu": "Menu"
 }

@@ -1,6 +1,7 @@
 "use client";
 import { signIn } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
+import { useTranslation } from "react-i18next";
 
 export default function ClaimBanner({
   show,
@@ -12,13 +13,12 @@ export default function ClaimBanner({
   className?: string;
 }) {
   if (!show) return null;
+  const { t } = useTranslation();
   return (
     <div
       className={`bg-yellow-100 border border-yellow-300 text-yellow-800 p-2 flex items-center justify-between ${className ?? ""}`}
     >
-      <span>
-        Sign in to claim this case or it will be lost when the session ends.
-      </span>
+      <span>{t("claimBanner.message")}</span>
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -27,12 +27,12 @@ export default function ClaimBanner({
           }
           className="underline"
         >
-          Sign In
+          {t("claimBanner.signIn")}
         </button>
         <button
           type="button"
           onClick={onDismiss}
-          aria-label="Dismiss"
+          aria-label={t("claimBanner.dismiss")}
           className="text-xl leading-none"
         >
           ×

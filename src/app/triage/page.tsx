@@ -10,7 +10,9 @@ import {
 } from "@/lib/caseUtils";
 import { reportModules } from "@/lib/reportModules";
 import { getServerSession } from "next-auth/next";
+import { cookies, headers } from "next/headers";
 import Link from "next/link";
+import i18n, { initI18n } from "../../i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -49,15 +51,30 @@ function nextAction(c: Case): string {
 
 export default async function TriagePage() {
   const session = await getServerSession(authOptions);
+  const cookieStore = await cookies();
+  let lang = cookieStore.get("language")?.value;
+  if (!lang) {
+    const accept = (await headers()).get("accept-language") ?? "";
+    const supported = ["en", "es", "fr"];
+    for (const part of accept.split(",")) {
+      const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+      if (supported.includes(code)) {
+        lang = code;
+        break;
+      }
+    }
+    lang = lang ?? "en";
+  }
+  await initI18n(lang);
   if (!session) {
-    return <div className="p-8">You are not logged in.</div>;
+    return <div className="p-8">{i18n.t("notLoggedIn")}</div>;
   }
   const cases = getCases();
   if (cases.length === 0) {
     return (
       <div className="p-8">
-        <h1 className="text-xl font-bold mb-4">Case Triage</h1>
-        <p>No cases available.</p>
+        <h1 className="text-xl font-bold mb-4">{i18n.t("caseTriage")}</h1>
+        <p>{i18n.t("noCasesAvailable")}</p>
       </div>
     );
   }
@@ -68,9 +85,9 @@ export default async function TriagePage() {
     .slice(0, 5);
   return (
     <div className="p-8">
-      <h1 className="text-xl font-bold mb-4">Case Triage</h1>
+      <h1 className="text-xl font-bold mb-4">{i18n.t("caseTriage")}</h1>
       {triage.length === 0 ? (
-        <p>No open violations.</p>
+        <p>{i18n.t("noOpenViolations")}</p>
       ) : (
         <ul className="grid gap-4">
           {triage.map(({ case: c, severity }) => (
@@ -79,11 +96,21 @@ export default async function TriagePage() {
                 href={`/cases/${c.id}`}
                 className="block border p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                <p className="font-semibold">Case {c.id}</p>
+                <p className="font-semibold">
+                  {i18n.t("caseLabel", { id: c.id })}
+                </p>
                 {c.analysis?.violationType ? (
-                  <p>Violation: {c.analysis.violationType}</p>
+                  <p>
+                    {i18n.t("violationLabel", {
+                      type: c.analysis.violationType,
+                    })}
+                  </p>
                 ) : null}
-                <p>Severity: {(severity * 100).toFixed(0)}%</p>
+                <p>
+                  {i18n.t("severityLabel", {
+                    severity: (severity * 100).toFixed(0),
+                  })}
+                </p>
                 <p className="mt-2">{nextAction(c)}</p>
               </Link>
             </li>

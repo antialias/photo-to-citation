@@ -1,13 +1,16 @@
+"use client";
 import { withBasePath } from "@/basePath";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 export default function NotFound() {
+  const { t } = useTranslation();
   return (
     <div className="p-8 text-center">
-      <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
-      <p className="mb-4">Sorry, we couldn&apos;t find that page.</p>
+      <h1 className="text-2xl font-bold mb-4">{t("notFound.title")}</h1>
+      <p className="mb-4">{t("notFound.message")}</p>
       <Link href={withBasePath("/")} className="underline">
-        Back to home
+        {t("notFound.back")}
       </Link>
     </div>
   );
