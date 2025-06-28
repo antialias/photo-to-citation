@@ -1,23 +1,28 @@
 import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 import enCommon from "../public/locales/en/common.json";
 import esCommon from "../public/locales/es/common.json";
 import frCommon from "../public/locales/fr/common.json";
 
 const instance = i18n.createInstance();
 
-const storedLang =
-  typeof window !== "undefined" ? localStorage.getItem("language") : null;
-
-void instance.init({
-  resources: {
-    en: { common: enCommon },
-    es: { common: esCommon },
-    fr: { common: frCommon },
-  },
-  lng: storedLang ?? "en",
-  fallbackLng: "en",
-  defaultNS: "common",
-  interpolation: { escapeValue: false },
-});
+export async function initI18n(lang: string) {
+  if (!instance.isInitialized) {
+    await instance.use(initReactI18next).init({
+      resources: {
+        en: { common: enCommon },
+        es: { common: esCommon },
+        fr: { common: frCommon },
+      },
+      lng: lang,
+      fallbackLng: "en",
+      defaultNS: "common",
+      interpolation: { escapeValue: false },
+    });
+  } else if (instance.language !== lang) {
+    await instance.changeLanguage(lang);
+  }
+  return instance;
+}
 
 export default instance;

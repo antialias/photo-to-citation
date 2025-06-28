@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/authOptions";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { cookies } from "next/headers";
 import AuthProvider from "./auth-provider";
 import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
@@ -21,11 +22,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions);
+  const storedLang = cookies().get("language")?.value ?? "en";
   return (
-    <html lang="en">
+    <html lang={storedLang}>
       <body className="antialiased">
         <QueryProvider>
-          <I18nProvider>
+          <I18nProvider lang={storedLang}>
             <NotificationProvider>
               <AuthProvider session={session}>
                 <NavBar />
