@@ -17,21 +17,23 @@ vi.mock("@/app/useAddFilesToCase", () => ({
 }));
 
 describe("Point and Shoot page", () => {
-  it("renders link to cases", () => {
+  it("renders link to cases", async () => {
     render(
       <I18nProvider lang="en">
         <PointAndShootPage />
       </I18nProvider>,
     );
-    expect(screen.getByText("Cases")).toBeInTheDocument();
+    expect(await screen.findByText("Cases")).toBeInTheDocument();
   });
 
-  it("shows default hint when nothing detected", () => {
+  it("shows default hint when nothing detected", async () => {
     render(
       <I18nProvider lang="en">
         <PointAndShootPage />
       </I18nProvider>,
     );
-    expect(screen.getByText("Nothing has been detected")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Nothing has been detected"),
+    ).toBeInTheDocument();
   });
 });
