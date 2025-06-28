@@ -3,8 +3,36 @@ import { getCase, setCaseTranslation } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { NextResponse } from "next/server";
 
+function splitPath(path: string): string[] {
+  const parts: string[] = [];
+  let buf = "";
+  let inBracket = false;
+  for (const ch of path) {
+    if (ch === "[" && !inBracket) {
+      if (buf) {
+        parts.push(buf);
+        buf = "";
+      }
+      inBracket = true;
+    } else if (ch === "]" && inBracket) {
+      parts.push(buf);
+      buf = "";
+      inBracket = false;
+    } else if (ch === "." && !inBracket) {
+      if (buf) {
+        parts.push(buf);
+        buf = "";
+      }
+    } else {
+      buf += ch;
+    }
+  }
+  if (buf) parts.push(buf);
+  return parts;
+}
+
 function getValueByPath(obj: unknown, path: string): unknown {
-  const parts = path.replace(/\[(\w+)\]/g, ".$1").split(".");
+  const parts = splitPath(path);
   let current: unknown = obj;
   for (const part of parts) {
     if (typeof current !== "object" || current === null) return undefined;
