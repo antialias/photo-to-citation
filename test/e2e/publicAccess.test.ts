@@ -91,6 +91,22 @@ describe("anonymous access", () => {
     expect(res.status).toBe(200);
   });
 
+  it("allows logged in user to view photos on public case", async () => {
+    await signIn("user@example.com");
+    const id = await createCase();
+    await api(`/api/cases/${id}/public`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public: true }),
+    });
+    const caseData = (await api(`/api/cases/${id}`).then((r) => r.json())) as {
+      photos: string[];
+    };
+    const photo = caseData.photos[0];
+    const res = await api(`/uploads/${photo}`);
+    expect(res.status).toBe(200);
+  });
+
   it("rejects private case and stream", async () => {
     await signIn("user@example.com");
     const id = await createCase();
