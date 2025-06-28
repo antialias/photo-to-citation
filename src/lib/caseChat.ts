@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { LocalizedText } from "./localization";
 import "./zod-setup";
 
 export type CaseChatAction =
@@ -7,13 +8,14 @@ export type CaseChatAction =
   | { photo: string; note: string };
 
 export interface CaseChatReply {
-  response: string;
+  response: LocalizedText;
   actions: CaseChatAction[];
   noop: boolean;
+  language: string;
 }
 
 export const caseChatReplySchema = z.object({
-  response: z.string(),
+  response: z.record(z.string()),
   actions: z.array(
     z.union([
       z.object({ id: z.string() }),
@@ -22,4 +24,5 @@ export const caseChatReplySchema = z.object({
     ]),
   ),
   noop: z.boolean(),
+  language: z.string(),
 });
