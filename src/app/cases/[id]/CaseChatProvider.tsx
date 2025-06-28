@@ -570,11 +570,34 @@ export function CaseChatProvider({
 
   function renderContent(m: Message) {
     const needsTranslation = m.lang !== i18n.language;
+    async function handleTranslate() {
+      const res = await apiFetch(`/api/cases/${caseId}/chat/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: m.content, lang: i18n.language }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { text: string };
+        setMessages((msgs) =>
+          msgs.map((msg) =>
+            msg.id === m.id
+              ? { ...msg, content: data.text, lang: i18n.language }
+              : msg,
+          ),
+        );
+      } else {
+        notify("Failed to translate.");
+      }
+    }
     return (
       <span>
         {m.content}
         {needsTranslation ? (
-          <button type="button" className="ml-2 text-blue-500 underline">
+          <button
+            type="button"
+            onClick={() => void handleTranslate()}
+            className="ml-2 text-blue-500 underline"
+          >
             {t("translate")}
           </button>
         ) : null}
