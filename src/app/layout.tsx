@@ -22,11 +22,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions);
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   // Prefer the language cookie but fall back to Accept-Language
   let storedLang = cookieStore.get("language")?.value;
   if (!storedLang) {
-    const accept = headers().get("accept-language") ?? "";
+    const headerList = await headers();
+    const accept = headerList.get("accept-language") ?? "";
     // Parse the first supported locale from the Accept-Language header
     const supported = ["en", "es", "fr"];
     for (const part of accept.split(",")) {
@@ -37,7 +38,6 @@ export default async function RootLayout({
       }
     }
     storedLang = storedLang ?? "en";
-    // The client persists this value in a cookie on first render
   }
   return (
     <html lang={storedLang}>
