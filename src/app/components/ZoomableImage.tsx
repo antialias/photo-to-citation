@@ -57,7 +57,9 @@ export default function ZoomableImage({ src, alt }: Props) {
   const lastCenter = useRef<{ x: number; y: number } | null>(null);
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    e.currentTarget.setPointerCapture(e.pointerId);
+    if (e.currentTarget === e.target) {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
   }
 
