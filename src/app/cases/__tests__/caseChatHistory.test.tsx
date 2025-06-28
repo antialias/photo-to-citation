@@ -23,6 +23,7 @@ describe("CaseChat history", () => {
               response: { en: "ok" },
               actions: [],
               noop: false,
+              lang: "en",
             },
           })}
         />,

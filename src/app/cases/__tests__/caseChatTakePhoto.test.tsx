@@ -35,6 +35,7 @@ describe("CaseChat take photo action", () => {
               response: { en: "" },
               actions: [{ id: "take-photo" }],
               noop: false,
+              lang: "en",
             },
           })}
         />

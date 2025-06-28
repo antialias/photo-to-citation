@@ -22,6 +22,7 @@ describe("CaseChat current session", () => {
               response: { en: "ok" },
               actions: [],
               noop: false,
+              lang: "en",
             },
           })}
         />,

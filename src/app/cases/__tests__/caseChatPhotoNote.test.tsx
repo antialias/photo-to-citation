@@ -25,6 +25,7 @@ describe("CaseChat photo note action", () => {
             response: { en: "here" },
             actions: [{ photo: "a.jpg", note: "test" }],
             noop: false,
+            lang: "en",
           },
         })}
       />,
