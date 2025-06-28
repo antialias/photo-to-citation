@@ -2,7 +2,7 @@ function basename(filePath: string): string {
   const parts = filePath.split(/[\\/]/);
   return parts[parts.length - 1];
 }
-import i18n from "../i18n";
+import i18n from "../i18n.server";
 import type { Case } from "./caseStore";
 import type { ViolationReport } from "./openai";
 

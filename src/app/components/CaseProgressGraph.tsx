@@ -19,28 +19,30 @@ import {
 } from "@floating-ui/dom";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const UPLOADED_PREVIEW_COUNT = 4;
 
 const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 const allSteps = [
-  { id: "uploaded", label: "Photographs Uploaded" },
-  { id: "analysis", label: "Image Analysis" },
-  { id: "violation", label: "Violation Identified" },
-  { id: "noviol", label: "No Violation Identified" },
-  { id: "plate", label: "License Plate Identified" },
-  { id: "vin", label: "VIN Verified" },
-  { id: "ownreq", label: "Ownership Info Requested" },
-  { id: "own", label: "Ownership Info Obtained" },
-  { id: "ownnotify", label: "Registered Owner Notified" },
-  { id: "notify", label: "Authorities Notified" },
-  { id: "confirm", label: "Authority Response Confirmed" },
-  { id: "sent", label: "Citation Sent" },
-  { id: "received", label: "Citation Received" },
+  { id: "uploaded", key: "progress.uploaded" },
+  { id: "analysis", key: "progress.analysis" },
+  { id: "violation", key: "progress.violation" },
+  { id: "noviol", key: "progress.noviol" },
+  { id: "plate", key: "progress.plate" },
+  { id: "vin", key: "progress.vin" },
+  { id: "ownreq", key: "progress.ownreq" },
+  { id: "own", key: "progress.own" },
+  { id: "ownnotify", key: "progress.ownnotify" },
+  { id: "notify", key: "progress.notify" },
+  { id: "confirm", key: "progress.confirm" },
+  { id: "sent", key: "progress.sent" },
+  { id: "received", key: "progress.received" },
 ] as const;
 
 export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
+  const { t } = useTranslation();
   const analysisDone = caseData.analysisStatus === "complete";
   const violation = analysisDone && hasViolation(caseData.analysis);
   const noviolation = analysisDone && !violation;
@@ -55,12 +57,13 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     caseData.analysisProgress;
 
   const steps = useMemo(() => {
+    const translated = allSteps.map((s) => ({ id: s.id, label: t(s.key) }));
     return noviolation
-      ? allSteps.filter((s) =>
+      ? translated.filter((s) =>
           ["uploaded", "analysis", "noviol"].includes(s.id),
         )
-      : allSteps.filter((s) => s.id !== "noviol");
-  }, [noviolation]);
+      : translated.filter((s) => s.id !== "noviol");
+  }, [noviolation, t]);
 
   const status = useMemo(() => {
     return {
@@ -109,30 +112,85 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       "uploaded",
       "analysis",
       true,
-      analysisPending ? "analysis requested" : null,
+      analysisPending ? t("progressEdges.analysisRequested") : null,
     ]);
     if (reanalysisPending) {
-      edgesList.push(["analysis", "analysis", true, "re-analysis requested"]);
+      edgesList.push([
+        "analysis",
+        "analysis",
+        true,
+        t("progressEdges.reanalysisRequested"),
+      ]);
     }
     if (noviolation) {
-      edgesList.push(["analysis", "noviol", true, "no violation"]);
+      edgesList.push([
+        "analysis",
+        "noviol",
+        true,
+        t("progressEdges.noViolation"),
+      ]);
     } else {
-      edgesList.push(["analysis", "violation", true, "evaluating"]);
-      edgesList.push(["violation", "plate", true, "detecting plate"]);
-      edgesList.push(["plate", "vin", false, "decoding VIN"]);
-      edgesList.push(["plate", "ownreq", true, "requesting ownership"]);
-      edgesList.push(["vin", "ownreq", false, "lookup ownership"]);
-      edgesList.push(["ownreq", "own", true, "awaiting ownership info"]);
-      edgesList.push(["own", "ownnotify", true, "notifying owner"]);
-      edgesList.push(["violation", "notify", true, "notifying authorities"]);
+      edgesList.push([
+        "analysis",
+        "violation",
+        true,
+        t("progressEdges.evaluating"),
+      ]);
+      edgesList.push([
+        "violation",
+        "plate",
+        true,
+        t("progressEdges.detectingPlate"),
+      ]);
+      edgesList.push(["plate", "vin", false, t("progressEdges.decodingVin")]);
+      edgesList.push([
+        "plate",
+        "ownreq",
+        true,
+        t("progressEdges.requestingOwnership"),
+      ]);
+      edgesList.push([
+        "vin",
+        "ownreq",
+        false,
+        t("progressEdges.lookupOwnership"),
+      ]);
+      edgesList.push([
+        "ownreq",
+        "own",
+        true,
+        t("progressEdges.awaitingOwnershipInfo"),
+      ]);
+      edgesList.push([
+        "own",
+        "ownnotify",
+        true,
+        t("progressEdges.notifyingOwner"),
+      ]);
+      edgesList.push([
+        "violation",
+        "notify",
+        true,
+        t("progressEdges.notifyingAuthorities"),
+      ]);
       edgesList.push([
         "notify",
         "confirm",
         true,
-        "awaiting response from authorities",
+        t("progressEdges.awaitingAuthorityResponse"),
       ]);
-      edgesList.push(["confirm", "sent", true, "citation processing"]);
-      edgesList.push(["sent", "received", true, "awaiting delivery"]);
+      edgesList.push([
+        "confirm",
+        "sent",
+        true,
+        t("progressEdges.citationProcessing"),
+      ]);
+      edgesList.push([
+        "sent",
+        "received",
+        true,
+        t("progressEdges.awaitingDelivery"),
+      ]);
     }
     const activeFromIdx = firstPending > 0 ? firstPending - 1 : -1;
     let activeFrom = activeFromIdx >= 0 ? steps[activeFromIdx].id : null;
@@ -267,6 +325,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     caseData,
     analysisPending,
     reanalysisPending,
+    t,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
