@@ -52,6 +52,9 @@ export default function ZoomableImage({ src, alt }: Props) {
     width: number;
     height: number;
   }>();
+  const reset = useCallback(() => {
+    setTransform({ scale: 1, x: 0, y: 0 });
+  }, []);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const lastDistance = useRef<number | null>(null);
   const lastCenter = useRef<{ x: number; y: number } | null>(null);
@@ -120,17 +123,27 @@ export default function ZoomableImage({ src, alt }: Props) {
       e.preventDefault();
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
-      const zoom = Math.exp(-e.deltaY / 200);
-      setTransform((t) => {
-        const scale = Math.min(5, Math.max(1, t.scale * zoom));
-        const originX = (cursorX - t.x) / t.scale;
-        const originY = (cursorY - t.y) / t.scale;
-        const x = t.x - (scale - t.scale) * originX;
-        const y = t.y - (scale - t.scale) * originY;
-        return constrainPan(rect, naturalSize, { scale, x, y });
-      });
+      if (e.ctrlKey) {
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
+        const zoom = Math.exp(-e.deltaY / 200);
+        setTransform((t) => {
+          const scale = Math.min(5, Math.max(1, t.scale * zoom));
+          const originX = (cursorX - t.x) / t.scale;
+          const originY = (cursorY - t.y) / t.scale;
+          const x = t.x - (scale - t.scale) * originX;
+          const y = t.y - (scale - t.scale) * originY;
+          return constrainPan(rect, naturalSize, { scale, x, y });
+        });
+      } else {
+        setTransform((t) =>
+          constrainPan(rect, naturalSize, {
+            scale: t.scale,
+            x: t.x - e.deltaX,
+            y: t.y - e.deltaY,
+          }),
+        );
+      }
     },
     [naturalSize],
   );
@@ -153,6 +166,15 @@ export default function ZoomableImage({ src, alt }: Props) {
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
+      {transform.scale !== 1 || transform.x !== 0 || transform.y !== 0 ? (
+        <button
+          type="button"
+          onClick={reset}
+          className="absolute top-1 left-1 bg-black/60 text-white text-xs rounded px-1 z-10"
+        >
+          Reset zoom
+        </button>
+      ) : null}
       <img
         src={src}
         alt={alt}
