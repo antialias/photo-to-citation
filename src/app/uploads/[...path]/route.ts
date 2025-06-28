@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+
 import { NextResponse } from "next/server";
+
+import { config } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> },
 ): Promise<Response> {
   const { path: segments } = await params;
-  const uploads = path.join(process.cwd(), "uploads");
+  const uploads = config.UPLOAD_DIR;
   const full = path.join(uploads, ...segments);
   if (!full.startsWith(uploads)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { snailMailProviders } from "@/lib/snailMail";
 
@@ -10,6 +11,7 @@ let tmpDir: string;
 let root: string;
 let cwdSpy: ReturnType<typeof vi.spyOn>;
 let createdPdf: { getPageCount(): number } | null;
+let origUploadDir: string;
 
 vi.mock("pdf-lib", () => {
   class StubPage {
@@ -66,18 +68,20 @@ beforeEach(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "snail-"));
   root = fs.mkdtempSync(path.join(os.tmpdir(), "snailroot-"));
   cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(root);
-  fs.mkdirSync(path.join(root, "uploads"), { recursive: true });
+  origUploadDir = config.UPLOAD_DIR;
+  config.UPLOAD_DIR = path.join(root, "uploads");
+  fs.mkdirSync(config.UPLOAD_DIR, { recursive: true });
   const img = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVR42mP8/5+hHgAHggJ/P5V6XQAAAABJRU5ErkJggg==",
     "base64",
   );
-  fs.writeFileSync(path.join(root, "uploads", "img.png"), img);
+  fs.writeFileSync(path.join(config.UPLOAD_DIR, "img.png"), img);
   process.env.RETURN_ADDRESS = "Me\n1 A St\nTown, ST 12345";
   process.env.SNAIL_MAIL_PROVIDER = "mock";
 });
 
 afterEach(() => {
-  fs.rmSync(path.join(root, "uploads"), {
+  fs.rmSync(config.UPLOAD_DIR, {
     recursive: true,
     force: true,
   });
@@ -85,6 +89,7 @@ afterEach(() => {
   cwdSpy.mockRestore();
   process.env.RETURN_ADDRESS = undefined;
   process.env.SNAIL_MAIL_PROVIDER = undefined;
+  config.UPLOAD_DIR = origUploadDir;
   vi.restoreAllMocks();
 });
 
