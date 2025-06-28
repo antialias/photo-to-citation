@@ -7,6 +7,7 @@ import {
   getCaseVin,
   getOfficialCaseGps,
 } from "@/lib/caseUtils";
+import { useTranslation } from "react-i18next";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
 import useCaseProgress from "../useCaseProgress";
@@ -28,6 +29,7 @@ export default function CaseDetails({
   } = useCaseActions();
   useCaseProgress(reanalyzingPhoto);
   const { data: session } = useSession();
+  const { t } = useTranslation();
   if (!caseData) return null;
   const ownerContact = getCaseOwnerContact(caseData);
   const isOwner = members.some(
@@ -46,16 +48,16 @@ export default function CaseDetails({
       <AnalysisStatus readOnly={readOnly} />
       {ownerContact ? (
         <p>
-          <span className="font-semibold">Owner:</span> {ownerContact}
+          <span className="font-semibold">{t("owner")}</span> {ownerContact}
         </p>
       ) : null}
       <p>
-        <span className="font-semibold">Created:</span>{" "}
+        <span className="font-semibold">{t("created")}</span>{" "}
         {new Date(caseData.createdAt).toLocaleString()}
       </p>
       <p>
-        <span className="font-semibold">Visibility:</span>{" "}
-        {caseData.public ? "Public" : "Private"}
+        <span className="font-semibold">{t("visibility")}</span>{" "}
+        {caseData.public ? t("public") : t("private")}
         {canTogglePublic ? (
           <button
             type="button"
@@ -63,13 +65,17 @@ export default function CaseDetails({
             className="ml-2 text-blue-500 underline"
             data-testid="toggle-public-button"
           >
-            Make {caseData.public ? "Private" : "Public"}
+            {caseData.public ? t("makePrivate") : t("makePublic")}
           </button>
         ) : null}
       </p>
       <p>
-        <span className="font-semibold">Status:</span>{" "}
-        {caseData.archived ? "Archived" : caseData.closed ? "Closed" : "Open"}
+        <span className="font-semibold">{t("status")}</span>{" "}
+        {caseData.archived
+          ? t("archived")
+          : caseData.closed
+            ? t("closed")
+            : t("open")}
         {canToggleStatus ? (
           <>
             <button
@@ -77,27 +83,27 @@ export default function CaseDetails({
               onClick={toggleClosed}
               className="ml-2 text-blue-500 underline"
             >
-              Mark {caseData.closed ? "Open" : "Closed"}
+              {caseData.closed ? t("markOpen") : t("markClosed")}
             </button>
             <button
               type="button"
               onClick={toggleArchived}
               className="ml-2 text-blue-500 underline"
             >
-              {caseData.archived ? "Unarchive" : "Archive"}
+              {caseData.archived ? t("unarchive") : t("archive")}
             </button>
           </>
         ) : null}
       </p>
       {caseData.streetAddress ? (
         <p>
-          <span className="font-semibold">Address:</span>{" "}
+          <span className="font-semibold">{t("address")}</span>{" "}
           {caseData.streetAddress}
         </p>
       ) : null}
       {caseData.intersection ? (
         <p>
-          <span className="font-semibold">Intersection:</span>{" "}
+          <span className="font-semibold">{t("intersection")}</span>{" "}
           {caseData.intersection}
         </p>
       ) : null}
@@ -112,7 +118,7 @@ export default function CaseDetails({
         />
       ) : null}
       <p>
-        <span className="font-semibold">VIN:</span>{" "}
+        <span className="font-semibold">{t("vin")}</span>{" "}
         {readOnly ? (
           <span>{vin || ""}</span>
         ) : (
@@ -125,7 +131,7 @@ export default function CaseDetails({
         )}
       </p>
       <p>
-        <span className="font-semibold">Note:</span>{" "}
+        <span className="font-semibold">{t("note")}</span>{" "}
         {readOnly ? (
           <span>{note || ""}</span>
         ) : (
@@ -133,7 +139,7 @@ export default function CaseDetails({
             value={note}
             onSubmit={updateNote}
             onClear={note ? () => updateNote("") : undefined}
-            placeholder="Add note"
+            placeholder={t("add")}
           />
         )}
       </p>

@@ -6,6 +6,7 @@ import {
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
+import { useTranslation } from "react-i18next";
 import MultiCaseToolbar from "./MultiCaseToolbar";
 
 export default function CaseSummary({ cases }: { cases: Case[] }) {
@@ -28,6 +29,7 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
   );
   const hasOwnerAll = cases.every((c) => Boolean(getCaseOwnerContact(c)));
   const ids = cases.map((c) => c.id);
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col">
@@ -37,19 +39,31 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
         hasOwner={hasOwnerAll}
       />
       <div className="p-8 flex flex-col gap-2">
-        <h1 className="text-xl font-semibold">Case Summary</h1>
+        <h1 className="text-xl font-semibold">{t("caseSummary")}</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {cases.length} cases selected.
+          {t("casesSelected", { count: cases.length })}
         </p>
-        {violation ? <p>Violation: {violation}</p> : null}
+        {violation ? (
+          <p>
+            {t("violation")} {violation}
+          </p>
+        ) : null}
         {plateNum || plateState ? (
           <p>
-            Plate: {plateState ? `${plateState} ` : ""}
+            {t("plate")} {plateState ? `${plateState} ` : ""}
             {plateNum}
           </p>
         ) : null}
-        {vin ? <p>VIN: {vin}</p> : null}
-        {contact ? <p>Owner Contact: {contact}</p> : null}
+        {vin ? (
+          <p>
+            {t("vin")} {vin}
+          </p>
+        ) : null}
+        {contact ? (
+          <p>
+            {t("ownerContact")} {contact}
+          </p>
+        ) : null}
       </div>
     </div>
   );

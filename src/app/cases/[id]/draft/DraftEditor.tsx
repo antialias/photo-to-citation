@@ -8,6 +8,7 @@ import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
 
 export default function DraftEditor({
@@ -38,6 +39,7 @@ export default function DraftEditor({
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
   const router = useRouter();
   const { data: session } = useSession();
+  const { t } = useTranslation();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const notify = useNotify();
@@ -94,16 +96,16 @@ export default function DraftEditor({
             router.push(url);
             return;
           }
-          notify("Notification sent");
+          notify(t("notificationSent"));
         } else if (r.email && r.email.status === "success") {
           if (url) setThreadUrl(url);
-          notify("Email sent with some errors");
+          notify(t("emailSentWithErrors"));
         } else {
-          notify("Failed to send notification");
+          notify(t("failedToSendNotification"));
         }
       } else {
         setResults({ email: { status: "error", error: res.statusText } });
-        notify("Failed to send notification");
+        notify(t("failedToSendNotification"));
       }
     } finally {
       setSending(false);
@@ -111,20 +113,19 @@ export default function DraftEditor({
   }
 
   if (!initialDraft) {
-    return (
-      <div className="p-8">Drafting email based on case information...</div>
-    );
+    return <div className="p-8">{t("draftingEmail")}</div>;
   }
 
   return (
     <div className="p-8 flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Email Draft</h1>
+      <h1 className="text-xl font-semibold">{t("emailDraft")}</h1>
       <p>
-        To: {to || `${module.authorityName} (${module.authorityEmail})`} - the
+        {t("toLabel")}{" "}
+        {to || `${module.authorityName} (${module.authorityEmail})`} - the
         photos shown below will be attached automatically.
       </p>
       <label className="flex flex-col">
-        Subject
+        {t("subjectLabel")}
         <input
           type="text"
           value={subject}
@@ -133,7 +134,7 @@ export default function DraftEditor({
         />
       </label>
       <label className="flex flex-col">
-        Body
+        {t("bodyLabel")}
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -156,8 +157,10 @@ export default function DraftEditor({
       {module.authorityAddress &&
         (snailMailDisabled ? (
           <div className="flex items-center gap-2">
-            <span className="text-green-700">Sent</span>
-            <span>Send via snail mail to {module.authorityAddress}</span>
+            <span className="text-green-700">{t("sent")}</span>
+            <span>
+              {t("sendViaSnailMail", { address: module.authorityAddress })}
+            </span>
             {results.snailMail?.status === "error" && (
               <span className="text-red-600 text-sm">
                 {results.snailMail.error}
@@ -171,7 +174,9 @@ export default function DraftEditor({
               checked={snailMail}
               onChange={(e) => setSnailMail(e.target.checked)}
             />
-            <span>Send via snail mail to {module.authorityAddress}</span>
+            <span>
+              {t("sendViaSnailMail", { address: module.authorityAddress })}
+            </span>
             {results.snailMail?.status === "error" && (
               <span className="text-red-600 text-sm">
                 {results.snailMail.error}
@@ -186,7 +191,7 @@ export default function DraftEditor({
         data-testid="send-button"
         className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
-        {sending ? "Sending..." : "Send"}
+        {sending ? t("sending") : t("send")}
       </button>
       {threadUrl && (
         <a
@@ -195,7 +200,7 @@ export default function DraftEditor({
           rel="noopener noreferrer"
           className="text-blue-500 underline mt-2 text-sm"
         >
-          View Thread
+          {t("viewThread")}
         </a>
       )}
     </div>

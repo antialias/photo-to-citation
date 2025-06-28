@@ -3,6 +3,7 @@ import CaseToolbar from "@/app/components/CaseToolbar";
 import { useSession } from "@/app/useSession";
 import { getCaseOwnerContact, hasViolation } from "@/lib/caseUtils";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { FaArrowLeft, FaShare } from "react-icons/fa";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
@@ -16,6 +17,7 @@ export default function CaseHeader({
   const { copied, copyPublicUrl, reanalyzingPhoto } = useCaseActions();
   const { progress, isPhotoReanalysis } = useCaseProgress(reanalyzingPhoto);
   const { data: session } = useSession();
+  const { t } = useTranslation();
   if (!caseData) return null;
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
@@ -27,24 +29,26 @@ export default function CaseHeader({
       <div className="flex items-center gap-2">
         <Link
           href="/cases"
-          aria-label="Back to Cases"
+          aria-label={t("backToCases")}
           className="md:hidden text-xl p-2 text-blue-500 hover:text-blue-700"
         >
           <FaArrowLeft />
         </Link>
-        <h1 className="text-xl font-semibold">Case {caseData.id}</h1>
+        <h1 className="text-xl font-semibold">
+          {t("caseLabel", { id: caseData.id })}
+        </h1>
         {caseData.public ? (
           <button
             type="button"
             onClick={copyPublicUrl}
-            aria-label="Copy public link"
+            aria-label={t("copyPublicLink")}
             className="text-blue-500 hover:text-blue-700"
           >
             <FaShare />
           </button>
         ) : null}
         {copied ? (
-          <span className="text-sm text-green-600">Copied!</span>
+          <span className="text-sm text-green-600">{t("copied")}</span>
         ) : null}
       </div>
       <CaseToolbar

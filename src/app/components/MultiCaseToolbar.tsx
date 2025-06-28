@@ -4,6 +4,7 @@ import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
 import Link from "next/link";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function MultiCaseToolbar({
   caseIds,
@@ -17,6 +18,7 @@ export default function MultiCaseToolbar({
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
   const detailsRef = useRef<HTMLDetailsElement>(null);
+  const { t } = useTranslation();
   useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex justify-end">
@@ -31,9 +33,9 @@ export default function MultiCaseToolbar({
       >
         <summary
           className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-          aria-label="Case actions menu"
+          aria-label={t("caseActionsMenu")}
         >
-          Actions
+          {t("actions")}
         </summary>
         <div
           className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
@@ -53,7 +55,7 @@ export default function MultiCaseToolbar({
             }}
             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
           >
-            Re-run Analysis
+            {t("rerunAnalysis")}
           </button>
           <button
             type="button"
@@ -71,7 +73,7 @@ export default function MultiCaseToolbar({
             }}
             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
           >
-            Archive Cases
+            {t("archiveCase")}
           </button>
           {disabled ? null : (
             <>
@@ -79,14 +81,14 @@ export default function MultiCaseToolbar({
                 href={`/cases/${first}/compose?ids=${idsParam}`}
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                Draft Email to Authorities
+                {t("draftEmail")}
               </Link>
               {hasOwner ? null : (
                 <Link
                   href={`/cases/${first}/ownership?ids=${idsParam}`}
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  Request Ownership Info
+                  {t("requestOwnershipInfo")}
                 </Link>
               )}
               {hasOwner ? (
@@ -94,7 +96,7 @@ export default function MultiCaseToolbar({
                   href={`/cases/${first}/notify-owner?ids=${idsParam}`}
                   className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  Notify Registered Owner
+                  {t("notifyRegisteredOwner")}
                 </Link>
               ) : null}
             </>
@@ -103,9 +105,7 @@ export default function MultiCaseToolbar({
             type="button"
             onClick={async () => {
               const code = Math.random().toString(36).slice(2, 6);
-              const input = prompt(
-                `Type '${code}' to confirm deleting these cases.`,
-              );
+              const input = prompt(t("confirmDelete", { code }));
               if (input === code) {
                 await Promise.all(
                   caseIds.map((id) =>
@@ -120,7 +120,7 @@ export default function MultiCaseToolbar({
             data-testid="delete-cases-button"
             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
           >
-            Delete Cases
+            {t("deleteCase")}
           </button>
         </div>
       </details>
