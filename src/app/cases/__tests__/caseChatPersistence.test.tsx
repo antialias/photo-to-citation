@@ -23,6 +23,7 @@ describe("CaseChat persistence", () => {
               response: { en: "ok" },
               actions: [],
               noop: false,
+              lang: "en",
             },
           })}
         />,

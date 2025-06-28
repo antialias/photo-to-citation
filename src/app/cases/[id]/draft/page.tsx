@@ -20,10 +20,10 @@ export default async function DraftPage({
   const sender = session?.user
     ? { name: session.user.name ?? null, email: session.user.email ?? null }
     : undefined;
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   let lang = cookieStore.get("language")?.value;
   if (!lang) {
-    const headerList = headers();
+    const headerList = await headers();
     const accept = headerList.get("accept-language") ?? "";
     const supported = ["en", "es", "fr"];
     for (const part of accept.split(",")) {
