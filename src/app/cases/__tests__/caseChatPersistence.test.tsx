@@ -20,6 +20,7 @@ describe("CaseChat persistence", () => {
           caseId="1"
           onChat={async () => ({
             reply: {
+              lang: "en",
               response: { en: "ok" },
               actions: [],
               noop: false,
@@ -47,6 +48,7 @@ describe("CaseChat persistence", () => {
         caseId="1"
         onChat={async () => ({
           reply: {
+            lang: "en",
             response: { en: "ok" },
             actions: [],
             noop: false,

@@ -22,6 +22,7 @@ describe("CaseChat photo note action", () => {
         caseId="1"
         onChat={async () => ({
           reply: {
+            lang: "en",
             response: { en: "here" },
             actions: [{ photo: "a.jpg", note: "test" }],
             noop: false,

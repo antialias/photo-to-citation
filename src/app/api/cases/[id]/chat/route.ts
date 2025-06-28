@@ -13,7 +13,11 @@ export const POST = withCaseAuthorization(
   async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
     const body = (await req.json()) as {
-      messages: Array<{ role: "user" | "assistant"; content: string }>;
+      messages: Array<{
+        role: "user" | "assistant";
+        content: string;
+        lang?: string;
+      }>;
     };
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -43,6 +47,18 @@ export const POST = withCaseAuthorization(
       .join("\\n");
     const schemaDesc =
       "{ response: string, actions: [{ id?: string, field?: string, value?: string, photo?: string, note?: string }], noop: boolean }";
+    const userLang =
+      [...body.messages].reverse().find((m) => m.role === "user")?.lang ||
+      (() => {
+        const accept = req.headers.get("accept-language") ?? "";
+        const supported = ["en", "es", "fr"];
+        for (const part of accept.split(",")) {
+          const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+          if (supported.includes(code)) return code;
+        }
+        return "en";
+      })();
+
     const system = [
       "You are a helpful legal assistant for the Photo To Citation app.",
       "The user is asking about a case with these details:",
@@ -58,6 +74,7 @@ export const POST = withCaseAuthorization(
       "Use {id: ID} objects for case actions.",
       "Use {field: FIELD, value: VALUE} to edit the case (fields: vin, plate, state, note).",
       "Use {photo: FILENAME, note: NOTE} to append a note to a photo.",
+      `Reply in ${userLang}. Include a 'language' field with this code.`,
       available.length > 0 ? `Available actions:\n${actionList}` : "",
       unavailable.length > 0
         ? `Unavailable actions (not applicable):\n${unavailableList}`
@@ -68,7 +85,7 @@ export const POST = withCaseAuthorization(
 
     const messages: ChatCompletionMessageParam[] = [
       { role: "system", content: system },
-      ...body.messages,
+      ...body.messages.map((m) => ({ role: m.role, content: m.content })),
     ];
 
     const { client, model } = getLlm("draft_email");
@@ -82,8 +99,9 @@ export const POST = withCaseAuthorization(
           maxTokens: 800,
         },
       );
-      const lang = (raw as { language?: string }).language ?? "en";
+      const lang = (raw as { language?: string }).language ?? userLang;
       const reply: import("@/lib/caseChat").CaseChatReply = {
+        lang,
         response:
           typeof raw.response === "string"
             ? { [lang]: raw.response }

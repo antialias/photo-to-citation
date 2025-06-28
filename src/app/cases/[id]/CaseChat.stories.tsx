@@ -18,7 +18,11 @@ export const WithLiveLlm: Story = {
     const [baseUrl, setBaseUrl] = useState("");
 
     async function onChat(
-      messages: Array<{ role: "user" | "assistant"; content: string }>,
+      messages: Array<{
+        role: "user" | "assistant";
+        content: string;
+        lang: string;
+      }>,
     ): Promise<CaseChatReply> {
       if (!apiKey)
         return {
@@ -90,6 +94,7 @@ export const CaseAction: Story = {
   render: function CaseActionStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
+      lang: "en",
       response: { en: "Notify the owner?" },
       actions: [{ id: "notify-owner" }],
       noop: false,
@@ -102,6 +107,7 @@ export const EditAction: Story = {
   render: function EditActionStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
+      lang: "en",
       response: { en: "Plate looks like ABC123" },
       actions: [{ field: "plate", value: "ABC123" }],
       noop: false,
@@ -114,6 +120,7 @@ export const PhotoNoteAction: Story = {
   render: function PhotoNoteActionStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
+      lang: "en",
       response: { en: "Add note to photo" },
       actions: [{ photo: "a.jpg", note: "Clear" }],
       noop: false,
@@ -126,6 +133,7 @@ export const MixedActions: Story = {
   render: function MixedActionsStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
+      lang: "en",
       response: { en: "Multiple suggestions" },
       actions: [
         { id: "compose" },
@@ -142,6 +150,7 @@ export const ResponseOnly: Story = {
   render: function ResponseOnlyStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
+      lang: "en",
       response: { en: "Just a regular response" },
       actions: [],
       noop: false,
@@ -154,6 +163,7 @@ export const Noop: Story = {
   render: function NoopStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
+      lang: "en",
       response: { en: "" },
       actions: [],
       noop: true,
