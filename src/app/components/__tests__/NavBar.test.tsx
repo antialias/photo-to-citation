@@ -20,7 +20,7 @@ vi.mock("@/app/useSession", () => ({
 }));
 
 describe("NavBar", () => {
-  it("shows point and shoot link on normal pages", () => {
+  it("shows point and shoot link on normal pages", async () => {
     mockedUsePathname.mockReturnValue("/cases");
     render(
       <QueryProvider>
@@ -29,11 +29,11 @@ describe("NavBar", () => {
         </I18nProvider>
       </QueryProvider>,
     );
-    expect(screen.getByText("Point & Shoot")).toBeInTheDocument();
-    expect(screen.getByText("Map View")).toBeInTheDocument();
+    expect(await screen.findByText("Point & Shoot")).toBeInTheDocument();
+    expect(await screen.findByText("Map View")).toBeInTheDocument();
   });
 
-  it("hides the nav except for cases on /point", () => {
+  it("hides the nav except for cases on /point", async () => {
     mockedUsePathname.mockReturnValue("/point");
     render(
       <QueryProvider>
@@ -43,6 +43,6 @@ describe("NavBar", () => {
       </QueryProvider>,
     );
     expect(screen.queryByText("Point & Shoot")).toBeNull();
-    expect(screen.getByText("Cases")).toBeInTheDocument();
+    expect(await screen.findByText("Cases")).toBeInTheDocument();
   });
 });
