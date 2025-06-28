@@ -61,12 +61,4 @@ describe("uploads access", () => {
     });
     expect(res.status).toBe(200);
   });
-
-  it("allows anonymous access to public case photo", async () => {
-    store.createCase("a.jpg", null, undefined, null, undefined, true);
-    const res = await mod.GET(new Request("http://test"), {
-      params: Promise.resolve({ path: ["a.jpg"] }),
-    });
-    expect(res.status).toBe(200);
-  });
 });
