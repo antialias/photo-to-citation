@@ -5,5 +5,32 @@
   "casesLastWeek": "casos creados en la última semana",
   "authorityNotifications": "notificaciones enviadas a las autoridades",
   "avgTimeToNotify": "tiempo promedio para notificar a las autoridades",
-  "casesWithNotification": "casos con notificación a la autoridad"
+  "casesWithNotification": "casos con notificación a la autoridad",
+  "nav": {
+    "newCaseFromImage": "Nuevo caso desde imagen",
+    "pointShoot": "Apuntar y disparar",
+    "cases": "Casos",
+    "mapView": "Vista del mapa",
+    "triage": "Evaluación",
+    "admin": "Admin",
+    "systemStatus": "Estado del sistema",
+    "userSettings": "Configuración",
+    "profile": "Perfil",
+    "signOut": "Cerrar sesión",
+    "signIn": "Iniciar sesión"
+  },
+  "claim": {
+    "signInMessage": "Inicia sesión para reclamar este caso o se perderá al finalizar la sesión.",
+    "signIn": "Iniciar sesión",
+    "dismissAria": "Descartar"
+  },
+  "caseSummary": {
+    "title": "Resumen de caso",
+    "casesSelected": "{{count}} caso seleccionado",
+    "casesSelected_plural": "{{count}} casos seleccionados"
+  },
+  "casesPage": {
+    "heading": "Casos",
+    "selectPrompt": "Selecciona un caso para ver detalles."
+  }
 }
