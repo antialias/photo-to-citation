@@ -4,7 +4,7 @@
 FROM node:20-bookworm AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 # Build the application
 FROM node:20-bookworm AS builder
