@@ -37,6 +37,7 @@ export const Default: Story = {
       updatePhotoNote={async () => {}}
       removePhoto={async () => {}}
       reanalyzePhoto={async () => {}}
+      onTranslate={async () => {}}
     />
   ),
 };

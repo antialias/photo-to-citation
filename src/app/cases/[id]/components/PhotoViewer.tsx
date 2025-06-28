@@ -23,6 +23,7 @@ export default function PhotoViewer({
   updatePhotoNote,
   removePhoto,
   reanalyzePhoto,
+  onTranslate,
 }: {
   caseData: Case;
   selectedPhoto: string;
@@ -40,6 +41,7 @@ export default function PhotoViewer({
     photo: string,
     detailsEl?: HTMLDetailsElement | null,
   ) => Promise<void>;
+  onTranslate: (path: string) => Promise<void>;
 }) {
   const photoMenuRef = useRef<HTMLDetailsElement>(null);
   useCloseOnOutsideClick(photoMenuRef);
@@ -112,6 +114,7 @@ export default function PhotoViewer({
             <ImageHighlights
               analysis={caseData.analysis}
               photo={selectedPhoto}
+              onTranslate={(path) => onTranslate(path)}
             />
             {progress ? <p>{progressDescription}</p> : null}
           </div>
