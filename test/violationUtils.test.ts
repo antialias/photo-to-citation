@@ -51,12 +51,12 @@ describe("getBestViolationPhoto", () => {
           "a.jpg": {
             representationScore: 0.4,
             violation: true,
-            highlights: "a caption",
+            highlights: { en: "a caption" },
           },
           "b.jpg": {
             representationScore: 0.9,
             violation: true,
-            highlights: "best caption",
+            highlights: { en: "best caption" },
           },
         },
       },
