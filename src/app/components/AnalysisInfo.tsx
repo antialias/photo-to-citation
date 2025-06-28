@@ -31,9 +31,9 @@ export default function AnalysisInfo({
       <p>
         {detailText}
         {needsTranslation ? (
-          <button type="button" className="ml-2 text-blue-500 underline">
+          <span className="ml-2 text-blue-500 underline cursor-pointer">
             {t("translate")}
-          </button>
+          </span>
         ) : null}
       </p>
       {location ? (
