@@ -30,9 +30,9 @@ export default function ImageHighlights({
         <span>
           {highlights}
           {needsHighlights ? (
-            <button type="button" className="ml-2 text-blue-500 underline">
+            <span className="ml-2 text-blue-500 underline cursor-pointer">
               {t("translate")}
-            </button>
+            </span>
           ) : null}
         </span>
       ) : null}
@@ -40,9 +40,9 @@ export default function ImageHighlights({
         <span>
           {context}
           {needsContext ? (
-            <button type="button" className="ml-2 text-blue-500 underline">
+            <span className="ml-2 text-blue-500 underline cursor-pointer">
               {t("translate")}
-            </button>
+            </span>
           ) : null}
         </span>
       ) : null}
