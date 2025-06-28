@@ -545,3 +545,27 @@ export function deleteAnonymousCasesOlderThan(cutoff: Date): number {
   }
   return deleted;
 }
+
+export function findCaseIdForFile(filename: string): string | undefined {
+  const photoRow = orm
+    .select({ caseId: casePhotos.caseId })
+    .from(casePhotos)
+    .where(eq(casePhotos.url, filename))
+    .get() as { caseId: string } | undefined;
+  if (photoRow) return photoRow.caseId;
+  const rows = db.prepare("SELECT id, data FROM cases").all() as Array<{
+    id: string;
+    data: string;
+  }>;
+  for (const r of rows) {
+    try {
+      const data = JSON.parse(r.data) as {
+        threadImages?: Array<{ url: string }>;
+      };
+      if (data.threadImages?.some((img) => img.url === filename)) {
+        return r.id;
+      }
+    } catch {}
+  }
+  return undefined;
+}
