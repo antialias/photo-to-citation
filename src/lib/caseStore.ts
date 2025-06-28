@@ -197,7 +197,12 @@ function saveCase(c: Case) {
           caseId: c.id,
           url,
           representationScore: info.representationScore,
-          highlights: info.highlights ?? null,
+          highlights:
+            info.highlights === undefined || info.highlights === null
+              ? null
+              : typeof info.highlights === "string"
+                ? info.highlights
+                : JSON.stringify(info.highlights),
           violation:
             info.violation === undefined || info.violation === null
               ? null
