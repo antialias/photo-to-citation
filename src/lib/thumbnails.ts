@@ -29,9 +29,8 @@ export async function generateThumbnails(
   );
 }
 
-export function getThumbnailUrl(url: string, size: number): string {
-  const base = path.basename(url);
-  return `/uploads/thumbs/${size}/${base}`;
+export function getThumbnailUrl(name: string, size: number): string {
+  return `/uploads/thumbs/${size}/${name}`;
 }
 
 export function generateThumbnailsInBackground(

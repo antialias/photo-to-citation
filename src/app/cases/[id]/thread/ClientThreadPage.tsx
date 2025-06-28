@@ -2,6 +2,7 @@
 import { apiEventSource, apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
+import { getPhotoUrl } from "@/lib/clientPhotos";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
@@ -144,7 +145,7 @@ export default function ClientThreadPage({
               height={100}
               className="cursor-pointer"
               imgClassName="object-contain"
-              onClick={() => setViewImage(img.url)}
+              onClick={() => setViewImage(getPhotoUrl(img.url))}
             />
             <div className="flex flex-col gap-2 flex-1">
               <button

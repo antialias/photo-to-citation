@@ -134,7 +134,7 @@ export async function sendSnailMail(options: {
     y -= fontSize * 1.2;
   }
   for (const att of options.attachments) {
-    const abs = path.join(config.UPLOAD_DIR, att.replace(/^\/uploads\//, ""));
+    const abs = path.join(config.UPLOAD_DIR, att);
     if (!fs.existsSync(abs)) continue;
     const bytes = fs.readFileSync(abs);
     const ext = path.extname(abs).toLowerCase();

@@ -48,7 +48,7 @@ export const POST = withCaseAuthorization(
     const updated = addCaseThreadImage(id, {
       id: new Date().toISOString(),
       threadParent: parent ?? null,
-      url: `/uploads/${filename}`,
+      url: filename,
       uploadedAt: new Date().toISOString(),
       ocrText: ocr.text,
       ocrInfo: ocr.info ?? null,

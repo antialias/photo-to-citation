@@ -10,6 +10,7 @@ import {
   getCaseVin,
   hasViolation,
 } from "@/lib/caseUtils";
+import { getPhotoUrl } from "@/lib/clientPhotos";
 import {
   autoUpdate,
   computePosition,
@@ -175,7 +176,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const ownerLink = ownerDoc
       ? ownerDoc.threadParent
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
-        : ownerDoc.url
+        : getPhotoUrl(ownerDoc.url)
       : null;
     const ownerInfo = getCaseOwnerContactInfo(caseData);
     const ownerNotifyEmail = ownerInfo?.email
@@ -304,7 +305,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const ownerLink = ownerDoc
         ? ownerDoc.threadParent
           ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
-          : ownerDoc.url
+          : getPhotoUrl(ownerDoc.url)
         : null;
       const ownerInfo = getCaseOwnerContactInfo(caseData);
       const ownerNotifyEmail = ownerInfo?.email
@@ -332,7 +333,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       if (ownerLink)
         map.own = {
           url: ownerLink,
-          preview: ownerDoc?.url ?? ownerLink,
+          preview: ownerDoc ? getPhotoUrl(ownerDoc.url) : ownerLink,
           isImage: true,
         };
       if (ownerNotifyLink)

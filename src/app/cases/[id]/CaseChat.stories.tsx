@@ -70,7 +70,7 @@ function usePhotoStub() {
   useEffect(() => {
     const original = window.fetch;
     window.fetch = async () =>
-      new Response(JSON.stringify({ photos: ["/uploads/a.jpg"] }));
+      new Response(JSON.stringify({ photos: ["a.jpg"] }));
     return () => {
       window.fetch = original;
     };
@@ -162,7 +162,7 @@ function useChatError(status: number) {
         return new Response(JSON.stringify({ error: "fail" }), { status });
       }
       if (url.includes("/api/cases/1")) {
-        return new Response(JSON.stringify({ photos: ["/uploads/a.jpg"] }));
+        return new Response(JSON.stringify({ photos: ["a.jpg"] }));
       }
       return original(input);
     };
@@ -181,7 +181,7 @@ function useChatNetworkFailure() {
         throw new Error("network failure");
       }
       if (url.includes("/api/cases/1")) {
-        return new Response(JSON.stringify({ photos: ["/uploads/a.jpg"] }));
+        return new Response(JSON.stringify({ photos: ["a.jpg"] }));
       }
       return original(input);
     };

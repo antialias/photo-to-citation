@@ -5,6 +5,7 @@ import ZoomableImage from "@/app/components/ZoomableImage";
 import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
+import { getPhotoUrl } from "@/lib/clientPhotos";
 import type { LlmProgress } from "@/lib/openai";
 import { useRef } from "react";
 
@@ -46,7 +47,7 @@ export default function PhotoViewer({
   return (
     <>
       <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-        <ZoomableImage src={selectedPhoto} alt="uploaded" />
+        <ZoomableImage src={getPhotoUrl(selectedPhoto)} alt="uploaded" />
         {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
           <div className="absolute top-0 left-0 right-0">
             <Progress

@@ -63,8 +63,8 @@ export async function scanInbox(): Promise<void> {
           const gps = extractGps(buffer);
           const takenAt = extractTimestamp(buffer);
           gpsList.push(gps);
-          casePhotos.push(`/uploads/${filename}`);
-          photoTimes[`/uploads/${filename}`] = takenAt;
+          casePhotos.push(filename);
+          photoTimes[filename] = takenAt;
         }
         const firstGps = gpsList.find((g) => g) || null;
         const firstPhoto = casePhotos.shift();
