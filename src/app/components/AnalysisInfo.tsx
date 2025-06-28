@@ -10,12 +10,14 @@ export default function AnalysisInfo({
   onStateChange,
   onClearPlate,
   onClearState,
+  onTranslate,
 }: {
   analysis: ViolationReport;
   onPlateChange?: (v: string) => Promise<void> | void;
   onStateChange?: (v: string) => Promise<void> | void;
   onClearPlate?: () => Promise<void> | void;
   onClearState?: () => Promise<void> | void;
+  onTranslate?: (path: string, lang: string) => Promise<void> | void;
 }) {
   const { i18n, t } = useTranslation();
   const { violationType, details, location, vehicle = {} } = analysis;
@@ -31,7 +33,10 @@ export default function AnalysisInfo({
       <p>
         {detailText}
         {needsTranslation ? (
-          <span className="ml-2 text-blue-500 underline cursor-pointer">
+          <span
+            onClick={() => onTranslate?.("analysis.details", i18n.language)}
+            className="ml-2 text-blue-500 underline cursor-pointer"
+          >
             {t("translate")}
           </span>
         ) : null}

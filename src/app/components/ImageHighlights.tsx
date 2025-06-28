@@ -6,9 +6,11 @@ import { useTranslation } from "react-i18next";
 export default function ImageHighlights({
   analysis,
   photo,
+  onTranslate,
 }: {
   analysis: ViolationReport;
   photo: string;
+  onTranslate?: (path: string, lang: string) => Promise<void> | void;
 }) {
   const { i18n, t } = useTranslation();
   const name = photo.split("/").pop() || photo;
@@ -30,7 +32,16 @@ export default function ImageHighlights({
         <span>
           {highlights}
           {needsHighlights ? (
-            <button type="button" className="ml-2 text-blue-500 underline">
+            <button
+              type="button"
+              onClick={() =>
+                onTranslate?.(
+                  `analysis.images.${name}.highlights`,
+                  i18n.language,
+                )
+              }
+              className="ml-2 text-blue-500 underline"
+            >
               {t("translate")}
             </button>
           ) : null}
@@ -40,7 +51,13 @@ export default function ImageHighlights({
         <span>
           {context}
           {needsContext ? (
-            <button type="button" className="ml-2 text-blue-500 underline">
+            <button
+              type="button"
+              onClick={() =>
+                onTranslate?.(`analysis.images.${name}.context`, i18n.language)
+              }
+              className="ml-2 text-blue-500 underline"
+            >
               {t("translate")}
             </button>
           ) : null}

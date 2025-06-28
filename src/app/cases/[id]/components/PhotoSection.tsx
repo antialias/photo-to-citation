@@ -1,6 +1,8 @@
 "use client";
 import CaseJobList from "@/app/components/CaseJobList";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import useCaseTranslate from "../../../useCaseTranslate";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
 import useCaseProgress from "../useCaseProgress";
@@ -27,6 +29,8 @@ export default function PhotoSection({
     analysisActive,
     isPhotoReanalysis,
   } = useCaseProgress(reanalyzingPhoto);
+  const { i18n } = useTranslation();
+  const translate = useCaseTranslate(caseId);
   const [hasCamera, setHasCamera] = useState(false);
   useEffect(() => {
     if (
@@ -59,6 +63,7 @@ export default function PhotoSection({
           updatePhotoNote={(v) => updatePhotoNote(selectedPhoto, v)}
           removePhoto={removePhoto}
           reanalyzePhoto={reanalyzePhoto}
+          onTranslate={(path) => translate(path, i18n.language)}
         />
       ) : null}
       <PhotoGallery
