@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // Worker for lightweight browser analysis
 const AnalyzerWorker = () =>
@@ -22,6 +23,7 @@ export default function PointAndShootPage() {
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const { t } = useTranslation();
   const params = useSearchParams();
   const caseId = params.get("case") || null;
   const addFiles = useAddFilesToCase(caseId ?? "");
@@ -155,7 +157,7 @@ export default function PointAndShootPage() {
       <canvas ref={canvasRef} className="hidden" />
       {uploading ? (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
-          Uploading photo...
+          {t("uploadingPhoto")}
         </div>
       ) : null}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
@@ -163,7 +165,7 @@ export default function PointAndShootPage() {
           className="bg-black/40 text-white px-2 py-1 rounded text-xl"
           data-testid="hint"
         >
-          {analysisHint ?? "Nothing has been detected"}
+          {analysisHint ?? t("nothingDetected")}
         </div>
       </div>
       <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 pointer-events-none">
@@ -181,7 +183,7 @@ export default function PointAndShootPage() {
           disabled={uploading}
           className="pointer-events-auto bg-white/80 text-black px-4 py-2 rounded disabled:opacity-50"
         >
-          Upload Picture
+          {t("uploadPicture")}
         </button>
         <button
           type="button"
@@ -189,13 +191,13 @@ export default function PointAndShootPage() {
           disabled={uploading}
           className="pointer-events-auto bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
         >
-          Take Picture
+          {t("takePicture")}
         </button>
         <Link
           href={caseId ? `/cases/${caseId}` : "/cases"}
           className="pointer-events-auto text-xs text-white underline mt-2"
         >
-          {caseId ? "Back to Case" : "Cases"}
+          {caseId ? t("backToCase") : t("nav.cases")}
         </Link>
       </div>
     </div>
