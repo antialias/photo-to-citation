@@ -171,5 +171,21 @@
     "confirm": "Respuesta de autoridad confirmada",
     "sent": "Citación enviada",
     "received": "Citación recibida"
+  },
+  "progressEdges": {
+    "analysisRequested": "análisis solicitado",
+    "reanalysisRequested": "re-análisis solicitado",
+    "noViolation": "sin infracción",
+    "evaluating": "evaluando",
+    "detectingPlate": "detectando placa",
+    "decodingVin": "decodificando VIN",
+    "requestingOwnership": "solicitando información de propietario",
+    "lookupOwnership": "buscando información de propietario",
+    "awaitingOwnershipInfo": "esperando información de propietario",
+    "notifyingOwner": "notificando al propietario",
+    "notifyingAuthorities": "notificando a las autoridades",
+    "awaitingAuthorityResponse": "esperando respuesta de las autoridades",
+    "citationProcessing": "procesando citación",
+    "awaitingDelivery": "esperando entrega"
   }
 }

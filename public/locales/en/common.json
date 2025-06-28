@@ -171,5 +171,21 @@
     "confirm": "Authority Response Confirmed",
     "sent": "Citation Sent",
     "received": "Citation Received"
+  },
+  "progressEdges": {
+    "analysisRequested": "analysis requested",
+    "reanalysisRequested": "re-analysis requested",
+    "noViolation": "no violation",
+    "evaluating": "evaluating",
+    "detectingPlate": "detecting plate",
+    "decodingVin": "decoding VIN",
+    "requestingOwnership": "requesting ownership",
+    "lookupOwnership": "lookup ownership",
+    "awaitingOwnershipInfo": "awaiting ownership info",
+    "notifyingOwner": "notifying owner",
+    "notifyingAuthorities": "notifying authorities",
+    "awaitingAuthorityResponse": "awaiting response from authorities",
+    "citationProcessing": "citation processing",
+    "awaitingDelivery": "awaiting delivery"
   }
 }
