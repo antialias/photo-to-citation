@@ -57,6 +57,7 @@ export default function ZoomableImage({ src, alt }: Props) {
   const lastCenter = useRef<{ x: number; y: number } | null>(null);
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("button")) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
   }
@@ -115,22 +116,41 @@ export default function ZoomableImage({ src, alt }: Props) {
     }
   }
 
+  const lastWheelCenter = useRef<{ x: number; y: number } | null>(null);
+
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
-      const zoom = Math.exp(-e.deltaY / 200);
-      setTransform((t) => {
-        const scale = Math.min(5, Math.max(1, t.scale * zoom));
-        const originX = (cursorX - t.x) / t.scale;
-        const originY = (cursorY - t.y) / t.scale;
-        const x = t.x - (scale - t.scale) * originX;
-        const y = t.y - (scale - t.scale) * originY;
-        return constrainPan(rect, naturalSize, { scale, x, y });
-      });
+      const center = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      if (e.ctrlKey) {
+        const zoom = Math.exp(-e.deltaY / 200);
+        setTransform((t) => {
+          const scale = Math.min(5, Math.max(1, t.scale * zoom));
+          const dx = lastWheelCenter.current
+            ? center.x - lastWheelCenter.current.x
+            : 0;
+          const dy = lastWheelCenter.current
+            ? center.y - lastWheelCenter.current.y
+            : 0;
+          lastWheelCenter.current = center;
+          const originX = (center.x - t.x) / t.scale;
+          const originY = (center.y - t.y) / t.scale;
+          const x = t.x - (scale - t.scale) * originX + dx;
+          const y = t.y - (scale - t.scale) * originY + dy;
+          return constrainPan(rect, naturalSize, { scale, x, y });
+        });
+      } else {
+        lastWheelCenter.current = null;
+        setTransform((t) =>
+          constrainPan(rect, naturalSize, {
+            scale: t.scale,
+            x: t.x - e.deltaX,
+            y: t.y - e.deltaY,
+          }),
+        );
+      }
     },
     [naturalSize],
   );
@@ -171,6 +191,15 @@ export default function ZoomableImage({ src, alt }: Props) {
           transformOrigin: "0 0",
         }}
       />
+      {(transform.scale !== 1 || transform.x !== 0 || transform.y !== 0) && (
+        <button
+          className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
+          type="button"
+          onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
+        >
+          Reset zoom
+        </button>
+      )}
     </div>
   );
 }
