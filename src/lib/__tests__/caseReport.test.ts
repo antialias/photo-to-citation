@@ -116,7 +116,10 @@ describe("draftOwnerNotification", () => {
       choices: [
         {
           message: {
-            content: JSON.stringify({ subject: { en: "s" }, body: { en: "b" } }),
+            content: JSON.stringify({
+              subject: { en: "s" },
+              body: { en: "b" },
+            }),
           },
         },
       ],
