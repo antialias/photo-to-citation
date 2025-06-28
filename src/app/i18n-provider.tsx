@@ -14,9 +14,11 @@ export default function I18nProvider({
     if (typeof window === "undefined") return;
     document.documentElement.lang = i18n.language;
     localStorage.setItem("language", i18n.language);
+    document.cookie = `language=${i18n.language}; path=/; max-age=31536000; sameSite=lax`;
     const handler = (lng: string) => {
       document.documentElement.lang = lng;
       localStorage.setItem("language", lng);
+      document.cookie = `language=${lng}; path=/; max-age=31536000; sameSite=lax`;
     };
     i18n.on("languageChanged", handler);
     return () => {
