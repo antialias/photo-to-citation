@@ -1,6 +1,12 @@
-import { config } from "./lib/config";
+import { getPublicEnv } from "./publicEnv";
 
-export const BASE_PATH = config.NEXT_PUBLIC_BASE_PATH || "";
+export function getBasePath(): string {
+  if (typeof window !== "undefined") {
+    return getPublicEnv().NEXT_PUBLIC_BASE_PATH ?? "";
+  }
+  return process.env.NEXT_PUBLIC_BASE_PATH || "";
+}
+
 export function withBasePath(path: string): string {
-  return `${BASE_PATH}${path}`;
+  return `${getBasePath()}${path}`;
 }
