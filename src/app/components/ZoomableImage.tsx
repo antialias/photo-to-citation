@@ -120,17 +120,28 @@ export default function ZoomableImage({ src, alt }: Props) {
       e.preventDefault();
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
-      const zoom = Math.exp(-e.deltaY / 200);
-      setTransform((t) => {
-        const scale = Math.min(5, Math.max(1, t.scale * zoom));
-        const originX = (cursorX - t.x) / t.scale;
-        const originY = (cursorY - t.y) / t.scale;
-        const x = t.x - (scale - t.scale) * originX;
-        const y = t.y - (scale - t.scale) * originY;
-        return constrainPan(rect, naturalSize, { scale, x, y });
-      });
+
+      if (e.ctrlKey) {
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
+        const zoom = Math.exp(-e.deltaY / 200);
+        setTransform((t) => {
+          const scale = Math.min(5, Math.max(1, t.scale * zoom));
+          const originX = (cursorX - t.x) / t.scale;
+          const originY = (cursorY - t.y) / t.scale;
+          const x = t.x - (scale - t.scale) * originX;
+          const y = t.y - (scale - t.scale) * originY;
+          return constrainPan(rect, naturalSize, { scale, x, y });
+        });
+      } else {
+        setTransform((t) => {
+          return constrainPan(rect, naturalSize, {
+            scale: t.scale,
+            x: t.x + e.deltaX,
+            y: t.y + e.deltaY,
+          });
+        });
+      }
     },
     [naturalSize],
   );
@@ -171,6 +182,15 @@ export default function ZoomableImage({ src, alt }: Props) {
           transformOrigin: "0 0",
         }}
       />
+      {transform.scale > 1 ? (
+        <button
+          type="button"
+          className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
+          onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
+        >
+          Reset Zoom
+        </button>
+      ) : null}
     </div>
   );
 }
