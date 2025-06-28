@@ -145,6 +145,7 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
+  lang = "en",
   progress?: (info: LlmProgress) => void,
   signal?: AbortSignal,
 ): Promise<ViolationReport> {
@@ -192,8 +193,7 @@ export async function analyzeViolation(
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters. Omit the licensePlateNumber and licensePlateState fields if no plate is visible.",
+      content: `You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters. Omit the licensePlateNumber and licensePlateState fields if no plate is visible. Reply in ${lang}.`,
     },
     {
       role: "user",
@@ -296,6 +296,7 @@ export async function analyzeViolation(
 
 export async function extractPaperworkInfo(
   text: string,
+  lang = "en",
 ): Promise<PaperworkInfo> {
   const schema = {
     type: "object",
@@ -317,8 +318,7 @@ export async function extractPaperworkInfo(
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You extract structured vehicle information from text and reply in JSON strictly following the provided schema. A VIN is a 17-character string of digits and capital letters except I, O, and Q.",
+      content: `You extract structured vehicle information from text and reply in JSON strictly following the provided schema. A VIN is a 17-character string of digits and capital letters except I, O, and Q. Reply in ${lang}.`,
     },
     {
       role: "user",
@@ -357,14 +357,14 @@ export async function extractPaperworkInfo(
 
 export async function ocrPaperwork(
   image: { url: string },
+  lang = "en",
   progress?: (info: LlmProgress) => void,
   signal?: AbortSignal,
 ): Promise<PaperworkAnalysis> {
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You transcribe text from public paperwork. Return the text exactly as it appears, with no redactions or omissions.",
+      content: `You transcribe text from public paperwork. Return the text exactly as it appears, with no redactions or omissions. Reply in ${lang}.`,
     },
     {
       role: "user",
@@ -416,7 +416,7 @@ export async function ocrPaperwork(
       text = (res as ChatCompletion).choices[0]?.message?.content ?? "";
     }
     if (text.trim()) {
-      const info = await extractPaperworkInfo(text.trim());
+      const info = await extractPaperworkInfo(text.trim(), lang);
       return { text: text.trim(), info };
     }
     logBadResponse(attempt, text, new Error("Empty OCR result"));

@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { withCaseAuthorization } from "@/lib/authz";
@@ -44,7 +45,22 @@ export const POST = withCaseAuthorization(
           ? "image/webp"
           : "image/jpeg";
     const dataUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-    const ocr = await ocrPaperwork({ url: dataUrl });
+    const cookieStore = await cookies();
+    let storedLang = cookieStore.get("language")?.value;
+    if (!storedLang) {
+      const headerList = await headers();
+      const accept = headerList.get("accept-language") ?? "";
+      const supported = ["en", "es", "fr"];
+      for (const part of accept.split(",")) {
+        const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+        if (supported.includes(code)) {
+          storedLang = code;
+          break;
+        }
+      }
+      storedLang = storedLang ?? "en";
+    }
+    const ocr = await ocrPaperwork({ url: dataUrl }, storedLang);
     const updated = addCaseThreadImage(id, {
       id: new Date().toISOString(),
       threadParent: parent ?? null,
