@@ -14,7 +14,9 @@ export const POST = withCaseAuthorization(
     const { id } = await params;
     const body = (await req.json()) as {
       messages: Array<{ role: "user" | "assistant"; content: string }>;
+      lang?: string;
     };
+    const userLang = body.lang ?? "en";
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -58,6 +60,7 @@ export const POST = withCaseAuthorization(
       "Use {id: ID} objects for case actions.",
       "Use {field: FIELD, value: VALUE} to edit the case (fields: vin, plate, state, note).",
       "Use {photo: FILENAME, note: NOTE} to append a note to a photo.",
+      `User language: ${userLang}. Reply in this language and include it as "lang" in your JSON.`,
       available.length > 0 ? `Available actions:\n${actionList}` : "",
       unavailable.length > 0
         ? `Unavailable actions (not applicable):\n${unavailableList}`
@@ -90,6 +93,7 @@ export const POST = withCaseAuthorization(
             : raw.response,
         actions: raw.actions,
         noop: raw.noop,
+        lang,
       };
       return NextResponse.json({
         reply,
