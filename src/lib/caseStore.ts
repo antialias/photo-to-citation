@@ -126,7 +126,15 @@ function rowToCase(row: {
     for (const a of analysisRows) {
       images[path.basename(a.url)] = {
         representationScore: a.representationScore,
-        ...(a.highlights !== null && { highlights: a.highlights }),
+        ...(a.highlights !== null && {
+          highlights: (() => {
+            try {
+              return JSON.parse(a.highlights);
+            } catch {
+              return { en: a.highlights };
+            }
+          })(),
+        }),
         ...(a.violation !== null && { violation: Boolean(a.violation) }),
         ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),
         ...(a.paperworkText !== null && { paperworkText: a.paperworkText }),

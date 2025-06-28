@@ -6,7 +6,7 @@ describe("hasViolation", () => {
     expect(
       hasViolation({
         violationType: "",
-        details: "",
+        details: { en: "" },
         vehicle: {},
         images: { a: { representationScore: 1, violation: true } },
       }),
@@ -17,7 +17,7 @@ describe("hasViolation", () => {
     expect(
       hasViolation({
         violationType: "",
-        details: "",
+        details: { en: "" },
         vehicle: {},
         images: { a: { representationScore: 1, violation: false } },
       }),
@@ -28,13 +28,18 @@ describe("hasViolation", () => {
     expect(
       hasViolation({
         violationType: "parking",
-        details: "",
+        details: { en: "" },
         vehicle: {},
         images: {},
       }),
     ).toBe(true);
     expect(
-      hasViolation({ violationType: "", details: "", vehicle: {}, images: {} }),
+      hasViolation({
+        violationType: "",
+        details: { en: "" },
+        vehicle: {},
+        images: {},
+      }),
     ).toBe(false);
   });
 });
@@ -45,18 +50,18 @@ describe("getBestViolationPhoto", () => {
       photos: ["/a.jpg", "/b.jpg"],
       analysis: {
         violationType: "parking",
-        details: "",
+        details: { en: "" },
         vehicle: {},
         images: {
           "a.jpg": {
             representationScore: 0.4,
             violation: true,
-            highlights: "a caption",
+            highlights: { en: "a caption" },
           },
           "b.jpg": {
             representationScore: 0.9,
             violation: true,
-            highlights: "best caption",
+            highlights: { en: "best caption" },
           },
         },
       },
@@ -69,7 +74,7 @@ describe("getBestViolationPhoto", () => {
       photos: ["/a.jpg"],
       analysis: {
         violationType: "parking",
-        details: "",
+        details: { en: "" },
         vehicle: {},
         images: {
           "a.jpg": { representationScore: 0.5, violation: false },
