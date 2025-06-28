@@ -10,7 +10,7 @@ export async function generateThumbnails(
   filename: string,
 ): Promise<void> {
   const base = path.basename(filename);
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "thumbs");
+  const uploadDir = path.join(process.cwd(), "uploads", "thumbs");
   try {
     await sharp(buffer).metadata();
   } catch (err) {

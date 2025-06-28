@@ -58,7 +58,7 @@ beforeEach(async () => {
   caseStore = await import("@/lib/caseStore");
   caseAnalysis = await import("@/lib/caseAnalysis");
   cancelSpy = vi.spyOn(caseAnalysis, "cancelCaseAnalysis");
-  fs.mkdirSync(path.join(process.cwd(), "public", "uploads"), {
+  fs.mkdirSync(path.join(process.cwd(), "uploads"), {
     recursive: true,
   });
   mod = await import("@/app/api/upload/route");
@@ -67,7 +67,7 @@ beforeEach(async () => {
 afterEach(() => {
   fs.rmSync(dataDir, { recursive: true, force: true });
   fs.rmSync(tmpDir, { recursive: true, force: true });
-  fs.rmSync(path.join(process.cwd(), "public", "uploads"), {
+  fs.rmSync(path.join(process.cwd(), "uploads"), {
     recursive: true,
     force: true,
   });

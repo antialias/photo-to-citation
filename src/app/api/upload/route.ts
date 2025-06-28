@@ -56,7 +56,7 @@ export const POST = withAuthorization(
 
     const gps = extractGps(buffer);
     const takenAt = extractTimestamp(buffer);
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const uploadDir = path.join(process.cwd(), "uploads");
     fs.mkdirSync(uploadDir, { recursive: true });
     const ext = path.extname(file.name || "jpg") || ".jpg";
     const filename = `${crypto.randomUUID()}${ext}`;

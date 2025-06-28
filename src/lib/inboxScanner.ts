@@ -49,7 +49,7 @@ export async function scanInbox(): Promise<void> {
         a.contentType.startsWith("image/"),
       );
       if (images.length > 0) {
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        const uploadDir = path.join(process.cwd(), "uploads");
         fs.mkdirSync(uploadDir, { recursive: true });
         const casePhotos: string[] = [];
         const photoTimes: Record<string, string | null> = {};

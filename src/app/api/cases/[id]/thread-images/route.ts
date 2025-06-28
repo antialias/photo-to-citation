@@ -29,7 +29,7 @@ export const POST = withCaseAuthorization(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const ext = path.extname(file.name || "jpg") || ".jpg";
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const uploadDir = path.join(process.cwd(), "uploads");
     fs.mkdirSync(uploadDir, { recursive: true });
     const filename = `${crypto.randomUUID()}${ext}`;
     fs.writeFileSync(path.join(uploadDir, filename), buffer);
