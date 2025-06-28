@@ -130,6 +130,19 @@ export const apiContract = c.router({
     summary: "Set photo note",
     description: "Update the note for a case photo.",
   }),
+  translateCaseText: c.mutation({
+    method: "POST",
+    path: "/api/cases/:id/translate",
+    pathParams: idParams,
+    body: c.type<{ path: string; lang: string }>(),
+    responses: c.responses({
+      200: caseSchema,
+      400: errorSchema,
+      404: errorSchema,
+    }),
+    summary: "Translate case text",
+    description: "Translate a text field within a case and store it.",
+  }),
   caseStream: c.query({
     method: "GET",
     path: "/api/cases/stream",
