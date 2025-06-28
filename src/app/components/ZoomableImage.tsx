@@ -128,8 +128,8 @@ export default function ZoomableImage({ src, alt }: Props) {
           const scale = Math.min(5, Math.max(1, t.scale * zoom));
           const originX = (cursorX - t.x) / t.scale;
           const originY = (cursorY - t.y) / t.scale;
-          const x = t.x - (scale - t.scale) * originX;
-          const y = t.y - (scale - t.scale) * originY;
+          const x = t.x - (scale - t.scale) * originX - e.deltaX;
+          const y = t.y - (scale - t.scale) * originY - e.deltaY;
           return constrainPan(rect, naturalSize, { scale, x, y });
         });
       } else {
@@ -185,6 +185,8 @@ export default function ZoomableImage({ src, alt }: Props) {
         <button
           className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
           type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
           onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
         >
           Reset zoom
