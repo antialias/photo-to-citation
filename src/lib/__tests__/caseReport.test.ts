@@ -17,7 +17,7 @@ const baseCase: Case = {
   intersection: null,
   analysis: {
     violationType: "test",
-    details: "details",
+    details: { en: "details" },
     vehicle: {},
     images: { "foo.jpg": { representationScore: 1, violation: true } },
   },
@@ -39,7 +39,14 @@ describe("draftEmail", () => {
     const { client } = getLlm("draft_email");
     vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [
-        { message: { content: JSON.stringify({ subject: "s", body: "b" }) } },
+        {
+          message: {
+            content: JSON.stringify({
+              subject: { en: "s" },
+              body: { en: "b" },
+            }),
+          },
+        },
       ],
     } as unknown as ChatCompletion);
 
@@ -63,7 +70,12 @@ describe("draftEmail", () => {
       .mockResolvedValueOnce({
         choices: [
           {
-            message: { content: JSON.stringify({ subject: "s2", body: "b2" }) },
+            message: {
+              content: JSON.stringify({
+                subject: { en: "s2" },
+                body: { en: "b2" },
+              }),
+            },
           },
         ],
       } as unknown as ChatCompletion);
@@ -102,7 +114,11 @@ describe("draftOwnerNotification", () => {
     const { client } = getLlm("draft_email");
     vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [
-        { message: { content: JSON.stringify({ subject: "s", body: "b" }) } },
+        {
+          message: {
+            content: JSON.stringify({ subject: { en: "s" }, body: { en: "b" } }),
+          },
+        },
       ],
     } as unknown as ChatCompletion);
 
@@ -124,7 +140,12 @@ describe("draftOwnerNotification", () => {
       .mockResolvedValueOnce({
         choices: [
           {
-            message: { content: JSON.stringify({ subject: "s2", body: "b2" }) },
+            message: {
+              content: JSON.stringify({
+                subject: { en: "s2" },
+                body: { en: "b2" },
+              }),
+            },
           },
         ],
       } as unknown as ChatCompletion);

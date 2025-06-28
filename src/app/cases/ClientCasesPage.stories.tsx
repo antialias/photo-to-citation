@@ -37,7 +37,7 @@ export const MultipleCases: Story = {
         ...caseBase,
         analysis: {
           violationType: "parking",
-          details: "Blocking sidewalk",
+          details: { en: "Blocking sidewalk" },
           vehicle: { licensePlateNumber: "ABC123" },
           location: "Oak Park",
           images: {},
