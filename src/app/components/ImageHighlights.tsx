@@ -2,6 +2,7 @@
 import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { useTranslation } from "react-i18next";
+import TranslateIcon from "./TranslateIcon";
 
 export default function ImageHighlights({
   analysis,
@@ -40,9 +41,10 @@ export default function ImageHighlights({
                   i18n.language,
                 )
               }
-              className="ml-2 text-blue-500 underline"
+              aria-label={t("translate")}
+              className="ml-2 text-blue-500 hover:text-blue-700"
             >
-              {t("translate")}
+              <TranslateIcon lang={i18n.language} />
             </button>
           ) : null}
         </span>
@@ -56,9 +58,10 @@ export default function ImageHighlights({
               onClick={() =>
                 onTranslate?.(`analysis.images.${name}.context`, i18n.language)
               }
-              className="ml-2 text-blue-500 underline"
+              aria-label={t("translate")}
+              className="ml-2 text-blue-500 hover:text-blue-700"
             >
-              {t("translate")}
+              <TranslateIcon lang={i18n.language} />
             </button>
           ) : null}
         </span>

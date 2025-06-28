@@ -3,6 +3,7 @@ import type { ViolationReport } from "@/lib/openai";
 import { US_STATES } from "@/lib/usStates";
 import { useTranslation } from "react-i18next";
 import EditableText from "./EditableText";
+import TranslateIcon from "./TranslateIcon";
 
 export default function AnalysisInfo({
   analysis,
@@ -41,9 +42,10 @@ export default function AnalysisInfo({
                 onTranslate?.("analysis.details", i18n.language);
               }
             }}
-            className="ml-2 text-blue-500 underline"
+            aria-label={t("translate")}
+            className="ml-2 text-blue-500 hover:text-blue-700"
           >
-            {t("translate")}
+            <TranslateIcon lang={i18n.language} />
           </button>
         ) : null}
       </p>

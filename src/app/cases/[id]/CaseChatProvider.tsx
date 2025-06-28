@@ -19,6 +19,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../../components/NotificationProvider";
+import TranslateIcon from "../../components/TranslateIcon";
 
 export interface Message {
   id: string;
@@ -574,8 +575,12 @@ export function CaseChatProvider({
       <span>
         {m.content}
         {needsTranslation ? (
-          <button type="button" className="ml-2 text-blue-500 underline">
-            {t("translate")}
+          <button
+            type="button"
+            aria-label={t("translate")}
+            className="ml-2 text-blue-500 hover:text-blue-700"
+          >
+            <TranslateIcon lang={i18n.language} />
           </button>
         ) : null}
       </span>
