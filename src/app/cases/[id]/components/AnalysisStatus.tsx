@@ -29,12 +29,49 @@ export default function AnalysisStatus({
       ? "Analysis failed because the AI response was cut off."
       : caseData.analysisError === "parse"
         ? "Analysis failed due to invalid JSON from the AI."
-        : caseData.analysisError === "images"
-          ? "Analysis failed because no images were provided or some photo files were missing."
-          : "Analysis failed because the AI response did not match the expected format."
+        : caseData.analysisError === "schema"
+          ? "Analysis failed because the AI response did not match the expected schema."
+          : caseData.analysisError === "images"
+            ? "Analysis failed because no images were provided or some photo files were missing."
+            : "Analysis failed because the AI response did not match the expected format."
     : caseData.analysisStatusCode && caseData.analysisStatusCode >= 400
       ? "Analysis failed. Please try again later."
       : "Analysis failed.";
+
+  let failureDetail: string | null = null;
+  let helpText: string | null = null;
+  let showBugLink = false;
+  switch (caseData.analysisError) {
+    case "truncated":
+      failureDetail =
+        "The AI response ended early, which usually means the output was too long.";
+      helpText = "Retrying usually fixes this.";
+      break;
+    case "parse":
+      failureDetail = "The AI returned text that could not be parsed as JSON.";
+      helpText = "Retry to get a fresh response.";
+      break;
+    case "schema":
+      failureDetail = "The AI's JSON did not match the expected schema.";
+      helpText = "Retry to request corrected JSON.";
+      break;
+    case "images":
+      failureDetail = "One or more uploaded photos were missing.";
+      helpText = "Check that all photos are uploaded and try again.";
+      break;
+    default:
+      if (caseData.analysisStatusCode && caseData.analysisStatusCode >= 500) {
+        failureDetail = "The server encountered an error while analyzing.";
+        helpText = "You can try again or report the issue.";
+        showBugLink = true;
+      } else if (
+        caseData.analysisStatusCode &&
+        caseData.analysisStatusCode >= 400
+      ) {
+        failureDetail = "The request to analyze the case was rejected.";
+        helpText = "Please try again.";
+      }
+  }
 
   if (caseData.analysis) {
     return (
@@ -75,26 +112,37 @@ export default function AnalysisStatus({
   return (
     <div className="text-sm text-red-600 flex flex-col gap-1">
       <p>{failureReason}</p>
-      {readOnly ? null : (
-        <button
-          type="button"
-          onClick={retryAnalysis}
-          className="underline w-fit"
-        >
-          Retry
-        </button>
-      )}
+      <div className="flex gap-2">
+        {readOnly ? null : (
+          <button
+            type="button"
+            onClick={retryAnalysis}
+            className="underline w-fit"
+          >
+            Retry
+          </button>
+        )}
+        {showBugLink ? (
+          <a
+            href="https://github.com/antialias/photo-to-citation/issues/new"
+            className="underline w-fit"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Report Issue
+          </a>
+        ) : null}
+      </div>
+      {helpText ? <p>{helpText}</p> : null}
       <details>
         <summary className="cursor-pointer underline">More info</summary>
         <p className="mt-1">
           Last attempt: {new Date(caseData.updatedAt).toLocaleString()}
         </p>
-        <p className="mt-1">Possible causes:</p>
-        <ul className="list-disc ml-4">
-          <li>Missing photo files</li>
-          <li>Invalid JSON response</li>
-          <li>Server error</li>
-        </ul>
+        {failureDetail ? <p className="mt-1">{failureDetail}</p> : null}
+        {caseData.analysisStatusCode ? (
+          <p className="mt-1">Status code: {caseData.analysisStatusCode}</p>
+        ) : null}
       </details>
     </div>
   );
