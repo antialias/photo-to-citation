@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function PhotoViewer({
   caseData,
@@ -42,11 +43,15 @@ export default function PhotoViewer({
 }) {
   const photoMenuRef = useRef<HTMLDetailsElement>(null);
   useCloseOnOutsideClick(photoMenuRef);
-  const t = caseData.photoTimes[selectedPhoto];
+  const { t } = useTranslation();
+  const time = caseData.photoTimes[selectedPhoto];
   return (
     <>
       <div className="relative w-full aspect-[3/2] md:max-w-2xl shrink-0">
-        <ZoomableImage src={`/uploads/${selectedPhoto}`} alt="uploaded" />
+        <ZoomableImage
+          src={`/uploads/${selectedPhoto}`}
+          alt={t("casePreview")}
+        />
         {isPhotoReanalysis && reanalyzingPhoto === selectedPhoto ? (
           <div className="absolute top-0 left-0 right-0">
             <Progress
@@ -69,7 +74,7 @@ export default function PhotoViewer({
           >
             <summary
               className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-              aria-label="Photo actions menu"
+              aria-label={t("photoActionsMenu")}
             >
               ⋮
             </summary>
@@ -90,14 +95,14 @@ export default function PhotoViewer({
                   caseData.analysisStatus === "pending" && analysisActive
                 }
               >
-                Reanalyze Photo
+                {t("reanalyzePhoto")}
               </button>
               <button
                 type="button"
                 onClick={() => removePhoto(selectedPhoto)}
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
               >
-                Delete Image
+                {t("deleteImage")}
               </button>
             </div>
           </details>
@@ -116,13 +121,13 @@ export default function PhotoViewer({
           </div>
         )}
       </div>
-      {t ? (
+      {time ? (
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Taken {new Date(t).toLocaleString()}
+          {t("taken", { time: new Date(time).toLocaleString() })}
         </p>
       ) : null}
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        <span className="font-semibold">Note:</span>{" "}
+        <span className="font-semibold">{t("note")}</span>{" "}
         {readOnly ? (
           <span>{photoNote || ""}</span>
         ) : (
@@ -130,7 +135,7 @@ export default function PhotoViewer({
             value={photoNote}
             onSubmit={updatePhotoNote}
             onClear={photoNote ? () => updatePhotoNote("") : undefined}
-            placeholder="Add note"
+            placeholder={t("add")}
           />
         )}
       </p>

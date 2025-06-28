@@ -33,13 +33,11 @@ export default function PointAndShootPage() {
   useEffect(() => {
     async function startCamera() {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setCameraError(
-          "Camera API not available. Use HTTPS and a compatible browser.",
-        );
+        setCameraError(t("cameraApiUnavailable"));
         return;
       }
       if (location.protocol !== "https:" && location.hostname !== "localhost") {
-        setCameraError("Camera requires a secure connection (HTTPS).");
+        setCameraError(t("cameraRequiresSecure"));
         return;
       }
       try {
@@ -65,7 +63,7 @@ export default function PointAndShootPage() {
         }
       } catch (err) {
         console.error("Could not access camera", err);
-        setCameraError("Unable to access camera. Please check permissions.");
+        setCameraError(t("cameraAccessError"));
       }
     }
     startCamera();
@@ -112,7 +110,7 @@ export default function PointAndShootPage() {
       if (w) w.terminate();
       clearInterval(handle);
     };
-  }, []);
+  }, [t]);
 
   async function takePicture() {
     if (!videoRef.current || !canvasRef.current) return;

@@ -49,7 +49,7 @@ export default function UserSettingsPage() {
         <div>
           <p>
             {t("emailLabel")}{" "}
-            {session.user?.email ?? session.user?.name ?? "Unknown"}
+            {session.user?.email ?? session.user?.name ?? t("unknown")}
           </p>
           <p>
             {t("roleLabel")} {session.user?.role}

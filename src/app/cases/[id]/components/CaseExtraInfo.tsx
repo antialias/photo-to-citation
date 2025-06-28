@@ -2,11 +2,13 @@
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { useTranslation } from "react-i18next";
 import { useCaseContext } from "../CaseContext";
 import { baseName, buildThreads } from "../utils";
 
 export default function CaseExtraInfo({ caseId }: { caseId: string }) {
   const { caseData, selectedPhoto, setSelectedPhoto } = useCaseContext();
+  const { t } = useTranslation();
   if (!caseData) return null;
   const analysisImages = caseData.analysis?.images ?? {};
   const paperworkScans = (caseData.threadImages ?? []).map((img) => ({
@@ -24,7 +26,7 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
     <div className="grid gap-4 md:grid-cols-2">
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-          <h2 className="font-semibold">Email Log</h2>
+          <h2 className="font-semibold">{t("emailLog")}</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {buildThreads(caseData).map((mail) => (
               <li
@@ -36,7 +38,7 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                   {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
                 </span>
                 <span className="text-gray-500 dark:text-gray-400">
-                  To: {mail.to}
+                  {t("to")} {mail.to}
                 </span>
                 <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
                   {mail.body}
@@ -45,7 +47,7 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                   href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
                   className="self-start text-blue-500 underline"
                 >
-                  View Thread
+                  {t("viewThread")}
                 </a>
               </li>
             ))}
@@ -54,7 +56,7 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
       ) : null}
       {allPaperwork.length > 0 ? (
         <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-          <h2 className="font-semibold">Paperwork</h2>
+          <h2 className="font-semibold">{t("paperwork")}</h2>
           <div className="flex gap-2 flex-wrap">
             {allPaperwork.map(({ url, time }) => {
               const info = {
@@ -77,7 +79,7 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                       <div className="relative w-20 aspect-[4/3]">
                         <ThumbnailImage
                           src={getThumbnailUrl(url, 128)}
-                          alt="paperwork"
+                          alt={t("paperwork")}
                           width={80}
                           height={60}
                           imgClassName="object-contain"

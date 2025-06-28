@@ -1,6 +1,7 @@
 "use client";
 import { apiEventSource } from "@/apiClient";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface JobInfo {
   id: number;
@@ -24,6 +25,7 @@ export default function CaseJobList({
   const [jobs, setJobs] = useState<JobInfo[]>([]);
   const [auditedAt, setAuditedAt] = useState<number>(0);
   const [updatedAt, setUpdatedAt] = useState<number>(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const base = isPublic ? "/api/public/cases" : "/api/cases";
@@ -45,7 +47,7 @@ export default function CaseJobList({
 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
-      <h2 className="font-semibold">Active Jobs</h2>
+      <h2 className="font-semibold">{t("activeJobs")}</h2>
       <ul className="grid gap-1">
         {jobs.map((j) => (
           <li key={j.id} className="flex justify-between">
@@ -55,8 +57,11 @@ export default function CaseJobList({
         ))}
       </ul>
       <p className="text-xs text-gray-600 dark:text-gray-400">
-        Last audit: {auditedAt ? new Date(auditedAt).toLocaleString() : "n/a"} |
-        Last update: {updatedAt ? new Date(updatedAt).toLocaleString() : "n/a"}
+        {t("lastAudit")}{" "}
+        {auditedAt ? new Date(auditedAt).toLocaleString() : "n/a"}
+        {" | "}
+        {t("lastUpdate")}{" "}
+        {updatedAt ? new Date(updatedAt).toLocaleString() : "n/a"}
       </p>
     </div>
   );

@@ -8,6 +8,7 @@ import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../components/NotificationProvider";
 import { useSession } from "../useSession";
 import useDragReset from "./useDragReset";
@@ -49,6 +50,7 @@ export default function ClientCasesPage({
     lon: number;
   } | null>(null);
   const router = useRouter();
+  const { t } = useTranslation();
   const uploadNewCase = useNewCaseFromFiles();
   const [dragging, setDragging] = useState(false);
   const [dropCase, setDropCase] = useState<string | null>(null);
@@ -116,7 +118,7 @@ export default function ClientCasesPage({
       }),
     );
     if (results.some((r) => !r.ok)) {
-      notify("Failed to upload one or more files.");
+      notify(t("failedUpload"));
       return;
     }
   }
@@ -147,10 +149,10 @@ export default function ClientCasesPage({
         setDropCase(null);
       }}
     >
-      <h1 className="text-xl font-bold mb-4">Cases</h1>
+      <h1 className="text-xl font-bold mb-4">{t("nav.cases")}</h1>
       <div className="mb-4 flex items-center gap-4">
         <label className="mr-2" htmlFor="order">
-          Order by:
+          {t("orderBy")}
         </label>
         <select
           id="order"
@@ -158,12 +160,12 @@ export default function ClientCasesPage({
           onChange={(e) => setOrderBy(e.target.value as Order)}
           className="border rounded p-1 bg-white dark:bg-gray-900"
         >
-          <option value="createdAt">Creation Date</option>
-          <option value="updatedAt">Last Updated</option>
-          <option value="distance">Distance from My Location</option>
+          <option value="createdAt">{t("creationDate")}</option>
+          <option value="updatedAt">{t("lastUpdated")}</option>
+          <option value="distance">{t("distanceFromMe")}</option>
         </select>
         <label className="flex items-center gap-1" htmlFor="case-states">
-          <span>Show:</span>
+          <span>{t("show")}</span>
           <select
             id="case-states"
             multiple
@@ -175,9 +177,9 @@ export default function ClientCasesPage({
             }
             className="border rounded p-1 bg-white dark:bg-gray-900"
           >
-            <option value="open">Open</option>
-            <option value="archived">Archived</option>
-            <option value="closed">Closed</option>
+            <option value="open">{t("open")}</option>
+            <option value="archived">{t("archived")}</option>
+            <option value="closed">{t("closed")}</option>
           </select>
         </label>
       </div>
@@ -229,7 +231,7 @@ export default function ClientCasesPage({
                     return photo ? (
                       <img
                         src={`/uploads/${photo}`}
-                        alt="case thumbnail"
+                        alt={t("casePreview")}
                         width={80}
                         height={60}
                         loading="lazy"
@@ -255,19 +257,21 @@ export default function ClientCasesPage({
                   ) : null;
                 })()}
                 <div className="flex flex-col text-sm gap-1">
-                  <span className="font-semibold">Case {c.id}</span>
+                  <span className="font-semibold">
+                    {t("caseLabel", { id: c.id })}
+                  </span>
                   {c.analysis ? (
                     <>
                       <AnalysisInfo analysis={c.analysis} />
                       {c.analysisStatus === "pending" ? (
                         <span className="text-gray-500 dark:text-gray-400">
-                          Updating analysis...
+                          {t("updatingAnalysis")}
                         </span>
                       ) : null}
                     </>
                   ) : (
                     <span className="text-gray-500 dark:text-gray-400">
-                      Analyzing photo...
+                      {t("analyzingPhoto")}
                     </span>
                   )}
                 </div>
@@ -278,8 +282,8 @@ export default function ClientCasesPage({
       {dragging ? (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
           {dropCase
-            ? `Add photos to case ${dropCase}`
-            : "Drop photos to create case"}
+            ? t("addPhotosToCase", { id: dropCase })
+            : t("dropPhotosToCreateCase")}
         </div>
       ) : null}
     </div>
