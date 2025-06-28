@@ -18,6 +18,7 @@ void instance.init({
   fallbackLng: "en",
   defaultNS: "common",
   interpolation: { escapeValue: false },
+  initImmediate: false,
 });
 
 export default instance;
