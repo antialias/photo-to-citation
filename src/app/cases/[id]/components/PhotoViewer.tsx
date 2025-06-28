@@ -112,6 +112,7 @@ export default function PhotoViewer({
             <ImageHighlights
               analysis={caseData.analysis}
               photo={selectedPhoto}
+              caseId={caseData.id}
             />
             {progress ? <p>{progressDescription}</p> : null}
           </div>

@@ -1,3 +1,4 @@
+import { apiFetch } from "@/apiClient";
 import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { US_STATES } from "@/lib/usStates";
@@ -10,12 +11,14 @@ export default function AnalysisInfo({
   onStateChange,
   onClearPlate,
   onClearState,
+  caseId,
 }: {
   analysis: ViolationReport;
   onPlateChange?: (v: string) => Promise<void> | void;
   onStateChange?: (v: string) => Promise<void> | void;
   onClearPlate?: () => Promise<void> | void;
   onClearState?: () => Promise<void> | void;
+  caseId?: string;
 }) {
   const { i18n, t } = useTranslation();
   const { violationType, details, location, vehicle = {} } = analysis;
@@ -23,6 +26,14 @@ export default function AnalysisInfo({
     details,
     i18n.language,
   );
+  async function translate() {
+    if (!caseId) return;
+    await apiFetch(`/api/cases/${caseId}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: "analysis.details", lang: i18n.language }),
+    });
+  }
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p>
@@ -31,7 +42,11 @@ export default function AnalysisInfo({
       <p>
         {detailText}
         {needsTranslation ? (
-          <button type="button" className="ml-2 text-blue-500 underline">
+          <button
+            type="button"
+            onClick={translate}
+            className="ml-2 text-blue-500 underline"
+          >
             {t("translate")}
           </button>
         ) : null}

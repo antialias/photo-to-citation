@@ -262,7 +262,7 @@ export default function ClientCasesPage({
                   </span>
                   {c.analysis ? (
                     <>
-                      <AnalysisInfo analysis={c.analysis} />
+                      <AnalysisInfo analysis={c.analysis} caseId={c.id} />
                       {c.analysisStatus === "pending" ? (
                         <span className="text-gray-500 dark:text-gray-400">
                           {t("updatingAnalysis")}

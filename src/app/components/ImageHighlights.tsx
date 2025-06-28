@@ -1,4 +1,5 @@
 "use client";
+import { apiFetch } from "@/apiClient";
 import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { useTranslation } from "react-i18next";
@@ -6,9 +7,11 @@ import { useTranslation } from "react-i18next";
 export default function ImageHighlights({
   analysis,
   photo,
+  caseId,
 }: {
   analysis: ViolationReport;
   photo: string;
+  caseId?: string;
 }) {
   const { i18n, t } = useTranslation();
   const name = photo.split("/").pop() || photo;
@@ -20,6 +23,15 @@ export default function ImageHighlights({
     info.context,
     i18n.language,
   );
+  async function translate(field: "highlights" | "context") {
+    if (!caseId) return;
+    const path = `analysis.images[${name}].${field}`;
+    await apiFetch(`/api/cases/${caseId}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path, lang: i18n.language }),
+    });
+  }
   return (
     <div className="flex flex-col gap-1 text-sm">
       <span>
@@ -30,7 +42,11 @@ export default function ImageHighlights({
         <span>
           {highlights}
           {needsHighlights ? (
-            <button type="button" className="ml-2 text-blue-500 underline">
+            <button
+              type="button"
+              onClick={() => translate("highlights")}
+              className="ml-2 text-blue-500 underline"
+            >
               {t("translate")}
             </button>
           ) : null}
@@ -40,7 +56,11 @@ export default function ImageHighlights({
         <span>
           {context}
           {needsContext ? (
-            <button type="button" className="ml-2 text-blue-500 underline">
+            <button
+              type="button"
+              onClick={() => translate("context")}
+              className="ml-2 text-blue-500 underline"
+            >
               {t("translate")}
             </button>
           ) : null}

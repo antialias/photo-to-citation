@@ -189,6 +189,7 @@ export default function AnalysisStatus({
     return (
       <AnalysisInfo
         analysis={caseData.analysis}
+        caseId={caseData.id}
         onPlateChange={readOnly ? undefined : updatePlateNumber}
         onStateChange={readOnly ? undefined : updatePlateState}
         onClearPlate={
