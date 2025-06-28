@@ -48,7 +48,10 @@ function mockFetch() {
     if (url.includes(`/cases/${base.id}/report`)) {
       return new Response(
         JSON.stringify({
-          email: { subject: "Violation Report", body: "Report body" },
+          email: {
+            subject: { en: "Violation Report" },
+            body: { en: "Report body" },
+          },
           attachments: base.photos,
           module: reportModules["oak-park"],
         }),

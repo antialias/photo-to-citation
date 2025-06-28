@@ -58,7 +58,10 @@ export async function draftEmail(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const paperworkTexts = analysis?.images
     ? Object.values(analysis.images)
@@ -150,7 +153,10 @@ export async function draftFollowUp(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const code = await getViolationCode(
     "oak-park",
@@ -240,7 +246,10 @@ export async function draftOwnerNotification(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const authorityList = authorities.join(", ");
   const authorityLine =
