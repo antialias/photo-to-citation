@@ -4,6 +4,7 @@ import ThumbnailImage from "@/components/thumbnail-image";
 import Tooltip from "@/components/ui/tooltip";
 import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { getLocalizedText } from "@/lib/localizedText";
 import type { ReportModule } from "@/lib/reportModules";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,14 +42,17 @@ export default function DraftPreview({
     }
   }
 
+  const subjectText = getLocalizedText(data.email.subject, i18n.language).text;
+  const { text: bodyText } = getLocalizedText(data.email.body, i18n.language);
+
   async function send() {
     setSending(true);
     const res = await apiFetch(`/api/cases/${caseId}/report`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        subject: data.email.subject[i18n.language],
-        body: data.email.body[i18n.language],
+        subject: subjectText,
+        body: bodyText,
         attachments: data.attachments,
       }),
     });
@@ -62,19 +66,12 @@ export default function DraftPreview({
     setSending(false);
   }
 
-  const bodyText =
-    data.email.body[i18n.language] ??
-    data.email.body.en ??
-    Object.values(data.email.body)[0] ??
-    "";
   const previewBody =
     bodyText.length > 80 ? `${bodyText.slice(0, 77)}...` : bodyText;
 
   const tooltipContent = (
     <div className="bg-white text-black p-2 rounded shadow max-w-sm space-y-2">
-      <div className="font-semibold text-sm">
-        {data.email.subject[i18n.language]}
-      </div>
+      <div className="font-semibold text-sm">{subjectText}</div>
       <pre className="whitespace-pre-wrap text-xs">{bodyText}</pre>
       {data.attachments.length > 0 && (
         <div className="flex gap-1 flex-wrap">
@@ -124,7 +121,7 @@ export default function DraftPreview({
           onClick={openCompose}
           className="text-left w-full"
         >
-          <strong>{data.email.subject[i18n.language]}</strong> {previewBody}
+          <strong>{subjectText}</strong> {previewBody}
         </button>
       </Tooltip>
       <WidgetActions>
