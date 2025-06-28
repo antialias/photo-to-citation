@@ -6,6 +6,7 @@
   "authorityNotifications": "notifications sent to authorities",
   "avgTimeToNotify": "average time to notify authorities",
   "casesWithNotification": "cases with authority notification",
+  "translate": "Translate",
   "nav": {
     "newCaseFromImage": "New Case from Image",
     "pointShoot": "Point & Shoot",
