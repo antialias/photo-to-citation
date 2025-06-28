@@ -41,7 +41,7 @@ export default function AnalysisInfo({
                 onTranslate?.("analysis.details", i18n.language);
               }
             }}
-            className="ml-2 text-blue-500 underline cursor-pointer"
+            className="ml-2 text-blue-500 underline"
           >
             {t("translate")}
           </button>

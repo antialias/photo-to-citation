@@ -451,10 +451,28 @@ export function setCaseTranslation(
   let obj: unknown = current;
   for (let i = 0; i < parts.length - 1; i++) {
     if (typeof obj !== "object" || obj === null) return undefined;
-    obj = (obj as Record<string, unknown>)[parts[i]];
+    let key = parts[i];
+    let next = (obj as Record<string, unknown>)[key];
+    if (next === undefined) {
+      for (let j = i + 1; j < parts.length - 1; j++) {
+        key += `.${parts[j]}`;
+        next = (obj as Record<string, unknown>)[key];
+        if (next !== undefined) {
+          i = j;
+          break;
+        }
+      }
+    }
+    if (next === undefined) return undefined;
+    obj = next;
   }
   if (typeof obj !== "object" || obj === null) return undefined;
-  const key = parts[parts.length - 1];
+  let key = parts[parts.length - 1];
+  if (!(key in obj)) {
+    for (let j = parts.length - 2; j >= 0 && !(key in obj); j--) {
+      key = `${parts[j]}.${key}`;
+    }
+  }
   const target = obj as Record<string, unknown>;
   const value = target[key];
   if (typeof value === "string") {
