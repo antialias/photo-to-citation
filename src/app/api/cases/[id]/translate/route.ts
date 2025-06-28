@@ -6,9 +6,22 @@ import { NextResponse } from "next/server";
 function getValueByPath(obj: unknown, path: string): unknown {
   const parts = path.replace(/\[(\w+)\]/g, ".$1").split(".");
   let current: unknown = obj;
-  for (const part of parts) {
+  for (let i = 0; i < parts.length; i++) {
     if (typeof current !== "object" || current === null) return undefined;
-    current = (current as Record<string, unknown>)[part];
+    let key = parts[i];
+    let value = (current as Record<string, unknown>)[key];
+    if (value === undefined) {
+      for (let j = i + 1; j < parts.length; j++) {
+        key += `.${parts[j]}`;
+        value = (current as Record<string, unknown>)[key];
+        if (value !== undefined) {
+          i = j;
+          break;
+        }
+      }
+    }
+    if (value === undefined) return undefined;
+    current = value;
   }
   return current;
 }
