@@ -1,4 +1,3 @@
-export function getThumbnailUrl(url: string, size: number): string {
-  const base = url.substring(url.lastIndexOf("/") + 1);
-  return `/uploads/thumbs/${size}/${base}`;
+export function getThumbnailUrl(name: string, size: number): string {
+  return `/uploads/thumbs/${size}/${name}`;
 }

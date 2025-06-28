@@ -7,6 +7,7 @@ import { APIError } from "openai/error";
 
 import { clearQueue, enqueueTask, removeQueuedPhoto } from "./analysisQueue";
 import { type Case, getCase, updateCase } from "./caseStore";
+import { config } from "./config";
 import { runJob } from "./jobScheduler";
 import {
   AnalysisError,
@@ -65,11 +66,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     const missing: string[] = [];
     const images = caseData.photos
       .map((p) => {
-        const filePath = path.join(
-          process.cwd(),
-          "public",
-          p.replace(/^\/+/, ""),
-        );
+        const filePath = path.join(config.UPLOAD_DIR, p.replace(/^\/+/, ""));
         if (!fs.existsSync(filePath)) {
           missing.push(p);
           return null;
@@ -203,11 +200,7 @@ export async function reanalyzePhoto(
   caseData: Case,
   photo: string,
 ): Promise<void> {
-  const filePath = path.join(
-    process.cwd(),
-    "public",
-    photo.replace(/^\/+/, ""),
-  );
+  const filePath = path.join(config.UPLOAD_DIR, photo.replace(/^\/+/, ""));
   if (!fs.existsSync(filePath)) {
     updateCase(caseData.id, {
       analysisStatus: "failed",
