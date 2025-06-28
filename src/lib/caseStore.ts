@@ -455,11 +455,12 @@ export function setCaseTranslation(
   }
   if (typeof obj !== "object" || obj === null) return undefined;
   const key = parts[parts.length - 1];
-  const value = (obj as Record<string, unknown>)[key];
+  const target = obj as Record<string, unknown>;
+  const value = target[key];
   if (typeof value === "string") {
-    obj[key] = { en: value, [lang]: text };
+    target[key] = { en: value, [lang]: text };
   } else if (typeof value === "object" && value !== null) {
-    obj[key] = { ...(value as Record<string, string>), [lang]: text };
+    target[key] = { ...(value as Record<string, string>), [lang]: text };
   } else {
     return undefined;
   }
