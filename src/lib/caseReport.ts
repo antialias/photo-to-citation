@@ -3,6 +3,7 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 import { z } from "zod";
 import type { Case, SentEmail } from "./caseStore";
 import { getLlm } from "./llm";
+import type { LocalizedText } from "./localization";
 import { log } from "./logger";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
@@ -27,12 +28,19 @@ export const emailDraftSchema = z.object({
   body: z.string(),
 });
 
-export type EmailDraft = z.infer<typeof emailDraftSchema>;
+export interface EmailDraft {
+  subject: LocalizedText;
+  body: LocalizedText;
+  language: string;
+}
+
+interface BasicEmailDraft extends z.infer<typeof emailDraftSchema> {}
 
 export async function draftEmail(
   caseData: Case,
   mod: ReportModule,
   sender?: { name?: string | null; email?: string | null },
+  lang = "en",
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -87,7 +95,7 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: "You create email drafts for municipal authorities.",
+      content: `You create email drafts for municipal authorities. Reply in ${lang}.`,
     },
     { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
@@ -103,11 +111,17 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     });
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
-      const parsed = JSON.parse(text);
-      return emailDraftSchema.parse(parsed);
+      const parsed = JSON.parse(text) as BasicEmailDraft;
+      const basic = emailDraftSchema.parse(parsed);
+      const converted: EmailDraft = {
+        subject: { [lang]: basic.subject },
+        body: { [lang]: basic.body },
+        language: lang,
+      };
+      return converted;
     } catch (err) {
       logBadResponse(attempt, text, err);
-      if (attempt === 2) return { subject: "", body: "" };
+      if (attempt === 2) return { subject: {}, body: {}, language: lang };
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
@@ -115,7 +129,7 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
       });
     }
   }
-  return { subject: "", body: "" };
+  return { subject: {}, body: {}, language: lang };
 }
 
 export async function draftFollowUp(
@@ -123,6 +137,7 @@ export async function draftFollowUp(
   recipient: string,
   historyEmails: SentEmail[] = caseData.sentEmails ?? [],
   sender?: { name?: string | null; email?: string | null },
+  lang = "en",
 ): Promise<EmailDraft> {
   log(
     `draftFollowUp recipient=${recipient} history=${historyEmails
@@ -167,7 +182,7 @@ Ask about the current citation status and mention that photos are attached again
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: "You create email drafts for municipal authorities.",
+      content: `You create email drafts for municipal authorities. Reply in ${lang}.`,
     },
     ...history,
     { role: "user", content: prompt } as ChatCompletionMessageParam,
@@ -186,11 +201,16 @@ Ask about the current citation status and mention that photos are attached again
     });
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
-      const parsed = JSON.parse(text);
-      return emailDraftSchema.parse(parsed);
+      const parsed = JSON.parse(text) as BasicEmailDraft;
+      const basic = emailDraftSchema.parse(parsed);
+      return {
+        subject: { [lang]: basic.subject },
+        body: { [lang]: basic.body },
+        language: lang,
+      };
     } catch (err) {
       logBadResponse(attempt, text, err);
-      if (attempt === 2) return { subject: "", body: "" };
+      if (attempt === 2) return { subject: {}, body: {}, language: lang };
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
@@ -198,11 +218,12 @@ Ask about the current citation status and mention that photos are attached again
       });
     }
   }
-  return { subject: "", body: "" };
+  return { subject: {}, body: {}, language: lang };
 }
 export async function draftOwnerNotification(
   caseData: Case,
   authorities: string[],
+  lang = "en",
 ): Promise<EmailDraft> {
   const analysis = caseData.analysis;
   const vehicle = analysis?.vehicle ?? {};
@@ -244,8 +265,7 @@ export async function draftOwnerNotification(
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You create anonymous notification emails for vehicle owners about violations.",
+      content: `You create anonymous notification emails for vehicle owners about violations. Reply in ${lang}.`,
     },
     { role: "user", content: prompt } as ChatCompletionMessageParam,
   ];
@@ -260,11 +280,16 @@ export async function draftOwnerNotification(
     });
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
-      const parsed = JSON.parse(text);
-      return emailDraftSchema.parse(parsed);
+      const parsed = JSON.parse(text) as BasicEmailDraft;
+      const basic = emailDraftSchema.parse(parsed);
+      return {
+        subject: { [lang]: basic.subject },
+        body: { [lang]: basic.body },
+        language: lang,
+      };
     } catch (err) {
       logBadResponse(attempt, text, err);
-      if (attempt === 2) return { subject: "", body: "" };
+      if (attempt === 2) return { subject: {}, body: {}, language: lang };
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
@@ -272,5 +297,5 @@ export async function draftOwnerNotification(
       });
     }
   }
-  return { subject: "", body: "" };
+  return { subject: {}, body: {}, language: lang };
 }

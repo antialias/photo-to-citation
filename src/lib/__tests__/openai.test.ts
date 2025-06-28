@@ -18,10 +18,14 @@ describe("openai client", () => {
       .mockResolvedValueOnce({
         choices: [{ message: { content: '{"callsToAction":["pay now"]}' } }],
       } as unknown as ChatCompletion);
-    const result = await ocrPaperwork({ url: "data:image/png;base64,foo" });
+    const result = await ocrPaperwork(
+      { url: "data:image/png;base64,foo" },
+      "en",
+    );
     expect(result).toEqual({
-      text: "hello",
+      text: { en: "hello" },
       info: { vehicle: {}, callsToAction: ["pay now"] },
+      language: "en",
     });
   });
 });
