@@ -12,7 +12,7 @@ import { reportModules } from "@/lib/reportModules";
 import { getServerSession } from "next-auth/next";
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
-import i18n, { initI18n } from "../../i18n";
+import i18n, { initI18n } from "../../i18n.server";
 
 export const dynamic = "force-dynamic";
 
