@@ -41,6 +41,7 @@ export const violationReportSchema = z.object({
   violationType: z.string(),
   details: localizedTextSchema,
   location: z.string().optional(),
+  language: z.string().optional(),
   vehicle: z.object({
     make: z.string().optional(),
     model: z.string().optional(),

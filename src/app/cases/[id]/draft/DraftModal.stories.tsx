@@ -27,7 +27,7 @@ const base: Case = {
   vinOverride: null,
   analysis: {
     violationType: "parking",
-    details: "Blocking sidewalk",
+    details: { en: "Blocking sidewalk" },
     location: "Oak Park",
     vehicle: {
       licensePlateNumber: "ABC123",

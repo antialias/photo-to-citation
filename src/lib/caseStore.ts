@@ -127,7 +127,13 @@ function rowToCase(row: {
       images[path.basename(a.url)] = {
         representationScore: a.representationScore,
         ...(a.highlights !== null && {
-          highlights: JSON.parse(a.highlights) as Record<string, string>,
+          highlights: (() => {
+            try {
+              return JSON.parse(a.highlights);
+            } catch {
+              return { en: a.highlights };
+            }
+          })(),
         }),
         ...(a.violation !== null && { violation: Boolean(a.violation) }),
         ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),

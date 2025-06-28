@@ -27,8 +27,8 @@ export default function NotifyOwnerEditor({
   availableMethods: string[];
   caseId: string;
 }) {
-  const [subject, setSubject] = useState(initialDraft?.subject || "");
-  const [body, setBody] = useState(initialDraft?.body || "");
+  const [subject, setSubject] = useState(initialDraft?.subject.en ?? "");
+  const [body, setBody] = useState(initialDraft?.body.en ?? "");
   const [sending, setSending] = useState(false);
   const [results, setResults] = useState<
     Record<string, { status: string; error?: string }>
@@ -41,8 +41,8 @@ export default function NotifyOwnerEditor({
 
   useEffect(() => {
     if (initialDraft) {
-      setSubject(initialDraft.subject);
-      setBody(initialDraft.body);
+      setSubject(initialDraft.subject.en ?? "");
+      setBody(initialDraft.body.en ?? "");
     }
   }, [initialDraft]);
 

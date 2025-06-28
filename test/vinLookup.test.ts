@@ -72,7 +72,7 @@ describe("vinLookup", () => {
     caseStore.updateCase(c.id, {
       analysis: {
         violationType: "",
-        details: "",
+        details: { en: "" },
         vehicle: { licensePlateNumber: "ABC123", licensePlateState: "IL" },
         images: {},
       },
@@ -105,7 +105,7 @@ describe("vinLookup", () => {
     updateCase(c.id, {
       analysis: {
         violationType: "", // minimal
-        details: "",
+        details: { en: "" },
         vehicle: { licensePlateNumber: "ABC123", licensePlateState: "IL" },
         images: {},
       },

@@ -53,7 +53,7 @@ describe("caseStore", () => {
     const updated = updateCase(c.id, {
       analysis: {
         violationType: "foo",
-        details: "bar",
+        details: { en: "bar" },
         vehicle: {},
         images: {
           "foo.jpg": { representationScore: 0.6, violation: true },

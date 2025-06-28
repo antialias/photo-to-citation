@@ -98,6 +98,7 @@ export interface ViolationReport {
   violationType: string;
   details: LocalizedText;
   location?: string;
+  language?: string;
   vehicle: {
     make?: string;
     model?: string;
@@ -122,7 +123,7 @@ export interface ViolationReport {
 
 export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
   violationType: z.string(),
-  details: z.union([z.string(), localizedTextSchema]),
+  details: localizedTextSchema,
   location: z.string().optional(),
   vehicle: z
     .object({
@@ -138,8 +139,8 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
     .record(
       z.object({
         representationScore: z.number().min(0).max(1),
-        highlights: z.union([z.string(), localizedTextSchema]).optional(),
-        context: z.union([z.string(), localizedTextSchema]).optional(),
+        highlights: localizedTextSchema.optional(),
+        context: localizedTextSchema.optional(),
         violation: z.boolean().optional(),
         paperwork: z.boolean().optional(),
         paperworkText: z.string().optional(),
@@ -162,7 +163,7 @@ export async function analyzeViolation(
     type: "object",
     properties: {
       violationType: { type: "string" },
-      details: { type: "string" },
+      details: { type: "object", additionalProperties: { type: "string" } },
       location: { type: "string" },
       vehicle: {
         type: "object",
@@ -181,8 +182,14 @@ export async function analyzeViolation(
           type: "object",
           properties: {
             representationScore: { type: "number" },
-            highlights: { type: "string" },
-            context: { type: "string" },
+            highlights: {
+              type: "object",
+              additionalProperties: { type: "string" },
+            },
+            context: {
+              type: "object",
+              additionalProperties: { type: "string" },
+            },
             violation: { type: "boolean" },
             paperwork: { type: "boolean" },
             paperworkText: { type: "string" },
@@ -288,23 +295,7 @@ export async function analyzeViolation(
     try {
       const lang = (parsed as { language?: string }).language ?? "en";
       const raw = violationReportSchema.parse(parsed);
-      const details =
-        typeof raw.details === "string" ? { [lang]: raw.details } : raw.details;
-      const images: ViolationReport["images"] = {};
-      for (const [k, v] of Object.entries(raw.images)) {
-        images[k] = {
-          ...v,
-          ...(v.highlights &&
-            (typeof v.highlights === "string"
-              ? { highlights: { [lang]: v.highlights } }
-              : { highlights: v.highlights })),
-          ...(v.context &&
-            (typeof v.context === "string"
-              ? { context: { [lang]: v.context } }
-              : { context: v.context })),
-        };
-      }
-      return { ...raw, details, images };
+      return { ...raw, language: lang };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) throw new AnalysisError("schema");

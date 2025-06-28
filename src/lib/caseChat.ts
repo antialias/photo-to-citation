@@ -14,7 +14,7 @@ export interface CaseChatReply {
 }
 
 export const caseChatReplySchema = z.object({
-  response: z.union([z.string(), localizedTextSchema]),
+  response: localizedTextSchema,
   actions: z.array(
     z.union([
       z.object({ id: z.string() }),

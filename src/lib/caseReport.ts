@@ -24,8 +24,8 @@ function logBadResponse(
 }
 
 export const emailDraftSchema = z.object({
-  subject: z.union([z.string(), localizedTextSchema]),
-  body: z.union([z.string(), localizedTextSchema]),
+  subject: localizedTextSchema,
+  body: localizedTextSchema,
 });
 
 export type EmailDraft = z.infer<typeof emailDraftSchema>;
@@ -110,13 +110,8 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      const lang = (parsed as { language?: string }).language ?? "en";
       const raw = emailDraftSchema.parse(parsed);
-      const subject =
-        typeof raw.subject === "string" ? { [lang]: raw.subject } : raw.subject;
-      const body =
-        typeof raw.body === "string" ? { [lang]: raw.body } : raw.body;
-      return { subject, body };
+      return raw;
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
@@ -204,13 +199,8 @@ Ask about the current citation status and mention that photos are attached again
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      const lang = (parsed as { language?: string }).language ?? "en";
       const raw = emailDraftSchema.parse(parsed);
-      const subject =
-        typeof raw.subject === "string" ? { [lang]: raw.subject } : raw.subject;
-      const body =
-        typeof raw.body === "string" ? { [lang]: raw.body } : raw.body;
-      return { subject, body };
+      return raw;
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
@@ -289,13 +279,8 @@ export async function draftOwnerNotification(
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      const lang = (parsed as { language?: string }).language ?? "en";
       const raw = emailDraftSchema.parse(parsed);
-      const subject =
-        typeof raw.subject === "string" ? { [lang]: raw.subject } : raw.subject;
-      const body =
-        typeof raw.body === "string" ? { [lang]: raw.body } : raw.body;
-      return { subject, body };
+      return raw;
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
