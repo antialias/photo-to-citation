@@ -15,6 +15,17 @@ export default function I18nProvider({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // Fallback to the browser's preferred languages if no cookie is set
+    if (!document.cookie.includes("language=")) {
+      const supported = ["en", "es", "fr"];
+      for (const l of navigator.languages ?? []) {
+        const code = l.toLowerCase().split("-")[0];
+        if (supported.includes(code)) {
+          void i18n.changeLanguage(code);
+          break;
+        }
+      }
+    }
     document.documentElement.lang = i18n.language;
     localStorage.setItem("language", i18n.language);
     document.cookie = `language=${i18n.language}; path=/; max-age=31536000`;

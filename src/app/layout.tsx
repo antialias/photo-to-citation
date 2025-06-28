@@ -1,7 +1,7 @@
 import { authOptions } from "@/lib/authOptions";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import AuthProvider from "./auth-provider";
 import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
@@ -22,7 +22,23 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions);
-  const storedLang = cookies().get("language")?.value ?? "en";
+  const cookieStore = cookies();
+  // Prefer the language cookie but fall back to Accept-Language
+  let storedLang = cookieStore.get("language")?.value;
+  if (!storedLang) {
+    const accept = headers().get("accept-language") ?? "";
+    // Parse the first supported locale from the Accept-Language header
+    const supported = ["en", "es", "fr"];
+    for (const part of accept.split(",")) {
+      const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+      if (supported.includes(code)) {
+        storedLang = code;
+        break;
+      }
+    }
+    storedLang = storedLang ?? "en";
+    // The client persists this value in a cookie on first render
+  }
   return (
     <html lang={storedLang}>
       <body className="antialiased">
