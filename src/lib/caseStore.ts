@@ -126,7 +126,9 @@ function rowToCase(row: {
     for (const a of analysisRows) {
       images[path.basename(a.url)] = {
         representationScore: a.representationScore,
-        ...(a.highlights !== null && { highlights: a.highlights }),
+        ...(a.highlights !== null && {
+          highlights: JSON.parse(a.highlights) as Record<string, string>,
+        }),
         ...(a.violation !== null && { violation: Boolean(a.violation) }),
         ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),
         ...(a.paperworkText !== null && { paperworkText: a.paperworkText }),
@@ -200,9 +202,7 @@ function saveCase(c: Case) {
           highlights:
             info.highlights === undefined || info.highlights === null
               ? null
-              : typeof info.highlights === "string"
-                ? info.highlights
-                : JSON.stringify(info.highlights),
+              : JSON.stringify(info.highlights),
           violation:
             info.violation === undefined || info.violation === null
               ? null

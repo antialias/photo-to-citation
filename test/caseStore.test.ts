@@ -185,6 +185,28 @@ describe("caseStore", () => {
     expect(stored?.photoNotes?.["/p.jpg"]).toBe("foo");
   });
 
+  it("parses localized image highlights", () => {
+    const { createCase, updateCase, getCase } = caseStore;
+    const c = createCase("/a.jpg", null);
+    updateCase(c.id, {
+      analysis: {
+        violationType: "parking",
+        details: { en: "desc" },
+        vehicle: {},
+        images: {
+          "a.jpg": {
+            representationScore: 0.9,
+            highlights: { en: "caption" },
+          },
+        },
+      },
+    });
+    const stored = getCase(c.id);
+    expect(stored?.analysis?.images["a.jpg"].highlights).toEqual({
+      en: "caption",
+    });
+  });
+
   it("handles session-based cases", () => {
     const { createCase, getCasesBySession, claimCasesForSession, getCase } =
       caseStore;
