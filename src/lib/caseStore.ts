@@ -433,6 +433,36 @@ export function setPhotoNote(
   return current;
 }
 
+export function setCaseTranslation(
+  id: string,
+  path: string,
+  lang: string,
+  text: string,
+): Case | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  const parts = path.replace(/\[(\w+)\]/g, ".$1").split(".");
+  let obj: unknown = current;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (typeof obj !== "object" || obj === null) return undefined;
+    obj = (obj as Record<string, unknown>)[parts[i]];
+  }
+  if (typeof obj !== "object" || obj === null) return undefined;
+  const key = parts[parts.length - 1];
+  const value = (obj as Record<string, unknown>)[key];
+  if (typeof value === "string") {
+    obj[key] = { en: value, [lang]: text };
+  } else if (typeof value === "object" && value !== null) {
+    obj[key] = { ...(value as Record<string, string>), [lang]: text };
+  } else {
+    return undefined;
+  }
+  current.updatedAt = new Date().toISOString();
+  saveCase(current);
+  caseEvents.emit("update", current);
+  return current;
+}
+
 export function addCaseEmail(id: string, email: SentEmail): Case | undefined {
   const current = getCaseRow(id);
   if (!current) return undefined;
