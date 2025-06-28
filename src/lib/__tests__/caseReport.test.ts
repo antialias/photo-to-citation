@@ -47,8 +47,13 @@ describe("draftEmail", () => {
       baseCase,
       reportModules["oak-park"],
       sender,
+      "en",
     );
-    expect(result).toEqual({ subject: "s", body: "b" });
+    expect(result).toEqual({
+      subject: { en: "s" },
+      body: { en: "b" },
+      language: "en",
+    });
   });
 
   it("retries when response is invalid", async () => {
@@ -69,8 +74,13 @@ describe("draftEmail", () => {
       baseCase,
       reportModules["oak-park"],
       sender,
+      "en",
     );
-    expect(result).toEqual({ subject: "s2", body: "b2" });
+    expect(result).toEqual({
+      subject: { en: "s2" },
+      body: { en: "b2" },
+      language: "en",
+    });
   });
 
   it("returns empty draft after repeated failures", async () => {
@@ -83,8 +93,9 @@ describe("draftEmail", () => {
       baseCase,
       reportModules["oak-park"],
       sender,
+      "en",
     );
-    expect(result).toEqual({ subject: "", body: "" });
+    expect(result).toEqual({ subject: {}, body: {}, language: "en" });
   });
 });
 
@@ -99,8 +110,12 @@ describe("draftOwnerNotification", () => {
 
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
-    ]);
-    expect(result).toEqual({ subject: "s", body: "b" });
+    ], "en");
+    expect(result).toEqual({
+      subject: { en: "s" },
+      body: { en: "b" },
+      language: "en",
+    });
   });
 
   it("retries when response is invalid", async () => {
@@ -119,8 +134,12 @@ describe("draftOwnerNotification", () => {
 
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
-    ]);
-    expect(result).toEqual({ subject: "s2", body: "b2" });
+    ], "en");
+    expect(result).toEqual({
+      subject: { en: "s2" },
+      body: { en: "b2" },
+      language: "en",
+    });
   });
 
   it("returns empty draft after repeated failures", async () => {
@@ -131,7 +150,7 @@ describe("draftOwnerNotification", () => {
 
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
-    ]);
-    expect(result).toEqual({ subject: "", body: "" });
+    ], "en");
+    expect(result).toEqual({ subject: {}, body: {}, language: "en" });
   });
 });

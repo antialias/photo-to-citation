@@ -112,7 +112,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
         steps,
       },
     });
-    const result = await analyzeViolation(images, (p) => {
+    const result = await analyzeViolation(images, "en", (p) => {
       updateCase(caseData.id, {
         analysisProgress: { ...p, step: currentStep, steps },
       });
@@ -132,7 +132,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     steps = 1 + paperwork.length;
     let stepIndex = 2;
     for (const [name, url] of paperwork) {
-      const ocr = await ocrPaperwork({ url }, (p) => {
+      const ocr = await ocrPaperwork({ url }, "en", (p) => {
         updateCase(caseData.id, {
           analysisProgress: { ...p, step: stepIndex, steps },
         });
@@ -233,6 +233,7 @@ export async function reanalyzePhoto(
   try {
     const result = await analyzeViolation(
       [{ filename: path.basename(photo), url: dataUrl }],
+      "en",
       (p) => {
         updateCase(caseData.id, {
           analysisProgress: { ...p, step: 1, steps: 1 },
@@ -245,6 +246,7 @@ export async function reanalyzePhoto(
     if (info?.paperwork && !info.paperworkText) {
       const ocr = await ocrPaperwork(
         { url: dataUrl },
+        "en",
         (p) => {
           updateCase(caseData.id, {
             analysisProgress: { ...p, step: 2, steps: 2 },
