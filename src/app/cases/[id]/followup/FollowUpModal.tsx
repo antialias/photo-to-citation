@@ -5,6 +5,7 @@ import type { EmailDraft } from "@/lib/caseReport";
 import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DraftData {
   email: EmailDraft;
@@ -23,10 +24,14 @@ export default function FollowUpModal({
   onClose: () => void;
 }) {
   const [data, setData] = useState<DraftData | null>(null);
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     let canceled = false;
-    const url = `/api/cases/${caseId}/followup${replyTo ? `?replyTo=${encodeURIComponent(replyTo)}` : ""}`;
+    const base = `/api/cases/${caseId}/followup${replyTo ? `?replyTo=${encodeURIComponent(replyTo)}` : ""}`;
+    const url = base.includes("?")
+      ? `${base}&lang=${i18n.language}`
+      : `${base}?lang=${i18n.language}`;
     apiFetch(url)
       .then((res) => res.json())
       .then((d) => {
@@ -35,7 +40,7 @@ export default function FollowUpModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, replyTo]);
+  }, [caseId, replyTo, i18n.language]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
