@@ -48,7 +48,10 @@ describe("draftEmail", () => {
       reportModules["oak-park"],
       sender,
     );
-    expect(result).toEqual({ subject: "s", body: "b" });
+    expect(result).toEqual({
+      subject: { en: "s" },
+      body: { en: "b" },
+    });
   });
 
   it("retries when response is invalid", async () => {
@@ -70,7 +73,10 @@ describe("draftEmail", () => {
       reportModules["oak-park"],
       sender,
     );
-    expect(result).toEqual({ subject: "s2", body: "b2" });
+    expect(result).toEqual({
+      subject: { en: "s2" },
+      body: { en: "b2" },
+    });
   });
 
   it("returns empty draft after repeated failures", async () => {
@@ -84,7 +90,10 @@ describe("draftEmail", () => {
       reportModules["oak-park"],
       sender,
     );
-    expect(result).toEqual({ subject: "", body: "" });
+    expect(result).toEqual({
+      subject: { en: "" },
+      body: { en: "" },
+    });
   });
 });
 
@@ -100,7 +109,10 @@ describe("draftOwnerNotification", () => {
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
     ]);
-    expect(result).toEqual({ subject: "s", body: "b" });
+    expect(result).toEqual({
+      subject: { en: "s" },
+      body: { en: "b" },
+    });
   });
 
   it("retries when response is invalid", async () => {
@@ -120,7 +132,10 @@ describe("draftOwnerNotification", () => {
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
     ]);
-    expect(result).toEqual({ subject: "s2", body: "b2" });
+    expect(result).toEqual({
+      subject: { en: "s2" },
+      body: { en: "b2" },
+    });
   });
 
   it("returns empty draft after repeated failures", async () => {
@@ -132,6 +147,9 @@ describe("draftOwnerNotification", () => {
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
     ]);
-    expect(result).toEqual({ subject: "", body: "" });
+    expect(result).toEqual({
+      subject: { en: "" },
+      body: { en: "" },
+    });
   });
 });

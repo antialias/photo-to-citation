@@ -2,6 +2,7 @@ function basename(filePath: string): string {
   const parts = filePath.split(/[\\/]/);
   return parts[parts.length - 1];
 }
+import i18n from "../i18n";
 import type { Case } from "./caseStore";
 import type { ViolationReport } from "./openai";
 
@@ -148,11 +149,24 @@ export function getBestViolationPhoto(
   const [name, info] = best;
   const file = caseData.photos.find((p) => basename(p) === name);
   if (!file) return null;
-  return { photo: file, caption: info.highlights };
+  const caption =
+    typeof info.highlights === "string"
+      ? info.highlights
+      : (info.highlights?.[i18n.language] ??
+        info.highlights?.en ??
+        Object.values(info.highlights ?? {})[0]);
+  return { photo: file, caption };
 }
 
 export function getAnalysisSummary(report: ViolationReport): string {
-  const parts = [`Violation: ${report.violationType}`, report.details];
+  const detailText =
+    typeof report.details === "string"
+      ? report.details
+      : (report.details[i18n.language] ??
+        report.details.en ??
+        Object.values(report.details)[0] ??
+        "");
+  const parts = [`Violation: ${report.violationType}`, detailText];
   if (report.location) parts.push(`Location: ${report.location}`);
   const plate: string[] = [];
   if (report.vehicle?.licensePlateState)

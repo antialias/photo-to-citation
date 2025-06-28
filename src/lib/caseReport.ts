@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Case, SentEmail } from "./caseStore";
 import { getLlm } from "./llm";
 import { log } from "./logger";
+import { localizedTextSchema } from "./openai";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
 import "./zod-setup";
@@ -23,8 +24,8 @@ function logBadResponse(
 }
 
 export const emailDraftSchema = z.object({
-  subject: z.string(),
-  body: z.string(),
+  subject: z.union([z.string(), localizedTextSchema]),
+  body: z.union([z.string(), localizedTextSchema]),
 });
 
 export type EmailDraft = z.infer<typeof emailDraftSchema>;
@@ -66,6 +67,11 @@ export async function draftEmail(
         .join("\n\n")
     : "";
   const code = await getViolationCode(mod.id, analysis?.violationType || "");
+  const detail = analysis?.details
+    ? typeof analysis.details === "string"
+      ? analysis.details
+      : (analysis.details.en ?? Object.values(analysis.details)[0] ?? "")
+    : "";
   const contactLine =
     sender && (sender.name || sender.email)
       ? `The sender's information is:\n${sender.name ?? ""}\n${sender.email ?? ""}`
@@ -73,7 +79,7 @@ export async function draftEmail(
   const prompt = `Draft a short, professional email to ${mod.authorityName} reporting a vehicle violation.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
-- Description: ${analysis?.details || ""}
+- Description: ${detail}
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
  - Time: ${new Date(time).toISOString()}
@@ -104,10 +110,16 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      return emailDraftSchema.parse(parsed);
+      const lang = (parsed as { language?: string }).language ?? "en";
+      const raw = emailDraftSchema.parse(parsed);
+      const subject =
+        typeof raw.subject === "string" ? { [lang]: raw.subject } : raw.subject;
+      const body =
+        typeof raw.body === "string" ? { [lang]: raw.body } : raw.body;
+      return { subject, body };
     } catch (err) {
       logBadResponse(attempt, text, err);
-      if (attempt === 2) return { subject: "", body: "" };
+      if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
@@ -115,7 +127,7 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
       });
     }
   }
-  return { subject: "", body: "" };
+  return { subject: { en: "" }, body: { en: "" } };
 }
 
 export async function draftFollowUp(
@@ -149,6 +161,11 @@ export async function draftFollowUp(
     "oak-park",
     analysis?.violationType || "",
   );
+  const detail2 = analysis?.details
+    ? typeof analysis.details === "string"
+      ? analysis.details
+      : (analysis.details.en ?? Object.values(analysis.details)[0] ?? "")
+    : "";
   const contactLine =
     sender && (sender.name || sender.email)
       ? `The sender's information is:\n${sender.name ?? ""}\n${sender.email ?? ""}`
@@ -156,7 +173,7 @@ export async function draftFollowUp(
   const prompt = `Write a brief follow-up email to ${recipient} about the previous report.
 Include these details if available:
 - Violation: ${analysis?.violationType || ""}
-- Description: ${analysis?.details || ""}
+- Description: ${detail2}
 - Location: ${location}
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
 ${code ? `Applicable code: ${code}` : ""}
@@ -187,10 +204,16 @@ Ask about the current citation status and mention that photos are attached again
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      return emailDraftSchema.parse(parsed);
+      const lang = (parsed as { language?: string }).language ?? "en";
+      const raw = emailDraftSchema.parse(parsed);
+      const subject =
+        typeof raw.subject === "string" ? { [lang]: raw.subject } : raw.subject;
+      const body =
+        typeof raw.body === "string" ? { [lang]: raw.body } : raw.body;
+      return { subject, body };
     } catch (err) {
       logBadResponse(attempt, text, err);
-      if (attempt === 2) return { subject: "", body: "" };
+      if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
@@ -198,7 +221,7 @@ Ask about the current citation status and mention that photos are attached again
       });
     }
   }
-  return { subject: "", body: "" };
+  return { subject: { en: "" }, body: { en: "" } };
 }
 export async function draftOwnerNotification(
   caseData: Case,
@@ -238,7 +261,12 @@ export async function draftOwnerNotification(
     "oak-park",
     analysis?.violationType || "",
   );
-  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. ${authorityLine}Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${analysis?.details || ""}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+  const detail3 = analysis?.details
+    ? typeof analysis.details === "string"
+      ? analysis.details
+      : (analysis.details.en ?? Object.values(analysis.details)[0] ?? "")
+    : "";
+  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. ${authorityLine}Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${detail3}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages: ChatCompletionMessageParam[] = [
@@ -261,10 +289,16 @@ export async function draftOwnerNotification(
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      return emailDraftSchema.parse(parsed);
+      const lang = (parsed as { language?: string }).language ?? "en";
+      const raw = emailDraftSchema.parse(parsed);
+      const subject =
+        typeof raw.subject === "string" ? { [lang]: raw.subject } : raw.subject;
+      const body =
+        typeof raw.body === "string" ? { [lang]: raw.body } : raw.body;
+      return { subject, body };
     } catch (err) {
       logBadResponse(attempt, text, err);
-      if (attempt === 2) return { subject: "", body: "" };
+      if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
       messages.push({ role: "assistant", content: text });
       messages.push({
         role: "user",
@@ -272,5 +306,5 @@ export async function draftOwnerNotification(
       });
     }
   }
-  return { subject: "", body: "" };
+  return { subject: { en: "" }, body: { en: "" } };
 }

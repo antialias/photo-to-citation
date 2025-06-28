@@ -18,7 +18,11 @@ describe("CaseChat current session", () => {
         <CaseChat
           caseId="1"
           onChat={async () => ({
-            reply: { response: "ok", actions: [], noop: false },
+            reply: {
+              response: { en: "ok" },
+              actions: [],
+              noop: false,
+            },
           })}
         />,
       );

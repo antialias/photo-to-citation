@@ -20,7 +20,12 @@ export const WithLiveLlm: Story = {
     async function onChat(
       messages: Array<{ role: "user" | "assistant"; content: string }>,
     ): Promise<CaseChatReply> {
-      if (!apiKey) return { response: "", actions: [], noop: true };
+      if (!apiKey)
+        return {
+          response: { en: "" },
+          actions: [],
+          noop: true,
+        };
       const client = new OpenAI({
         apiKey,
         baseURL: baseUrl || undefined,
@@ -35,7 +40,11 @@ export const WithLiveLlm: Story = {
       try {
         return JSON.parse(text) as CaseChatReply;
       } catch {
-        return { response: text, actions: [], noop: false };
+        return {
+          response: { en: text },
+          actions: [],
+          noop: false,
+        };
       }
     }
 
@@ -81,7 +90,7 @@ export const CaseAction: Story = {
   render: function CaseActionStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
-      response: "Notify the owner?",
+      response: { en: "Notify the owner?" },
       actions: [{ id: "notify-owner" }],
       noop: false,
     };
@@ -93,7 +102,7 @@ export const EditAction: Story = {
   render: function EditActionStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
-      response: "Plate looks like ABC123",
+      response: { en: "Plate looks like ABC123" },
       actions: [{ field: "plate", value: "ABC123" }],
       noop: false,
     };
@@ -105,7 +114,7 @@ export const PhotoNoteAction: Story = {
   render: function PhotoNoteActionStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
-      response: "Add note to photo",
+      response: { en: "Add note to photo" },
       actions: [{ photo: "a.jpg", note: "Clear" }],
       noop: false,
     };
@@ -117,7 +126,7 @@ export const MixedActions: Story = {
   render: function MixedActionsStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
-      response: "Multiple suggestions",
+      response: { en: "Multiple suggestions" },
       actions: [
         { id: "compose" },
         { field: "state", value: "IL" },
@@ -133,7 +142,7 @@ export const ResponseOnly: Story = {
   render: function ResponseOnlyStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
-      response: "Just a regular response",
+      response: { en: "Just a regular response" },
       actions: [],
       noop: false,
     };
@@ -145,7 +154,7 @@ export const Noop: Story = {
   render: function NoopStory() {
     usePhotoStub();
     const reply: CaseChatReply = {
-      response: "",
+      response: { en: "" },
       actions: [],
       noop: true,
     };

@@ -159,9 +159,15 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       if (!plate || !caseData.analysis?.images)
         return caseData.photos[0] ?? null;
       for (const [name, info] of Object.entries(caseData.analysis.images)) {
+        const hi =
+          typeof info.highlights === "string"
+            ? info.highlights
+            : (info.highlights?.[caseData.analysis?.language ?? "en"] ??
+              Object.values(info.highlights ?? {})[0] ??
+              "");
         if (
           info.paperworkInfo?.vehicle?.licensePlateNumber === plate ||
-          info.highlights?.toLowerCase().includes("plate")
+          hi.toLowerCase().includes("plate")
         ) {
           const file = caseData.photos.find((p) => p.split("/").pop() === name);
           if (file) return file;
@@ -286,9 +292,15 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         if (!plate || !caseData.analysis?.images)
           return caseData.photos[0] ?? null;
         for (const [name, info] of Object.entries(caseData.analysis.images)) {
+          const hi =
+            typeof info.highlights === "string"
+              ? info.highlights
+              : (info.highlights?.[caseData.analysis?.language ?? "en"] ??
+                Object.values(info.highlights ?? {})[0] ??
+                "");
           if (
             info.paperworkInfo?.vehicle?.licensePlateNumber === plate ||
-            info.highlights?.toLowerCase().includes("plate")
+            hi.toLowerCase().includes("plate")
           ) {
             const file = caseData.photos.find(
               (p) => p.split("/").pop() === name,

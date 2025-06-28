@@ -251,7 +251,7 @@ export async function reanalyzePhoto(
     }
     const base: ViolationReport = caseData.analysis ?? {
       violationType: "",
-      details: "",
+      details: { en: "" },
       vehicle: {},
       images: {},
     };

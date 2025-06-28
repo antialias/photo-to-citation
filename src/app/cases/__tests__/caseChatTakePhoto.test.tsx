@@ -32,7 +32,7 @@ describe("CaseChat take photo action", () => {
           caseId="1"
           onChat={async () => ({
             reply: {
-              response: "",
+              response: { en: "" },
               actions: [{ id: "take-photo" }],
               noop: false,
             },
