@@ -27,7 +27,9 @@ export function isPhotoAnalysisActive(id: string, photo: string): boolean {
 }
 
 export function isCaseAnalysisActive(id: string): boolean {
-  return activeWorkers.has(id);
+  if (activeWorkers.has(id)) return true;
+  const c = getCase(id);
+  return c?.analysisStatus === "pending";
 }
 
 export function cancelCaseAnalysis(id: string): boolean {
