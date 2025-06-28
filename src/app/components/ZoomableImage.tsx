@@ -171,6 +171,15 @@ export default function ZoomableImage({ src, alt }: Props) {
           transformOrigin: "0 0",
         }}
       />
+      {transform.scale !== 1 || transform.x !== 0 || transform.y !== 0 ? (
+        <button
+          type="button"
+          className="absolute top-1 left-1 bg-black/60 text-white px-1 rounded z-20 pointer-events-auto"
+          onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
+        >
+          Reset Zoom
+        </button>
+      ) : null}
     </div>
   );
 }
