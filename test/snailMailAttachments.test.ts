@@ -66,18 +66,18 @@ beforeEach(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "snail-"));
   root = fs.mkdtempSync(path.join(os.tmpdir(), "snailroot-"));
   cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(root);
-  fs.mkdirSync(path.join(root, "public", "uploads"), { recursive: true });
+  fs.mkdirSync(path.join(root, "uploads"), { recursive: true });
   const img = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVR42mP8/5+hHgAHggJ/P5V6XQAAAABJRU5ErkJggg==",
     "base64",
   );
-  fs.writeFileSync(path.join(root, "public", "uploads", "img.png"), img);
+  fs.writeFileSync(path.join(root, "uploads", "img.png"), img);
   process.env.RETURN_ADDRESS = "Me\n1 A St\nTown, ST 12345";
   process.env.SNAIL_MAIL_PROVIDER = "mock";
 });
 
 afterEach(() => {
-  fs.rmSync(path.join(root, "public", "uploads"), {
+  fs.rmSync(path.join(root, "uploads"), {
     recursive: true,
     force: true,
   });

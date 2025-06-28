@@ -8,7 +8,7 @@ storybook-static
 storybook-screenshots
 coverage
 *.tsbuildinfo
-public/uploads
+/uploads
 
 .terraform/
 terraform.tfstate*
