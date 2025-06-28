@@ -1,5 +1,7 @@
 "use client";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
+import { useTranslation } from "react-i18next";
+import useCaseTranslate from "../../../useCaseTranslate";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
 import useCaseProgress from "../useCaseProgress";
@@ -7,7 +9,9 @@ import useCaseProgress from "../useCaseProgress";
 export default function AnalysisStatus({
   readOnly = false,
 }: { readOnly?: boolean }) {
-  const { caseData } = useCaseContext();
+  const { caseId, caseData } = useCaseContext();
+  const { i18n } = useTranslation();
+  const translate = useCaseTranslate(caseId);
   const {
     updatePlateNumber,
     updatePlateState,
@@ -205,6 +209,7 @@ export default function AnalysisStatus({
               ? clearPlateState
               : undefined
         }
+        onTranslate={() => translate("analysis.details", i18n.language)}
       />
     );
   }

@@ -6,10 +6,12 @@ import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../components/NotificationProvider";
+import { caseQueryKey } from "../hooks/useCase";
 import { useSession } from "../useSession";
 import useDragReset from "./useDragReset";
 
@@ -50,10 +52,11 @@ export default function ClientCasesPage({
     lon: number;
   } | null>(null);
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const uploadNewCase = useNewCaseFromFiles();
   const [dragging, setDragging] = useState(false);
   const [dropCase, setDropCase] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const notify = useNotify();
   const { data: session } = useSession();
   const params = useParams<{ id?: string }>();
@@ -120,6 +123,19 @@ export default function ClientCasesPage({
     if (results.some((r) => !r.ok)) {
       notify(t("failedUpload"));
       return;
+    }
+  }
+
+  async function translate(id: string, path: string, lang: string) {
+    const res = await apiFetch(`/api/cases/${id}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path, lang }),
+    });
+    if (res.ok) {
+      queryClient.invalidateQueries({ queryKey: caseQueryKey(id) });
+    } else {
+      notify("Failed to translate.");
     }
   }
 
@@ -262,7 +278,12 @@ export default function ClientCasesPage({
                   </span>
                   {c.analysis ? (
                     <>
-                      <AnalysisInfo analysis={c.analysis} />
+                      <AnalysisInfo
+                        analysis={c.analysis}
+                        onTranslate={() =>
+                          translate(c.id, "analysis.details", i18n.language)
+                        }
+                      />
                       {c.analysisStatus === "pending" ? (
                         <span className="text-gray-500 dark:text-gray-400">
                           {t("updatingAnalysis")}
