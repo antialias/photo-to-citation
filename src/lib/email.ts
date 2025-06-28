@@ -65,7 +65,7 @@ export async function sendEmail({
     text: body,
     attachments: attachments.map((p) => ({
       filename: path.basename(p),
-      path: path.join(config.UPLOAD_DIR, p.replace(/^\/uploads\//, "")),
+      path: path.join(config.UPLOAD_DIR, p),
     })),
   });
   log("email sent", to);

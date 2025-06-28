@@ -68,12 +68,7 @@ export const POST = withAuthorization(
     const existing = clientId ? getCase(clientId) : null;
     if (existing) {
       cancelCaseAnalysis(existing.id);
-      const updated = addCasePhoto(
-        existing.id,
-        `/uploads/${filename}`,
-        takenAt,
-        gps,
-      );
+      const updated = addCasePhoto(existing.id, filename, takenAt, gps);
       if (!updated) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
       }
@@ -97,7 +92,7 @@ export const POST = withAuthorization(
       return res;
     }
     const newCase = createCase(
-      `/uploads/${filename}`,
+      filename,
       gps,
       clientId || (!userId ? anonId : undefined),
       takenAt,

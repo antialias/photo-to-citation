@@ -79,7 +79,7 @@ afterEach(() => {
 
 describe("upload route", () => {
   it("cancels active analysis when uploading additional photo", async () => {
-    const c = caseStore.createCase("/a.jpg");
+    const c = caseStore.createCase("a.jpg");
     caseAnalysis.analyzeCaseInBackground(c);
     expect(runJobMock).toHaveBeenCalledTimes(1);
 
