@@ -36,28 +36,28 @@ export default function NavBar() {
           inputRef.current?.click();
         }}
       >
-        New Case from Image
+        {t("nav.newCaseFromImage")}
       </button>
       <Link
         href="/point"
         className="hover:text-gray-600 dark:hover:text-gray-300"
         onClick={() => setMenuOpen(false)}
       >
-        Point &amp; Shoot
+        {t("nav.pointAndShoot")}
       </Link>
       <Link
         href="/cases"
         className="hover:text-gray-600 dark:hover:text-gray-300"
         onClick={() => setMenuOpen(false)}
       >
-        Cases
+        {t("nav.cases")}
       </Link>
       <Link
         href="/map"
         className="hover:text-gray-600 dark:hover:text-gray-300"
         onClick={() => setMenuOpen(false)}
       >
-        Map View
+        {t("nav.mapView")}
       </Link>
       {session ? (
         <Link
@@ -65,7 +65,7 @@ export default function NavBar() {
           className="hover:text-gray-600 dark:hover:text-gray-300"
           onClick={() => setMenuOpen(false)}
         >
-          Triage
+          {t("nav.triage")}
         </Link>
       ) : null}
       {session?.user?.role === "admin" ||
@@ -75,7 +75,7 @@ export default function NavBar() {
           className="hover:text-gray-600 dark:hover:text-gray-300"
           onClick={() => setMenuOpen(false)}
         >
-          Admin
+          {t("nav.admin")}
         </Link>
       ) : null}
       {session?.user?.role === "superadmin" ? (
@@ -84,7 +84,7 @@ export default function NavBar() {
           className="hover:text-gray-600 dark:hover:text-gray-300"
           onClick={() => setMenuOpen(false)}
         >
-          System Status
+          {t("nav.systemStatus")}
         </Link>
       ) : null}
       {session ? (
@@ -94,14 +94,14 @@ export default function NavBar() {
             className="hover:text-gray-600 dark:hover:text-gray-300"
             onClick={() => setMenuOpen(false)}
           >
-            User Settings
+            {t("nav.userSettings")}
           </Link>
           <Link
             href="/profile"
             className="hover:text-gray-600 dark:hover:text-gray-300"
             onClick={() => setMenuOpen(false)}
           >
-            Profile
+            {t("nav.profile")}
           </Link>
         </>
       ) : null}
@@ -114,7 +114,7 @@ export default function NavBar() {
           }}
           className="hover:text-gray-600 dark:hover:text-gray-300"
         >
-          Sign Out
+          {t("nav.signOut")}
         </button>
       ) : (
         <button
@@ -125,7 +125,7 @@ export default function NavBar() {
           }}
           className="hover:text-gray-600 dark:hover:text-gray-300"
         >
-          Sign In
+          {t("nav.signIn")}
         </button>
       )}
     </>

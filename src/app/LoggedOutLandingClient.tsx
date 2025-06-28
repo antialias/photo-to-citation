@@ -30,13 +30,19 @@ export default function LoggedOutLandingClient({
           <div className="text-2xl font-semibold">
             {formatCount(stats.casesLastWeek)}
           </div>
-          <div className="text-sm">{t("casesLastWeek")}</div>
+          <div className="text-sm">
+            {t("casesLastWeek", { count: stats.casesLastWeek })}
+          </div>
         </div>
         <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 shadow">
           <div className="text-2xl font-semibold">
             {formatCount(stats.authorityNotifications)}
           </div>
-          <div className="text-sm">{t("authorityNotifications")}</div>
+          <div className="text-sm">
+            {t("authorityNotifications", {
+              count: stats.authorityNotifications,
+            })}
+          </div>
         </div>
         <div className="bg-gray-100 dark:bg-gray-800 rounded p-4 shadow">
           <div className="text-2xl font-semibold">

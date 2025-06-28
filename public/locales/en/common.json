@@ -2,8 +2,23 @@
   "title": "Photo To Citation",
   "landingDescription": "Snap a quick photo of blocked bike lanes or sidewalks and let the app handle the paperwork.",
   "signIn": "Sign in to get started",
-  "casesLastWeek": "cases created in the last week",
-  "authorityNotifications": "notifications sent to authorities",
+  "casesLastWeek": "{{count}} case created in the last week",
+  "casesLastWeek_plural": "{{count}} cases created in the last week",
+  "authorityNotifications": "{{count}} notification sent to authorities",
+  "authorityNotifications_plural": "{{count}} notifications sent to authorities",
   "avgTimeToNotify": "average time to notify authorities",
-  "casesWithNotification": "cases with authority notification"
+  "casesWithNotification": "cases with authority notification",
+  "nav": {
+    "newCaseFromImage": "New Case from Image",
+    "pointAndShoot": "Point & Shoot",
+    "cases": "Cases",
+    "mapView": "Map View",
+    "triage": "Triage",
+    "admin": "Admin",
+    "systemStatus": "System Status",
+    "userSettings": "User Settings",
+    "profile": "Profile",
+    "signOut": "Sign Out",
+    "signIn": "Sign In"
+  }
 }
