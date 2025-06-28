@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
 export const GET = withCaseAuthorization(
   { obj: "cases" },
   async (
-    _req: Request,
+    req: Request,
     {
       params,
       session,
@@ -21,13 +21,15 @@ export const GET = withCaseAuthorization(
     },
   ) => {
     const { id } = await params;
+    const url = new URL(req.url);
+    const lang = url.searchParams.get("lang") ?? "en";
     const c = getCase(id);
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
     const reportModule = reportModules["oak-park"];
     const sender = session?.user
       ? { name: session.user.name ?? null, email: session.user.email ?? null }
       : undefined;
-    const email = await draftEmail(c, reportModule, sender);
+    const email = await draftEmail(c, reportModule, sender, lang);
     return NextResponse.json({
       email,
       attachments: c.photos,

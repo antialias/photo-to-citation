@@ -251,7 +251,9 @@ export function CaseChatProvider({
     setDraftAnchorId(anchorId ?? null);
     setDraftLoading(true);
     setDraftData(null);
-    const res = await apiFetch(`/api/cases/${caseId}/report`);
+    const res = await apiFetch(
+      `/api/cases/${caseId}/report?lang=${i18n.language}`,
+    );
     if (res.ok) {
       const data = (await res.json()) as {
         email: EmailDraft;
