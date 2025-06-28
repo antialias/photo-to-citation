@@ -33,12 +33,17 @@ export default function AnalysisInfo({
       <p>
         {detailText}
         {needsTranslation ? (
-          <span
+          <button
+            type="button"
             onClick={() => onTranslate?.("analysis.details", i18n.language)}
-            className="ml-2 text-blue-500 underline cursor-pointer"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ")
+                onTranslate?.("analysis.details", i18n.language);
+            }}
+            className="ml-2 text-blue-500 underline cursor-pointer bg-transparent p-0 border-0"
           >
             {t("translate")}
-          </span>
+          </button>
         ) : null}
       </p>
       {location ? (

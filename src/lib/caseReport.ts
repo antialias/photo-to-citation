@@ -58,7 +58,10 @@ export async function draftEmail(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const paperworkTexts = analysis?.images
     ? Object.values(analysis.images)
@@ -86,7 +89,7 @@ Include these details if available:
 ${code ? `Applicable code: ${code}` : ""}
 ${paperworkTexts ? `Attached paperwork:\n${paperworkTexts}` : ""}
 ${contactLine}
-Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+Mention that photos are attached. Respond with JSON matching this schema and use "en" as the key for English text: ${JSON.stringify(
     schema,
   )}`;
 
@@ -150,7 +153,10 @@ export async function draftFollowUp(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const code = await getViolationCode(
     "oak-park",
@@ -173,7 +179,7 @@ Include these details if available:
 - License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}
 ${code ? `Applicable code: ${code}` : ""}
 ${contactLine}
-Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema: ${JSON.stringify(
+Ask about the current citation status and mention that photos are attached again. Respond with JSON matching this schema and use "en" as the key for English text: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages: ChatCompletionMessageParam[] = [
@@ -240,7 +246,10 @@ export async function draftOwnerNotification(
       : "unknown location");
   const schema = {
     type: "object",
-    properties: { subject: { type: "string" }, body: { type: "string" } },
+    properties: {
+      subject: { type: "object", additionalProperties: { type: "string" } },
+      body: { type: "object", additionalProperties: { type: "string" } },
+    },
   };
   const authorityList = authorities.join(", ");
   const authorityLine =
@@ -256,7 +265,7 @@ export async function draftOwnerNotification(
       ? analysis.details
       : (analysis.details.en ?? Object.values(analysis.details)[0] ?? "")
     : "";
-  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. ${authorityLine}Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${detail3}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema: ${JSON.stringify(
+  const prompt = `Draft a short, professional email to the registered owner informing them of their violation and case status. ${authorityLine}Do not reveal any information about the sender. Chastise the owner professionally and note that further action from authorities is pending. Include any applicable municipal or state codes for the violation. Include these details if available:\n- Violation: ${analysis?.violationType || ""}\n- Description: ${detail3}\n- Location: ${location}\n- License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}\n- Time: ${new Date(time).toISOString()}\n${code ? `Applicable code: ${code}\n` : ""}Mention that photos are attached. Respond with JSON matching this schema and use "en" as the key for English text: ${JSON.stringify(
     schema,
   )}`;
   const baseMessages: ChatCompletionMessageParam[] = [
