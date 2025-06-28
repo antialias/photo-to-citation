@@ -45,14 +45,18 @@ describe("chat api", () => {
     const res = await api(`/api/cases/${id}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [{ role: "user", content: "Hi" }] }),
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "Hi" }],
+        lang: "en",
+      }),
     });
     expect(res.status).toBe(200);
     const data = (await res.json()) as {
-      reply: { response: Record<string, string>; noop: boolean };
+      reply: { response: Record<string, string>; noop: boolean; lang: string };
       system: string;
     };
-    expect(data.reply.response).toEqual({ en: "hello" });
+    expect(data.reply.response.en).toEqual("hello");
+    expect(data.reply.lang).toBe("en");
     expect(data.reply.noop).toBe(false);
     expect(data.system).toBeTruthy();
     expect(stub.requests.length).toBeGreaterThan(0);
