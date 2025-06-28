@@ -126,10 +126,19 @@ function rowToCase(row: {
     for (const a of analysisRows) {
       images[path.basename(a.url)] = {
         representationScore: a.representationScore,
-        ...(a.highlights !== null && { highlights: a.highlights }),
+        ...(a.highlightsMap !== null
+          ? { highlights: JSON.parse(a.highlightsMap) }
+          : a.highlights !== null
+            ? { highlights: { en: a.highlights } }
+            : {}),
+        ...(a.contextMap !== null && { context: JSON.parse(a.contextMap) }),
         ...(a.violation !== null && { violation: Boolean(a.violation) }),
         ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),
-        ...(a.paperworkText !== null && { paperworkText: a.paperworkText }),
+        ...(a.paperworkTextMap !== null
+          ? { paperworkText: JSON.parse(a.paperworkTextMap) }
+          : a.paperworkText !== null
+            ? { paperworkText: { en: a.paperworkText } }
+            : {}),
         ...(a.paperworkInfo !== null && {
           paperworkInfo: JSON.parse(a.paperworkInfo),
         }),
@@ -197,7 +206,12 @@ function saveCase(c: Case) {
           caseId: c.id,
           url,
           representationScore: info.representationScore,
-          highlights: info.highlights ?? null,
+          highlights:
+            typeof info.highlights === "string" ? info.highlights : null,
+          highlightsMap:
+            typeof info.highlights === "object" && info.highlights
+              ? JSON.stringify(info.highlights)
+              : null,
           violation:
             info.violation === undefined || info.violation === null
               ? null
@@ -210,7 +224,16 @@ function saveCase(c: Case) {
               : info.paperwork
                 ? 1
                 : 0,
-          paperworkText: info.paperworkText ?? null,
+          paperworkText:
+            typeof info.paperworkText === "string" ? info.paperworkText : null,
+          contextMap:
+            info.context && typeof info.context === "object"
+              ? JSON.stringify(info.context)
+              : null,
+          paperworkTextMap:
+            typeof info.paperworkText === "object" && info.paperworkText
+              ? JSON.stringify(info.paperworkText)
+              : null,
           paperworkInfo: info.paperworkInfo
             ? JSON.stringify(info.paperworkInfo)
             : null,

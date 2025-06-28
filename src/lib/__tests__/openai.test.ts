@@ -13,15 +13,22 @@ describe("openai client", () => {
     const { client } = getLlm("ocr_paperwork");
     vi.spyOn(client.chat.completions, "create")
       .mockResolvedValueOnce({
-        choices: [{ message: { content: "hello" } }],
+        choices: [
+          {
+            message: {
+              content: "hello",
+            },
+          },
+        ],
       } as unknown as ChatCompletion)
       .mockResolvedValueOnce({
         choices: [{ message: { content: '{"callsToAction":["pay now"]}' } }],
       } as unknown as ChatCompletion);
     const result = await ocrPaperwork({ url: "data:image/png;base64,foo" });
     expect(result).toEqual({
-      text: "hello",
+      text: { en: "hello" },
       info: { vehicle: {}, callsToAction: ["pay now"] },
+      language: "en",
     });
   });
 });

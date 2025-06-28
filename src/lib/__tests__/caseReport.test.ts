@@ -17,9 +17,10 @@ const baseCase: Case = {
   intersection: null,
   analysis: {
     violationType: "test",
-    details: "details",
+    details: { en: "details" },
     vehicle: {},
     images: { "foo.jpg": { representationScore: 1, violation: true } },
+    language: "en",
   },
   analysisOverrides: null,
   analysisStatus: "complete",
@@ -39,7 +40,15 @@ describe("draftEmail", () => {
     const { client } = getLlm("draft_email");
     vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [
-        { message: { content: JSON.stringify({ subject: "s", body: "b" }) } },
+        {
+          message: {
+            content: JSON.stringify({
+              subject: { en: "s" },
+              body: { en: "b" },
+              language: "en",
+            }),
+          },
+        },
       ],
     } as unknown as ChatCompletion);
 
@@ -48,7 +57,11 @@ describe("draftEmail", () => {
       reportModules["oak-park"],
       sender,
     );
-    expect(result).toEqual({ subject: "s", body: "b" });
+    expect(result).toEqual({
+      subject: { en: "s" },
+      body: { en: "b" },
+      language: "en",
+    });
   });
 
   it("retries when response is invalid", async () => {
@@ -60,7 +73,13 @@ describe("draftEmail", () => {
       .mockResolvedValueOnce({
         choices: [
           {
-            message: { content: JSON.stringify({ subject: "s2", body: "b2" }) },
+            message: {
+              content: JSON.stringify({
+                subject: { en: "s2" },
+                body: { en: "b2" },
+                language: "en",
+              }),
+            },
           },
         ],
       } as unknown as ChatCompletion);
@@ -70,7 +89,11 @@ describe("draftEmail", () => {
       reportModules["oak-park"],
       sender,
     );
-    expect(result).toEqual({ subject: "s2", body: "b2" });
+    expect(result).toEqual({
+      subject: { en: "s2" },
+      body: { en: "b2" },
+      language: "en",
+    });
   });
 
   it("returns empty draft after repeated failures", async () => {
@@ -84,7 +107,11 @@ describe("draftEmail", () => {
       reportModules["oak-park"],
       sender,
     );
-    expect(result).toEqual({ subject: "", body: "" });
+    expect(result).toEqual({
+      subject: { en: "" },
+      body: { en: "" },
+      language: "en",
+    });
   });
 });
 
@@ -93,14 +120,26 @@ describe("draftOwnerNotification", () => {
     const { client } = getLlm("draft_email");
     vi.spyOn(client.chat.completions, "create").mockResolvedValueOnce({
       choices: [
-        { message: { content: JSON.stringify({ subject: "s", body: "b" }) } },
+        {
+          message: {
+            content: JSON.stringify({
+              subject: { en: "s" },
+              body: { en: "b" },
+              language: "en",
+            }),
+          },
+        },
       ],
     } as unknown as ChatCompletion);
 
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
     ]);
-    expect(result).toEqual({ subject: "s", body: "b" });
+    expect(result).toEqual({
+      subject: { en: "s" },
+      body: { en: "b" },
+      language: "en",
+    });
   });
 
   it("retries when response is invalid", async () => {
@@ -112,7 +151,13 @@ describe("draftOwnerNotification", () => {
       .mockResolvedValueOnce({
         choices: [
           {
-            message: { content: JSON.stringify({ subject: "s2", body: "b2" }) },
+            message: {
+              content: JSON.stringify({
+                subject: { en: "s2" },
+                body: { en: "b2" },
+                language: "en",
+              }),
+            },
           },
         ],
       } as unknown as ChatCompletion);
@@ -120,7 +165,11 @@ describe("draftOwnerNotification", () => {
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
     ]);
-    expect(result).toEqual({ subject: "s2", body: "b2" });
+    expect(result).toEqual({
+      subject: { en: "s2" },
+      body: { en: "b2" },
+      language: "en",
+    });
   });
 
   it("returns empty draft after repeated failures", async () => {
@@ -132,6 +181,10 @@ describe("draftOwnerNotification", () => {
     const result = await draftOwnerNotification(baseCase, [
       "Oak Park Police Department",
     ]);
-    expect(result).toEqual({ subject: "", body: "" });
+    expect(result).toEqual({
+      subject: { en: "" },
+      body: { en: "" },
+      language: "en",
+    });
   });
 });

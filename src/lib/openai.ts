@@ -83,14 +83,17 @@ export const paperworkInfoSchema: z.ZodType<PaperworkInfo> = z.object({
   callsToAction: z.array(z.string()).optional(),
 }) as z.ZodType<PaperworkInfo>;
 
+import type { LocalizedText } from "./localization";
+
 export interface PaperworkAnalysis {
-  text: string;
+  text: LocalizedText;
   info: PaperworkInfo | null;
+  language: string;
 }
 
 export interface ViolationReport {
   violationType: string;
-  details: string;
+  details: LocalizedText;
   location?: string;
   vehicle: {
     make?: string;
@@ -104,19 +107,20 @@ export interface ViolationReport {
     string,
     {
       representationScore: number;
-      highlights?: string;
-      context?: string;
+      highlights?: LocalizedText;
+      context?: LocalizedText;
       violation?: boolean;
       paperwork?: boolean;
-      paperworkText?: string;
+      paperworkText?: LocalizedText;
       paperworkInfo?: PaperworkInfo;
     }
   >;
+  language: string;
 }
 
 export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
   violationType: z.string(),
-  details: z.string(),
+  details: z.record(z.string()),
   location: z.string().optional(),
   vehicle: z
     .object({
@@ -132,21 +136,23 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
     .record(
       z.object({
         representationScore: z.number().min(0).max(1),
-        highlights: z.string().optional(),
-        context: z.string().optional(),
+        highlights: z.record(z.string()).optional(),
+        context: z.record(z.string()).optional(),
         violation: z.boolean().optional(),
         paperwork: z.boolean().optional(),
-        paperworkText: z.string().optional(),
+        paperworkText: z.record(z.string()).optional(),
         paperworkInfo: paperworkInfoSchema.optional(),
       }),
     )
     .default({}),
+  language: z.string(),
 }) as z.ZodType<ViolationReport>;
 
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
   progress?: (info: LlmProgress) => void,
   signal?: AbortSignal,
+  lang = "en",
 ): Promise<ViolationReport> {
   if (images.length === 0) {
     throw new AnalysisError("images");
@@ -155,7 +161,7 @@ export async function analyzeViolation(
     type: "object",
     properties: {
       violationType: { type: "string" },
-      details: { type: "string" },
+      details: { type: "object" },
       location: { type: "string" },
       vehicle: {
         type: "object",
@@ -174,15 +180,16 @@ export async function analyzeViolation(
           type: "object",
           properties: {
             representationScore: { type: "number" },
-            highlights: { type: "string" },
-            context: { type: "string" },
+            highlights: { type: "object" },
+            context: { type: "object" },
             violation: { type: "boolean" },
             paperwork: { type: "boolean" },
-            paperworkText: { type: "string" },
+            paperworkText: { type: "object" },
             paperworkInfo: { type: "object" },
           },
         },
       },
+      language: { type: "string" },
     },
   };
 
@@ -192,8 +199,7 @@ export async function analyzeViolation(
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters. Omit the licensePlateNumber and licensePlateState fields if no plate is visible.",
+      content: `You identify vehicle violations and reply in JSON strictly following the provided schema. License plate states should be two uppercase letters. Omit the licensePlateNumber and licensePlateState fields if no plate is visible. Reply in ${lang}.`,
     },
     {
       role: "user",
@@ -280,7 +286,8 @@ export async function analyzeViolation(
     }
 
     try {
-      return violationReportSchema.parse(parsed);
+      const result = violationReportSchema.parse(parsed);
+      return { ...result, language: lang };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) throw new AnalysisError("schema");
@@ -359,12 +366,12 @@ export async function ocrPaperwork(
   image: { url: string },
   progress?: (info: LlmProgress) => void,
   signal?: AbortSignal,
+  lang = "en",
 ): Promise<PaperworkAnalysis> {
   const baseMessages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        "You transcribe text from public paperwork. Return the text exactly as it appears, with no redactions or omissions.",
+      content: `You transcribe text from public paperwork. Return the text exactly as it appears, with no redactions or omissions. Reply in ${lang}.`,
     },
     {
       role: "user",
@@ -417,7 +424,7 @@ export async function ocrPaperwork(
     }
     if (text.trim()) {
       const info = await extractPaperworkInfo(text.trim());
-      return { text: text.trim(), info };
+      return { text: { [lang]: text.trim() }, info, language: lang };
     }
     logBadResponse(attempt, text, new Error("Empty OCR result"));
     if (attempt < 2) {
@@ -428,5 +435,5 @@ export async function ocrPaperwork(
       });
     }
   }
-  return { text: "", info: null };
+  return { text: { [lang]: "" }, info: null, language: lang };
 }
