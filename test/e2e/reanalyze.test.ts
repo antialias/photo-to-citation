@@ -177,6 +177,12 @@ describe("reanalysis", () => {
       });
       expect(rean.status).toBe(200);
 
+      await poll(
+        () => api(`/api/cases/${caseId}/analysis-active`),
+        async (r) => (await r.json()).active === true,
+        10,
+      );
+
       const single = await api(
         `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`,
         { method: "POST" },
