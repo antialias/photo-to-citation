@@ -531,6 +531,24 @@ export function claimCasesForSession(
   return claimed;
 }
 
+export function getCaseIdForPhoto(photo: string): string | undefined {
+  const row = orm
+    .select({ caseId: casePhotos.caseId })
+    .from(casePhotos)
+    .where(eq(casePhotos.url, photo))
+    .get() as { caseId: string } | undefined;
+  return row?.caseId;
+}
+
+export function getCaseForUpload(photo: string): Case | undefined {
+  const id = getCaseIdForPhoto(photo);
+  if (id) return getCase(id);
+  const all = getCases();
+  return all.find((c) =>
+    (c.threadImages ?? []).some((img) => img.url === photo),
+  );
+}
+
 export function deleteAnonymousCasesOlderThan(cutoff: Date): number {
   const rows = db
     .prepare("SELECT id, data FROM cases WHERE session_id IS NOT NULL")
