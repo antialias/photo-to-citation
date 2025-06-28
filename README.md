@@ -33,6 +33,12 @@ npm run format
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
 
+The UI language comes from the `language` cookie. When it doesn't exist, the
+server reads the `Accept-Language` header to pick the first supported locale
+(`en`, `es`, or `fr`). The client persists this value by setting the cookie on
+the first render, and `I18nProvider` falls back to `navigator.languages` if the
+cookie is still missing.
+
 For local HTTPS, run:
 
 ```bash
