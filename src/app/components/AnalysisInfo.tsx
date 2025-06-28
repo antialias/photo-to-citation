@@ -1,3 +1,4 @@
+import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { US_STATES } from "@/lib/usStates";
 import { useTranslation } from "react-i18next";
@@ -16,21 +17,25 @@ export default function AnalysisInfo({
   onClearPlate?: () => Promise<void> | void;
   onClearState?: () => Promise<void> | void;
 }) {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { violationType, details, location, vehicle = {} } = analysis;
-  const detailText =
-    typeof details === "string"
-      ? details
-      : (details[i18n.language] ??
-        details.en ??
-        Object.values(details)[0] ??
-        "");
+  const { text: detailText, needsTranslation } = getLocalizedText(
+    details,
+    i18n.language,
+  );
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p>
         <span className="font-semibold">Violation:</span> {violationType}
       </p>
-      <p>{detailText}</p>
+      <p>
+        {detailText}
+        {needsTranslation ? (
+          <button type="button" className="ml-2 text-blue-500 underline">
+            {t("translate")}
+          </button>
+        ) : null}
+      </p>
       {location ? (
         <p>
           <span className="font-semibold">Location clues:</span> {location}
