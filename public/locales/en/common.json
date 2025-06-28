@@ -5,5 +5,32 @@
   "casesLastWeek": "cases created in the last week",
   "authorityNotifications": "notifications sent to authorities",
   "avgTimeToNotify": "average time to notify authorities",
-  "casesWithNotification": "cases with authority notification"
+  "casesWithNotification": "cases with authority notification",
+  "nav": {
+    "newCaseFromImage": "New Case from Image",
+    "pointShoot": "Point & Shoot",
+    "cases": "Cases",
+    "mapView": "Map View",
+    "triage": "Triage",
+    "admin": "Admin",
+    "systemStatus": "System Status",
+    "userSettings": "User Settings",
+    "profile": "Profile",
+    "signOut": "Sign Out",
+    "signIn": "Sign In"
+  },
+  "claim": {
+    "signInMessage": "Sign in to claim this case or it will be lost when the session ends.",
+    "signIn": "Sign In",
+    "dismissAria": "Dismiss"
+  },
+  "caseSummary": {
+    "title": "Case Summary",
+    "casesSelected": "{{count}} case selected",
+    "casesSelected_plural": "{{count}} cases selected"
+  },
+  "casesPage": {
+    "heading": "Cases",
+    "selectPrompt": "Select a case to view details."
+  }
 }
