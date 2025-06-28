@@ -36,7 +36,7 @@ export default function ImageHighlights({
               type="button"
               onClick={() =>
                 onTranslate?.(
-                  `analysis.images.${name}.highlights`,
+                  `analysis.images[${name}].highlights`,
                   i18n.language,
                 )
               }
@@ -54,7 +54,7 @@ export default function ImageHighlights({
             <button
               type="button"
               onClick={() =>
-                onTranslate?.(`analysis.images.${name}.context`, i18n.language)
+                onTranslate?.(`analysis.images[${name}].context`, i18n.language)
               }
               className="ml-2 text-blue-500 underline"
             >

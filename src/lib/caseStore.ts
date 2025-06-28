@@ -447,7 +447,30 @@ export function setCaseTranslation(
 ): Case | undefined {
   const current = getCaseRow(id);
   if (!current) return undefined;
-  const parts = path.replace(/\[(\w+)\]/g, ".$1").split(".");
+  const parts: string[] = [];
+  let buf = "";
+  let inBracket = false;
+  for (const ch of path) {
+    if (ch === "[" && !inBracket) {
+      if (buf) {
+        parts.push(buf);
+        buf = "";
+      }
+      inBracket = true;
+    } else if (ch === "]" && inBracket) {
+      parts.push(buf);
+      buf = "";
+      inBracket = false;
+    } else if (ch === "." && !inBracket) {
+      if (buf) {
+        parts.push(buf);
+        buf = "";
+      }
+    } else {
+      buf += ch;
+    }
+  }
+  if (buf) parts.push(buf);
   let obj: unknown = current;
   for (let i = 0; i < parts.length - 1; i++) {
     if (typeof obj !== "object" || obj === null) return undefined;
