@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { getAnonymousSessionId } from "@/lib/anonymousSession";
@@ -35,10 +35,12 @@ export const POST = withAuthorization(
       session?: { user?: { id?: string; role?: string } };
     },
   ) => {
+    let storedLang: string | undefined;
     let anonId: string | undefined;
     try {
       const store = await cookies();
       anonId = store.get("anonSession")?.value;
+      storedLang = store.get("language")?.value;
     } catch {
       anonId = getAnonymousSessionId(req);
     }
@@ -46,6 +48,19 @@ export const POST = withAuthorization(
     if (!anonId) {
       anonId = crypto.randomUUID();
       setSessionCookie = true;
+    }
+    if (!storedLang) {
+      const headerList = await headers();
+      const accept = headerList.get("accept-language") ?? "";
+      const supported = ["en", "es", "fr"];
+      for (const part of accept.split(",")) {
+        const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
+        if (supported.includes(code)) {
+          storedLang = code;
+          break;
+        }
+      }
+      storedLang = storedLang ?? "en";
     }
     const form = await req.formData();
     const file = form.get("photo") as File | null;
@@ -84,7 +99,7 @@ export const POST = withAuthorization(
           total: updated.photos.length,
         },
       });
-      analyzeCaseInBackground(p || updated);
+      analyzeCaseInBackground(p || updated, storedLang);
       const res = NextResponse.json({ caseId: updated.id });
       if (!userId && setSessionCookie) {
         res.cookies.set("anonSession", anonId, { httpOnly: true, path: "/" });
@@ -110,7 +125,7 @@ export const POST = withAuthorization(
         total: newCase.photos.length,
       },
     });
-    analyzeCaseInBackground(p || newCase);
+    analyzeCaseInBackground(p || newCase, storedLang);
     fetchCaseLocationInBackground(newCase);
     const res = NextResponse.json({ caseId: newCase.id });
     if (!userId && setSessionCookie) {

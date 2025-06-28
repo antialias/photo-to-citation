@@ -75,7 +75,7 @@ export async function scanInbox(): Promise<void> {
           const p = casePhotos[i];
           addCasePhoto(newCase.id, p, photoTimes[p], gpsList[i + 1] || null);
         }
-        analyzeCaseInBackground(newCase);
+        analyzeCaseInBackground(newCase, "en");
         fetchCaseLocationInBackground(newCase);
       }
       if (msg.uid > lastUid) {

@@ -107,7 +107,7 @@ async function seedCase(prompt: string): Promise<void> {
   if (options.withIntersection)
     updates.intersection = `${faker.location.street()} and ${faker.location.street()}`;
   if (Object.keys(updates).length > 0) updateCase(c.id, updates);
-  if (!options.skipAnalysis) await analyzeCase(c);
+  if (!options.skipAnalysis) await analyzeCase(c, "en");
   console.log(`Created case ${c.id} for scenario: ${prompt}`);
 }
 

@@ -13,7 +13,10 @@ import {
   it,
   vi,
 } from "vitest";
-vi.mock("next/headers", () => ({ cookies: () => ({ get: vi.fn() }) }));
+vi.mock("next/headers", () => ({
+  cookies: () => ({ get: vi.fn() }),
+  headers: () => new Headers(),
+}));
 
 let dataDir: string;
 let tmpDir: string;
@@ -53,6 +56,7 @@ beforeEach(async () => {
       getAll: () => [],
       has: vi.fn(),
     }),
+    headers: () => new Headers(),
   }));
   const db = await import("@/lib/db");
   await db.migrationsReady;
@@ -80,7 +84,7 @@ afterEach(() => {
 describe("upload route", () => {
   it("cancels active analysis when uploading additional photo", async () => {
     const c = caseStore.createCase("a.jpg");
-    caseAnalysis.analyzeCaseInBackground(c);
+    caseAnalysis.analyzeCaseInBackground(c, "en");
     expect(runJobMock).toHaveBeenCalledTimes(1);
 
     const fakeReq = {

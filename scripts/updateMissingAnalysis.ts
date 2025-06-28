@@ -13,7 +13,7 @@ async function run() {
       (status !== null && status !== undefined && status >= 500);
     if (shouldRetry) {
       console.log(`Reanalyzing case ${c.id}`);
-      await analyzeCase(c);
+      await analyzeCase(c, "en");
     }
   }
 }

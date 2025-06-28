@@ -63,7 +63,7 @@ export function trackPhotoAnalysis(
   activePhotoAnalyses.set(`${id}:${photo}`, ctrl);
 }
 
-export async function analyzeCase(caseData: Case): Promise<void> {
+export async function analyzeCase(caseData: Case, lang = "en"): Promise<void> {
   try {
     const missing: string[] = [];
     const images = caseData.photos
@@ -111,7 +111,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
         steps,
       },
     });
-    const result = await analyzeViolation(images, "en", (p) => {
+    const result = await analyzeViolation(images, lang, (p) => {
       updateCase(caseData.id, {
         analysisProgress: { ...p, step: currentStep, steps },
       });
@@ -131,7 +131,7 @@ export async function analyzeCase(caseData: Case): Promise<void> {
     steps = 1 + paperwork.length;
     let stepIndex = 2;
     for (const [name, url] of paperwork) {
-      const ocr = await ocrPaperwork({ url }, "en", (p) => {
+      const ocr = await ocrPaperwork({ url }, lang, (p) => {
         updateCase(caseData.id, {
           analysisProgress: { ...p, step: stepIndex, steps },
         });
@@ -173,12 +173,16 @@ export async function analyzeCase(caseData: Case): Promise<void> {
   }
 }
 
-export function analyzeCaseInBackground(caseData: Case): void {
+export function analyzeCaseInBackground(caseData: Case, lang = "en"): void {
   enqueueTask(caseData.id, {
     run() {
       if (activeWorkers.has(caseData.id)) return Promise.resolve();
       return new Promise<void>((resolve) => {
-        const worker = runJob("analyzeCase", caseData, { caseId: caseData.id });
+        const worker = runJob(
+          "analyzeCase",
+          { caseData, lang },
+          { caseId: caseData.id },
+        );
         activeWorkers.set(caseData.id, worker);
         const cleanup = () => {
           activeWorkers.delete(caseData.id);
@@ -201,6 +205,7 @@ export function analyzeCaseInBackground(caseData: Case): void {
 export async function reanalyzePhoto(
   caseData: Case,
   photo: string,
+  lang = "en",
 ): Promise<void> {
   const filePath = path.join(config.UPLOAD_DIR, photo);
   if (!fs.existsSync(filePath)) {
@@ -228,7 +233,7 @@ export async function reanalyzePhoto(
   try {
     const result = await analyzeViolation(
       [{ filename: path.basename(photo), url: dataUrl }],
-      "en",
+      lang,
       (p) => {
         updateCase(caseData.id, {
           analysisProgress: { ...p, step: 1, steps: 1 },
@@ -241,7 +246,7 @@ export async function reanalyzePhoto(
     if (info?.paperwork && !info.paperworkText) {
       const ocr = await ocrPaperwork(
         { url: dataUrl },
-        "en",
+        lang,
         (p) => {
           updateCase(caseData.id, {
             analysisProgress: { ...p, step: 2, steps: 2 },
@@ -296,14 +301,18 @@ export async function reanalyzePhoto(
   }
 }
 
-export function analyzePhotoInBackground(caseData: Case, photo: string): void {
+export function analyzePhotoInBackground(
+  caseData: Case,
+  photo: string,
+  lang = "en",
+): void {
   enqueueTask(caseData.id, {
     photo,
     run() {
       return new Promise<void>((resolve) => {
         const worker = runJob(
           "analyzePhoto",
-          { caseData, photo },
+          { caseData, photo, lang },
           { caseId: caseData.id },
         );
         activeWorkers.set(caseData.id, worker);
