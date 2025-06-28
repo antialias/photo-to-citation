@@ -1,8 +1,9 @@
 import { authOptions } from "@/lib/authOptions";
+import { getAuthorizedCase } from "@/lib/caseAccess";
 import { draftEmail } from "@/lib/caseReport";
-import { getCase } from "@/lib/caseStore";
 import { reportModules } from "@/lib/reportModules";
 import { getServerSession } from "next-auth/next";
+import { notFound } from "next/navigation";
 import DraftEditor from "./DraftEditor";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +12,8 @@ export default async function DraftPage({
   params,
 }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const c = getCase(id);
-  if (!c) return <div className="p-8">Case not found</div>;
+  const c = await getAuthorizedCase(id);
+  if (!c) notFound();
   const reportModule = reportModules["oak-park"];
   const session = await getServerSession(authOptions);
   const sender = session?.user
