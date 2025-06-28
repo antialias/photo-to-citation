@@ -5,13 +5,16 @@ import frCommon from "../public/locales/fr/common.json";
 
 const instance = i18n.createInstance();
 
+const storedLang =
+  typeof window !== "undefined" ? localStorage.getItem("language") : null;
+
 void instance.init({
   resources: {
     en: { common: enCommon },
     es: { common: esCommon },
     fr: { common: frCommon },
   },
-  lng: "en",
+  lng: storedLang ?? "en",
   fallbackLng: "en",
   defaultNS: "common",
   interpolation: { escapeValue: false },
