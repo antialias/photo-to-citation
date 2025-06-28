@@ -1,6 +1,12 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+interface PinchGestureEvent extends Event {
+  scale: number;
+  clientX: number;
+  clientY: number;
+}
+
 export interface Transform {
   scale: number;
   x: number;
@@ -55,6 +61,7 @@ export default function ZoomableImage({ src, alt }: Props) {
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const lastDistance = useRef<number | null>(null);
   const lastCenter = useRef<{ x: number; y: number } | null>(null);
+  const gesture = useRef<{ scale: number; x: number; y: number } | null>(null);
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -115,6 +122,39 @@ export default function ZoomableImage({ src, alt }: Props) {
     }
   }
 
+  const handleGestureStart = useCallback((e: PinchGestureEvent) => {
+    e.preventDefault();
+    gesture.current = { scale: 1, x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handleGestureChange = useCallback(
+    (e: PinchGestureEvent) => {
+      e.preventDefault();
+      if (!gesture.current) return;
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const scaleDelta = e.scale / gesture.current.scale;
+      const dx = e.clientX - gesture.current.x;
+      const dy = e.clientY - gesture.current.y;
+      gesture.current.scale = e.scale;
+      gesture.current.x = e.clientX;
+      gesture.current.y = e.clientY;
+      setTransform((t) => {
+        const scale = Math.min(5, Math.max(1, t.scale * scaleDelta));
+        const originX = (e.clientX - rect.left - t.x) / t.scale;
+        const originY = (e.clientY - rect.top - t.y) / t.scale;
+        const x = t.x - (scale - t.scale) * originX + dx;
+        const y = t.y - (scale - t.scale) * originY + dy;
+        return constrainPan(rect, naturalSize, { scale, x, y });
+      });
+    },
+    [naturalSize],
+  );
+
+  const handleGestureEnd = useCallback(() => {
+    gesture.current = null;
+  }, []);
+
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
@@ -139,10 +179,22 @@ export default function ZoomableImage({ src, alt }: Props) {
     const el = containerRef.current;
     if (!el) return;
     el.addEventListener("wheel", handleWheel, { passive: false });
+    el.addEventListener("gesturestart", handleGestureStart as EventListener);
+    el.addEventListener("gesturechange", handleGestureChange as EventListener);
+    el.addEventListener("gestureend", handleGestureEnd as EventListener);
     return () => {
       el.removeEventListener("wheel", handleWheel);
+      el.removeEventListener(
+        "gesturestart",
+        handleGestureStart as EventListener,
+      );
+      el.removeEventListener(
+        "gesturechange",
+        handleGestureChange as EventListener,
+      );
+      el.removeEventListener("gestureend", handleGestureEnd as EventListener);
     };
-  }, [handleWheel]);
+  }, [handleWheel, handleGestureStart, handleGestureChange, handleGestureEnd]);
 
   return (
     <div
@@ -171,6 +223,15 @@ export default function ZoomableImage({ src, alt }: Props) {
           transformOrigin: "0 0",
         }}
       />
+      {transform.scale !== 1 || transform.x !== 0 || transform.y !== 0 ? (
+        <button
+          type="button"
+          className="absolute bottom-1 right-1 bg-black/60 text-white px-2 py-1 text-sm rounded"
+          onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
+        >
+          Reset zoom
+        </button>
+      ) : null}
     </div>
   );
 }
