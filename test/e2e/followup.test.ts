@@ -40,11 +40,11 @@ beforeAll(async () => {
   stub = await startOpenAIStub([
     {
       violationType: "parking",
-      details: "car parked illegally",
+      details: { en: "car parked illegally" },
       vehicle: {},
       images: {},
     },
-    { subject: "s", body: "b" },
+    { subject: { en: "s" }, body: { en: "b" } },
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
@@ -126,7 +126,7 @@ describe("follow up", () => {
     const res = await fetchFollowup(id);
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data.email.subject).toBe("s");
+    expect(data.email.subject).toEqual({ en: "s" });
     const request = stub.requests.at(-1) as {
       body: { messages: Array<{ content: string }> };
     };

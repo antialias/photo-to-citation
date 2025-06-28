@@ -44,7 +44,12 @@ async function createCase(): Promise<string> {
 
 beforeAll(async () => {
   stub = await startOpenAIStub([
-    { violationType: "parking", details: "hello", vehicle: {}, images: {} },
+    {
+      violationType: "parking",
+      details: { en: "hello" },
+      vehicle: {},
+      images: {},
+    },
     "hola",
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-translate-"));
