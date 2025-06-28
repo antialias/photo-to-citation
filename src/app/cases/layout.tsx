@@ -13,9 +13,13 @@ export default async function CasesLayout({
   children: ReactNode;
   params: Promise<{ id?: string }>;
 }) {
-  await params;
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   const list = getCases();
   const cases = session ? list : list.filter((c) => c.public);
-  return <CasesLayoutClient initialCases={cases}>{children}</CasesLayoutClient>;
+  return (
+    <CasesLayoutClient initialCases={cases} hasCase={Boolean(id)}>
+      {children}
+    </CasesLayoutClient>
+  );
 }
