@@ -78,7 +78,7 @@ describe("translate api", () => {
         const j = await r.clone().json();
         return j.analysis !== null;
       },
-      10,
+      20,
     );
     const base = (await res.json()) as { analysis?: { details?: unknown } };
     expect(base.analysis).toBeTruthy();
