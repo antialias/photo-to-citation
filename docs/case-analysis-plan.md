@@ -5,6 +5,7 @@ The goal is to keep all existing features while making the system easier to debu
 and inspect, with progressive feedback and better concurrency control.
 
 ## Current Pipeline Overview
+
 - The `analyzeCase` function reads case images, runs them through `analyzeViolation`,
   optionally performs OCR, then updates the case record. Progress is stored in the
   case via `analysisProgress`.
@@ -13,12 +14,14 @@ and inspect, with progressive feedback and better concurrency control.
 - SSE events from `caseEvents` notify clients when case data changes.
 
 ## Pain Points
+
 - Worker management is manual and difficult to monitor.
 - Progress updates are tied to raw case mutations, which makes debugging tricky.
 - Adding or removing photos can race with ongoing analysis jobs.
 - Reanalyzing a single image requires canceling the entire case worker.
 
 ## Proposed Architecture
+
 1. **Dedicated Job Queue**
    - Introduce a lightweight job queue where each analysis or OCR task is a job.
    - Jobs run in worker threads but are scheduled and logged centrally.
@@ -49,9 +52,11 @@ and inspect, with progressive feedback and better concurrency control.
 
 6. **Improved Logging and Inspection**
    - Persist job start/end times and outcomes in the database.
+
    - Provide an API to list active and recent jobs for inspection.
 
 ## Benefits
+
 - Users can create cases, add or remove photos, and reanalyze single images
   without blocking other work.
 - Progressive events keep the UI informed of each step of processing.
@@ -59,4 +64,3 @@ and inspect, with progressive feedback and better concurrency control.
   to debug.
 - The system retains all existing functionality while being faster and more
   maintainable.
-

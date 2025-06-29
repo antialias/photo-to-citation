@@ -3,8 +3,6 @@ title: About
 layout: layout.njk
 ---
 
-# About Photo To Citation
-
 <div class="hero">
   <img
     src="{{ '/images/community.png' | url }}"
