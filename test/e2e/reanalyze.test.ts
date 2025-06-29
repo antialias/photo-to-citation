@@ -172,6 +172,9 @@ describe("reanalysis", () => {
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
 
+      // warm up analysis-active route to avoid compilation delay
+      await api(`/api/cases/${caseId}/analysis-active`);
+
       const rean = await api(`/api/cases/${caseId}/reanalyze`, {
         method: "POST",
       });
