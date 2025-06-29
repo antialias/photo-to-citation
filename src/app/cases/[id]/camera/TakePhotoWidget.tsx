@@ -1,6 +1,7 @@
 "use client";
 import useAddFilesToCase from "@/app/useAddFilesToCase";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChatWidget, WidgetActions } from "../widgets";
 
 export default function TakePhotoWidget({
@@ -15,12 +16,13 @@ export default function TakePhotoWidget({
   const uploadCase = useAddFilesToCase(caseId);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     let stream: MediaStream | null = null;
     async function startCamera() {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setError("Camera API not available");
+        setError(t("cameraApiUnavailable"));
         return;
       }
       try {
@@ -39,7 +41,7 @@ export default function TakePhotoWidget({
           };
         }
       } catch {
-        setError("Unable to access camera");
+        setError(t("cameraAccessError"));
       }
     }
     void startCamera();
@@ -48,7 +50,7 @@ export default function TakePhotoWidget({
         for (const t of stream.getTracks()) t.stop();
       }
     };
-  }, []);
+  }, [t]);
 
   async function takePicture() {
     const video = videoRef.current;
@@ -85,14 +87,14 @@ export default function TakePhotoWidget({
           disabled={uploading}
           className="bg-blue-800 text-white px-1 rounded disabled:opacity-50"
         >
-          {uploading ? "Uploading..." : "Take Case Photo"}
+          {uploading ? t("uploading") : t("takePicture")}
         </button>
         <button
           type="button"
           onClick={onClose}
           className="bg-gray-200 text-black px-1 rounded"
         >
-          Close
+          {t("close")}
         </button>
       </WidgetActions>
     </ChatWidget>

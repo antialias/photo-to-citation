@@ -1,9 +1,11 @@
 "use client";
 import type { LlmProgress } from "@/lib/openai";
+import { useTranslation } from "react-i18next";
 import { useCaseContext } from "./CaseContext";
 
 export default function useCaseProgress(reanalyzingPhoto: string | null) {
   const { caseData, analysisActive } = useCaseContext();
+  const { t } = useTranslation();
 
   const progress: LlmProgress | null =
     caseData?.analysisStatus === "pending" && caseData.analysisProgress
@@ -25,27 +27,35 @@ export default function useCaseProgress(reanalyzingPhoto: string | null) {
   let progressDescription = "";
   if (progress) {
     const prefix = progress.steps
-      ? `Step ${progress.step} of ${progress.steps}: `
+      ? `${t("stepPrefix", { step: progress.step, steps: progress.steps })} `
       : "";
     if (progress.stage === "upload") {
       progressDescription =
         prefix +
         (progress.index > 0
-          ? `Uploading ${progress.index} of ${progress.total} photos (${Math.floor((progress.index / progress.total) * 100)}%)`
-          : "Uploading photos...");
+          ? t("uploadingProgress", {
+              index: progress.index,
+              total: progress.total,
+              percent: Math.floor((progress.index / progress.total) * 100),
+              count: progress.total,
+            })
+          : t("uploadingPhotos"));
     } else {
       progressDescription =
         prefix +
         (progress.done
-          ? "Processing results..."
-          : `Analyzing... ${progress.received} of ${progress.total} tokens`);
+          ? t("processingResults")
+          : t("analyzingTokens", {
+              received: progress.received,
+              total: progress.total,
+            }));
     }
   } else if (caseData?.analysisStatus === "pending") {
-    progressDescription = "Analyzing photo...";
+    progressDescription = t("analyzingPhoto");
   } else if (caseData?.analysisStatus === "canceled") {
-    progressDescription = "Analysis canceled.";
+    progressDescription = t("analysisCanceled");
   } else {
-    progressDescription = "Analysis failed.";
+    progressDescription = t("analysisFailed");
   }
 
   return {

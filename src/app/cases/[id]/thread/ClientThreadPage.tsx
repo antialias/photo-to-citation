@@ -6,6 +6,7 @@ import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa";
 import { useNotify } from "../../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../../hooks/useCase";
@@ -38,6 +39,7 @@ export default function ClientThreadPage({
   const [viewImage, setViewImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const notify = useNotify();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const es = apiEventSource("/api/cases/stream");
@@ -65,7 +67,7 @@ export default function ClientThreadPage({
       body: form,
     });
     if (!uploadRes.ok) {
-      notify("Failed to upload image. Please try again.");
+      notify(t("failedImageUpload"));
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -80,12 +82,12 @@ export default function ClientThreadPage({
       body: JSON.stringify({ photo: url }),
     });
     if (!res.ok) {
-      notify("Failed to attach evidence. Please try again.");
+      notify(t("failedAttachEvidence"));
     }
   }
 
   if (!caseData) {
-    return <div className="p-8">Loading...</div>;
+    return <div className="p-8">{t("loading")}</div>;
   }
 
   const thread = buildThread(caseData, startId);
@@ -99,16 +101,16 @@ export default function ClientThreadPage({
         <div className="flex items-center gap-2">
           <Link
             href={`/cases/${caseId}`}
-            aria-label="Back to Case"
+            aria-label={t("backToCase")}
             className="text-xl p-2 text-blue-500 hover:text-blue-700"
           >
             <FaArrowLeft />
           </Link>
-          <h1 className="text-xl font-semibold">Thread</h1>
+          <h1 className="text-xl font-semibold">{t("thread")}</h1>
         </div>
         <div className="flex gap-2 items-center">
           <label className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded cursor-pointer">
-            Upload Scan
+            {t("uploadScan")}
             <input
               ref={fileRef}
               type="file"
@@ -121,7 +123,7 @@ export default function ClientThreadPage({
             href={`/cases/${caseId}/thread/${encodeURIComponent(startId)}?followup=1`}
             className="bg-blue-500 text-white px-2 py-1 rounded"
           >
-            Follow Up
+            {t("followUp")}
           </Link>
         </div>
       </div>
@@ -152,7 +154,7 @@ export default function ClientThreadPage({
                 onClick={() => attachEvidence(img.url)}
                 className="self-start bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
               >
-                Add as Evidence
+                {t("addAsEvidence")}
               </button>
               {img.ocrText ? (
                 <pre className="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">
@@ -180,7 +182,7 @@ export default function ClientThreadPage({
                 onClick={() => setViewImage(null)}
                 className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
               >
-                Close
+                {t("close")}
               </button>
             </div>
           </div>
