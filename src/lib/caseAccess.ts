@@ -17,7 +17,8 @@ export async function getAuthorizedCase(id: string) {
   const userId = session?.user?.id;
   const sessionMatch = anonId && c.sessionId && c.sessionId === anonId;
   const authRole = sessionMatch ? "user" : role;
-  if (!(await authorize(authRole, "cases", "read"))) {
+  const obj = c.public ? "public_cases" : "cases";
+  if (!(await authorize(authRole, obj, "read"))) {
     return null;
   }
   if (!c.public && role !== "admin" && role !== "superadmin") {

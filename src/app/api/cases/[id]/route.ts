@@ -23,7 +23,8 @@ export async function GET(
   const anonId = getAnonymousSessionId(req);
   const sessionMatch = anonId && c.sessionId && c.sessionId === anonId;
   const authRole = sessionMatch ? "user" : role;
-  if (!(await authorize(authRole, "cases", "read"))) {
+  const obj = c.public ? "public_cases" : "cases";
+  if (!(await authorize(authRole, obj, "read"))) {
     return new Response(null, { status: 403 });
   }
   if (!c.public && role !== "admin" && role !== "superadmin") {
