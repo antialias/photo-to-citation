@@ -3,7 +3,7 @@ import type { ViolationReport } from "@/lib/openai";
 import { US_STATES } from "@/lib/usStates";
 import { useTranslation } from "react-i18next";
 import EditableText from "./EditableText";
-import TranslateIcon from "./TranslateIcon";
+import InlineTranslateButton from "./InlineTranslateButton";
 
 export default function AnalysisInfo({
   analysis,
@@ -34,19 +34,10 @@ export default function AnalysisInfo({
       <p>
         {detailText}
         {needsTranslation ? (
-          <button
-            type="button"
-            onClick={() => onTranslate?.("analysis.details", i18n.language)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                onTranslate?.("analysis.details", i18n.language);
-              }
-            }}
-            aria-label={t("translate")}
-            className="ml-2 text-blue-500 hover:text-blue-700"
-          >
-            <TranslateIcon lang={i18n.language} />
-          </button>
+          <InlineTranslateButton
+            lang={i18n.language}
+            onTranslate={() => onTranslate?.("analysis.details", i18n.language)}
+          />
         ) : null}
       </p>
       {location ? (

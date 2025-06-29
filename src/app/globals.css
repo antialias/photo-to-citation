@@ -55,3 +55,31 @@ body {
 .json-null {
   color: #808080;
 }
+
+@keyframes translate-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes translate-flag {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-2px);
+  }
+}
+
+.animate-translate-arrow {
+  animation: translate-arrow 0.6s ease-in-out infinite;
+}
+
+.animate-translate-flag {
+  animation: translate-flag 0.6s ease-in-out infinite;
+}

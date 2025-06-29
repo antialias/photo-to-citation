@@ -2,7 +2,7 @@
 import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { useTranslation } from "react-i18next";
-import TranslateIcon from "./TranslateIcon";
+import InlineTranslateButton from "./InlineTranslateButton";
 
 export default function ImageHighlights({
   analysis,
@@ -33,19 +33,15 @@ export default function ImageHighlights({
         <span>
           {highlights}
           {needsHighlights ? (
-            <button
-              type="button"
-              onClick={() =>
+            <InlineTranslateButton
+              lang={i18n.language}
+              onTranslate={() =>
                 onTranslate?.(
                   `analysis.images.${name}.highlights`,
                   i18n.language,
                 )
               }
-              aria-label={t("translate")}
-              className="ml-2 text-blue-500 hover:text-blue-700"
-            >
-              <TranslateIcon lang={i18n.language} />
-            </button>
+            />
           ) : null}
         </span>
       ) : null}
@@ -53,16 +49,12 @@ export default function ImageHighlights({
         <span>
           {context}
           {needsContext ? (
-            <button
-              type="button"
-              onClick={() =>
+            <InlineTranslateButton
+              lang={i18n.language}
+              onTranslate={() =>
                 onTranslate?.(`analysis.images.${name}.context`, i18n.language)
               }
-              aria-label={t("translate")}
-              className="ml-2 text-blue-500 hover:text-blue-700"
-            >
-              <TranslateIcon lang={i18n.language} />
-            </button>
+            />
           ) : null}
         </span>
       ) : null}
