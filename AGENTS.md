@@ -28,6 +28,11 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - Terminate statements with semicolons.
 - Import Node.js builtin modules using the `node:` protocol (e.g. `import fs from "node:fs";`).
 
+## Front-end Best Practices
+- Use `z-index` only as a last resort when other layering techniques fail. If
+  a `z-index` is necessary, reference a variable declared elsewhere so elements
+  can maintain relative stacking within the same context.
+
 ## Dates and Times
 - Parse and store timestamps in UTC ISO format.
 - Avoid formatting dates on the server. Let the client format and display dates
