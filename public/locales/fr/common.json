@@ -81,6 +81,10 @@
     "signIn": "Connexion",
     "dismiss": "Fermer"
   },
+  "publicViewBanner": {
+    "message": "Vous consultez la version publique de ce dossier en lecture seule. Pour le modifier, utilisez la vue non publique.",
+    "link": "Ouvrir la vue non publique"
+  },
   "admin": {
     "userManagement": "Gestion des utilisateurs",
     "appConfiguration": "Configuration de l'application",
