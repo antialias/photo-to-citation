@@ -42,7 +42,13 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - Type `params` and `searchParams` as `Promise` objects and `await` them before using their properties.
 
 ## Commit Messages
-- Use short commit summaries starting with a type such as `feat:`, `fix:`, or `chore:` followed by a concise description.
+- Follow [Semantic Commit Messages](https://www.conventionalcommits.org/) so tooling can infer semantic versions.
+- Example summaries:
+  - `feat: add user login page`
+  - `fix: correct signup API error`
+  - `docs: update installation guide`
+  - `chore: update dependencies`
+  - `refactor: improve caching logic`
 
 ## Generated Files
 - Files under `src/generated` are created by scripts. **Never** edit them manually.
