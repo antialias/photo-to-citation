@@ -1,6 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
 import { config } from "@/lib/config";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { getServerSession } from "next-auth";
 import { cookies, headers } from "next/headers";
 import AuthProvider from "./auth-provider";
@@ -11,6 +11,13 @@ import QueryProvider from "./query-provider";
 import "./globals.css";
 
 export const runtime = "nodejs";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: "Create Next App",
