@@ -1,5 +1,6 @@
 "use client";
 import DebugWrapper from "@/app/components/DebugWrapper";
+import { useTranslation } from "react-i18next";
 import styles from "./CaseChat.module.css";
 import { useCaseChat } from "./CaseChatProvider";
 import TakePhotoWidget from "./camera/TakePhotoWidget";
@@ -26,6 +27,7 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
     availableActions,
     unavailableActions,
   } = useCaseChat();
+  const { t } = useTranslation();
   return (
     <DebugWrapper
       data={{
@@ -84,9 +86,7 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
         )}
         {draftLoading && (
           <div className="text-left" key="draft-loading">
-            <span className="text-sm">
-              Drafting email based on case information...
-            </span>
+            <span className="text-sm">{t("draftingEmail")}</span>
           </div>
         )}
         {chatError && (

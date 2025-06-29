@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import type { OwnershipModule } from "@/lib/ownershipModules";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
 
 export default function OwnershipEditor({
@@ -14,6 +15,7 @@ export default function OwnershipEditor({
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
   const notify = useNotify();
+  const { t } = useTranslation();
 
   async function record() {
     await apiFetch(`/api/cases/${caseId}/ownership-request`, {
@@ -25,19 +27,21 @@ export default function OwnershipEditor({
         ...(snailMail ? { snailMail: true } : {}),
       }),
     });
-    notify("Request recorded");
+    notify(t("requestRecorded"));
   }
 
   return (
     <div className="p-8 flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Ownership Request</h1>
-      <p>State: {module.state}</p>
-      <p>Send a check for ${module.fee} to:</p>
+      <h1 className="text-xl font-semibold">{t("ownershipRequest")}</h1>
+      <p>
+        {t("stateLabel")} {module.state}
+      </p>
+      <p>{t("sendCheckTo", { fee: module.fee })}</p>
       <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
       <label className="flex flex-col">
-        Check Number
+        {t("checkNumberLabel")}
         <input
           type="text"
           value={checkNumber}
@@ -51,14 +55,14 @@ export default function OwnershipEditor({
           checked={snailMail}
           onChange={(e) => setSnailMail(e.target.checked)}
         />
-        <span>Send snail mail automatically</span>
+        <span>{t("sendSnailAutomatically")}</span>
       </label>
       <button
         type="button"
         onClick={() => record()}
         className="bg-blue-500 text-white px-2 py-1 rounded"
       >
-        Mark as Requested
+        {t("markRequested")}
       </button>
     </div>
   );

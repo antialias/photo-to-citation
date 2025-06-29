@@ -31,7 +31,7 @@ export default function DraftPreview({
   const router = useRouter();
   const notify = useNotify();
   const [sending, setSending] = useState(false);
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   function openCompose() {
     const url = `/cases/${caseId}/compose`;
@@ -57,11 +57,11 @@ export default function DraftPreview({
       }),
     });
     if (res.ok) {
-      notify("Email sent");
+      notify(t("emailSent"));
       onClose();
     } else {
       const err = await res.json().catch(() => ({}));
-      notify(err.error || "Failed to send email");
+      notify(err.error || t("failedToSendEmail"));
     }
     setSending(false);
   }
@@ -94,20 +94,20 @@ export default function DraftPreview({
           disabled={sending}
           className="bg-blue-800 text-white px-1 rounded text-xs disabled:opacity-50"
         >
-          {sending ? "Sending..." : "Send"}
+          {sending ? t("sending") : t("send")}
         </button>
         <button
           type="button"
           onClick={onClose}
           className="bg-gray-200 text-black px-1 rounded text-xs"
         >
-          Close
+          {t("close")}
         </button>
         <Link
           href={`/cases/${caseId}/compose`}
           className="bg-blue-600 text-white px-1 rounded text-xs"
         >
-          Full Editor
+          {t("fullEditor")}
         </Link>
       </WidgetActions>
     </div>
@@ -131,14 +131,14 @@ export default function DraftPreview({
           disabled={sending}
           className="bg-blue-800 text-white px-1 rounded disabled:opacity-50"
         >
-          {sending ? "Sending..." : "Send"}
+          {sending ? t("sending") : t("send")}
         </button>
         <button
           type="button"
           onClick={onClose}
           className="bg-gray-200 text-black px-1 rounded"
         >
-          Close
+          {t("close")}
         </button>
       </WidgetActions>
     </ChatWidget>
