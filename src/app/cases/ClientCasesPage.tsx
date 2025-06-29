@@ -7,6 +7,7 @@ import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
 import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -229,14 +230,13 @@ export default function ClientCasesPage({
                     : "ring-1 ring-transparent"
               }`}
             >
-              <button
-                type="button"
+              <Link
+                href={`/cases/${c.id}`}
                 onClick={(e) => {
                   if (e.shiftKey) {
+                    e.preventDefault();
                     const ids = Array.from(new Set([...selectedIds, c.id]));
                     router.push(`/cases?ids=${ids.join(",")}`);
-                  } else {
-                    router.push(`/cases/${c.id}`);
                   }
                 }}
                 className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
@@ -296,7 +296,7 @@ export default function ClientCasesPage({
                     </span>
                   )}
                 </div>
-              </button>
+              </Link>
             </li>
           ))}
       </ul>
