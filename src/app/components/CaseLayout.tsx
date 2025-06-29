@@ -12,7 +12,7 @@ export default function CaseLayout({
   children?: ReactNode;
 }) {
   return (
-    <div className="p-8 flex flex-col gap-4">
+    <div className="pt-0 pb-8 px-8 flex flex-col gap-4">
       <div className="sticky top-14 bg-white dark:bg-gray-900 z-20">
         {header}
       </div>
