@@ -110,7 +110,7 @@ export default function PhotoViewer({
           </details>
         )}
         {caseData.analysis ? (
-          <div className="group absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm overflow-hidden max-h-20 group-hover:overflow-visible">
+          <div className="group absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm overflow-hidden max-h-20 hover:overflow-visible">
             <div className="space-y-1 line-clamp-4 group-hover:line-clamp-none">
               <ImageHighlights
                 analysis={caseData.analysis}
