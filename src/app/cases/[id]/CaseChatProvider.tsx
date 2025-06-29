@@ -152,6 +152,19 @@ export function CaseChatProvider({
   useEffect(() => {
     openRef.current = open;
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (window.innerWidth >= 640) return;
+    const htmlStyle = document.documentElement.style.overflow;
+    const bodyStyle = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = htmlStyle;
+      document.body.style.overflow = bodyStyle;
+    };
+  }, [open]);
   const [draftData, setDraftData] = useState<{
     email: EmailDraft;
     attachments: string[];
