@@ -83,7 +83,9 @@ describe("case visibility @smoke", () => {
     const page = await api(`/public/cases/${caseId}`).then((r) => r.text());
     const dom = new JSDOM(page);
     const chatButton = Array.from(
-      dom.window.document.querySelectorAll("button"),
+      dom.window.document.querySelectorAll(
+        "button",
+      ) as NodeListOf<HTMLButtonElement>,
     ).find((b) => b.textContent?.trim() === "Chat");
     expect(chatButton).toBeUndefined();
   });
