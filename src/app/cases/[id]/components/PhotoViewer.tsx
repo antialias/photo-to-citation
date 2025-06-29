@@ -110,13 +110,15 @@ export default function PhotoViewer({
           </details>
         )}
         {caseData.analysis ? (
-          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 space-y-1 text-sm">
-            <ImageHighlights
-              analysis={caseData.analysis}
-              photo={selectedPhoto}
-              onTranslate={(path) => onTranslate(path)}
-            />
-            {progress ? <p>{progressDescription}</p> : null}
+          <div className="group absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm max-h-20 overflow-hidden hover:max-h-none hover:overflow-visible active:max-h-none active:overflow-visible">
+            <div className="space-y-1 line-clamp-4 group-hover:line-clamp-none active:line-clamp-none">
+              <ImageHighlights
+                analysis={caseData.analysis}
+                photo={selectedPhoto}
+                onTranslate={(path) => onTranslate(path)}
+              />
+              {progress ? <p>{progressDescription}</p> : null}
+            </div>
           </div>
         ) : (
           <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm">
