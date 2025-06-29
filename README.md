@@ -507,5 +507,6 @@ cursor over it so you can easily copy the JSON.
 - [**Documentation Outline**](docs/feature-outline.md) — discover planned features and architecture.
 - [**Credit System**](docs/credit-system.md) — how users purchase credits and how balances update.
 - [**Case Chat Buttons**](docs/case-chat-actions.md) — LLM syntax for inserting action buttons.
+- [**i18n Hydration Issues**](docs/i18n-hydration.md) — how synchronous initialization prevents hydration mismatches.
 - [**Releases**](https://github.com/antialias/photo-to-citation/releases) — download the latest packaged version.
 - [**Live Demo**](https://730op.synology.me/photo-citation) — try the hosted web app.
