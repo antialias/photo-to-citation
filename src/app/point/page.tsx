@@ -23,12 +23,21 @@ export default function PointAndShootPage() {
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [gps, setGps] = useState<{ lat: number; lon: number } | null>(null);
   const { t } = useTranslation();
   const params = useSearchParams();
   const caseId = params.get("case") || null;
   const addFiles = useAddFilesToCase(caseId ?? "");
   const newCase = useNewCaseFromFiles();
   const uploadCase = caseId ? addFiles : newCase;
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setGps({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+      });
+    }
+  }, []);
 
   useEffect(() => {
     async function startCamera() {
@@ -127,7 +136,7 @@ export default function PointAndShootPage() {
       const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
       const dt = new DataTransfer();
       dt.items.add(file);
-      await uploadCase(dt.files);
+      await uploadCase(dt.files, gps);
     }, "image/jpeg");
   }
 

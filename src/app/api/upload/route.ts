@@ -65,6 +65,16 @@ export const POST = withAuthorization(
     const form = await req.formData();
     const file = form.get("photo") as File | null;
     const clientId = form.get("caseId") as string | null;
+    const latStr = form.get("lat") as string | null;
+    const lonStr = form.get("lon") as string | null;
+    let overrideGps: { lat: number; lon: number } | null = null;
+    if (latStr !== null && lonStr !== null) {
+      const lat = Number.parseFloat(latStr);
+      const lon = Number.parseFloat(lonStr);
+      if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+        overrideGps = { lat, lon };
+      }
+    }
     const { userId } = getSessionDetails({ session }, "user");
     if (!file) {
       return NextResponse.json({ error: "No file" }, { status: 400 });
@@ -72,7 +82,8 @@ export const POST = withAuthorization(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const gps = extractGps(buffer);
+    let gps = extractGps(buffer);
+    if (!gps && overrideGps) gps = overrideGps;
     const takenAt = extractTimestamp(buffer);
     const uploadDir = config.UPLOAD_DIR;
     fs.mkdirSync(uploadDir, { recursive: true });

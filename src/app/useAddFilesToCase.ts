@@ -14,13 +14,20 @@ export default function useAddFilesToCase(caseId: string) {
     mutationFn: async (formData: FormData) =>
       apiFetch("/api/upload", { method: "POST", body: formData }),
   });
-  return async (files: FileList | null) => {
+  return async (
+    files: FileList | null,
+    gps?: { lat: number; lon: number } | null,
+  ) => {
     if (!files || files.length === 0) return;
     const results = await Promise.all(
       Array.from(files).map((file) => {
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", caseId);
+        if (gps) {
+          formData.append("lat", String(gps.lat));
+          formData.append("lon", String(gps.lon));
+        }
         return uploadMutation.mutateAsync(formData);
       }),
     );
