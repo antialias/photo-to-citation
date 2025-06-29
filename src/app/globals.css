@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --visual-viewport-height: 100dvh;
 }
 
 @theme inline {
