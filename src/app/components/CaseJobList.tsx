@@ -8,6 +8,7 @@ interface JobInfo {
   id: number;
   type: string;
   startedAt: number;
+  caseId?: string;
 }
 
 interface JobResponse {
