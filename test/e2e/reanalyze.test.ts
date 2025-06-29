@@ -180,7 +180,8 @@ describe("reanalysis", () => {
       await poll(
         () => api(`/api/cases/${caseId}/analysis-active`),
         async (r) => (await r.json()).active === true,
-        10,
+        50,
+        50,
       );
 
       const single = await api(
