@@ -13,7 +13,11 @@ let stub: OpenAIStub;
 let tmpDir: string;
 
 beforeAll(async () => {
-  stub = await startOpenAIStub(["hello", "hola"]);
+  stub = await startOpenAIStub([
+    { violationType: "parking", details: {}, vehicle: {}, images: {} },
+    { response: { en: "hello" }, actions: [], noop: false, lang: "en" },
+    "hola",
+  ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-chat-translate-"));
   server = await startServer(3042, {
     NEXTAUTH_SECRET: "secret",
