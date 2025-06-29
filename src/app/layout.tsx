@@ -55,6 +55,13 @@ export default async function RootLayout({
             __html: `window.PUBLIC_ENV=${JSON.stringify(publicEnv)};`,
           }}
         />
+        <script
+          id="initial-lang"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: injecting runtime config
+          dangerouslySetInnerHTML={{
+            __html: `window.INITIAL_LANG=${JSON.stringify(storedLang)};`,
+          }}
+        />
         <QueryProvider>
           <I18nProvider lang={storedLang}>
             <NotificationProvider>

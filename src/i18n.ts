@@ -1,4 +1,5 @@
 import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 import enCommon from "../public/locales/en/common.json";
 import esCommon from "../public/locales/es/common.json";
 import frCommon from "../public/locales/fr/common.json";
@@ -19,7 +20,6 @@ export async function initI18n(lang: string) {
       interpolation: { escapeValue: false },
     };
     if (typeof window !== "undefined") {
-      const { initReactI18next } = await import("react-i18next");
       await instance.use(initReactI18next).init(config);
     } else {
       await instance.init(config);
@@ -31,3 +31,14 @@ export async function initI18n(lang: string) {
 }
 
 export default instance;
+
+declare global {
+  interface Window {
+    INITIAL_LANG?: string;
+  }
+}
+
+if (typeof window !== "undefined" && window.INITIAL_LANG) {
+  // Initialize i18n with the language detected on the server before React hydrates
+  void initI18n(window.INITIAL_LANG);
+}
