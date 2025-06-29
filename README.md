@@ -42,7 +42,9 @@ The UI language comes from the `language` cookie. When it doesn't exist, the
 server reads the `Accept-Language` header to pick the first supported locale
 (`en`, `es`, or `fr`). The client persists this value by setting the cookie on
 the first render, and `I18nProvider` falls back to `navigator.languages` if the
-cookie is still missing.
+cookie is still missing. Hydration previously failed when the provider returned
+`null` during asynchronous initialization, so `I18nProvider` now initializes
+i18n synchronously before the first render using `initImmediate: false`.
 
 For local HTTPS, run:
 
