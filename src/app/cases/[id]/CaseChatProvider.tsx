@@ -24,7 +24,7 @@ import TranslateIcon from "../../components/TranslateIcon";
 export interface Message {
   id: string;
   role: "user" | "assistant";
-  content: string;
+  content: string | Record<string, string>;
   lang: string;
   actions?: CaseChatAction[];
 }
@@ -97,6 +97,7 @@ export interface CaseChatContextValue {
   setCameraAnchorId: (id: string | null) => void;
   setCameraOpen: (v: boolean) => void;
   selectSession: (id: string | "new") => void;
+  translateMessage: (id: string, lang: string) => Promise<void>;
 }
 
 const CaseChatContext = createContext<CaseChatContextValue | null>(null);
@@ -342,11 +343,7 @@ export function CaseChatProvider({
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content:
-              reply.response[i18n.language] ??
-              reply.response.en ??
-              Object.values(reply.response)[0] ??
-              "",
+            content: reply.response,
             lang: reply.lang,
             actions: reply.actions,
           },
@@ -361,8 +358,15 @@ export function CaseChatProvider({
   const saveCurrentSession = useCallback(() => {
     if (messages.length > 0 && sessionId) {
       const firstUser = messages.find((m) => m.role === "user");
-      const summary =
-        sessionSummary || (firstUser ? firstUser.content.slice(0, 30) : "");
+      const firstText = firstUser
+        ? typeof firstUser.content === "string"
+          ? firstUser.content
+          : (firstUser.content[firstUser.lang] ??
+            firstUser.content.en ??
+            Object.values(firstUser.content)[0] ??
+            "")
+        : "";
+      const summary = sessionSummary || firstText.slice(0, 30);
       const session: ChatSession = {
         id: sessionId,
         createdAt: sessionCreatedAt,
@@ -504,6 +508,32 @@ export function CaseChatProvider({
     router.refresh();
   }
 
+  async function translateMessage(id: string, lang: string) {
+    const res = await apiFetch(`/api/cases/${caseId}/chat/${id}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang }),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { text: string };
+      setMessages((msgs) =>
+        msgs.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                content:
+                  typeof m.content === "string"
+                    ? { [m.lang]: m.content, [lang]: data.text }
+                    : { ...m.content, [lang]: data.text },
+              }
+            : m,
+        ),
+      );
+    } else {
+      notify("Failed to translate.");
+    }
+  }
+
   function renderActions(actions: CaseChatAction[], msgId: string) {
     const buttons = actions.map((a, idx) => {
       if ("id" in a) {
@@ -573,13 +603,24 @@ export function CaseChatProvider({
   }
 
   function renderContent(m: Message) {
-    const needsTranslation = m.lang !== i18n.language;
+    const text =
+      typeof m.content === "string"
+        ? m.content
+        : (m.content[i18n.language] ??
+          m.content.en ??
+          Object.values(m.content)[0] ??
+          "");
+    const needsTranslation =
+      typeof m.content === "string"
+        ? m.lang !== i18n.language
+        : !(i18n.language in m.content);
     return (
       <span>
-        {m.content}
+        {text}
         {needsTranslation ? (
           <button
             type="button"
+            onClick={() => void translateMessage(m.id, i18n.language)}
             aria-label={t("translate")}
             className="ml-2 text-blue-500 hover:text-blue-700"
           >
@@ -634,10 +675,23 @@ export function CaseChatProvider({
           reply = result;
         }
       } else {
+        const bodyMessages = list.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content:
+            typeof m.content === "string"
+              ? m.content
+              : (m.content[m.lang] ??
+                m.content.en ??
+                Object.values(m.content)[0] ??
+                ""),
+          lang: m.lang,
+          actions: m.actions,
+        }));
         const res = await apiFetch(`/api/cases/${caseId}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: list, lang: i18n.language }),
+          body: JSON.stringify({ messages: bodyMessages, lang: i18n.language }),
           signal: controller.signal,
         });
         if (res.ok) {
@@ -673,11 +727,7 @@ export function CaseChatProvider({
             {
               id: crypto.randomUUID(),
               role: "assistant",
-              content:
-                reply.response[i18n.language] ??
-                reply.response.en ??
-                Object.values(reply.response)[0] ??
-                "",
+              content: reply.response,
               lang: reply.lang,
               actions: reply.actions,
             },
@@ -840,6 +890,7 @@ export function CaseChatProvider({
         setCameraAnchorId,
         setCameraOpen,
         selectSession,
+        translateMessage,
       }}
     >
       {children}

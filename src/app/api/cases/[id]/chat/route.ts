@@ -1,7 +1,8 @@
+import crypto from "node:crypto";
 import { caseChatReplySchema } from "@/generated/zod/caseChat";
 import { withCaseAuthorization } from "@/lib/authz";
 import { getCaseActionStatus } from "@/lib/caseActions";
-import { getCase } from "@/lib/caseStore";
+import { addCaseChatMessages, getCase } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { chatWithSchema } from "@/lib/llmUtils";
 import { NextResponse } from "next/server";
@@ -13,7 +14,13 @@ export const POST = withCaseAuthorization(
   async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
     const body = (await req.json()) as {
-      messages: Array<{ role: "user" | "assistant"; content: string }>;
+      messages: Array<{
+        id: string;
+        role: "user" | "assistant";
+        content: string;
+        lang?: string;
+        actions?: unknown;
+      }>;
       lang?: string;
     };
     const userLang = body.lang ?? "en";
@@ -95,6 +102,27 @@ export const POST = withCaseAuthorization(
         noop: raw.noop,
         lang,
       };
+      addCaseChatMessages(id, [
+        ...body.messages.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: { [m.lang ?? userLang]: m.content },
+          lang: m.lang ?? userLang,
+          actions: Array.isArray(m.actions)
+            ? (m.actions as import("@/lib/caseChat").CaseChatAction[])
+            : undefined,
+        })),
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content:
+            typeof raw.response === "string"
+              ? { [lang]: raw.response }
+              : (raw.response as Record<string, string>),
+          lang,
+          actions: raw.actions,
+        },
+      ]);
       return NextResponse.json({
         reply,
         system,
