@@ -38,7 +38,7 @@ function CaseChatInner({ caseId }: { caseId: string }) {
         expanded
           ? "relative h-full"
           : open
-            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-chat"
+            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-chat sm:[--case-chat-offset:1rem]"
             : "fixed bottom-4 right-4 z-chat"
       } text-sm`}
     >
@@ -48,7 +48,13 @@ function CaseChatInner({ caseId }: { caseId: string }) {
             expanded ? "w-full h-full" : "w-screen sm:w-80 sm:max-h-[400px]"
           }`}
           style={
-            expanded ? undefined : { height: "var(--visual-viewport-height)" }
+            expanded
+              ? undefined
+              : {
+                  height:
+                    "calc(var(--visual-viewport-height) - var(--case-chat-offset,0px))",
+                  marginTop: "var(--case-chat-offset,0px)",
+                }
           }
         >
           <ChatHeader />
