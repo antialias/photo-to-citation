@@ -3,6 +3,7 @@ import { apiEventSource, apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { subscribe as wsSubscribe } from "@/webSocketClient";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -42,14 +43,24 @@ export default function ClientThreadPage({
   const { t } = useTranslation();
 
   useEffect(() => {
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
-      if (data.id !== caseId) return;
-      if (data.deleted) {
+    const off = wsSubscribe("caseUpdate", (data) => {
+      const c = data as Case & { deleted?: boolean };
+      if (c.id !== caseId) return;
+      if (c.deleted) {
         queryClient.setQueryData(caseQueryKey(caseId), null);
       } else {
-        queryClient.setQueryData(caseQueryKey(caseId), data);
+        queryClient.setQueryData(caseQueryKey(caseId), c);
+      }
+    });
+    if (off) return off;
+    const es = apiEventSource("/api/cases/stream");
+    es.onmessage = (e) => {
+      const c = JSON.parse(e.data) as Case & { deleted?: boolean };
+      if (c.id !== caseId) return;
+      if (c.deleted) {
+        queryClient.setQueryData(caseQueryKey(caseId), null);
+      } else {
+        queryClient.setQueryData(caseQueryKey(caseId), c);
       }
     };
     return () => es.close();

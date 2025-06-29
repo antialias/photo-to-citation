@@ -1,5 +1,6 @@
 "use client";
 import { apiEventSource, apiFetch } from "@/apiClient";
+import { subscribe as wsSubscribe } from "@/webSocketClient";
 import { useEffect, useState } from "react";
 
 interface JobInfo {
@@ -38,12 +39,25 @@ export default function useCaseAnalysisActive(
 
     fetchStatus();
 
+    const off = wsSubscribe("jobUpdate", (data) => {
+      const info = data as JobResponse;
+      const filtered = info.jobs.filter(
+        (j) => j.caseId === caseId && j.type === "analyzeCase",
+      );
+      setActive(filtered.length > 0);
+    });
+    if (off) {
+      return () => {
+        closed = true;
+        off();
+      };
+    }
     const es = apiEventSource(
       `${base}/${encodeURIComponent(caseId)}/jobs/stream?type=analyzeCase`,
     );
     es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
-      setActive(data.jobs.length > 0);
+      const info: JobResponse = JSON.parse(e.data);
+      setActive(info.jobs.length > 0);
     };
     es.onerror = () => {
       /* ignore connection errors */
