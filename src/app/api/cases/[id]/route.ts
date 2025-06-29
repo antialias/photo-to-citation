@@ -23,10 +23,13 @@ export async function GET(
   const anonId = getAnonymousSessionId(req);
   const sessionMatch = anonId && c.sessionId && c.sessionId === anonId;
   const authRole = sessionMatch ? "user" : role;
-  if (!(await authorize(authRole, "cases", "read"))) {
+  const authorized = await authorize(authRole, "cases", "read");
+  if (!authorized && !c.public) {
     return new Response(null, { status: 403 });
   }
-  if (!c.public && role !== "admin" && role !== "superadmin") {
+  if (!authorized && c.public) {
+    // allow anonymous read access to public cases
+  } else if (!c.public && role !== "admin" && role !== "superadmin") {
     if (!(sessionMatch || (userId && isCaseMember(id, userId)))) {
       return new Response(null, { status: 403 });
     }

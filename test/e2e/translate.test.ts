@@ -137,5 +137,11 @@ describe("translate api", () => {
       analysis: { details: Record<string, string> };
     };
     expect(updated.analysis.details.fr).toBeTruthy();
+    const getRes = await api(`/api/cases/${id}`);
+    expect(getRes.status).toBe(200);
+    const fetched = (await getRes.json()) as {
+      analysis: { details: Record<string, string> };
+    };
+    expect(fetched.analysis.details.fr).toBe(updated.analysis.details.fr);
   });
 });
