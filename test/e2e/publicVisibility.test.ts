@@ -66,4 +66,25 @@ describe("case visibility @smoke", () => {
     const toggle = getByTestId(dom.window.document, "toggle-public-button");
     expect(toggle).toBeTruthy();
   });
+
+  it("hides chat button on public page", async () => {
+    await signIn("user@example.com");
+    const file = createPhoto("a");
+    const form = new FormData();
+    form.append("photo", file);
+    const upload = await api("/api/upload", { method: "POST", body: form });
+    const { caseId } = (await upload.json()) as { caseId: string };
+    await api(`/api/cases/${caseId}/public`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public: true }),
+    });
+
+    const page = await api(`/public/cases/${caseId}`).then((r) => r.text());
+    const dom = new JSDOM(page);
+    const chatButton = Array.from(
+      dom.window.document.querySelectorAll("button"),
+    ).find((b) => b.textContent?.trim() === "Chat");
+    expect(chatButton).toBeUndefined();
+  });
 });
