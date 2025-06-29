@@ -96,7 +96,7 @@ export default function ClientThreadPage({
   );
 
   return (
-    <div className="p-8 flex flex-col gap-4">
+    <div className="pt-0 pb-8 px-8 flex flex-col gap-4">
       <div className="sticky top-14 bg-white dark:bg-gray-900 flex justify-between items-center border-b pb-2">
         <div className="flex items-center gap-2">
           <Link
