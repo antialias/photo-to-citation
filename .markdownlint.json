@@ -1,6 +1,6 @@
 {
   "default": true,
-  "MD013": false,
+  "MD013": { "line_length": 120 },
   "MD025": { "front_matter_title": "title" },
   "MD033": false
 }
