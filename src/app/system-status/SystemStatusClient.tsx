@@ -1,5 +1,6 @@
 "use client";
 import { apiEventSource } from "@/apiClient";
+import { subscribe as wsSubscribe } from "@/webSocketClient";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,16 +25,25 @@ export default function SystemStatusClient() {
   const { t } = useTranslation();
 
   useEffect(() => {
+    const off = wsSubscribe("jobUpdate", (data) => {
+      const info = data as JobResponse;
+      const filtered =
+        filter !== "" ? info.jobs.filter((j) => j.type === filter) : info.jobs;
+      setJobs(filtered);
+      setAuditedAt(info.auditedAt);
+      setUpdatedAt(info.updatedAt);
+    });
+    if (off) return off;
     const url =
       filter !== ""
         ? `/api/system/jobs/stream?type=${encodeURIComponent(filter)}`
         : "/api/system/jobs/stream";
     const es = apiEventSource(url);
     es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
-      setJobs(data.jobs);
-      setAuditedAt(data.auditedAt);
-      setUpdatedAt(data.updatedAt);
+      const info: JobResponse = JSON.parse(e.data);
+      setJobs(info.jobs);
+      setAuditedAt(info.auditedAt);
+      setUpdatedAt(info.updatedAt);
     };
     return () => es.close();
   }, [filter]);

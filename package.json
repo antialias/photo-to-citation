@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack",
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "npm run build:jobs && next build",
-    "start": "next start",
+    "start": "ts-node --transpile-only server.ts",
     "lint": "npm run lint:md && biome check .",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "format": "biome format . --write",
@@ -72,7 +72,8 @@
     "react-mermaid2": "^0.1.4",
     "sharp": "^0.34.2",
     "twilio": "^4.23.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@11ty/eleventy": "^2.0.0",
