@@ -3,6 +3,7 @@ import { config } from "@/lib/config";
 import type { Metadata, Viewport } from "next";
 import { getServerSession } from "next-auth";
 import { cookies, headers } from "next/headers";
+import { initI18n } from "../i18n.server";
 import AuthProvider from "./auth-provider";
 import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
@@ -47,6 +48,7 @@ export default async function RootLayout({
     }
     storedLang = storedLang ?? "en";
   }
+  await initI18n(storedLang);
   const publicEnv = {
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: config.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_BASE_PATH: config.NEXT_PUBLIC_BASE_PATH,
