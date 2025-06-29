@@ -7,13 +7,12 @@ import queryClient from "./queryClient";
 export default function QueryProvider({
   children,
 }: { children: React.ReactNode }) {
-  const showReactQueryDevTools =
-    process.env.SHOW_REACT_QUERY_DEV_TOOLS &&
-    process.env.NODE_ENV === "development";
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {showReactQueryDevTools && <ReactQueryDevtools initialIsOpen={false} />}
+      {process.env.NODE_ENV === "development" && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
     </QueryClientProvider>
   );
 }
