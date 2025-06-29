@@ -4,7 +4,7 @@ import { getCaseActionStatus } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { chatWithSchema } from "@/lib/llmUtils";
-import { normalizeLocalizedText } from "@/lib/localizedText";
+import { getLocalizedText, normalizeLocalizedText } from "@/lib/localizedText";
 import { NextResponse } from "next/server";
 import { APIError } from "openai/error";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
@@ -29,7 +29,10 @@ export const POST = withCaseAuthorization(
       (c.gps ? `${c.gps.lat}, ${c.gps.lon}` : "unknown location");
     const contextLines = analysis?.images
       ? Object.entries(analysis.images)
-          .map(([name, info]) => `Photo ${name}: ${info.context || ""}`)
+          .map(([name, info]) => {
+            const ctx = getLocalizedText(info.context, userLang).text;
+            return `Photo ${name}: ${ctx}`;
+          })
           .join("\n")
       : "";
     const statuses = getCaseActionStatus(c);
@@ -50,7 +53,7 @@ export const POST = withCaseAuthorization(
       "You are a helpful legal assistant for the Photo To Citation app.",
       "The user is asking about a case with these details:",
       `Violation: ${analysis?.violationType || ""}`,
-      `Description: ${analysis?.details || ""}`,
+      `Description: ${analysis ? getLocalizedText(analysis.details, userLang).text : ""}`,
       `Location: ${location}`,
       `License Plate: ${vehicle.licensePlateState || ""} ${vehicle.licensePlateNumber || ""}`,
       `Number of photos: ${c.photos.length}.`,
