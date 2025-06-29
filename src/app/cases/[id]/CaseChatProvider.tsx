@@ -171,7 +171,7 @@ export function CaseChatProvider({
       const data = JSON.parse(raw) as ChatSession[];
       return data.map((s) => ({
         ...s,
-        messages: s.messages.map((m) => ({ lang: "en", ...m })),
+        messages: s.messages.map((m) => ({ ...m, lang: m.lang ?? "en" })),
       }));
     } catch {
       return [];
@@ -289,18 +289,21 @@ export function CaseChatProvider({
               response: { en: "" },
               actions: [{ id: result.slice(8, -1) }],
               noop: false,
+              lang: i18n.language,
             };
           } else if (result === "[noop]") {
             reply = {
               response: { en: "" },
               actions: [],
               noop: true,
+              lang: i18n.language,
             };
           } else {
             reply = {
               response: { en: result },
               actions: [],
               noop: false,
+              lang: i18n.language,
             };
           }
         } else if ("response" in result) {
@@ -602,18 +605,21 @@ export function CaseChatProvider({
               response: { en: "" },
               actions: [{ id: result.slice(8, -1) }],
               noop: false,
+              lang: i18n.language,
             };
           } else if (result === "[noop]") {
             reply = {
               response: { en: "" },
               actions: [],
               noop: true,
+              lang: i18n.language,
             };
           } else {
             reply = {
               response: { en: result },
               actions: [],
               noop: false,
+              lang: i18n.language,
             };
           }
         } else if ("response" in result) {

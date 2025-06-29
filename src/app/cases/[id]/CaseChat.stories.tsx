@@ -25,6 +25,7 @@ export const WithLiveLlm: Story = {
           response: { en: "" },
           actions: [],
           noop: true,
+          lang: "en",
         };
       const client = new OpenAI({
         apiKey,
@@ -38,12 +39,14 @@ export const WithLiveLlm: Story = {
       });
       const text = res.choices[0]?.message?.content ?? "";
       try {
-        return JSON.parse(text) as CaseChatReply;
+        const parsed = JSON.parse(text) as CaseChatReply;
+        return { ...parsed, lang: parsed.lang ?? "en" };
       } catch {
         return {
           response: { en: text },
           actions: [],
           noop: false,
+          lang: "en",
         };
       }
     }
@@ -93,6 +96,7 @@ export const CaseAction: Story = {
       response: { en: "Notify the owner?" },
       actions: [{ id: "notify-owner" }],
       noop: false,
+      lang: "en",
     };
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
@@ -105,6 +109,7 @@ export const EditAction: Story = {
       response: { en: "Plate looks like ABC123" },
       actions: [{ field: "plate", value: "ABC123" }],
       noop: false,
+      lang: "en",
     };
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
@@ -117,6 +122,7 @@ export const PhotoNoteAction: Story = {
       response: { en: "Add note to photo" },
       actions: [{ photo: "a.jpg", note: "Clear" }],
       noop: false,
+      lang: "en",
     };
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
@@ -133,6 +139,7 @@ export const MixedActions: Story = {
         { photo: "a.jpg", note: "Zoom here" },
       ],
       noop: false,
+      lang: "en",
     };
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
@@ -145,6 +152,7 @@ export const ResponseOnly: Story = {
       response: { en: "Just a regular response" },
       actions: [],
       noop: false,
+      lang: "en",
     };
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
@@ -157,6 +165,7 @@ export const Noop: Story = {
       response: { en: "" },
       actions: [],
       noop: true,
+      lang: "en",
     };
     return <CaseChat caseId="1" onChat={async () => reply} />;
   },
