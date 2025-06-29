@@ -48,7 +48,12 @@ function CaseChatInner({ caseId }: { caseId: string }) {
             expanded ? "w-full h-full" : "w-screen sm:w-80 sm:max-h-[400px]"
           }`}
           style={
-            expanded ? undefined : { height: "var(--visual-viewport-height)" }
+            expanded
+              ? undefined
+              : {
+                  height: "calc(var(--visual-viewport-height) - 1rem)",
+                  marginTop: "1rem",
+                }
           }
         >
           <ChatHeader />
