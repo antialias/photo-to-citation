@@ -81,6 +81,10 @@
     "signIn": "Iniciar sesión",
     "dismiss": "Descartar"
   },
+  "publicViewBanner": {
+    "message": "Estás viendo la versión pública de este caso en modo de solo lectura. Si necesitas editarlo, usa la vista no pública.",
+    "link": "Abrir vista no pública"
+  },
   "admin": {
     "userManagement": "Gestión de usuarios",
     "appConfiguration": "Configuración de la app",

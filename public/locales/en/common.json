@@ -81,6 +81,10 @@
     "signIn": "Sign In",
     "dismiss": "Dismiss"
   },
+  "publicViewBanner": {
+    "message": "You are viewing the public read-only version of this case. If you need to make edits, use the non-public view.",
+    "link": "Open non-public view"
+  },
   "admin": {
     "userManagement": "User Management",
     "appConfiguration": "App Configuration",

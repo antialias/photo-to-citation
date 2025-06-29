@@ -15,6 +15,7 @@ import CaseExtraInfo from "./components/CaseExtraInfo";
 import CaseHeader from "./components/CaseHeader";
 import ClaimBanner from "./components/ClaimBanner";
 import PhotoSection from "./components/PhotoSection";
+import PublicViewBanner from "./components/PublicViewBanner";
 
 function ClientCasePage({
   caseId,
@@ -92,6 +93,11 @@ function ClientCasePage({
       <ClaimBanner
         show={showClaimBanner}
         onDismiss={() => setHideClaimBanner(true)}
+        className={chatExpanded ? "md:col-span-2" : undefined}
+      />
+      <PublicViewBanner
+        caseId={caseId}
+        show={readOnly}
         className={chatExpanded ? "md:col-span-2" : undefined}
       />
       <div
