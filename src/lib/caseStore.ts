@@ -455,8 +455,11 @@ export function setPhotoNote(
   current.photoNotes[photo] = note;
   current.updatedAt = new Date().toISOString();
   saveCase(current);
-  caseEvents.emit("update", current);
-  return current;
+  const layered = getCase(id);
+  if (layered) {
+    caseEvents.emit("update", layered);
+  }
+  return layered;
 }
 
 export function setCaseTranslation(
