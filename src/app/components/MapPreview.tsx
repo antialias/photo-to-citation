@@ -24,22 +24,22 @@ export default function MapPreview({
       className={`relative ${className ?? ""}`}
       style={{ aspectRatio: `${width} / ${height}` }}
     >
-      {link ? (
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute inset-0 z-10"
-        >
-          <span className="sr-only">View on map</span>
-        </a>
-      ) : null}
       <img
         src={url}
         alt={`Map preview at ${lat}, ${lon}`}
         className="object-cover absolute inset-0 w-full h-full"
         loading="lazy"
       />
+      {link ? (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0"
+        >
+          <span className="sr-only">View on map</span>
+        </a>
+      ) : null}
     </div>
   );
 }
