@@ -116,4 +116,29 @@ describe("upload route", () => {
     const updated = caseStore.getCase(c.id);
     expect(updated?.photos.length).toBe(2);
   });
+
+  it("records provided gps when photo lacks coordinates", async () => {
+    const fakeReq = {
+      method: "POST",
+      formData: async () => ({
+        get(name: string) {
+          if (name === "photo") {
+            return {
+              arrayBuffer: async () => Buffer.from("a"),
+              name: "a.jpg",
+              type: "image/jpeg",
+            } as unknown as File;
+          }
+          if (name === "lat") return "1.23";
+          if (name === "lon") return "4.56";
+          return null;
+        },
+      }),
+    } as unknown as Request;
+    const res = await mod.POST(fakeReq, { params: Promise.resolve({}) });
+    worker.emit("exit");
+    const { caseId } = await res.json();
+    const created = caseStore.getCase(caseId);
+    expect(created?.gps).toEqual({ lat: 1.23, lon: 4.56 });
+  });
 });

@@ -16,9 +16,15 @@ export default function TakePhotoWidget({
   const uploadCase = useAddFilesToCase(caseId);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [gps, setGps] = useState<{ lat: number; lon: number } | null>(null);
   const { t } = useTranslation();
 
   useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setGps({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+      });
+    }
     let stream: MediaStream | null = null;
     async function startCamera() {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -67,7 +73,7 @@ export default function TakePhotoWidget({
       const dt = new DataTransfer();
       dt.items.add(file);
       setUploading(true);
-      await uploadCase(dt.files);
+      await uploadCase(dt.files, gps);
       setUploading(false);
       onClose();
     }, "image/jpeg");

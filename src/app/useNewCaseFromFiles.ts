@@ -14,7 +14,10 @@ export default function useNewCaseFromFiles() {
     mutationFn: async (formData: FormData) =>
       apiFetch("/api/upload", { method: "POST", body: formData }),
   });
-  return async (files: FileList | null) => {
+  return async (
+    files: FileList | null,
+    gps?: { lat: number; lon: number } | null,
+  ) => {
     if (!files || files.length === 0) return;
     const id = crypto.randomUUID();
     const preview = URL.createObjectURL(files[0]);
@@ -24,6 +27,10 @@ export default function useNewCaseFromFiles() {
         const formData = new FormData();
         formData.append("photo", file);
         formData.append("caseId", id);
+        if (gps) {
+          formData.append("lat", String(gps.lat));
+          formData.append("lon", String(gps.lon));
+        }
         const upload = uploadMutation.mutateAsync(formData);
         if (idx === 0) {
           upload.then(() => {
