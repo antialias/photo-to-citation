@@ -41,7 +41,7 @@ export default function ChatHeader() {
         type="button"
         onClick={toggleExpanded}
         aria-label={expanded ? t("collapseChat") : t("expandChat")}
-        className="text-xl leading-none flex-none"
+        className="text-xl leading-none flex-none hidden sm:block"
       >
         {expanded ? <FaCompressArrowsAlt /> : <FaExpandArrowsAlt />}
       </button>
