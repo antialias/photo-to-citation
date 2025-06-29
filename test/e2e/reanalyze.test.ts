@@ -93,7 +93,7 @@ describe("reanalysis", () => {
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
         () => {
           const start = Date.now();
-          while (Date.now() - start < 200) {}
+          while (Date.now() - start < 2000) {}
           return {
             violationType: "parking",
             details: "d",
