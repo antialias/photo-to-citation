@@ -145,6 +145,18 @@ function rowToCase(row: {
         ...(a.paperworkInfo !== null && {
           paperworkInfo: JSON.parse(a.paperworkInfo),
         }),
+        ...(a.context !== null && {
+          context: normalizeLocalizedText(
+            (() => {
+              try {
+                return JSON.parse(a.context);
+              } catch {
+                return a.context;
+              }
+            })(),
+            base.analysis?.language ?? "en",
+          ),
+        }),
       };
     }
     if (!base.analysis)
@@ -229,6 +241,10 @@ function saveCase(c: Case) {
           paperworkInfo: info.paperworkInfo
             ? JSON.stringify(info.paperworkInfo)
             : null,
+          context:
+            info.context === undefined || info.context === null
+              ? null
+              : JSON.stringify(info.context),
         })
         .run();
     }

@@ -38,6 +38,7 @@ export const casePhotoAnalysis = sqliteTable(
     paperwork: integer("paperwork"),
     paperworkText: text("paperwork_text"),
     paperworkInfo: text("paperwork_info"),
+    context: text("context"),
   },
   (t) => ({
     pk: primaryKey(t.caseId, t.url),
