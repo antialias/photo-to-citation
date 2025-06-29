@@ -1,4 +1,5 @@
 # i18n Hydration Issue
+<!-- markdownlint-disable MD013 -->
 
 We noticed intermittent hydration warnings in production whenever the `I18nProvider` loaded resources
 asynchronously. The component sometimes returned `null` on the client until `i18n` finished initializing,
