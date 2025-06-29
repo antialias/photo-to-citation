@@ -1,6 +1,7 @@
 "use client";
 import type { CaseChatReply } from "@/lib/caseChat";
 import useVisualViewportHeight from "../../hooks/useVisualViewportHeight";
+import styles from "./CaseChat.module.css";
 import {
   CaseChatProvider,
   type ChatResponse,
@@ -46,7 +47,7 @@ function CaseChatInner({ caseId }: { caseId: string }) {
         <div
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
             expanded ? "w-full h-full" : "w-screen sm:w-80 sm:max-h-[400px]"
-          }`}
+          }${expanded ? "" : ` ${styles.desktopShort}`}`}
           style={
             expanded ? undefined : { height: "var(--visual-viewport-height)" }
           }

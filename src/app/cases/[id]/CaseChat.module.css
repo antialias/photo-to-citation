@@ -80,3 +80,10 @@
   width: 0;
   animation: typing-ellipsis 1s steps(4, end) infinite;
 }
+
+@media (min-width: 640px) {
+  .desktopShort {
+    height: calc(var(--visual-viewport-height) - 1rem);
+    margin-top: 1rem;
+  }
+}
