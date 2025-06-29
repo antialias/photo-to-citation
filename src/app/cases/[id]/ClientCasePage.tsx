@@ -119,17 +119,19 @@ function ClientCasePage({
           {t("dropToAddPhotos")}
         </div>
       )}
-      <div
-        className={
-          chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
-        }
-      >
-        <CaseChat
-          caseId={caseId}
-          expanded={chatExpanded}
-          onExpandChange={setChatExpanded}
-        />
-      </div>
+      {readOnly ? null : (
+        <div
+          className={
+            chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
+          }
+        >
+          <CaseChat
+            caseId={caseId}
+            expanded={chatExpanded}
+            onExpandChange={setChatExpanded}
+          />
+        </div>
+      )}
     </div>
   );
 }
