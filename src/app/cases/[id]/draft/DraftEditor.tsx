@@ -5,6 +5,7 @@ import ThumbnailImage from "@/components/thumbnail-image";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { getLocalizedText } from "@/lib/localizedText";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,9 +31,13 @@ export default function DraftEditor({
 }) {
   const { i18n } = useTranslation();
   const [subject, setSubject] = useState(
-    initialDraft?.subject[i18n.language] || "",
+    initialDraft
+      ? getLocalizedText(initialDraft.subject, i18n.language).text
+      : "",
   );
-  const [body, setBody] = useState(initialDraft?.body[i18n.language] || "");
+  const [body, setBody] = useState(
+    initialDraft ? getLocalizedText(initialDraft.body, i18n.language).text : "",
+  );
   const [sending, setSending] = useState(false);
   const [snailMail, setSnailMail] = useState(false);
   const [snailMailDisabled, setSnailMailDisabled] = useState(false);
@@ -49,8 +54,8 @@ export default function DraftEditor({
 
   useEffect(() => {
     if (initialDraft) {
-      setSubject(initialDraft.subject[i18n.language] || "");
-      setBody(initialDraft.body[i18n.language] || "");
+      setSubject(getLocalizedText(initialDraft.subject, i18n.language).text);
+      setBody(getLocalizedText(initialDraft.body, i18n.language).text);
     }
   }, [initialDraft, i18n.language]);
 
