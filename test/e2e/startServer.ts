@@ -23,12 +23,12 @@ export async function startServer(
   port = 3002,
   env: Partial<NodeJS.ProcessEnv> = {},
 ): Promise<TestServer> {
-  const nextBin = path.join("node_modules", ".bin", "next");
+  const tsNodeBin = path.join("node_modules", ".bin", "ts-node");
   // Using EMAIL_FILE activates the mock email store defined in src/lib/email.ts
   // so no real messages are sent during tests.
   const emailFile =
     env.EMAIL_FILE ?? path.join(os.tmpdir(), `e2e-emails-${port}.json`);
-  const proc = spawn(nextBin, ["dev", "-p", String(port), "--turbo"], {
+  const proc = spawn(tsNodeBin, ["--transpile-only", "server.ts"], {
     env: {
       ...process.env,
       NEXT_TELEMETRY_DISABLED: "1",
@@ -36,6 +36,7 @@ export async function startServer(
       NODE_ENV: env.NODE_ENV ?? "test",
       TEST_APIS: "1",
       NEXTAUTH_URL: `http://localhost:${port}`,
+      PORT: String(port),
       SUPER_ADMIN_EMAIL: "",
       SMTP_HOST: "",
       SMTP_PORT: "",
