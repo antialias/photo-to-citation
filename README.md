@@ -22,7 +22,8 @@ This stack is designed for performance, type safety, and complete control over h
 
 ## Getting Started
 
-Install dependencies and start the development server:
+Install dependencies and start the development server (using the custom
+WebSocket-enabled server):
 
 ```bash
 npm install
