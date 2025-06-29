@@ -11,6 +11,8 @@ export default function useVisualViewportHeight() {
         "--visual-viewport-height",
         `${height}px`,
       );
+      // prevent the browser from scrolling the page when the keyboard opens
+      window.scrollTo({ top: 0 });
     };
     setHeight();
     window.visualViewport?.addEventListener("resize", setHeight);
