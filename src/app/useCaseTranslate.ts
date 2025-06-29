@@ -17,9 +17,10 @@ export default function useCaseTranslate(caseId: string) {
         body: JSON.stringify({ path, lang }),
       });
       if (!res.ok) throw new Error(t("failedToTranslate"));
+      return res.json();
     },
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
+    onSuccess(data) {
+      queryClient.setQueryData(caseQueryKey(caseId), data);
     },
     onError() {
       notify(t("failedToTranslate"));

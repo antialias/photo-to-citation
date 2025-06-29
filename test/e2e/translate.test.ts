@@ -32,6 +32,18 @@ async function signIn(email: string) {
   );
 }
 
+async function signOut() {
+  const csrf = await api("/api/auth/csrf").then((r) => r.json());
+  await api("/api/auth/signout", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      csrfToken: csrf.csrfToken,
+      callbackUrl: server.url,
+    }),
+  });
+}
+
 async function createCase(): Promise<string> {
   const file = createPhoto("a");
   const form = new FormData();
@@ -93,5 +105,43 @@ describe("translate api", () => {
     };
     expect(updated.analysis.details.es).toBe("hola");
     expect(stub.requests.length).toBeGreaterThan(1);
+  });
+
+  it("allows anonymous translation on public cases", async () => {
+    const id = await createCase();
+    const res = await poll(
+      () => api(`/api/cases/${id}`),
+      async (r) => {
+        if (r.status !== 200) return false;
+        const j = await r.clone().json();
+        return j.analysis !== null;
+      },
+      20,
+    );
+    const base = (await res.json()) as { analysis?: { details?: unknown } };
+    expect(base.analysis).toBeTruthy();
+    const pub = await api(`/api/cases/${id}/public`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public: true }),
+    });
+    expect(pub.status).toBe(200);
+    await signOut();
+    const tr = await api(`/api/cases/${id}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: "analysis.details", lang: "fr" }),
+    });
+    expect(tr.status).toBe(200);
+    const updated = (await tr.json()) as {
+      analysis: { details: Record<string, string> };
+    };
+    expect(updated.analysis.details.fr).toBeTruthy();
+    const getRes = await api(`/api/cases/${id}`);
+    expect(getRes.status).toBe(200);
+    const fetched = (await getRes.json()) as {
+      analysis: { details: Record<string, string> };
+    };
+    expect(fetched.analysis.details.fr).toBe(updated.analysis.details.fr);
   });
 });
