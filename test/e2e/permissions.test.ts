@@ -54,7 +54,12 @@ async function createCase(): Promise<string> {
 }
 
 beforeAll(async () => {
-  stub = await startOpenAIStub({ subject: "", body: "" });
+  stub = await startOpenAIStub({
+    violationType: "parking",
+    details: "",
+    vehicle: {},
+    images: {},
+  });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   server = await startServer(3011, {
     NEXTAUTH_SECRET: "secret",
