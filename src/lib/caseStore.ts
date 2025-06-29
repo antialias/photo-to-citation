@@ -139,6 +139,18 @@ function rowToCase(row: {
             base.analysis?.language ?? "en",
           ),
         }),
+        ...(a.context !== null && {
+          context: normalizeLocalizedText(
+            (() => {
+              try {
+                return JSON.parse(a.context as string);
+              } catch {
+                return a.context as string;
+              }
+            })(),
+            base.analysis?.language ?? "en",
+          ),
+        }),
         ...(a.violation !== null && { violation: Boolean(a.violation) }),
         ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),
         ...(a.paperworkText !== null && { paperworkText: a.paperworkText }),
@@ -213,6 +225,10 @@ function saveCase(c: Case) {
             info.highlights === undefined || info.highlights === null
               ? null
               : JSON.stringify(info.highlights),
+          context:
+            info.context === undefined || info.context === null
+              ? null
+              : JSON.stringify(info.context),
           violation:
             info.violation === undefined || info.violation === null
               ? null

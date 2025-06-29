@@ -197,6 +197,7 @@ describe("caseStore", () => {
           "a.jpg": {
             representationScore: 0.9,
             highlights: { en: "caption" },
+            context: { en: "full" },
           },
         },
       },
@@ -204,6 +205,9 @@ describe("caseStore", () => {
     const stored = getCase(c.id);
     expect(stored?.analysis?.images["a.jpg"].highlights).toEqual({
       en: "caption",
+    });
+    expect(stored?.analysis?.images["a.jpg"].context).toEqual({
+      en: "full",
     });
   });
 

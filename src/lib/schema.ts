@@ -34,6 +34,7 @@ export const casePhotoAnalysis = sqliteTable(
     url: text("url").notNull(),
     representationScore: real("representation_score").notNull(),
     highlights: text("highlights"),
+    context: text("context"),
     violation: integer("violation"),
     paperwork: integer("paperwork"),
     paperworkText: text("paperwork_text"),
