@@ -41,10 +41,7 @@ describe("draftEmail", () => {
       choices: [
         {
           message: {
-            content: JSON.stringify({
-              subject: { en: "s" },
-              body: { en: "b" },
-            }),
+            content: JSON.stringify({ subject: "s", body: "b" }),
           },
         },
       ],
@@ -71,10 +68,7 @@ describe("draftEmail", () => {
         choices: [
           {
             message: {
-              content: JSON.stringify({
-                subject: { en: "s2" },
-                body: { en: "b2" },
-              }),
+              content: JSON.stringify({ subject: "s2", body: "b2" }),
             },
           },
         ],
@@ -116,10 +110,7 @@ describe("draftOwnerNotification", () => {
       choices: [
         {
           message: {
-            content: JSON.stringify({
-              subject: { en: "s" },
-              body: { en: "b" },
-            }),
+            content: JSON.stringify({ subject: "s", body: "b" }),
           },
         },
       ],
@@ -144,10 +135,7 @@ describe("draftOwnerNotification", () => {
         choices: [
           {
             message: {
-              content: JSON.stringify({
-                subject: { en: "s2" },
-                body: { en: "b2" },
-              }),
+              content: JSON.stringify({ subject: "s2", body: "b2" }),
             },
           },
         ],
