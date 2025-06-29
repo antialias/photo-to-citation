@@ -19,8 +19,8 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import InlineTranslateButton from "../../components/InlineTranslateButton";
 import { useNotify } from "../../components/NotificationProvider";
-import TranslateIcon from "../../components/TranslateIcon";
 import useChatTranslate from "../../useChatTranslate";
 
 export interface Message {
@@ -518,22 +518,20 @@ export function CaseChatProvider({
   }
 
   async function handleTranslate(msg: Message) {
-    try {
-      const tr = await chatTranslate(msg.content, i18n.language);
-      setMessages((list) =>
-        list.map((m) =>
-          m.id === msg.id
-            ? {
-                ...m,
-                translations: {
-                  ...(m.translations ?? {}),
-                  [i18n.language]: tr,
-                },
-              }
-            : m,
-        ),
-      );
-    } catch {}
+    const tr = await chatTranslate(msg.content, i18n.language);
+    setMessages((list) =>
+      list.map((m) =>
+        m.id === msg.id
+          ? {
+              ...m,
+              translations: {
+                ...(m.translations ?? {}),
+                [i18n.language]: tr,
+              },
+            }
+          : m,
+      ),
+    );
   }
 
   function renderActions(actions: CaseChatAction[], msgId: string) {
@@ -613,14 +611,10 @@ export function CaseChatProvider({
       <span>
         {text}
         {needsTranslation ? (
-          <button
-            type="button"
-            onClick={() => void handleTranslate(m)}
-            aria-label={t("translate")}
-            className="ml-2 text-blue-500 hover:text-blue-700"
-          >
-            <TranslateIcon lang={i18n.language} />
-          </button>
+          <InlineTranslateButton
+            lang={i18n.language}
+            onTranslate={() => handleTranslate(m)}
+          />
         ) : null}
       </span>
     );
