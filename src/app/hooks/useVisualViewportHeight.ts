@@ -1,8 +1,9 @@
 "use client";
 import { useEffect } from "react";
 
-export default function useVisualViewportHeight() {
+export default function useVisualViewportHeight(active = true) {
   useEffect(() => {
+    if (!active) return;
     const setHeight = () => {
       const height = window.visualViewport
         ? window.visualViewport.height
@@ -21,5 +22,5 @@ export default function useVisualViewportHeight() {
       window.visualViewport?.removeEventListener("resize", setHeight);
       window.removeEventListener("resize", setHeight);
     };
-  }, []);
+  }, [active]);
 }

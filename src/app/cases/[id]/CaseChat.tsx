@@ -31,7 +31,7 @@ export default function CaseChat(props: {
 
 function CaseChatInner({ caseId }: { caseId: string }) {
   const { open, expanded, handleOpen } = useCaseChat();
-  useVisualViewportHeight();
+  useVisualViewportHeight(open);
   return (
     <div
       className={`${
