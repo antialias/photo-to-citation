@@ -7,6 +7,7 @@ import { getRepresentativePhoto } from "@/lib/caseUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../hooks/useCase";
 import useCaseMembers, {
@@ -55,11 +56,28 @@ export function CaseProvider({
   );
   const notify = useNotify();
   const router = useRouter();
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const analysisActive = useCaseAnalysisActive(
     caseId,
     caseData?.public ?? false,
   );
+
+  const prevCaseRef = useRef<Case | null>(caseData);
+
+  useEffect(() => {
+    const prev = prevCaseRef.current;
+    if (
+      prev &&
+      prev.analysisStatus === "failed" &&
+      (prev.analysisError === "parse" || prev.analysisError === "schema") &&
+      caseData &&
+      caseData.analysisStatus === "pending"
+    ) {
+      notify(t("analysisRestarted"));
+    }
+    prevCaseRef.current = caseData;
+  }, [caseData, notify, t]);
 
   useEffect(() => {
     const es = apiEventSource("/api/cases/stream");

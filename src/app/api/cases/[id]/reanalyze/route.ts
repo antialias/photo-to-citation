@@ -39,6 +39,15 @@ export const POST = withCaseAuthorization(
     if (!c) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
+    if (
+      c.analysisStatus === "failed" &&
+      (c.analysisError === "parse" || c.analysisError === "schema")
+    ) {
+      console.info(
+        `Restarting case analysis due to invalid output: ${c.analysisError}`,
+        { caseId: id },
+      );
+    }
     cancelCaseAnalysis(id);
     const updated = updateCase(id, {
       analysisStatus: "pending",
