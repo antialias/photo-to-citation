@@ -53,7 +53,7 @@ export default async function RootLayout({
     NEXT_PUBLIC_BROWSER_DEBUG: config.NEXT_PUBLIC_BROWSER_DEBUG,
   };
   return (
-    <html lang={storedLang}>
+    <html lang={storedLang} translate="no">
       <body className="antialiased">
         <script
           id="public-env"
