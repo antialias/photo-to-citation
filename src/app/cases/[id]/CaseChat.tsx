@@ -1,5 +1,7 @@
 "use client";
 import type { CaseChatReply } from "@/lib/caseChat";
+import { useRef } from "react";
+import useViewportHeight from "../../useViewportHeight";
 import {
   CaseChatProvider,
   type ChatResponse,
@@ -30,6 +32,8 @@ export default function CaseChat(props: {
 
 function CaseChatInner({ caseId }: { caseId: string }) {
   const { open, expanded, handleOpen } = useCaseChat();
+  const containerRef = useRef<HTMLDivElement>(null);
+  useViewportHeight(containerRef, open && !expanded);
   return (
     <div
       className={`${
@@ -42,8 +46,9 @@ function CaseChatInner({ caseId }: { caseId: string }) {
     >
       {open ? (
         <div
+          ref={containerRef}
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen h-[100dvh] sm:w-80 sm:h-96"
+            expanded ? "w-full h-full" : "w-screen sm:w-80 sm:h-96"
           }`}
         >
           <ChatHeader />
