@@ -1,5 +1,7 @@
 "use client";
 import type { CaseChatReply } from "@/lib/caseChat";
+import isMobile from "is-mobile";
+import { useEffect } from "react";
 import {
   CaseChatProvider,
   type ChatResponse,
@@ -30,6 +32,21 @@ export default function CaseChat(props: {
 
 function CaseChatInner({ caseId }: { caseId: string }) {
   const { open, expanded, handleOpen } = useCaseChat();
+
+  useEffect(() => {
+    if (!isMobile()) return;
+    const body = document.body;
+    const prevOverflow = body.style.overflow;
+    const prevHeight = body.style.height;
+    if (open) {
+      body.style.overflow = "hidden";
+      body.style.height = "100dvh";
+    }
+    return () => {
+      body.style.overflow = prevOverflow;
+      body.style.height = prevHeight;
+    };
+  }, [open]);
   return (
     <div
       className={`${
