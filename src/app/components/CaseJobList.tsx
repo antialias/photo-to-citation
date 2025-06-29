@@ -1,5 +1,6 @@
 "use client";
 import { apiEventSource } from "@/apiClient";
+import { subscribe as wsSubscribe } from "@/webSocketClient";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -28,15 +29,23 @@ export default function CaseJobList({
   const { t } = useTranslation();
 
   useEffect(() => {
+    const off = wsSubscribe("jobUpdate", (data) => {
+      const info = data as JobResponse;
+      const filtered = info.jobs.filter((j) => j.caseId === caseId);
+      setJobs(filtered);
+      setAuditedAt(info.auditedAt);
+      setUpdatedAt(info.updatedAt);
+    });
+    if (off) return off;
     const base = isPublic ? "/api/public/cases" : "/api/cases";
     const es = apiEventSource(
       `${base}/${encodeURIComponent(caseId)}/jobs/stream`,
     );
     es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
-      setJobs(data.jobs);
-      setAuditedAt(data.auditedAt);
-      setUpdatedAt(data.updatedAt);
+      const info: JobResponse = JSON.parse(e.data);
+      setJobs(info.jobs);
+      setAuditedAt(info.auditedAt);
+      setUpdatedAt(info.updatedAt);
     };
     return () => es.close();
   }, [caseId, isPublic]);
