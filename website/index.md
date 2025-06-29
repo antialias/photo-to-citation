@@ -2,6 +2,7 @@
 title: Home
 layout: layout.njk
 ---
+<!-- markdownlint-disable MD033 -->
 
 <!-- markdownlint-disable MD013 -->
 
