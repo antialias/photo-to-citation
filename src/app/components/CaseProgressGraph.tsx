@@ -215,7 +215,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const platePhoto = (() => {
       const plate = getCasePlateNumber(caseData);
       if (!plate || !caseData.analysis?.images)
-        return caseData.photos[0] ?? null;
+        return caseData.photos[0] ? `/uploads/${caseData.photos[0]}` : null;
       for (const [name, info] of Object.entries(caseData.analysis.images)) {
         const hi =
           typeof info.highlights === "string"
@@ -228,10 +228,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
           hi.toLowerCase().includes("plate")
         ) {
           const file = caseData.photos.find((p) => p.split("/").pop() === name);
-          if (file) return file;
+          if (file) return `/uploads/${file}`;
         }
       }
-      return caseData.photos[0] ?? null;
+      return caseData.photos[0] ? `/uploads/${caseData.photos[0]}` : null;
     })();
     const ownerDoc = (caseData.threadImages ?? []).find(
       (i) => i.ocrInfo?.contact,
@@ -239,7 +239,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     const ownerLink = ownerDoc
       ? ownerDoc.threadParent
         ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
-        : ownerDoc.url
+        : `/uploads/${ownerDoc.url}`
       : null;
     const ownerInfo = getCaseOwnerContactInfo(caseData);
     const ownerNotifyEmail = ownerInfo?.email
@@ -282,7 +282,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       caseData.analysis && getAnalysisSummary(caseData.analysis);
     const links = [
       caseData.photos[0]
-        ? `click uploaded "${caseData.photos[0]}" "${clean(uploadedTip)}"`
+        ? `click uploaded "/uploads/${caseData.photos[0]}" "${clean(uploadedTip)}"`
         : null,
       platePhoto ? `click plate "${platePhoto}" "${clean(plateTip)}"` : null,
       ownerLink ? `click own "${ownerLink}" "${clean(ownerTip)}"` : null,
@@ -349,7 +349,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const platePhoto = (() => {
         const plate = getCasePlateNumber(caseData);
         if (!plate || !caseData.analysis?.images)
-          return caseData.photos[0] ?? null;
+          return caseData.photos[0] ? `/uploads/${caseData.photos[0]}` : null;
         for (const [name, info] of Object.entries(caseData.analysis.images)) {
           const hi =
             typeof info.highlights === "string"
@@ -364,10 +364,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
             const file = caseData.photos.find(
               (p) => p.split("/").pop() === name,
             );
-            if (file) return file;
+            if (file) return `/uploads/${file}`;
           }
         }
-        return caseData.photos[0] ?? null;
+        return caseData.photos[0] ? `/uploads/${caseData.photos[0]}` : null;
       })();
       const ownerDoc = (caseData.threadImages ?? []).find(
         (i) => i.ocrInfo?.contact,
@@ -375,7 +375,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const ownerLink = ownerDoc
         ? ownerDoc.threadParent
           ? `/cases/${caseData.id}/thread/${encodeURIComponent(ownerDoc.threadParent)}`
-          : ownerDoc.url
+          : `/uploads/${ownerDoc.url}`
         : null;
       const ownerInfo = getCaseOwnerContactInfo(caseData);
       const ownerNotifyEmail = ownerInfo?.email
@@ -393,8 +393,10 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       const bestViolation = getBestViolationPhoto(caseData);
       if (caseData.photos.length > 0)
         map.uploaded = {
-          url: caseData.photos[0],
-          preview: caseData.photos.slice(-UPLOADED_PREVIEW_COUNT),
+          url: `/uploads/${caseData.photos[0]}`,
+          preview: caseData.photos
+            .slice(-UPLOADED_PREVIEW_COUNT)
+            .map((p) => `/uploads/${p}`),
           isImage: true,
           count: caseData.photos.length,
         };
@@ -403,7 +405,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
       if (ownerLink)
         map.own = {
           url: ownerLink,
-          preview: ownerDoc?.url ?? ownerLink,
+          preview: ownerDoc?.url ? `/uploads/${ownerDoc.url}` : ownerLink,
           isImage: true,
         };
       if (ownerNotifyLink)
@@ -420,8 +422,8 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         };
       if (bestViolation)
         map.violation = {
-          url: bestViolation.photo,
-          preview: bestViolation.photo,
+          url: `/uploads/${bestViolation.photo}`,
+          preview: `/uploads/${bestViolation.photo}`,
           isImage: true,
           caption: bestViolation.caption,
         };
