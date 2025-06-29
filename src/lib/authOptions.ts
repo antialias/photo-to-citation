@@ -36,6 +36,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: config.GOOGLE_CLIENT_ID ?? "",
       clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   pages: { signIn: "/signin" },
