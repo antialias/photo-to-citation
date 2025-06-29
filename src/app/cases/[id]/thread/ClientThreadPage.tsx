@@ -97,7 +97,10 @@ export default function ClientThreadPage({
 
   return (
     <div className="p-8 flex flex-col gap-4">
-      <div className="sticky top-14 bg-white dark:bg-gray-900 flex justify-between items-center border-b pb-2">
+      <div
+        className="sticky bg-white dark:bg-gray-900 flex justify-between items-center border-b pb-2"
+        style={{ top: "var(--app-header-height, 3.5rem)" }}
+      >
         <div className="flex items-center gap-2">
           <Link
             href={`/cases/${caseId}`}

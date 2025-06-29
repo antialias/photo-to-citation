@@ -5,7 +5,7 @@ import { signIn, signOut, useSession } from "@/app/useSession";
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaBars } from "react-icons/fa";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -14,9 +14,24 @@ export default function NavBar() {
   const pathname = usePathname();
   const uploadCase = useNewCaseFromFiles();
   const inputRef = useRef<HTMLInputElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const { data: session } = useSession();
   const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      if (navRef.current) {
+        document.documentElement.style.setProperty(
+          "--app-header-height",
+          `${navRef.current.offsetHeight}px`,
+        );
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   if (pathname.startsWith("/point")) {
     return (
       <nav className="p-2 flex justify-end bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -132,7 +147,10 @@ export default function NavBar() {
   );
 
   return (
-    <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-10">
+    <nav
+      ref={navRef}
+      className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-10"
+    >
       <Link
         href="/"
         className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
