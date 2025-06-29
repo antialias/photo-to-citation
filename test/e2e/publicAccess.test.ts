@@ -89,6 +89,8 @@ describe("anonymous access", () => {
 
     const res = await api(`/api/public/cases/${id}`);
     expect(res.status).toBe(200);
+    const direct = await api(`/api/cases/${id}`);
+    expect(direct.status).toBe(200);
   });
 
   it("allows logged in user to view photos on public case", async () => {
