@@ -23,6 +23,13 @@ export type LlmProgress =
       done: boolean;
       step?: number;
       steps?: number;
+    }
+  | {
+      stage: "retry";
+      attempt: number;
+      reason: string;
+      step?: number;
+      steps?: number;
     };
 
 export function logBadResponse(
@@ -30,10 +37,19 @@ export function logBadResponse(
   response: string,
   error: unknown,
 ): void {
+  let details: unknown = undefined;
+  if (typeof error === "object" && error && "issues" in error) {
+    try {
+      details = (
+        error as { issues: Array<{ path: unknown[]; message: string }> }
+      ).issues.map((i) => ({ path: i.path.join("."), message: i.message }));
+    } catch {}
+  }
   const entry = {
     timestamp: new Date().toISOString(),
     attempt: attempt + 1,
     error: String(error),
+    ...(details ? { details } : {}),
     response,
   };
   console.warn(JSON.stringify(entry));
@@ -85,6 +101,7 @@ export async function chatWithSchema<T>(
     }
     if (finish === "length") {
       logBadResponse(attempt, text, "truncated");
+      progress?.({ stage: "retry", attempt: attempt + 1, reason: "truncated" });
       if (attempt === 2) throw new Error("truncated");
       messages.push({ role: "assistant", content: text });
       messages.push({
@@ -99,6 +116,7 @@ export async function chatWithSchema<T>(
       parsed = JSON.parse(text);
     } catch (err) {
       logBadResponse(attempt, text, err);
+      progress?.({ stage: "retry", attempt: attempt + 1, reason: "parse" });
       if (attempt === 2) throw new Error("parse");
       messages.push({ role: "assistant", content: text });
       messages.push({
@@ -111,6 +129,7 @@ export async function chatWithSchema<T>(
       return schema.parse(parsed);
     } catch (err) {
       logBadResponse(attempt, text, err);
+      progress?.({ stage: "retry", attempt: attempt + 1, reason: "schema" });
       if (attempt === 2) throw new Error("schema");
       messages.push({ role: "assistant", content: text });
       messages.push({

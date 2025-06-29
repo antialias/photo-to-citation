@@ -21,7 +21,9 @@ export default function useCaseProgress(reanalyzingPhoto: string | null) {
       ? progress.index > 0
         ? (progress.index / progress.total) * 100
         : undefined
-      : Math.min((progress.received / progress.total) * 100, 100)
+      : progress.stage === "stream"
+        ? Math.min((progress.received / progress.total) * 100, 100)
+        : undefined
     : undefined;
 
   let progressDescription = "";
@@ -40,6 +42,9 @@ export default function useCaseProgress(reanalyzingPhoto: string | null) {
               count: progress.total,
             })
           : t("uploadingPhotos"));
+    } else if (progress.stage === "retry") {
+      progressDescription =
+        prefix + t("analysisRestarting", { attempt: progress.attempt });
     } else {
       progressDescription =
         prefix +

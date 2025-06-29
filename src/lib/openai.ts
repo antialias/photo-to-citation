@@ -26,6 +26,13 @@ export type LlmProgress =
       done: boolean;
       step?: number;
       steps?: number;
+    }
+  | {
+      stage: "retry";
+      attempt: number;
+      reason: string;
+      step?: number;
+      steps?: number;
     };
 
 export class AnalysisError extends Error {
@@ -41,10 +48,19 @@ function logBadResponse(
   response: string,
   error: unknown,
 ): void {
+  let details: unknown = undefined;
+  if (typeof error === "object" && error && "issues" in error) {
+    try {
+      details = (
+        error as { issues: Array<{ path: unknown[]; message: string }> }
+      ).issues.map((i) => ({ path: i.path.join("."), message: i.message }));
+    } catch {}
+  }
   const entry = {
     timestamp: new Date().toISOString(),
     attempt: attempt + 1,
     error: String(error),
+    ...(details ? { details } : {}),
     response,
   };
   console.warn(JSON.stringify(entry));
@@ -297,6 +313,7 @@ export async function analyzeViolation(
 
     if (finish === "length") {
       logBadResponse(attempt, text, "truncated");
+      progress?.({ stage: "retry", attempt: attempt + 1, reason: "truncated" });
       if (attempt === 2) throw new AnalysisError("truncated");
       messages.push({ role: "assistant", content: text });
       messages.push({
@@ -312,6 +329,7 @@ export async function analyzeViolation(
       parsed = JSON.parse(text);
     } catch (err) {
       logBadResponse(attempt, text, err);
+      progress?.({ stage: "retry", attempt: attempt + 1, reason: "parse" });
       if (attempt === 2) throw new AnalysisError("parse");
       messages.push({ role: "assistant", content: text });
       messages.push({
@@ -354,6 +372,7 @@ export async function analyzeViolation(
       };
     } catch (err) {
       logBadResponse(attempt, text, err);
+      progress?.({ stage: "retry", attempt: attempt + 1, reason: "schema" });
       if (attempt === 2) throw new AnalysisError("schema");
       messages.push({ role: "assistant", content: text });
       messages.push({

@@ -208,6 +208,7 @@
   "stepPrefix": "Étape {{step}} sur {{steps}}:",
   "analysisCanceled": "Analyse annulée.",
   "analysisFailed": "Échec de l'analyse.",
+  "analysisRestarting": "Redémarrage de l'analyse en raison d'une réponse invalide (tentative {{attempt}} sur 3)...",
   "photoActionsMenu": "Menu d'actions de la photo",
   "reanalyzePhoto": "Ré-analyser la photo",
   "deleteImage": "Supprimer l'image",
