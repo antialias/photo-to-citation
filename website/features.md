@@ -3,8 +3,6 @@ title: Features
 layout: layout.njk
 ---
 
-# Features
-
 Photo To Citation automates every step of reporting blocked bike lanes and sidewalks so you don’t have to.
 
 <ul class="features">
@@ -17,4 +15,3 @@ Photo To Citation automates every step of reporting blocked bike lanes and sidew
   <li><img class="feature-icon" src="{{ '/images/features/7.png' | url }}" alt="clipboard icon for citation tracking" width="64" height="64" data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}' /> <strong>Citation tracking</strong> — built-in modules keep tabs on the status of each citation so you know it’s moving forward.</li>
   <li><img class="feature-icon" src="{{ '/images/features/8.png' | url }}" alt="group of cyclists helping each other" width="64" height="64" data-image-gen='{"model":"gpt-image-1","size":"1024x1024"}' /> <strong>Community assistance</strong> — empower municipalities that need residents to help keep paths clear for biking and walking.</li>
 </ul>
-

@@ -16,12 +16,12 @@ This document proposes an approach for user login, role management, and access c
 
 ## 2. User Roles
 
-```
+```text
 - user (default)
 - admin
 - superadmin
 - anonymous
-```
+```text
 
 Roles are stored on the `User` record. The `anonymous` role represents unauthenticated visitors. The super admin can promote other users to admin or superadmin.
 
@@ -89,11 +89,11 @@ Each milestone is small enough to be reviewed and deployed on its own while stea
 
 The repository uses NextAuth for authentication and Casbin for authorization. The roles described above are:
 
-```
+```text
 - user (default)
 - admin
 - superadmin
-```
+```text
 
 The super admin can promote other users, and Casbin policies determine what each role may do. Case collaboration introduces a `CaseMember` table with `owner` and `collaborator` roles, plus a `public` flag allowing anonymous viewing of a case. An admin interface lets admins manage users, while super admins can edit policies directly. The policy migration seeds basic rules, including `("user", "upload", "create")` so authenticated users can submit photos by default.
 
@@ -117,7 +117,7 @@ Below is a consolidated permissions matrix based on the existing code and this p
 | **Invite/disable/delete users**                  | — | — | — | ✓ | ✓ |
 | **Modify Casbin policy matrix**                  | — | — | — | — | ✓ |
 
-**Notes**
+### Notes
 
 - The upload API now uses `withAuthorization("upload", "create")`, so only logged-in roles with that permission may create cases. The initial Casbin policy migration seeds this rule for the `user` role.
 - The collaborator role is per-case and allows commenting on an invited case as noted in the docs.

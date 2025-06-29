@@ -229,7 +229,7 @@ export default function ClientCasesPage({
                     : "ring-1 ring-transparent"
               }`}
             >
-              <div
+              <button
                 type="button"
                 onClick={(e) => {
                   if (e.shiftKey) {
@@ -296,7 +296,7 @@ export default function ClientCasesPage({
                     </span>
                   )}
                 </div>
-              </div>
+              </button>
             </li>
           ))}
       </ul>

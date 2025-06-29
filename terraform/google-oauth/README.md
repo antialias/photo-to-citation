@@ -4,10 +4,10 @@ This directory contains Terraform configuration for creating a Google OAuth clie
 used by the production deployment. The resources enable the IAP API, create an
 internal brand, and provision an OAuth client ID and secret.
 
-```
+```bash
 terraform init
 terraform apply
-```
+```bash
 
 Pass the required variables on the command line or in a `terraform.tfvars` file:
 
@@ -15,7 +15,7 @@ Pass the required variables on the command line or in a `terraform.tfvars` file:
 project          = "your-gcp-project-id"
 support_email    = "you@example.com"
 application_title = "photo-to-citation"
-```
+```bash
 
 After apply, copy `google_client_id` and `google_client_secret` from the outputs
 into your environment as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.

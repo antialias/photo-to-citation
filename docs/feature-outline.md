@@ -12,6 +12,7 @@ especially those blocking sidewalks or bike lanes, and forwards everything to
 the proper authorities.
 
 ### 1.1 Purpose
+
 - Empower citizens to report obstacles that endanger pedestrians and cyclists.
 - Provide a single place to upload and review parking violation photos.
 - Use automated tools to analyze images and prepare citation details.
@@ -19,6 +20,7 @@ the proper authorities.
 - Maintain a record of each case from creation through resolution.
 
 ### 1.2 Key Capabilities
+
 - Create cases directly from uploaded photos or inbound email.
 - Automatically extract location and vehicle details.
 - Generate reports and send notifications via email, SMS, and snail mail.
@@ -166,49 +168,59 @@ The finalized report feeds into the citation template. From here, the app
 generates PDFs or email drafts ready to send via the configured channels.
 
 ## 7. Communication Channels
+
 ### 7.1 Email
+
 - SMTP configuration
 - Sending case reports
 - Mock address support
 
 ### 7.2 Snail Mail
+
 - Overview of providers (mock, file, Docsmit)
 - Provider configuration
 - Polling for mail status
 
 ### 7.3 Phone and SMS
+
 - Twilio integration for SMS/WhatsApp/robocalls
 - Required credentials
 - Opt-in and notification flow
 
 ## 8. Inbox Scanning
+
 - IMAP configuration
 - Converting inbound email to cases
 
 ## 9. VIN Lookup
+
 - VIN source modules
 - Enabling/disabling modules via settings
 - Adding new lookup modules
 
 ## 10. Citation Tracking
+
 - Citation status modules
 - Updating case status from county court systems
 
 ## 11. Ownership Requests
+
 - Requesting vehicle ownership details
 - Mailing address and fee information
 
 ## 12. Jobs and Workers
+
 - Background task scheduler
 - Job types (analysis, geocoding, snail mail)
 - Monitoring job progress
 
 ## 13. Settings Page
+
 - Managing VIN and citation modules
 - Selecting snail mail provider
 - Environment-based options
 
 ## 14. Docker Deployment
+
 - Using docker compose
 - Serving the app with Traefik
-

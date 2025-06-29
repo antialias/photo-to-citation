@@ -6,7 +6,7 @@ Photo To Citation is an experimental app that helps residents of Oak Park, IL re
 
 - ✅ **Next.js 14** (App Router with React Server Components)
 - 🎨 **Tailwind CSS + shadcn/ui + Radix UI**
- - 🧠 **Drizzle ORM with SQLite**
+- 🧠 **Drizzle ORM with SQLite**
 - 🔄 **React Query (TanStack Query)** for client interactivity
 - 🔐 **Lucia or NextAuth.js** for authentication
 - ⚡ **Framer Motion** for animations
@@ -44,6 +44,7 @@ For local HTTPS, run:
 ```bash
 npm run https
 ```
+
 Then browse to [https://localhost](https://localhost).
 
 ## Authentication
@@ -157,6 +158,7 @@ error code, you can trigger a new pass with:
 ```bash
 npm run reanalyze
 ```
+
 This command scans stored cases and reprocesses any that meet the retry
 criteria.
 
@@ -462,6 +464,7 @@ export default function Example() {
 The provider requests browser permission so these messages can also appear as native notifications when allowed.
 
 ## Browser Debugging
+
 Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images, details, or chat messages to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
 
 ## Project Links
