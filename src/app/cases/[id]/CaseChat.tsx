@@ -1,5 +1,6 @@
 "use client";
 import type { CaseChatReply } from "@/lib/caseChat";
+import useVisualViewportHeight from "../../hooks/useVisualViewportHeight";
 import {
   CaseChatProvider,
   type ChatResponse,
@@ -30,6 +31,7 @@ export default function CaseChat(props: {
 
 function CaseChatInner({ caseId }: { caseId: string }) {
   const { open, expanded, handleOpen } = useCaseChat();
+  useVisualViewportHeight();
   return (
     <div
       className={`${
@@ -43,8 +45,11 @@ function CaseChatInner({ caseId }: { caseId: string }) {
       {open ? (
         <div
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen h-[100dvh] sm:w-80 sm:h-96"
+            expanded ? "w-full h-full" : "w-screen sm:w-80 sm:h-96"
           }`}
+          style={
+            expanded ? undefined : { height: "var(--visual-viewport-height)" }
+          }
         >
           <ChatHeader />
           <ChatMessages caseId={caseId} />
