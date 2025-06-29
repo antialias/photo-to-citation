@@ -3,11 +3,13 @@
 import { apiFetch } from "@/apiClient";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "./components/NotificationProvider";
 
 export default function useAddFilesToCase(caseId: string) {
   const router = useRouter();
   const notify = useNotify();
+  const { t } = useTranslation();
   const uploadMutation = useMutation({
     mutationFn: async (formData: FormData) =>
       apiFetch("/api/upload", { method: "POST", body: formData }),
@@ -23,7 +25,7 @@ export default function useAddFilesToCase(caseId: string) {
       }),
     );
     if (results.some((r) => !r.ok)) {
-      notify("Failed to upload one or more files.");
+      notify(t("failedUpload"));
       return;
     }
     router.push(`/cases/${caseId}`);

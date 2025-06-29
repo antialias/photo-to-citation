@@ -47,6 +47,6 @@ describe("CaseChat take photo action", () => {
     fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
     const actionBtn = await findByText("Take Photo");
     fireEvent.click(actionBtn);
-    expect(await findByText("Take Case Photo")).toBeTruthy();
+    expect(await findByText("Take Picture")).toBeTruthy();
   });
 });

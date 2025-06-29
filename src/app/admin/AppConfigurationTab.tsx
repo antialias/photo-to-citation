@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 interface VinSourceStatus {
   id: string;
@@ -29,6 +30,7 @@ export default function AppConfigurationTab() {
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
+  const { t } = useTranslation();
 
   const toggleMutation = useMutation({
     async mutationFn({ id, enabled }: { id: string; enabled: boolean }) {
@@ -56,7 +58,7 @@ export default function AppConfigurationTab() {
 
   return (
     <div>
-      <h1 className="text-xl font-bold mb-4">VIN Lookup Modules</h1>
+      <h1 className="text-xl font-bold mb-4">{t("vinLookupModules")}</h1>
       <ul className="grid gap-2">
         {sources.map((s) => (
           <li key={s.id} className="flex items-center gap-4">
@@ -75,12 +77,12 @@ export default function AppConfigurationTab() {
                   : "bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
               }
             >
-              {s.enabled ? "Disable" : "Enable"}
+              {s.enabled ? t("admin.disable") : t("enable")}
             </button>
           </li>
         ))}
       </ul>
-      <h1 className="text-xl font-bold my-4">Snail Mail Providers</h1>
+      <h1 className="text-xl font-bold my-4">{t("snailMailProviders")}</h1>
       <ul className="grid gap-2">
         {mailProviders.map((p) => (
           <li key={p.id} className="flex items-center gap-4">
@@ -89,7 +91,7 @@ export default function AppConfigurationTab() {
             </span>
             {p.active ? (
               <span className="px-2 py-1 bg-green-500 text-white rounded">
-                Active
+                {t("active")}
               </span>
             ) : (
               <button
@@ -98,7 +100,7 @@ export default function AppConfigurationTab() {
                 disabled={!isAdmin}
                 className="bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
               >
-                Activate
+                {t("activate")}
               </button>
             )}
           </li>

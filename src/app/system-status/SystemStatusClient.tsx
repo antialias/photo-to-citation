@@ -1,6 +1,7 @@
 "use client";
 import { apiEventSource } from "@/apiClient";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface JobInfo {
   id: number;
@@ -20,6 +21,7 @@ export default function SystemStatusClient() {
   const [auditedAt, setAuditedAt] = useState<number>(0);
   const [updatedAt, setUpdatedAt] = useState<number>(0);
   const [filter, setFilter] = useState<string>("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     const url =
@@ -40,20 +42,22 @@ export default function SystemStatusClient() {
 
   return (
     <div className="p-8">
-      <h1 className="text-xl font-bold mb-4">System Status</h1>
+      <h1 className="text-xl font-bold mb-4">{t("nav.systemStatus")}</h1>
       <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
-        Last audit: {auditedAt ? new Date(auditedAt).toLocaleString() : "n/a"}
+        {t("lastAudit")}{" "}
+        {auditedAt ? new Date(auditedAt).toLocaleString() : "n/a"}
         {" | "}
-        Last update: {updatedAt ? new Date(updatedAt).toLocaleString() : "n/a"}
+        {t("lastUpdate")}{" "}
+        {updatedAt ? new Date(updatedAt).toLocaleString() : "n/a"}
       </p>
       <label className="block mb-4">
-        <span className="mr-2">Job Type:</span>
+        <span className="mr-2">{t("jobType")}</span>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="border p-1"
         >
-          <option value="">All</option>
+          <option value="">{t("all")}</option>
           {types.map((t) => (
             <option key={t} value={t}>
               {t}
@@ -62,14 +66,16 @@ export default function SystemStatusClient() {
         </select>
       </label>
       {jobs.length === 0 ? (
-        <p>No active jobs.</p>
+        <p>{t("noActiveJobs")}</p>
       ) : (
         <ul className="grid gap-2">
           {jobs.map((j) => (
             <li key={j.id} className="border p-2">
               <span className="font-mono mr-2">{j.type}</span>
               {j.caseId ? (
-                <span className="mr-2 text-gray-500">case {j.caseId}</span>
+                <span className="mr-2 text-gray-500">
+                  {t("caseLabel", { id: j.caseId })}
+                </span>
               ) : null}
               {new Date(j.startedAt).toLocaleString()}
             </li>
