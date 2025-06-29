@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import next from "next";
-import { WebSocketServer } from "ws";
+import { type WebSocket, WebSocketServer } from "ws";
 import { caseEvents } from "./src/lib/caseEvents";
 import { jobEvents } from "./src/lib/jobEvents";
 import { listJobs } from "./src/lib/jobScheduler";
@@ -17,13 +17,13 @@ app.prepare().then(() => {
 
   server.on("upgrade", (req, socket, head) => {
     if (req.url === "/ws") {
-      wss.handleUpgrade(req, socket, head, (ws) => {
+      wss.handleUpgrade(req, socket, head, (ws: WebSocket) => {
         wss.emit("connection", ws, req);
       });
     }
   });
 
-  wss.on("connection", (socket) => {
+  wss.on("connection", (socket: WebSocket) => {
     const send = (event: string, data: unknown) => {
       if (socket.readyState === socket.OPEN) {
         socket.send(JSON.stringify({ event, data }));
