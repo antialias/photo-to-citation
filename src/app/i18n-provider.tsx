@@ -52,6 +52,5 @@ export default function I18nProvider({
     };
   }, [ready]);
 
-  if (!ready && !isServer) return null;
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }
