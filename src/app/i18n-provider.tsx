@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 import i18n, { initI18n } from "../i18n";
 
@@ -7,26 +7,14 @@ export default function I18nProvider({
   children,
   lang,
 }: { children: React.ReactNode; lang: string }) {
-  const isServer = typeof window === "undefined";
-  if (isServer && !i18n.isInitialized) {
+  if (!i18n.isInitialized) {
     void initI18n(lang);
+  } else if (i18n.language !== lang) {
+    void i18n.changeLanguage(lang);
   }
-  const [ready, setReady] = useState(i18n.isInitialized || isServer);
 
   useEffect(() => {
-    if (isServer) return;
-    let ignore = false;
-    void (async () => {
-      await initI18n(lang);
-      if (!ignore) setReady(true);
-    })();
-    return () => {
-      ignore = true;
-    };
-  }, [lang, isServer]);
-
-  useEffect(() => {
-    if (!ready || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     // Fallback to the browser's preferred languages if no cookie is set
     if (!document.cookie.includes("language=")) {
       const supported = ["en", "es", "fr"];
@@ -50,8 +38,7 @@ export default function I18nProvider({
     return () => {
       i18n.off("languageChanged", handler);
     };
-  }, [ready]);
+  }, []);
 
-  if (!ready && !isServer) return null;
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }
