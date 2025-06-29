@@ -8,6 +8,7 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
   `npm install @biomejs/cli-linux-x64 @rollup/rollup-linux-x64-gnu`.
 - Run `npm run format` before committing to apply Biome's auto-formatting.
 - Ensure `npm run lint` completes with no errors or warnings.
+- If you edited any Markdown files, run `npm run lint:md` to check them before completing the task.
 - Do not introduce any new TypeScript errors. If you can quickly fix an error
   without side effects, include that fix in the same task.
 
