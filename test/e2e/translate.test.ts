@@ -51,6 +51,8 @@ beforeAll(async () => {
       images: {},
     },
     "hola",
+    "hello",
+    "hola",
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-translate-"));
   server = await startServer(3032, {
@@ -93,5 +95,40 @@ describe("translate api", () => {
     };
     expect(updated.analysis.details.es).toBe("hola");
     expect(stub.requests.length).toBeGreaterThan(1);
+  });
+
+  it("translates chat message", async () => {
+    const id = await createCase();
+    await poll(
+      () => api(`/api/cases/${id}`),
+      async (r) => {
+        if (r.status !== 200) return false;
+        const j = await r.clone().json();
+        return j.analysis !== null;
+      },
+      20,
+    );
+    const chat = await api(`/api/cases/${id}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ id: "u1", role: "user", content: "Hi", lang: "en" }],
+        lang: "en",
+      }),
+    });
+    expect(chat.status).toBe(200);
+    const c = (await api(`/api/cases/${id}`).then((r) => r.json())) as {
+      chatMessages: Array<{ id: string; role: string }>;
+    };
+    const last = c.chatMessages.find((m) => m.role === "assistant");
+    expect(last).toBeTruthy();
+    const tr = await api(`/api/cases/${id}/chat/${last?.id}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang: "es" }),
+    });
+    expect(tr.status).toBe(200);
+    const data = (await tr.json()) as { text: string };
+    expect(data.text).toBe("hola");
   });
 });

@@ -40,6 +40,7 @@ export interface Case {
   sentEmails?: SentEmail[];
   ownershipRequests?: OwnershipRequest[];
   threadImages?: ThreadImage[];
+  chatMessages?: CaseChatMessage[];
   closed?: boolean;
   note?: string | null;
   photoNotes?: Record<string, string | null>;
@@ -63,6 +64,14 @@ export interface OwnershipRequest {
   /** @zod.date */
   requestedAt: string;
   checkNumber?: string | null;
+}
+
+export interface CaseChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: Record<string, string>;
+  lang: string;
+  actions?: import("./caseChat").CaseChatAction[];
 }
 
 export interface ThreadImage {
@@ -93,6 +102,9 @@ function rowToCase(row: {
   }
   if (!("archived" in base)) {
     (base as Partial<Case>).archived = false;
+  }
+  if (!("chatMessages" in base)) {
+    (base as Partial<Case>).chatMessages = [];
   }
   const photos = orm
     .select()
@@ -319,6 +331,7 @@ export function createCase(
     sentEmails: [],
     ownershipRequests: [],
     threadImages: [],
+    chatMessages: [],
     closed: false,
     archived: false,
   };
@@ -511,6 +524,52 @@ export function addCaseThreadImage(
   saveCase(current);
   caseEvents.emit("update", current);
   return current;
+}
+
+export function addCaseChatMessages(
+  id: string,
+  msgs: CaseChatMessage[],
+): Case | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  const list = current.chatMessages ?? [];
+  const ids = new Set(list.map((m) => m.id));
+  const newList = msgs.filter((m) => !ids.has(m.id));
+  if (newList.length === 0) return current;
+  current.chatMessages = [...list, ...newList];
+  current.updatedAt = new Date().toISOString();
+  saveCase(current);
+  caseEvents.emit("update", current);
+  return current;
+}
+
+export function setCaseChatTranslation(
+  id: string,
+  msgId: string,
+  lang: string,
+  text: string,
+): Case | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  const list = current.chatMessages ?? [];
+  const index = list.findIndex((m) => m.id === msgId);
+  if (index === -1) return undefined;
+  const msg = list[index];
+  msg.content = { ...(msg.content ?? {}), [lang]: text };
+  current.chatMessages[index] = msg;
+  current.updatedAt = new Date().toISOString();
+  saveCase(current);
+  caseEvents.emit("update", current);
+  return current;
+}
+
+export function getCaseChatMessage(
+  id: string,
+  msgId: string,
+): CaseChatMessage | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  return current.chatMessages?.find((m) => m.id === msgId);
 }
 
 export function addOwnershipRequest(
