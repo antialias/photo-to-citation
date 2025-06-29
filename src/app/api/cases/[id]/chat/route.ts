@@ -4,6 +4,7 @@ import { getCaseActionStatus } from "@/lib/caseActions";
 import { getCase } from "@/lib/caseStore";
 import { getLlm } from "@/lib/llm";
 import { chatWithSchema } from "@/lib/llmUtils";
+import { normalizeLocalizedText } from "@/lib/localizedText";
 import { NextResponse } from "next/server";
 import { APIError } from "openai/error";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
@@ -85,12 +86,12 @@ export const POST = withCaseAuthorization(
           maxTokens: 800,
         },
       );
-      const lang = (raw as { language?: string }).language ?? "en";
+      const lang =
+        (raw as { language?: string; lang?: string }).lang ??
+        (raw as { language?: string }).language ??
+        "en";
       const reply: import("@/lib/caseChat").CaseChatReply = {
-        response:
-          typeof raw.response === "string"
-            ? { [lang]: raw.response }
-            : raw.response,
+        response: normalizeLocalizedText(raw.response, lang),
         actions: raw.actions,
         noop: raw.noop,
         lang,
