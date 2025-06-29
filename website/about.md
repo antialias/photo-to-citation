@@ -2,6 +2,7 @@
 title: About
 layout: layout.njk
 ---
+<!-- markdownlint-disable MD033 -->
 
 <div class="hero">
   <img

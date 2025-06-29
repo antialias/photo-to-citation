@@ -2,6 +2,7 @@
 title: Features
 layout: layout.njk
 ---
+<!-- markdownlint-disable MD033 -->
 
 Photo To Citation automates every step of reporting blocked bike lanes and sidewalks so you don’t have to.
 
