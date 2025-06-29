@@ -54,8 +54,8 @@ export default function NotifyOwnerModal({
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-        <Dialog.Content className="fixed inset-0 flex items-center justify-center p-4 z-50">
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-modal" />
+        <Dialog.Content className="fixed inset-0 flex items-center justify-center p-4 z-modal">
           <div className="bg-white dark:bg-gray-900 rounded shadow max-w-xl w-full">
             {data ? (
               <NotifyOwnerEditor

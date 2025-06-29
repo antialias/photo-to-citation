@@ -301,7 +301,7 @@ export default function ClientCasesPage({
           ))}
       </ul>
       {dragging ? (
-        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-nav">
           {dropCase
             ? t("addPhotosToCase", { id: dropCase })
             : t("dropPhotosToCreateCase")}

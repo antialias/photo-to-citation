@@ -70,7 +70,7 @@ export default function Tooltip({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-50 rounded bg-black/80 px-2 py-1 text-xs text-white shadow"
+            className="z-tooltip rounded bg-black/80 px-2 py-1 text-xs text-white shadow"
           >
             {label}
           </div>

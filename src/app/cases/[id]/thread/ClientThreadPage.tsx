@@ -166,7 +166,7 @@ export default function ClientThreadPage({
         ))}
       </ul>
       {viewImage ? (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-modal">
           <div className="bg-white dark:bg-gray-900 rounded shadow max-w-3xl w-full">
             <div className="relative w-full h-[80vh]">
               <img

@@ -148,7 +148,7 @@ export default function PointAndShootPage() {
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">
       {cameraError && (
-        <div className="absolute inset-x-0 top-0 z-10 bg-red-600 text-white text-center py-2">
+        <div className="absolute inset-x-0 top-0 z-nav bg-red-600 text-white text-center py-2">
           {cameraError}
         </div>
       )}
@@ -163,11 +163,11 @@ export default function PointAndShootPage() {
       </video>
       <canvas ref={canvasRef} className="hidden" />
       {uploading ? (
-        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-10">
+        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-nav">
           {t("uploadingPhoto")}
         </div>
       ) : null}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-nav">
         <div
           className="bg-black/40 text-white px-2 py-1 rounded text-xl"
           data-testid="hint"

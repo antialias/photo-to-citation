@@ -56,9 +56,9 @@ export default function DraftModal({
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-modal" />
         <Dialog.Content
-          className={`fixed inset-0 flex p-4 z-50 ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
+          className={`fixed inset-0 flex p-4 z-modal ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
         >
           <div
             className={`bg-white dark:bg-gray-900 rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
