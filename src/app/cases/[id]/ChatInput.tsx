@@ -32,7 +32,7 @@ export default function ChatInput() {
               void send();
             }
           }}
-          className="flex-1 border rounded px-1 dark:bg-gray-800"
+          className="flex-1 border rounded px-1 dark:bg-gray-800 text-base"
           placeholder={t("askQuestion")}
         />
         <button
