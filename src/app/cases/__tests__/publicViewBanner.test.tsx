@@ -1,6 +1,7 @@
 import { CaseProvider } from "@/app/cases/[id]/CaseContext";
 import PublicViewBanner from "@/app/cases/[id]/components/PublicViewBanner";
 import queryClient from "@/app/queryClient";
+import type { Case } from "@/lib/caseStore";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -39,7 +40,7 @@ vi.stubGlobal(
   },
 );
 
-const caseData = {
+const caseData: Case = {
   id: "1",
   photos: [],
   photoTimes: {},
