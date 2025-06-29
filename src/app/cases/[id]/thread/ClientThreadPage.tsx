@@ -96,8 +96,8 @@ export default function ClientThreadPage({
   );
 
   return (
-    <div className="p-8 flex flex-col gap-4">
-      <div className="sticky top-14 bg-white dark:bg-gray-900 flex justify-between items-center border-b pb-2">
+    <div className="flex flex-col">
+      <div className="sticky top-14 bg-white dark:bg-gray-900 flex justify-between items-center border-b pb-2 px-8 pt-8">
         <div className="flex items-center gap-2">
           <Link
             href={`/cases/${caseId}`}
@@ -127,67 +127,69 @@ export default function ClientThreadPage({
           </Link>
         </div>
       </div>
-      <ul className="flex flex-col gap-4">
-        {thread.map((mail) => (
-          <li key={mail.sentAt} className="border p-2 rounded">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {new Date(mail.sentAt).toLocaleString()} - To: {mail.to}
-            </div>
-            <div className="font-semibold">{mail.subject}</div>
-            <pre className="whitespace-pre-wrap text-sm">{mail.body}</pre>
-          </li>
-        ))}
-        {images.map((img) => (
-          <li key={img.id} className="border p-2 rounded flex gap-2">
-            <ThumbnailImage
-              src={getThumbnailUrl(img.url, 256)}
-              alt="scan"
-              width={150}
-              height={100}
-              className="cursor-pointer"
-              imgClassName="object-contain"
-              onClick={() => setViewImage(`/uploads/${img.url}`)}
-            />
-            <div className="flex flex-col gap-2 flex-1">
-              <button
-                type="button"
-                onClick={() => attachEvidence(img.url)}
-                className="self-start bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
-              >
-                {t("addAsEvidence")}
-              </button>
-              {img.ocrText ? (
-                <pre className="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                  {img.ocrText}
-                </pre>
-              ) : null}
-            </div>
-          </li>
-        ))}
-      </ul>
-      {viewImage ? (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-modal">
-          <div className="bg-white dark:bg-gray-900 rounded shadow max-w-3xl w-full">
-            <div className="relative w-full h-[80vh]">
-              <img
-                src={viewImage}
-                alt="scan full size"
-                className="object-contain absolute inset-0 w-full h-full"
-                loading="lazy"
+      <div className="p-8 flex flex-col gap-4">
+        <ul className="flex flex-col gap-4">
+          {thread.map((mail) => (
+            <li key={mail.sentAt} className="border p-2 rounded">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {new Date(mail.sentAt).toLocaleString()} - To: {mail.to}
+              </div>
+              <div className="font-semibold">{mail.subject}</div>
+              <pre className="whitespace-pre-wrap text-sm">{mail.body}</pre>
+            </li>
+          ))}
+          {images.map((img) => (
+            <li key={img.id} className="border p-2 rounded flex gap-2">
+              <ThumbnailImage
+                src={getThumbnailUrl(img.url, 256)}
+                alt="scan"
+                width={150}
+                height={100}
+                className="cursor-pointer"
+                imgClassName="object-contain"
+                onClick={() => setViewImage(`/uploads/${img.url}`)}
               />
-            </div>
-            <div className="flex justify-end p-2">
-              <button
-                type="button"
-                onClick={() => setViewImage(null)}
-                className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
-              >
-                {t("close")}
-              </button>
+              <div className="flex flex-col gap-2 flex-1">
+                <button
+                  type="button"
+                  onClick={() => attachEvidence(img.url)}
+                  className="self-start bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                >
+                  {t("addAsEvidence")}
+                </button>
+                {img.ocrText ? (
+                  <pre className="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                    {img.ocrText}
+                  </pre>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+        {viewImage ? (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-modal">
+            <div className="bg-white dark:bg-gray-900 rounded shadow max-w-3xl w-full">
+              <div className="relative w-full h-[80vh]">
+                <img
+                  src={viewImage}
+                  alt="scan full size"
+                  className="object-contain absolute inset-0 w-full h-full"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex justify-end p-2">
+                <button
+                  type="button"
+                  onClick={() => setViewImage(null)}
+                  className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                >
+                  {t("close")}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </div>
   );
 }
