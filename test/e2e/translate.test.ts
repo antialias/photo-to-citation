@@ -50,6 +50,7 @@ beforeAll(async () => {
       vehicle: {},
       images: {},
     },
+    { response: "ok", actions: [], noop: false, lang: "en" },
     "hola",
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-translate-"));
@@ -93,5 +94,26 @@ describe("translate api", () => {
     };
     expect(updated.analysis.details.es).toBe("hola");
     expect(stub.requests.length).toBeGreaterThan(1);
+  });
+
+  it("translates chat message", async () => {
+    const id = await createCase();
+    await api(`/api/cases/${id}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "Hi" }],
+        lang: "en",
+      }),
+    });
+    const tr = await api(`/api/cases/${id}/chat/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "ok", lang: "es" }),
+    });
+    expect(tr.status).toBe(200);
+    const data = (await tr.json()) as { translation: string };
+    expect(data.translation).toBe("hola");
+    expect(stub.requests.length).toBeGreaterThan(2);
   });
 });
