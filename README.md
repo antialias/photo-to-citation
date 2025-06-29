@@ -1,6 +1,11 @@
 # Photo To Citation
 
-Photo To Citation is an experimental app that helps residents of Oak Park, IL report vehicle violations that jeopardize pedestrian and non‑motorized safety. The goal is to take an uploaded photo of a violation and automatically produce a report that can be sent to the appropriate civil authorities. The system attempts to track each report until it becomes an official citation, even when that involves manual steps like mailing forms or payments.
+Photo To Citation is an experimental app that helps residents of Oak Park, IL
+report vehicle violations that jeopardize pedestrian and non‑motorized safety.
+The goal is to take an uploaded photo of a violation and automatically produce a
+report that can be sent to the appropriate civil authorities. The system
+attempts to track each report until it becomes an official citation, even when
+that involves manual steps like mailing forms or payments.
 
 ## Tech Stack
 
@@ -110,11 +115,18 @@ npm run squash:migrations -- --keep 5
 Omit the `--keep` option to retain the latest 10 migrations. Pass `--help` for
 usage details.
 
-Migrations are stored as SQL files under the `migrations` folder and applied at runtime. The default SQLite database is `data/cases.sqlite`. Per-photo analysis results now live in the `case_photo_analysis` table instead of the JSON `analysis.images` field.
+Migrations are stored as SQL files under the `migrations` folder and applied at
+runtime. The default SQLite database is `data/cases.sqlite`. Per-photo analysis
+results now live in the `case_photo_analysis` table instead of the JSON
+`analysis.images` field.
 
 ## Administration
 
-Visit `/admin` to manage users and Casbin policies. Admins can invite collaborators by entering an email address. The app creates the user with the `user` role and sends an invitation link. Super admins may edit the Casbin rule list directly in the UI. After saving, the server reloads the policy set so changes take effect immediately.
+Visit `/admin` to manage users and Casbin policies. Admins can invite
+collaborators by entering an email address. The app creates the user with the
+`user` role and sends an invitation link. Super admins may edit the Casbin rule
+list directly in the UI. After saving, the server reloads the policy set so
+changes take effect immediately.
 
 ## OpenAI Integration
 
@@ -417,13 +429,21 @@ The workflow caches build layers with GitHub Actions so subsequent runs reuse th
 The `docker-build-photo-citation.yml` workflow publishes a second image tagged
 `photo-citation` for NAS deployments requiring `NEXT_PUBLIC_BASE_PATH=/photo-citation`.
 
-Run Traefik separately and it will use the labels in `docker-compose.example.yaml` to route traffic to `https://730op.synology.me/photo-citation`.
+Run Traefik separately and it will use the labels in
+`docker-compose.example.yaml` to route traffic to
+`https://730op.synology.me/photo-citation`.
 
-Set `NEXT_PUBLIC_BASE_PATH=/photo-citation` in your `.env` (or container environment) and remove the Traefik `stripprefix` middleware so the app serves correctly at that subpath. The `next.config.ts` file applies this base path to both `basePath` and `assetPrefix` so that the runtime bundle and assets load from `/photo-citation` as well.
+Set `NEXT_PUBLIC_BASE_PATH=/photo-citation` in your `.env` (or container
+environment) and remove the Traefik `stripprefix` middleware so the app serves
+correctly at that subpath. The `next.config.ts` file applies this base path to
+both `basePath` and `assetPrefix` so that the runtime bundle and assets load
+from `/photo-citation` as well.
 
 ## Marketing Website
 
-This repo includes a simple [Eleventy](https://www.11ty.dev/) setup under the `website` directory for the marketing site. Pages are written in Markdown and compiled to static HTML.
+This repo includes a simple [Eleventy](https://www.11ty.dev/) setup under the
+`website` directory for the marketing site. Pages are written in Markdown and
+compiled to static HTML.
 
 Build the site with:
 
@@ -433,7 +453,9 @@ npm run website
 
 The output is written to `website/dist`.
 
-The build step uses OpenAI to generate marketing images when they are missing in the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the GitHub Action can access the API.
+The build step uses OpenAI to generate marketing images when they are missing in
+the `gh-pages` branch. Set an `OPENAI_API_KEY` secret in your repository so the
+GitHub Action can access the API.
 
 Images are declared directly in the markdown with a `data-image-gen` attribute:
 
@@ -441,15 +463,24 @@ Images are declared directly in the markdown with a `data-image-gen` attribute:
 <img src="autogen/cat.png" alt="Draw a 2D pixel art cat" width="256" height="256" data-image-gen />
 ```
 
-The build script scans the site for these tags and calls `client.images.generate`. Any JSON placed in the `data-image-gen` attribute is passed through to the API. Width and height attributes become the generated size unless overridden in the JSON.
+The build script scans the site for these tags and calls
+`client.images.generate`. Any JSON placed in the `data-image-gen` attribute is
+passed through to the API. Width and height attributes become the generated size
+unless overridden in the JSON.
 
 ## Privacy and Data Use
 
-All photos, contact details and analysis results are stored only to generate the corresponding citation reports. The app relies on external services such as OpenAI for image analysis and third‑party mail providers for physical letters. No uploaded content is sold or shared outside of those providers. You can delete any case to permanently remove the associated data.
+All photos, contact details and analysis results are stored only to generate the
+corresponding citation reports. The app relies on external services such as
+OpenAI for image analysis and third‑party mail providers for physical letters.
+No uploaded content is sold or shared outside of those providers. You can delete
+any case to permanently remove the associated data.
 
 ## Notifications
 
-Wrap your application with `<NotificationProvider>` in `src/app/layout.tsx`. Use the `useNotify` hook in client components to show toast and system notifications:
+Wrap your application with `<NotificationProvider>` in `src/app/layout.tsx`.
+Use the `useNotify` hook in client components to show toast and system
+notifications:
 
 ```tsx
 "use client";
@@ -465,7 +496,10 @@ The provider requests browser permission so these messages can also appear as na
 
 ## Browser Debugging
 
-Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON overlay. Hold the Option key while hovering over case images, details, or chat messages to reveal the tooltip. The tooltip remains visible while you move the cursor over it so you can easily copy the JSON.
+Set `NEXT_PUBLIC_BROWSER_DEBUG` to `true` in your `.env` to enable a JSON
+overlay. Hold the Option key while hovering over case images, details, or chat
+messages to reveal the tooltip. The tooltip remains visible while you move the
+cursor over it so you can easily copy the JSON.
 
 ## Project Links
 

@@ -3,6 +3,8 @@ title: About
 layout: layout.njk
 ---
 
+<!-- markdownlint-disable MD013 -->
+
 <div class="hero">
   <img
     src="{{ '/images/community.png' | url }}"

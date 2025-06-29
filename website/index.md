@@ -3,6 +3,8 @@ title: Home
 layout: layout.njk
 ---
 
+<!-- markdownlint-disable MD013 -->
+
 <div class="hero">
   <h1>Photo To Citation</h1>
   <img

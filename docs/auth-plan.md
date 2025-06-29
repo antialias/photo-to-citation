@@ -1,6 +1,8 @@
 # Authentication and Authorization Plan
 
-This document proposes an approach for user login, role management, and access control in **Photo To Citation**. The goal is to follow well‑supported standards and libraries while keeping the codebase maintainable.
+This document proposes an approach for user login, role management, and access
+control in **Photo To Citation**. The goal is to follow well‑supported
+standards and libraries while keeping the codebase maintainable.
 
 ## 1. Authentication
 
@@ -23,7 +25,9 @@ This document proposes an approach for user login, role management, and access c
 - anonymous
 ```text
 
-Roles are stored on the `User` record. The `anonymous` role represents unauthenticated visitors. The super admin can promote other users to admin or superadmin.
+Roles are stored on the `User` record. The `anonymous` role represents
+unauthenticated visitors. The super admin can promote other users to admin or
+superadmin.
 
 ## 3. Access Control
 
@@ -54,7 +58,9 @@ Roles are stored on the `User` record. The `anonymous` role represents unauthent
 - JSON Web Tokens for stateless sessions.
 - Argon2 for password hashing if password auth is enabled.
 
-This approach uses well‑maintained libraries (NextAuth.js and Casbin) and keeps control of permissions in the database so that collaboration and public cases can be implemented consistently across features.
+This approach uses well‑maintained libraries (NextAuth.js and Casbin) and keeps
+control of permissions in the database so that collaboration and public cases
+can be implemented consistently across features.
 
 ## 7. Implementation Tasks
 
@@ -83,7 +89,8 @@ A proposed sequence of milestones so each change can be merged and deployed inde
    - Hide or disable actions the current user cannot perform.
    - Include integration tests for common user flows.
 
-Each milestone is small enough to be reviewed and deployed on its own while steadily building up the full authentication and authorization feature set.
+Each milestone is small enough to be reviewed and deployed on its own while
+steadily building up the full authentication and authorization feature set.
 
 ## Permissions Matrix
 
@@ -95,7 +102,12 @@ The repository uses NextAuth for authentication and Casbin for authorization. Th
 - superadmin
 ```text
 
-The super admin can promote other users, and Casbin policies determine what each role may do. Case collaboration introduces a `CaseMember` table with `owner` and `collaborator` roles, plus a `public` flag allowing anonymous viewing of a case. An admin interface lets admins manage users, while super admins can edit policies directly. The policy migration seeds basic rules, including `("user", "upload", "create")` so authenticated users can submit photos by default.
+The super admin can promote other users, and Casbin policies determine what each
+role may do. Case collaboration introduces a `CaseMember` table with `owner` and
+`collaborator` roles, plus a `public` flag allowing anonymous viewing of a case.
+An admin interface lets admins manage users, while super admins can edit
+policies directly. The policy migration seeds basic rules, including `("user",
+"upload", "create")` so authenticated users can submit photos by default.
 
 Below is a consolidated permissions matrix based on the existing code and this plan.
 
@@ -119,7 +131,9 @@ Below is a consolidated permissions matrix based on the existing code and this p
 
 ### Notes
 
-- The upload API now uses `withAuthorization("upload", "create")`, so only logged-in roles with that permission may create cases. The initial Casbin policy migration seeds this rule for the `user` role.
+- The upload API now uses `withAuthorization("upload", "create")`, so only
+  logged-in roles with that permission may create cases. The initial Casbin
+  policy migration seeds this rule for the `user` role.
 - The collaborator role is per-case and allows commenting on an invited case as noted in the docs.
 - Admin and Super Admin roles inherit all user abilities; Super Admin additionally controls policy editing.
 - A case marked `public` is viewable by anyone without authentication.
