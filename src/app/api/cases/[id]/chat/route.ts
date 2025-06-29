@@ -59,7 +59,7 @@ export const POST = withCaseAuthorization(
       `Number of photos: ${c.photos.length}.`,
       contextLines ? `Image contexts:\n${contextLines}` : "",
       "When there is no user question yet, decide if you should proactively suggest a next action or useful observation.",
-      "If you have nothing helpful, set response to [noop].",
+      "Only set response to [noop] if you truly have nothing helpful to add after careful consideration. Otherwise include at least a brief reply.",
       `Reply in JSON matching this schema: ${schemaDesc}`,
       "Use {id: ID} objects for case actions.",
       "Use {field: FIELD, value: VALUE} to edit the case (fields: vin, plate, state, note).",
