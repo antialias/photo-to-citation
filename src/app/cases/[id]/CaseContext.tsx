@@ -62,10 +62,11 @@ export function CaseProvider({
   );
 
   useEffect(() => {
-    const es = apiEventSource("/api/cases/stream");
+    const es = apiEventSource(
+      `/api/cases/${encodeURIComponent(caseId)}/stream`,
+    );
     es.onmessage = (e) => {
       const data = JSON.parse(e.data) as Case & { deleted?: boolean };
-      if (data.id !== caseId) return;
       if (data.deleted) {
         queryClient.setQueryData(caseQueryKey(caseId), null);
       } else {
