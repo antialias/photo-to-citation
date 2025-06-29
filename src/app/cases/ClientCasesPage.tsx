@@ -231,7 +231,7 @@ export default function ClientCasesPage({
               }`}
             >
               <Link
-                href={`/cases/${c.id}`}
+                href={session ? `/cases/${c.id}` : `/public/cases/${c.id}`}
                 onClick={(e) => {
                   if (e.shiftKey) {
                     e.preventDefault();
