@@ -3,6 +3,7 @@ import { apiFetch } from "@/apiClient";
 import type { EmailDraft } from "@/lib/caseReport";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
 import NotifyOwnerEditor from "./NotifyOwnerEditor";
 
@@ -27,10 +28,12 @@ export default function NotifyOwnerModal({
 }) {
   const [data, setData] = useState<DraftData | null>(null);
   const notify = useNotify();
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     let canceled = false;
-    apiFetch(`/api/cases/${caseId}/notify-owner`)
+    const url = `/api/cases/${caseId}/notify-owner?lang=${i18n.language}`;
+    apiFetch(url)
       .then(async (res) => {
         if (res.ok) {
           return res.json();
@@ -46,7 +49,7 @@ export default function NotifyOwnerModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, onClose, notify]);
+  }, [caseId, onClose, notify, i18n.language]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
