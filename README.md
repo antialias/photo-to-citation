@@ -80,6 +80,9 @@ terraform apply
 
 Copy the outputs into `.env.local` for the production deployment.
 
+To enable Facebook sign‑in, set `FACEBOOK_CLIENT_ID` and
+`FACEBOOK_CLIENT_SECRET` from the Facebook developer console.
+
 ## Generating Zod Schemas
 
 When interfaces in `src/lib` change, update the runtime schemas and verify the output with:
