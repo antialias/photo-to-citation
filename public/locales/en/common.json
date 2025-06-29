@@ -208,6 +208,7 @@
   "stepPrefix": "Step {{step}} of {{steps}}:",
   "analysisCanceled": "Analysis canceled.",
   "analysisFailed": "Analysis failed.",
+  "analysisRestarted": "Analysis restarted due to invalid AI response.",
   "photoActionsMenu": "Photo actions menu",
   "reanalyzePhoto": "Reanalyze Photo",
   "deleteImage": "Delete Image",

@@ -36,17 +36,20 @@ export class AnalysisError extends Error {
   }
 }
 
+import { ZodError } from "zod";
+
 function logBadResponse(
   attempt: number,
   response: string,
   error: unknown,
 ): void {
-  const entry = {
+  const entry: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
     attempt: attempt + 1,
     error: String(error),
     response,
   };
+  if (error instanceof ZodError) entry.details = error.issues;
   console.warn(JSON.stringify(entry));
 }
 

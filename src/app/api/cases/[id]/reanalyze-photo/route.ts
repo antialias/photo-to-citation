@@ -46,6 +46,15 @@ export const POST = withCaseAuthorization(
     if (!c || !c.photos.includes(photo)) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
+    if (
+      c.analysisStatus === "failed" &&
+      (c.analysisError === "parse" || c.analysisError === "schema")
+    ) {
+      console.info(
+        `Restarting photo analysis due to invalid output: ${c.analysisError}`,
+        { caseId: id, photo },
+      );
+    }
     if (isCaseAnalysisActive(id)) {
       return NextResponse.json(
         {
