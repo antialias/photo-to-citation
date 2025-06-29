@@ -5,6 +5,7 @@ import { caseActions } from "@/lib/caseActions";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
 import type { EmailDraft } from "@/lib/caseReport";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { getLocalizedText } from "@/lib/localizedText";
 import type { ReportModule } from "@/lib/reportModules";
 import { useRouter } from "next/navigation";
 import {
@@ -20,6 +21,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../../components/NotificationProvider";
 import TranslateIcon from "../../components/TranslateIcon";
+import useChatTranslate from "../../useChatTranslate";
 
 export interface Message {
   id: string;
@@ -27,6 +29,7 @@ export interface Message {
   content: string;
   lang: string;
   actions?: CaseChatAction[];
+  translations?: Record<string, string>;
 }
 
 interface ChatSession {
@@ -159,6 +162,7 @@ export function CaseChatProvider({
   const [draftAnchorId, setDraftAnchorId] = useState<string | null>(null);
   const [cameraAnchorId, setCameraAnchorId] = useState<string | null>(null);
   const notify = useNotify();
+  const chatTranslate = useChatTranslate(caseId);
   const [chatError, setChatError] = useState<string | null>(null);
 
   const storageKey = `case-chat-${caseId}`;
@@ -171,7 +175,11 @@ export function CaseChatProvider({
       const data = JSON.parse(raw) as ChatSession[];
       return data.map((s) => ({
         ...s,
-        messages: s.messages.map((m) => ({ ...m, lang: m.lang ?? "en" })),
+        messages: s.messages.map((m) => ({
+          ...m,
+          lang: m.lang ?? "en",
+          translations: m.translations ?? {},
+        })),
       }));
     } catch {
       return [];
@@ -229,7 +237,12 @@ export function CaseChatProvider({
     if (controlledExpanded === undefined && state.expanded)
       setExpandedState(state.expanded);
     if (state.session) {
-      setMessages(state.session.messages);
+      setMessages(
+        state.session.messages.map((m) => ({
+          ...m,
+          translations: m.translations ?? {},
+        })),
+      );
       setSessionId(state.session.id);
       setSessionCreatedAt(state.session.createdAt);
       setSessionSummary(state.session.summary);
@@ -504,6 +517,25 @@ export function CaseChatProvider({
     router.refresh();
   }
 
+  async function handleTranslate(msg: Message) {
+    try {
+      const tr = await chatTranslate(msg.content, i18n.language);
+      setMessages((list) =>
+        list.map((m) =>
+          m.id === msg.id
+            ? {
+                ...m,
+                translations: {
+                  ...(m.translations ?? {}),
+                  [i18n.language]: tr,
+                },
+              }
+            : m,
+        ),
+      );
+    } catch {}
+  }
+
   function renderActions(actions: CaseChatAction[], msgId: string) {
     const buttons = actions.map((a, idx) => {
       if ("id" in a) {
@@ -573,13 +605,17 @@ export function CaseChatProvider({
   }
 
   function renderContent(m: Message) {
-    const needsTranslation = m.lang !== i18n.language;
+    const { text, needsTranslation } = getLocalizedText(
+      { [m.lang]: m.content, ...(m.translations ?? {}) },
+      i18n.language,
+    );
     return (
       <span>
-        {m.content}
+        {text}
         {needsTranslation ? (
           <button
             type="button"
+            onClick={() => void handleTranslate(m)}
             aria-label={t("translate")}
             className="ml-2 text-blue-500 hover:text-blue-700"
           >
@@ -680,6 +716,7 @@ export function CaseChatProvider({
                 "",
               lang: reply.lang,
               actions: reply.actions,
+              translations: reply.response,
             },
           ]);
         } else {
@@ -715,6 +752,7 @@ export function CaseChatProvider({
         role: "user" as const,
         content: text,
         lang: i18n.language,
+        translations: { [i18n.language]: text },
       },
     ];
     if (messages.length === 0) {

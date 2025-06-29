@@ -49,7 +49,10 @@ export const POST = withCaseAuthorization(
     const res = await client.chat.completions.create({
       model,
       messages: [
-        { role: "system", content: `Translate the following text to ${lang}.` },
+        {
+          role: "system",
+          content: `You translate text. Reply only with the translation in ${lang}.`,
+        },
         { role: "user", content: text },
       ],
     });
