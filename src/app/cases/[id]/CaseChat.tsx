@@ -45,11 +45,10 @@ function CaseChatInner({ caseId }: { caseId: string }) {
       {open ? (
         <div
           className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen sm:w-80 sm:max-h-[400px]"
+            expanded
+              ? "w-full h-full"
+              : "w-screen sm:w-80 sm:max-h-[400px] [height:var(--visual-viewport-height)] sm:[height:calc(var(--visual-viewport-height)-1rem)] sm:mt-4"
           }`}
-          style={
-            expanded ? undefined : { height: "var(--visual-viewport-height)" }
-          }
         >
           <ChatHeader />
           <ChatMessages caseId={caseId} />
