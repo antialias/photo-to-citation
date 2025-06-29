@@ -6,6 +6,7 @@ import type { Case } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
 
 export default function NotifyOwnerEditor({
@@ -38,6 +39,7 @@ export default function NotifyOwnerEditor({
   const [threadUrl, setThreadUrl] = useState<string | null>(null);
   const router = useRouter();
   const notify = useNotify();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (initialDraft) {
@@ -109,20 +111,18 @@ export default function NotifyOwnerEditor({
   }
 
   if (!initialDraft) {
-    return (
-      <div className="p-8">Drafting email based on case information...</div>
-    );
+    return <div className="p-8">{t("draftingEmail")}</div>;
   }
 
   return (
     <div className="p-8 flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Owner Notification</h1>
-      <p>The photos shown below will be attached automatically.</p>
+      <h1 className="text-xl font-semibold">{t("ownerNotification")}</h1>
+      <p>{t("photosAttachedAuto")}</p>
       <div className="flex flex-col gap-2">
         {contactInfo.email &&
           (disabledMethods.includes("email") ? (
             <div className="flex items-center gap-2">
-              <span className="text-green-700">Sent</span>
+              <span className="text-green-700">{t("sent")}</span>
               <span>Email: {contactInfo.email}</span>
               {results.email?.status === "error" && (
                 <span className="text-red-600 text-sm">
@@ -155,7 +155,7 @@ export default function NotifyOwnerEditor({
           <>
             {disabledMethods.includes("sms") ? (
               <div className="flex items-center gap-2">
-                <span className="text-green-700">Sent</span>
+                <span className="text-green-700">{t("sent")}</span>
                 <span>SMS: {contactInfo.phone}</span>
                 {results.sms?.status === "error" && (
                   <span className="text-red-600 text-sm">
@@ -186,7 +186,7 @@ export default function NotifyOwnerEditor({
             )}
             {disabledMethods.includes("whatsapp") ? (
               <div className="flex items-center gap-2">
-                <span className="text-green-700">Sent</span>
+                <span className="text-green-700">{t("sent")}</span>
                 <span>WhatsApp: {contactInfo.phone}</span>
                 {results.whatsapp?.status === "error" && (
                   <span className="text-red-600 text-sm">
@@ -217,7 +217,7 @@ export default function NotifyOwnerEditor({
             )}
             {disabledMethods.includes("robocall") ? (
               <div className="flex items-center gap-2">
-                <span className="text-green-700">Sent</span>
+                <span className="text-green-700">{t("sent")}</span>
                 <span>Robocall: {contactInfo.phone}</span>
                 {results.robocall?.status === "error" && (
                   <span className="text-red-600 text-sm">
@@ -251,7 +251,7 @@ export default function NotifyOwnerEditor({
         {contactInfo.address &&
           (disabledMethods.includes("snailMail") ? (
             <div className="flex items-center gap-2">
-              <span className="text-green-700">Sent</span>
+              <span className="text-green-700">{t("sent")}</span>
               <span>Snail Mail: {contactInfo.address}</span>
               {results.snailMail?.status === "error" && (
                 <span className="text-red-600 text-sm">
@@ -283,7 +283,7 @@ export default function NotifyOwnerEditor({
         {violationAddress &&
           (disabledMethods.includes("snailMailLocation") ? (
             <div className="flex items-center gap-2">
-              <span className="text-green-700">Sent</span>
+              <span className="text-green-700">{t("sent")}</span>
               <span>Mail to address of violation: {violationAddress}</span>
               {results.snailMailLocation?.status === "error" && (
                 <span className="text-red-600 text-sm">
@@ -316,7 +316,7 @@ export default function NotifyOwnerEditor({
           ))}
       </div>
       <label className="flex flex-col">
-        Subject
+        {t("subjectLabel")}
         <input
           type="text"
           value={subject}
@@ -325,7 +325,7 @@ export default function NotifyOwnerEditor({
         />
       </label>
       <label className="flex flex-col">
-        Body
+        {t("bodyLabel")}
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -351,7 +351,7 @@ export default function NotifyOwnerEditor({
         disabled={sending}
         className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
       >
-        {sending ? "Sending..." : "Send Notification"}
+        {sending ? t("sending") : t("sendNotification")}
       </button>
       {threadUrl && (
         <a
@@ -360,7 +360,7 @@ export default function NotifyOwnerEditor({
           rel="noopener noreferrer"
           className="text-blue-500 underline mt-2 text-sm"
         >
-          View Thread
+          {t("viewThread")}
         </a>
       )}
     </div>

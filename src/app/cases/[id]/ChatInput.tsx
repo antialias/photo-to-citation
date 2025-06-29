@@ -1,9 +1,11 @@
 "use client";
+import { useTranslation } from "react-i18next";
 import { useCaseChat } from "./CaseChatProvider";
 
 export default function ChatInput() {
   const { input, setInput, send, loading, showJump, scrollToBottom, inputRef } =
     useCaseChat();
+  const { t } = useTranslation();
   return (
     <div className="border-t p-2 flex flex-col gap-2">
       {showJump ? (
@@ -12,7 +14,7 @@ export default function ChatInput() {
           onClick={scrollToBottom}
           className="self-start text-blue-600 underline text-xs"
         >
-          Jump to latest
+          {t("jumpToLatest")}
         </button>
       ) : null}
       <div className="flex gap-2">
@@ -28,7 +30,7 @@ export default function ChatInput() {
             }
           }}
           className="flex-1 border rounded px-1 dark:bg-gray-800"
-          placeholder="Ask a question..."
+          placeholder={t("askQuestion")}
         />
         <button
           type="button"
@@ -36,7 +38,7 @@ export default function ChatInput() {
           disabled={loading}
           className="bg-blue-600 text-white px-2 rounded disabled:opacity-50"
         >
-          Send
+          {t("send")}
         </button>
       </div>
     </div>

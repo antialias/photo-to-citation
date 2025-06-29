@@ -28,7 +28,7 @@ export default function NotifyOwnerModal({
 }) {
   const [data, setData] = useState<DraftData | null>(null);
   const notify = useNotify();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   useEffect(() => {
     let canceled = false;
@@ -39,7 +39,7 @@ export default function NotifyOwnerModal({
           return res.json();
         }
         const err = await res.json().catch(() => ({}));
-        notify(err.error || "Failed to draft notification");
+        notify(err.error || t("failedDraftNotification"));
         onClose();
         return null;
       })
@@ -49,7 +49,7 @@ export default function NotifyOwnerModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, onClose, notify, i18n.language]);
+  }, [caseId, onClose, notify, i18n.language, t]);
 
   return (
     <Dialog.Root open onOpenChange={(o) => !o && onClose()}>
@@ -67,9 +67,7 @@ export default function NotifyOwnerModal({
                 availableMethods={data.availableMethods}
               />
             ) : (
-              <div className="p-8">
-                Drafting email based on case information...
-              </div>
+              <div className="p-8">{t("draftingEmail")}</div>
             )}
             <div className="flex justify-end p-4">
               <Dialog.Close asChild>
@@ -77,7 +75,7 @@ export default function NotifyOwnerModal({
                   type="button"
                   className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
                 >
-                  Close
+                  {t("close")}
                 </button>
               </Dialog.Close>
             </div>

@@ -26,7 +26,7 @@ export default function DraftModal({
   const [data, setData] = useState<DraftData | null>(initialData ?? null);
   const [fullScreen, setFullScreen] = useState(false);
   const notify = useNotify();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   useEffect(() => {
     if (initialData) return;
@@ -37,7 +37,7 @@ export default function DraftModal({
           return res.json();
         }
         const err = await res.json().catch(() => ({}));
-        notify(err.error || "Failed to draft report");
+        notify(err.error || t("failedDraftReport"));
         onClose();
         return null;
       })
@@ -47,7 +47,7 @@ export default function DraftModal({
     return () => {
       canceled = true;
     };
-  }, [caseId, initialData, onClose, notify, i18n.language]);
+  }, [caseId, initialData, onClose, notify, i18n.language, t]);
 
   useEffect(() => {
     if (initialData) setData(initialData);
@@ -72,9 +72,7 @@ export default function DraftModal({
                 action="report"
               />
             ) : (
-              <div className="p-8">
-                Drafting email based on case information...
-              </div>
+              <div className="p-8">{t("draftingEmail")}</div>
             )}
             <div className="flex justify-between p-4">
               <button
@@ -82,14 +80,14 @@ export default function DraftModal({
                 onClick={() => setFullScreen(!fullScreen)}
                 className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
               >
-                {fullScreen ? "Exit Full Screen" : "Full Screen"}
+                {fullScreen ? t("exitFullScreen") : t("fullScreen")}
               </button>
               <Dialog.Close asChild>
                 <button
                   type="button"
                   className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
                 >
-                  Close
+                  {t("close")}
                 </button>
               </Dialog.Close>
             </div>

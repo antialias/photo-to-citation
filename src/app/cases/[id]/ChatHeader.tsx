@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "react-i18next";
 import { FaCompressArrowsAlt, FaExpandArrowsAlt } from "react-icons/fa";
 import { useCaseChat } from "./CaseChatProvider";
 
@@ -13,16 +14,17 @@ export default function ChatHeader() {
     sessionSummary,
     selectSession,
   } = useCaseChat();
+  const { t } = useTranslation();
   return (
     <div className="flex items-center border-b p-2 gap-2">
-      <span className="font-semibold flex-none">Case Chat</span>
+      <span className="font-semibold flex-none">{t("caseChat")}</span>
       <select
-        aria-label="Chat history"
+        aria-label={t("chatHistory")}
         value={sessionId ?? ""}
         onChange={(e) => selectSession(e.target.value)}
         className="text-black dark:text-black text-xs flex-auto min-w-0 truncate"
       >
-        <option value="new">New Chat</option>
+        <option value="new">{t("newChat")}</option>
         {!history.some((h) => h.id === sessionId) && sessionId && (
           <option value={sessionId}>
             {new Date(sessionCreatedAt).toLocaleString()}
@@ -38,7 +40,7 @@ export default function ChatHeader() {
       <button
         type="button"
         onClick={toggleExpanded}
-        aria-label={expanded ? "Collapse chat" : "Expand chat"}
+        aria-label={expanded ? t("collapseChat") : t("expandChat")}
         className="text-xl leading-none flex-none"
       >
         {expanded ? <FaCompressArrowsAlt /> : <FaExpandArrowsAlt />}
@@ -46,7 +48,7 @@ export default function ChatHeader() {
       <button
         type="button"
         onClick={handleClose}
-        aria-label="Close chat"
+        aria-label={t("closeChat")}
         className="text-xl leading-none flex-none"
       >
         ×

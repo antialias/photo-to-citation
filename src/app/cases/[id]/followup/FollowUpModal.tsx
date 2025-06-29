@@ -24,7 +24,7 @@ export default function FollowUpModal({
   onClose: () => void;
 }) {
   const [data, setData] = useState<DraftData | null>(null);
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   useEffect(() => {
     let canceled = false;
@@ -59,9 +59,7 @@ export default function FollowUpModal({
                 to={data.to}
               />
             ) : (
-              <div className="p-8">
-                Drafting email based on case information...
-              </div>
+              <div className="p-8">{t("draftingEmail")}</div>
             )}
             <div className="flex justify-end p-4">
               <Dialog.Close asChild>
@@ -69,7 +67,7 @@ export default function FollowUpModal({
                   type="button"
                   className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
                 >
-                  Close
+                  {t("close")}
                 </button>
               </Dialog.Close>
             </div>

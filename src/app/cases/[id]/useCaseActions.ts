@@ -7,6 +7,7 @@ import { getCasePlateNumber, getCasePlateState } from "@/lib/caseUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNotify } from "../../components/NotificationProvider";
 import { caseQueryKey } from "../../hooks/useCase";
 import { useCaseContext } from "./CaseContext";
@@ -25,6 +26,7 @@ export default function useCaseActions() {
   const notify = useNotify();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [reanalyzingPhoto, setReanalyzingPhoto] = useState<string | null>(null);
 
@@ -35,13 +37,13 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ vin: value || null }),
       });
-      if (!res.ok) throw new Error("Failed to update VIN.");
+      if (!res.ok) throw new Error(t("failedUpdateVin"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to update VIN.");
+      notify(t("failedUpdateVin"));
     },
   });
 
@@ -50,13 +52,13 @@ export default function useCaseActions() {
       const res = await apiFetch(`/api/cases/${caseId}/vin`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to clear VIN.");
+      if (!res.ok) throw new Error(t("failedClearVin"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to clear VIN.");
+      notify(t("failedClearVin"));
     },
   });
 
@@ -67,13 +69,13 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ note: value || null }),
       });
-      if (!res.ok) throw new Error("Failed to update note.");
+      if (!res.ok) throw new Error(t("failedUpdateNote"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to update note.");
+      notify(t("failedUpdateNote"));
     },
   });
 
@@ -84,13 +86,13 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ photo, note: value || null }),
       });
-      if (!res.ok) throw new Error("Failed to update note.");
+      if (!res.ok) throw new Error(t("failedUpdateNote"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to update note.");
+      notify(t("failedUpdateNote"));
     },
   });
 
@@ -101,13 +103,13 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ public: !(caseData?.public ?? false) }),
       });
-      if (!res.ok) throw new Error("Failed to update visibility.");
+      if (!res.ok) throw new Error(t("failedUpdateVisibility"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to update visibility.");
+      notify(t("failedUpdateVisibility"));
     },
   });
 
@@ -118,13 +120,13 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ closed: !(caseData?.closed ?? false) }),
       });
-      if (!res.ok) throw new Error("Failed to update status.");
+      if (!res.ok) throw new Error(t("failedUpdateStatus"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to update status.");
+      notify(t("failedUpdateStatus"));
     },
   });
 
@@ -135,13 +137,13 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ archived: !(caseData?.archived ?? false) }),
       });
-      if (!res.ok) throw new Error("Failed to update status.");
+      if (!res.ok) throw new Error(t("failedUpdateStatus"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to update status.");
+      notify(t("failedUpdateStatus"));
     },
   });
 
@@ -165,14 +167,14 @@ export default function useCaseActions() {
         });
       setReanalyzingPhoto(photo);
       const res = await apiFetch(url, { method: "POST" });
-      if (!res.ok) throw new Error("Failed to reanalyze photo.");
+      if (!res.ok) throw new Error(t("failedReanalyzePhoto"));
       if (detailsEl) detailsEl.open = false;
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to reanalyze photo.");
+      notify(t("failedReanalyzePhoto"));
     },
   });
 
@@ -186,13 +188,13 @@ export default function useCaseActions() {
       const res = await apiFetch(`/api/cases/${caseId}/reanalyze`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error("Failed to retry analysis.");
+      if (!res.ok) throw new Error(t("failedRetryAnalysis"));
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
     },
     onError() {
-      notify("Failed to retry analysis.");
+      notify(t("failedRetryAnalysis"));
     },
   });
 
@@ -203,26 +205,24 @@ export default function useCaseActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ photo }),
       });
-      if (!delRes.ok) throw new Error("Failed to remove photo.");
+      if (!delRes.ok) throw new Error(t("failedRemovePhoto"));
       const res = await apiFetch(`/api/cases/${caseId}`);
       if (res.ok) {
         queryClient.setQueryData(caseQueryKey(caseId), await res.json());
       } else {
-        throw new Error("Failed to refresh case after removing photo.");
+        throw new Error(t("failedRefreshAfterRemove"));
       }
     },
     async onSuccess() {
       router.refresh();
-      const confirmed = window.confirm(
-        "Photo removed. Reanalyze this case now?",
-      );
+      const confirmed = window.confirm(t("confirmReanalyze"));
       if (confirmed) {
         await apiFetch(`/api/cases/${caseId}/reanalyze`, { method: "POST" });
         router.refresh();
       }
     },
     onError() {
-      notify("Failed to remove photo.");
+      notify(t("failedRemovePhoto"));
     },
   });
 
