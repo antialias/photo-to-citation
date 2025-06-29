@@ -27,6 +27,7 @@ export interface Message {
   content: string;
   lang: string;
   actions?: CaseChatAction[];
+  translations?: Record<string, string>;
 }
 
 interface ChatSession {
@@ -171,7 +172,11 @@ export function CaseChatProvider({
       const data = JSON.parse(raw) as ChatSession[];
       return data.map((s) => ({
         ...s,
-        messages: s.messages.map((m) => ({ ...m, lang: m.lang ?? "en" })),
+        messages: s.messages.map((m) => ({
+          ...m,
+          lang: m.lang ?? "en",
+          translations: m.translations ?? {},
+        })),
       }));
     } catch {
       return [];
@@ -504,6 +509,33 @@ export function CaseChatProvider({
     router.refresh();
   }
 
+  async function handleTranslate(m: Message) {
+    const lang = i18n.language;
+    if (m.translations?.[lang]) return;
+    const res = await apiFetch(`/api/cases/${caseId}/chat/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: m.content, lang }),
+    });
+    if (!res.ok) {
+      notify("Failed to translate.");
+      return;
+    }
+    const data = (await res.json()) as { translation: string };
+    const list = messages.map((msg) =>
+      msg.id === m.id
+        ? {
+            ...msg,
+            translations: {
+              ...(msg.translations ?? {}),
+              [lang]: data.translation,
+            },
+          }
+        : msg,
+    );
+    setMessages(list);
+  }
+
   function renderActions(actions: CaseChatAction[], msgId: string) {
     const buttons = actions.map((a, idx) => {
       if ("id" in a) {
@@ -573,15 +605,17 @@ export function CaseChatProvider({
   }
 
   function renderContent(m: Message) {
-    const needsTranslation = m.lang !== i18n.language;
+    const translated = m.translations?.[i18n.language];
+    const needsTranslation = m.lang !== i18n.language && !translated;
     return (
       <span>
-        {m.content}
+        {translated ?? m.content}
         {needsTranslation ? (
           <button
             type="button"
             aria-label={t("translate")}
             className="ml-2 text-blue-500 hover:text-blue-700"
+            onClick={() => void handleTranslate(m)}
           >
             <TranslateIcon lang={i18n.language} />
           </button>
@@ -680,6 +714,7 @@ export function CaseChatProvider({
                 "",
               lang: reply.lang,
               actions: reply.actions,
+              translations: {},
             },
           ]);
         } else {
@@ -715,6 +750,7 @@ export function CaseChatProvider({
         role: "user" as const,
         content: text,
         lang: i18n.language,
+        translations: {},
       },
     ];
     if (messages.length === 0) {
