@@ -8,6 +8,7 @@ import type {
 import { z } from "zod";
 import "./zod-setup";
 import { getLlm } from "./llm";
+import { normalizeLocalizedText } from "./localizedText";
 import { US_STATES } from "./usStates";
 
 export type LlmProgress =
@@ -89,6 +90,10 @@ export interface PaperworkAnalysis {
 }
 
 export const localizedTextSchema = z.record(z.string());
+export const rawLocalizedTextSchema = z.union([
+  z.string(),
+  localizedTextSchema,
+]);
 
 export interface LocalizedText {
   [lang: string]: string;
@@ -150,6 +155,36 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
     .default({}),
 }) as z.ZodType<ViolationReport>;
 
+const violationReportInputSchema = z.object({
+  violationType: z.string(),
+  details: rawLocalizedTextSchema,
+  location: z.string().optional(),
+  vehicle: z
+    .object({
+      make: z.string().optional(),
+      model: z.string().optional(),
+      type: z.string().optional(),
+      color: z.string().optional(),
+      licensePlateState: licensePlateStateSchema.optional(),
+      licensePlateNumber: z.string().optional(),
+    })
+    .default({}),
+  images: z
+    .record(
+      z.object({
+        representationScore: z.number().min(0).max(1),
+        highlights: rawLocalizedTextSchema.optional(),
+        context: rawLocalizedTextSchema.optional(),
+        violation: z.boolean().optional(),
+        paperwork: z.boolean().optional(),
+        paperworkText: z.string().optional(),
+        paperworkInfo: paperworkInfoSchema.optional(),
+      }),
+    )
+    .default({}),
+  language: z.string().optional(),
+});
+
 export async function analyzeViolation(
   images: Array<{ url: string; filename: string }>,
   lang = "en",
@@ -163,7 +198,7 @@ export async function analyzeViolation(
     type: "object",
     properties: {
       violationType: { type: "string" },
-      details: { type: "object", additionalProperties: { type: "string" } },
+      details: { type: "string" },
       location: { type: "string" },
       vehicle: {
         type: "object",
@@ -182,14 +217,8 @@ export async function analyzeViolation(
           type: "object",
           properties: {
             representationScore: { type: "number" },
-            highlights: {
-              type: "object",
-              additionalProperties: { type: "string" },
-            },
-            context: {
-              type: "object",
-              additionalProperties: { type: "string" },
-            },
+            highlights: { type: "string" },
+            context: { type: "string" },
             violation: { type: "boolean" },
             paperwork: { type: "boolean" },
             paperworkText: { type: "string" },
@@ -213,7 +242,7 @@ export async function analyzeViolation(
       content: [
         {
           type: "text",
-          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Indicate with a boolean if each photo depicts a violation. If an image is paperwork such as a letter or form, set a paperwork flag and omit the text. Also provide a short description of the evidence each image adds. Include a detailed context description of everything visible in each image, even if it seems irrelevant, under a context field. Use these filenames as keys: ${names.join(", ")}. Respond with JSON matching this schema: ${JSON.stringify(
+          text: `Analyze the photo${urls.length > 1 ? "s" : ""} and score each image from 0 to 1 for how well it represents the case. Indicate with a boolean if each photo depicts a violation. If an image is paperwork such as a letter or form, set a paperwork flag and omit the text. Also provide a short description of the evidence each image adds. Include a detailed context description of everything visible in each image, even if it seems irrelevant, under a context field. Use these filenames as keys: ${names.join(", ")}. Return plain strings for details, highlights, and context. Respond with JSON matching this schema: ${JSON.stringify(
             schema,
           )}`,
         },
@@ -293,9 +322,36 @@ export async function analyzeViolation(
     }
 
     try {
-      const lang = (parsed as { language?: string }).language ?? "en";
-      const raw = violationReportSchema.parse(parsed);
-      return { ...raw, language: lang };
+      const raw = violationReportInputSchema.parse(parsed);
+      const resultLang = raw.language ?? lang;
+      const images: ViolationReport["images"] = {};
+      for (const [name, info] of Object.entries(raw.images)) {
+        images[name] = {
+          representationScore: info.representationScore,
+          ...(info.highlights !== undefined && {
+            highlights: normalizeLocalizedText(info.highlights, resultLang),
+          }),
+          ...(info.context !== undefined && {
+            context: normalizeLocalizedText(info.context, resultLang),
+          }),
+          ...(info.violation !== undefined && { violation: info.violation }),
+          ...(info.paperwork !== undefined && { paperwork: info.paperwork }),
+          ...(info.paperworkText !== undefined && {
+            paperworkText: info.paperworkText,
+          }),
+          ...(info.paperworkInfo !== undefined && {
+            paperworkInfo: info.paperworkInfo,
+          }),
+        };
+      }
+      return {
+        violationType: raw.violationType,
+        details: normalizeLocalizedText(raw.details, resultLang),
+        location: raw.location,
+        language: resultLang,
+        vehicle: raw.vehicle,
+        images,
+      };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) throw new AnalysisError("schema");

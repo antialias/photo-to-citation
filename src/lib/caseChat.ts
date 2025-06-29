@@ -1,6 +1,6 @@
 import { z } from "zod";
 import "./zod-setup";
-import { localizedTextSchema } from "./openai";
+import { localizedTextSchema, rawLocalizedTextSchema } from "./openai";
 
 export type CaseChatAction =
   | { id: string }
@@ -15,7 +15,7 @@ export interface CaseChatReply {
 }
 
 export const caseChatReplySchema = z.object({
-  response: localizedTextSchema,
+  response: rawLocalizedTextSchema,
   actions: z.array(
     z.union([
       z.object({ id: z.string() }),

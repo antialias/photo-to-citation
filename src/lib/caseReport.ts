@@ -1,8 +1,10 @@
 import path from "node:path";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { z } from "zod";
+
 import type { Case, SentEmail } from "./caseStore";
 import { getLlm } from "./llm";
+import { normalizeLocalizedText } from "./localizedText";
 import { log } from "./logger";
 import { localizedTextSchema } from "./openai";
 import type { ReportModule } from "./reportModules";
@@ -26,6 +28,11 @@ function logBadResponse(
 export const emailDraftSchema = z.object({
   subject: localizedTextSchema,
   body: localizedTextSchema,
+});
+
+const emailDraftInputSchema = z.object({
+  subject: z.string(),
+  body: z.string(),
 });
 
 export type EmailDraft = z.infer<typeof emailDraftSchema>;
@@ -60,8 +67,8 @@ export async function draftEmail(
   const schema = {
     type: "object",
     properties: {
-      subject: { type: "object", additionalProperties: { type: "string" } },
-      body: { type: "object", additionalProperties: { type: "string" } },
+      subject: { type: "string" },
+      body: { type: "string" },
     },
   };
   const paperworkTexts = analysis?.images
@@ -114,8 +121,11 @@ Mention that photos are attached. Respond with JSON matching this schema: ${JSON
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      const raw = emailDraftSchema.parse(parsed);
-      return raw;
+      const raw = emailDraftInputSchema.parse(parsed);
+      return {
+        subject: normalizeLocalizedText(raw.subject, lang),
+        body: normalizeLocalizedText(raw.body, lang),
+      };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
@@ -156,8 +166,8 @@ export async function draftFollowUp(
   const schema = {
     type: "object",
     properties: {
-      subject: { type: "object", additionalProperties: { type: "string" } },
-      body: { type: "object", additionalProperties: { type: "string" } },
+      subject: { type: "string" },
+      body: { type: "string" },
     },
   };
   const code = await getViolationCode(
@@ -207,8 +217,11 @@ Ask about the current citation status and mention that photos are attached again
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      const raw = emailDraftSchema.parse(parsed);
-      return raw;
+      const raw = emailDraftInputSchema.parse(parsed);
+      return {
+        subject: normalizeLocalizedText(raw.subject, lang),
+        body: normalizeLocalizedText(raw.body, lang),
+      };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };
@@ -250,8 +263,8 @@ export async function draftOwnerNotification(
   const schema = {
     type: "object",
     properties: {
-      subject: { type: "object", additionalProperties: { type: "string" } },
-      body: { type: "object", additionalProperties: { type: "string" } },
+      subject: { type: "string" },
+      body: { type: "string" },
     },
   };
   const authorityList = authorities.join(", ");
@@ -290,8 +303,11 @@ export async function draftOwnerNotification(
     const text = res.choices[0]?.message?.content ?? "{}";
     try {
       const parsed = JSON.parse(text);
-      const raw = emailDraftSchema.parse(parsed);
-      return raw;
+      const raw = emailDraftInputSchema.parse(parsed);
+      return {
+        subject: normalizeLocalizedText(raw.subject, lang),
+        body: normalizeLocalizedText(raw.body, lang),
+      };
     } catch (err) {
       logBadResponse(attempt, text, err);
       if (attempt === 2) return { subject: { en: "" }, body: { en: "" } };

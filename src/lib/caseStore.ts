@@ -4,6 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { caseEvents } from "./caseEvents";
 import { addCaseMember, isCaseMember } from "./caseMembers";
 import { db } from "./db";
+import { normalizeLocalizedText } from "./localizedText";
 import { orm } from "./orm";
 import { casePhotoAnalysis, casePhotos } from "./schema";
 import { fetchCaseVinInBackground } from "./vinLookup";
@@ -127,13 +128,16 @@ function rowToCase(row: {
       images[path.basename(a.url)] = {
         representationScore: a.representationScore,
         ...(a.highlights !== null && {
-          highlights: (() => {
-            try {
-              return JSON.parse(a.highlights);
-            } catch {
-              return { en: a.highlights };
-            }
-          })(),
+          highlights: normalizeLocalizedText(
+            (() => {
+              try {
+                return JSON.parse(a.highlights);
+              } catch {
+                return a.highlights;
+              }
+            })(),
+            base.analysis?.language ?? "en",
+          ),
         }),
         ...(a.violation !== null && { violation: Boolean(a.violation) }),
         ...(a.paperwork !== null && { paperwork: Boolean(a.paperwork) }),
