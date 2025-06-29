@@ -38,12 +38,14 @@ export default function CaseToolbar({
             count: progress.total,
           })
         : t("uploadingPhotos")
-      : progress.done
-        ? t("processingResults")
-        : t("analyzingTokens", {
-            received: progress.received,
-            total: progress.total,
-          })
+      : progress.stage === "retry"
+        ? t("analysisRestarting", { attempt: progress.attempt })
+        : progress.done
+          ? t("processingResults")
+          : t("analyzingTokens", {
+              received: progress.received,
+              total: progress.total,
+            })
     : null;
   const progressText = progress
     ? `${progress.steps ? `Step ${progress.step} of ${progress.steps}: ` : ""}${reqText}`
@@ -54,7 +56,9 @@ export default function CaseToolbar({
       ? progress.index > 0
         ? (progress.index / progress.total) * 100
         : undefined
-      : Math.min((progress.received / progress.total) * 100, 100)
+      : progress.stage === "stream"
+        ? Math.min((progress.received / progress.total) * 100, 100)
+        : undefined
     : undefined;
   const overallValue =
     progress?.steps !== undefined && progress.step !== undefined
