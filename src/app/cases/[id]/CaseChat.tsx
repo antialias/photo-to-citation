@@ -38,8 +38,8 @@ function CaseChatInner({ caseId }: { caseId: string }) {
         expanded
           ? "relative h-full"
           : open
-            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-40"
-            : "fixed bottom-4 right-4 z-40"
+            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-chat"
+            : "fixed bottom-4 right-4 z-chat"
       } text-sm`}
     >
       {open ? (

@@ -483,7 +483,7 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
         const tooltip = document.createElement("div");
         tooltip.innerHTML = content;
         tooltip.className =
-          "z-50 rounded bg-black/80 text-white text-xs p-2 shadow";
+          "z-tooltip rounded bg-black/80 text-white text-xs p-2 shadow";
         tooltip.style.position = "absolute";
         let cleanupAuto: (() => void) | null = null;
         const show = () => {

@@ -132,7 +132,7 @@ export default function NavBar() {
   );
 
   return (
-    <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-10">
+    <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-nav">
       <Link
         href="/"
         className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
