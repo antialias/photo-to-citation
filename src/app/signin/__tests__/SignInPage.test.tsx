@@ -50,4 +50,12 @@ describe("SignInPage", () => {
     fireEvent.click(btn);
     expect(signIn).toHaveBeenCalledWith("google", { callbackUrl: "/" });
   });
+
+  it("allows signing in with Facebook", () => {
+    mockGet.mockReturnValueOnce(null);
+    render(<SignInPage />);
+    const btn = screen.getByRole("button", { name: /sign in with facebook/i });
+    fireEvent.click(btn);
+    expect(signIn).toHaveBeenCalledWith("facebook", { callbackUrl: "/" });
+  });
 });

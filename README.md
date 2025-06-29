@@ -78,6 +78,11 @@ terraform init
 terraform apply
 ```
 
+To enable Facebook sign-in, set `FACEBOOK_CLIENT_ID` and
+`FACEBOOK_CLIENT_SECRET` in your environment. Facebook does not have a
+Terraform module here, so create an app in the Facebook developer console and
+copy the credentials into `.env.local`.
+
 Copy the outputs into `.env.local` for the production deployment.
 
 ## Generating Zod Schemas

@@ -4,6 +4,7 @@ import path from "node:path";
 import type { NextAuthOptions, Session, User } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
+import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { config } from "./config";
@@ -36,6 +37,11 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: config.GOOGLE_CLIENT_ID ?? "",
       clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
+      allowDangerousEmailAccountLinking: true,
+    }),
+    FacebookProvider({
+      clientId: config.FACEBOOK_CLIENT_ID ?? "",
+      clientSecret: config.FACEBOOK_CLIENT_SECRET ?? "",
       allowDangerousEmailAccountLinking: true,
     }),
   ],

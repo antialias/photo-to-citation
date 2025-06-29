@@ -52,6 +52,13 @@ export default function SignInPage() {
         >
           Sign in with Google
         </button>
+        <button
+          type="button"
+          onClick={() => signIn("facebook", { callbackUrl: withBasePath("/") })}
+          className="bg-blue-600 text-white px-4 py-2 mt-2"
+        >
+          Sign in with Facebook
+        </button>
       </form>
       <a href={MARKETING_URL} className="underline mt-2">
         Learn more about Photo to Citation

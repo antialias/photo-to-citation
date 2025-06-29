@@ -32,6 +32,8 @@ const envSchema = z
     NEXTAUTH_URL: z.string().optional(),
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
+    FACEBOOK_CLIENT_ID: z.string().optional(),
+    FACEBOOK_CLIENT_SECRET: z.string().optional(),
     CASE_STORE_FILE: z.string().optional(),
     VIN_SOURCE_FILE: z.string().optional(),
     SNAIL_MAIL_FILE: z.string().optional(),
