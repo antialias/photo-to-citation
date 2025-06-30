@@ -13,9 +13,10 @@ let insertTx!: Database.Statement;
 let updateBalance!: Database.Statement;
 let selectBalance!: Database.Statement;
 let txAdd!: (userId: string, amount: number) => number;
+let inittedStatements = false;
 
 function initStatements(): void {
-  if (txAdd) return;
+  if (inittedStatements) return;
   insertTx = db.prepare(
     "INSERT INTO credit_transactions (id, user_id, amount, created_at) VALUES (?, ?, ?, ?)",
   );
@@ -31,6 +32,7 @@ function initStatements(): void {
     const row = selectBalance.get(userId) as { credits: number } | undefined;
     return row?.credits ?? 0;
   }) as (userId: string, amount: number) => number;
+  inittedStatements = true;
 }
 
 export function addCredits(userId: string, amount: number): number {
