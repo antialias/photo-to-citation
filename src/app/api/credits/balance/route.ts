@@ -2,6 +2,8 @@ import { withAuthorization } from "@/lib/authz";
 import { getCreditBalance } from "@/lib/credits";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export const GET = withAuthorization(
   { obj: "credits" },
   async (
