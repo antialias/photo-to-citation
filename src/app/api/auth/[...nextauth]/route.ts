@@ -1,10 +1,13 @@
 import { getAuthOptions } from "@/lib/authOptions";
 import NextAuth from "next-auth";
+import type { NextRequest } from "next/server";
 
-export function GET(req: Request, ctx: { params: { nextauth: string[] } }) {
-  return NextAuth(req, ctx, getAuthOptions());
-}
+export const GET = (
+  req: NextRequest,
+  ctx: { params: Promise<{ nextauth: string[] }> },
+) => NextAuth(req, ctx, getAuthOptions());
 
-export function POST(req: Request, ctx: { params: { nextauth: string[] } }) {
-  return NextAuth(req, ctx, getAuthOptions());
-}
+export const POST = (
+  req: NextRequest,
+  ctx: { params: Promise<{ nextauth: string[] }> },
+) => NextAuth(req, ctx, getAuthOptions());
