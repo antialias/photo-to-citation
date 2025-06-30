@@ -6,12 +6,13 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 // Worker for lightweight browser analysis
-const AnalyzerWorker = () =>
-  typeof Worker === "undefined"
-    ? null
-    : new Worker(new URL("./localAnalyzer.worker.ts", import.meta.url), {
-        type: "module",
-      });
+let AnalyzerWorker: (() => Worker | null) | null = null;
+if (typeof window !== "undefined" && typeof Worker !== "undefined") {
+  AnalyzerWorker = () =>
+    new Worker(new URL("./localAnalyzer.worker.ts", import.meta.url), {
+      type: "module",
+    });
+}
 import useAddFilesToCase from "@/app/useAddFilesToCase";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 
@@ -77,7 +78,7 @@ export default function PointAndShootPage() {
     }
     startCamera();
 
-    const w = AnalyzerWorker();
+    const w = AnalyzerWorker ? AnalyzerWorker() : null;
     if (w) {
       workerRef.current = w;
       w.postMessage({ type: "load", modelUrl: "/models/demo.onnx" });
