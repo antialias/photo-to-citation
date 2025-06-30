@@ -3,6 +3,8 @@ import { getCreditSettings } from "@/lib/creditSettings";
 import { addCredits } from "@/lib/credits";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export const POST = withAuthorization(
   { obj: "credits", act: "update" },
   async (
