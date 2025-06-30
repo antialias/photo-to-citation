@@ -7,8 +7,6 @@ import { osm } from "pigeon-maps/providers";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
-import "@/app/globals.css";
-
 function MarkerIcon() {
   return (
     <svg
