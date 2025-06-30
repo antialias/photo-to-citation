@@ -34,7 +34,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("chat api", () => {
+describe("chat api @smoke", () => {
   async function createCase(): Promise<string> {
     const file = createPhoto("a");
     const form = new FormData();
