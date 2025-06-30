@@ -32,14 +32,6 @@ vi.stubGlobal(
   })),
 );
 
-vi.stubGlobal(
-  "EventSource",
-  class {
-    onmessage: ((e: MessageEvent) => void) | null = null;
-    close() {}
-  },
-);
-
 const caseData: Case = {
   id: "1",
   photos: [],

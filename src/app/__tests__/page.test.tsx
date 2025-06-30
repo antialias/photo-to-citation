@@ -12,16 +12,6 @@ vi.mock("next-auth/next", () => ({
 vi.mock("@/lib/authOptions", () => ({ authOptions: {} }));
 
 describe("Home page", () => {
-  beforeAll(() => {
-    // jsdom does not implement EventSource
-    class FakeEventSource {
-      onmessage!: (event: MessageEvent) => void;
-      close() {}
-    }
-    (global as Record<string, unknown>).EventSource =
-      FakeEventSource as unknown as typeof EventSource;
-  });
-
   it("redirects mobile users to /point when signed in", async () => {
     (getServerSession as Mock).mockResolvedValueOnce({ user: {} });
     (headers as Mock).mockReturnValueOnce(

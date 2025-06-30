@@ -1,12 +1,12 @@
 "use client";
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
 import MapPreview from "@/app/components/MapPreview";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import { subscribe } from "@/eventClient";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
-import { subscribe as wsSubscribe } from "@/webSocketClient";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -69,7 +69,7 @@ export default function ClientCasesPage({
 
   useEffect(() => {
     if (!session) return;
-    const off = wsSubscribe("caseUpdate", (data) => {
+    const off = subscribe("caseUpdate", (data) => {
       const c = data as Case & { deleted?: boolean };
       setCases((prev) => {
         if (c.deleted) {
@@ -86,26 +86,7 @@ export default function ClientCasesPage({
         return sortList(copy, orderBy, userLocation);
       });
     });
-    if (off) return off;
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const c = JSON.parse(e.data) as Case & { deleted?: boolean };
-      setCases((prev) => {
-        if (c.deleted) {
-          return sortList(
-            prev.filter((x) => x.id !== c.id),
-            orderBy,
-            userLocation,
-          );
-        }
-        const idx = prev.findIndex((x) => x.id === c.id);
-        if (idx === -1) return sortList([...prev, c], orderBy, userLocation);
-        const copy = [...prev];
-        copy[idx] = c;
-        return sortList(copy, orderBy, userLocation);
-      });
-    };
-    return () => es.close();
+    return off;
   }, [orderBy, userLocation, session]);
 
   useEffect(() => {
