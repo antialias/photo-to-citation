@@ -2,7 +2,7 @@ import { deleteAnonymousCasesOlderThan } from "../src/lib/caseStore";
 import { migrationsReady } from "../src/lib/db";
 
 async function run() {
-  await migrationsReady;
+  await migrationsReady();
   const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const count = deleteAnonymousCasesOlderThan(cutoff);
   console.log(

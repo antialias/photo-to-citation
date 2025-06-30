@@ -1,4 +1,4 @@
-import { authOptions } from "@/lib/authOptions";
+import { getAuthOptions } from "@/lib/authOptions";
 import { getAuthorizedCase } from "@/lib/caseAccess";
 import { draftEmail } from "@/lib/caseReport";
 import { reportModules } from "@/lib/reportModules";
@@ -16,7 +16,7 @@ export default async function DraftPage({
   const c = await getAuthorizedCase(id);
   if (!c) notFound();
   const reportModule = reportModules["oak-park"];
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   const sender = session?.user
     ? { name: session.user.name ?? null, email: session.user.email ?? null }
     : undefined;
