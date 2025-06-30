@@ -46,6 +46,8 @@ export async function startServer(
       EMAIL_FILE: emailFile,
       MOCK_EMAIL_TO: "",
       PORT: String(port),
+      OPENAI_API_KEY: "test",
+      OPENAI_BASE_URL: "http://127.0.0.1:65535",
       ...env,
       CI: "1",
     },
