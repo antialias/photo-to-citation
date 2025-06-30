@@ -12,4 +12,7 @@ fs.mkdirSync(path.dirname(dbFile), { recursive: true });
 
 export const db = new Database(dbFile);
 
-export const migrationsReady = runMigrations(db);
+export const migrationsReady: Promise<void> =
+  process.env.NEXT_PHASE === "phase-production-build"
+    ? Promise.resolve()
+    : Promise.resolve(runMigrations(db));
