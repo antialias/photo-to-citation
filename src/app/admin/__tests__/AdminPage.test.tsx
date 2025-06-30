@@ -7,7 +7,7 @@ vi.mock("next-auth/next", () => ({
 }));
 
 vi.mock("@/lib/authOptions", () => ({
-  authOptions: {},
+  getAuthOptions: () => ({}),
 }));
 
 vi.mock("@/lib/authz", () => ({
