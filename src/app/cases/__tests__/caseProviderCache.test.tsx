@@ -5,6 +5,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+let pushUpdate: ((data: unknown) => void) | undefined;
+vi.mock("@/eventClient", () => ({
+  subscribe: (_event: string, cb: (data: unknown) => void) => {
+    pushUpdate = cb;
+    return () => {};
+  },
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
@@ -26,18 +34,6 @@ vi.stubGlobal(
   })),
 );
 
-let es: { onmessage: ((e: MessageEvent) => void) | null; close: () => void };
-vi.stubGlobal(
-  "EventSource",
-  class {
-    onmessage: ((e: MessageEvent) => void) | null = null;
-    close() {}
-    constructor() {
-      es = this;
-    }
-  },
-);
-
 afterEach(() => {
   queryClient.clear();
   vi.clearAllMocks();
@@ -55,9 +51,7 @@ describe("CaseProvider cache", () => {
     await waitFor(() =>
       expect(queryClient.getQueryData(caseQueryKey("1"))).toBeDefined(),
     );
-    es.onmessage?.({
-      data: JSON.stringify({ id: "1", public: true, photos: [] }),
-    } as MessageEvent);
+    pushUpdate?.({ id: "1", public: true, photos: [] });
     await waitFor(() =>
       expect(queryClient.getQueryData(caseQueryKey("1"))).toMatchObject({
         public: true,

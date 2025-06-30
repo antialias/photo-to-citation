@@ -1,10 +1,10 @@
 "use client";
 
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
+import { subscribe } from "@/eventClient";
 import type { Case } from "@/lib/caseStore";
 import { getRepresentativePhoto } from "@/lib/caseUtils";
-import { subscribe as wsSubscribe } from "@/webSocketClient";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
@@ -63,7 +63,7 @@ export function CaseProvider({
   );
 
   useEffect(() => {
-    const off = wsSubscribe("caseUpdate", (data) => {
+    const off = subscribe("caseUpdate", (data) => {
       const c = data as Case & { deleted?: boolean };
       if (c.id !== caseId) return;
       if (c.deleted) {
@@ -73,19 +73,7 @@ export function CaseProvider({
         sessionStorage.removeItem(`preview-${caseId}`);
       }
     });
-    if (off) return off;
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const c = JSON.parse(e.data) as Case & { deleted?: boolean };
-      if (c.id !== caseId) return;
-      if (c.deleted) {
-        queryClient.setQueryData(caseQueryKey(caseId), null);
-      } else {
-        queryClient.setQueryData(caseQueryKey(caseId), c);
-        sessionStorage.removeItem(`preview-${caseId}`);
-      }
-    };
-    return () => es.close();
+    return off;
   }, [caseId, queryClient]);
 
   useEffect(() => {

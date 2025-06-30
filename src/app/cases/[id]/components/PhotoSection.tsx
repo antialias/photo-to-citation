@@ -47,7 +47,7 @@ export default function PhotoSection({
     : "";
   return (
     <>
-      <CaseJobList caseId={caseId} isPublic={caseData.public} />
+      <CaseJobList caseId={caseId} />
       {selectedPhoto ? (
         <PhotoViewer
           caseData={caseData}
