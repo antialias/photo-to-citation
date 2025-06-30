@@ -11,7 +11,10 @@ import { config } from "./config";
 import { sendEmail } from "./email";
 import { log } from "./logger";
 
-if (!config.NEXTAUTH_SECRET) {
+if (
+  process.env.NEXT_PHASE !== "phase-production-build" &&
+  !config.NEXTAUTH_SECRET
+) {
   console.error(
     "NEXTAUTH_SECRET environment variable must be set to preserve sessions",
   );
