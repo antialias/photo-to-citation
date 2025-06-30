@@ -59,7 +59,7 @@ beforeEach(async () => {
     headers: () => new Headers(),
   }));
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   caseStore = await import("@/lib/caseStore");
   caseAnalysis = await import("@/lib/caseAnalysis");
   cancelSpy = vi.spyOn(caseAnalysis, "cancelCaseAnalysis");

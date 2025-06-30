@@ -1,4 +1,4 @@
-import { authOptions } from "@/lib/authOptions";
+import { getAuthOptions } from "@/lib/authOptions";
 import { config } from "@/lib/config";
 import type { Metadata, Viewport } from "next";
 import { getServerSession } from "next-auth";
@@ -29,7 +29,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   const cookieStore = await cookies();
   // Prefer the language cookie but fall back to Accept-Language
   let storedLang = cookieStore.get("language")?.value;
