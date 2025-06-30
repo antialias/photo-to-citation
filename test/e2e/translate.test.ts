@@ -55,15 +55,16 @@ async function createCase(): Promise<string> {
 }
 
 beforeAll(async () => {
-  stub = await startOpenAIStub([
-    {
-      violationType: "parking",
-      details: { en: "hello" },
-      vehicle: {},
-      images: {},
-    },
-    "hola",
-  ]);
+  stub = await startOpenAIStub(({ count }) =>
+    count % 2 === 0
+      ? {
+          violationType: "parking",
+          details: { en: "hello" },
+          vehicle: {},
+          images: {},
+        }
+      : "hola",
+  );
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-translate-"));
   server = await startServer(3032, {
     NEXTAUTH_SECRET: "secret",
