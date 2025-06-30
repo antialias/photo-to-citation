@@ -2,7 +2,7 @@ import { migrationsReady } from "../src/lib/db";
 import { scanInbox } from "../src/lib/inboxScanner";
 
 async function run() {
-  await migrationsReady;
+  await migrationsReady();
   await scanInbox();
 }
 

@@ -12,4 +12,10 @@ fs.mkdirSync(path.dirname(dbFile), { recursive: true });
 
 export const db = new Database(dbFile);
 
-export const migrationsReady = runMigrations(db);
+let migrationPromise: Promise<void> | undefined;
+export function migrationsReady(): Promise<void> {
+  if (!migrationPromise) {
+    migrationPromise = Promise.resolve().then(() => runMigrations(db));
+  }
+  return migrationPromise;
+}

@@ -19,8 +19,8 @@ beforeEach(async () => {
   members = await import("@/lib/caseMembers");
   ({ orm } = await import("@/lib/orm"));
   schema = await import("@/lib/schema");
+  await dbModule.migrationsReady();
   orm.insert(schema.users).values({ id: "u1" }).run();
-  await dbModule.migrationsReady;
 });
 
 afterEach(() => {

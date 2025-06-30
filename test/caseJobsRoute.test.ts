@@ -16,7 +16,7 @@ beforeEach(async () => {
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   caseStore = await import("@/lib/caseStore");
   jobScheduler = await import("@/lib/jobScheduler");
   jobScheduler.activeJobs.clear();
