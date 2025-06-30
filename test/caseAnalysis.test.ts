@@ -12,6 +12,8 @@ vi.mock("@/lib/jobScheduler", () => ({ runJob: runJobMock }));
 describe("analyzeCaseInBackground", () => {
   beforeEach(() => {
     runJobMock.mockClear();
+    const dbPromise = import("@/lib/db");
+    return dbPromise.then((db) => db.migrationsReady());
   });
 
   it("does not start a new worker when analysis is active", async () => {

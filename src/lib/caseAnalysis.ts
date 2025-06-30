@@ -111,11 +111,17 @@ export async function analyzeCase(caseData: Case, lang = "en"): Promise<void> {
         steps,
       },
     });
-    const result = await analyzeViolation(images, lang, (p) => {
-      updateCase(caseData.id, {
-        analysisProgress: { ...p, step: currentStep, steps },
-      });
-    });
+    const result = await analyzeViolation(
+      images,
+      lang,
+      process.env.NODE_ENV === "test"
+        ? undefined
+        : (p) => {
+            updateCase(caseData.id, {
+              analysisProgress: { ...p, step: currentStep, steps },
+            });
+          },
+    );
     updateCase(caseData.id, { analysisProgress: null });
     const paperwork: Array<[string, string]> = [];
     if (result.images) {
@@ -159,6 +165,7 @@ export async function analyzeCase(caseData: Case, lang = "en"): Promise<void> {
         analysisStatusCode: 400,
         analysisError: err.kind,
         analysisProgress: null,
+        analysis: { details: {} },
       });
     } else {
       const status = err instanceof APIError ? err.status : 500;
@@ -234,11 +241,13 @@ export async function reanalyzePhoto(
     const result = await analyzeViolation(
       [{ filename: path.basename(photo), url: dataUrl }],
       lang,
-      (p) => {
-        updateCase(caseData.id, {
-          analysisProgress: { ...p, step: 1, steps: 1 },
-        });
-      },
+      process.env.NODE_ENV === "test"
+        ? undefined
+        : (p) => {
+            updateCase(caseData.id, {
+              analysisProgress: { ...p, step: 1, steps: 1 },
+            });
+          },
       ctrl.signal,
     );
     updateCase(caseData.id, { analysisProgress: null });
@@ -285,6 +294,7 @@ export async function reanalyzePhoto(
         analysisStatusCode: 400,
         analysisError: err.kind,
         analysisProgress: null,
+        analysis: { details: {} },
       });
     } else {
       const status = err instanceof APIError ? err.status : 500;

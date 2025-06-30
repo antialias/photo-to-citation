@@ -47,7 +47,7 @@ beforeEach(async () => {
     headers: () => new Headers(),
   }));
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   upload = await import("@/app/api/upload/route");
   caseRoute = await import("@/app/api/cases/[id]/route");
 });
