@@ -11,7 +11,7 @@ beforeEach(async () => {
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   const { defaultVinSources } = await import("@/lib/vinSources");
   const statuses = defaultVinSources.map((s: { id: string }) => ({
     id: s.id,

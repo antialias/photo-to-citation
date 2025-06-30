@@ -11,7 +11,7 @@ beforeEach(async () => {
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   const { snailMailProviders } = await import("@/lib/snailMail");
   const statuses = Object.keys(snailMailProviders).map((id, idx) => ({
     id,

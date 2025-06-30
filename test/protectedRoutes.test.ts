@@ -42,7 +42,7 @@ beforeEach(async () => {
     }),
   }));
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
 });
 
 afterEach(() => {

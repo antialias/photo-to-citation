@@ -4,7 +4,7 @@ import type { Case } from "@/lib/caseStore";
 import { migrationsReady } from "@/lib/db";
 
 (async () => {
-  await migrationsReady;
+  await migrationsReady();
   const { jobData } = workerData as {
     jobData: { caseData: Case; lang: string };
   };
