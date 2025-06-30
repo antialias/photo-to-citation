@@ -13,7 +13,7 @@ let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let stub: OpenAIStub;
 let tmpDir: string;
 
-vi.setConfig({ testTimeout: 60000 });
+vi.setConfig({ testTimeout: 60000, hookTimeout: 60000 });
 
 async function signIn(email: string) {
   const csrf = await api("/api/auth/csrf").then((r) => r.json());
@@ -56,6 +56,13 @@ async function createCase(): Promise<string> {
 
 beforeAll(async () => {
   stub = await startOpenAIStub([
+    {
+      violationType: "parking",
+      details: { en: "hello" },
+      vehicle: {},
+      images: {},
+    },
+    "hola",
     {
       violationType: "parking",
       details: { en: "hello" },
