@@ -108,7 +108,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("snail mail providers @smoke", () => {
+describe("snail mail providers", () => {
   async function createCase(): Promise<string> {
     const file = createPhoto("a");
     const form = new FormData();

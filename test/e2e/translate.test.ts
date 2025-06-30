@@ -80,7 +80,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("translate api @smoke", () => {
+describe("translate api", () => {
   it("translates analysis details", async () => {
     const id = await createCase();
     const res = await poll(
