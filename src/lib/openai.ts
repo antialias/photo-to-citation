@@ -6,7 +6,6 @@ import type {
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions";
 import { z } from "zod";
-import "./zod-setup";
 import { getLlm } from "./llm";
 import { normalizeLocalizedText } from "./localizedText";
 import { US_STATES } from "./usStates";

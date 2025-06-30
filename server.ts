@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { type WebSocket, WebSocketServer } from "ws";
+import "./src/lib/init";
 import { caseEvents } from "./src/lib/caseEvents";
 import { migrationsReady } from "./src/lib/db";
 import { jobEvents } from "./src/lib/jobEvents";

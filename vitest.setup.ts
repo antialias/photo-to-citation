@@ -2,6 +2,7 @@ import "@testing-library/jest-dom";
 import React, { type ImgHTMLAttributes } from "react";
 import { type TestContext, afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { initI18n } from "./src/i18n";
+import "./src/lib/init";
 
 if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
   class ResizeObserver {

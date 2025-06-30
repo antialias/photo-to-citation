@@ -9,7 +9,6 @@ import { log } from "./logger";
 import { localizedTextSchema } from "./openai";
 import type { ReportModule } from "./reportModules";
 import { getViolationCode } from "./violationCodes";
-import "./zod-setup";
 
 function logBadResponse(
   attempt: number,
