@@ -88,7 +88,7 @@ describe("translate api @smoke", () => {
       async (r) => {
         if (r.status !== 200) return false;
         const j = await r.clone().json();
-        return j.analysis !== null;
+        return j.analysis != null;
       },
       40,
     );
@@ -114,7 +114,7 @@ describe("translate api @smoke", () => {
       async (r) => {
         if (r.status !== 200) return false;
         const j = await r.clone().json();
-        return j.analysis !== null;
+        return j.analysis != null;
       },
       40,
     );
