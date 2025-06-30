@@ -58,7 +58,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("email sending @smoke", () => {
+describe("email sending", () => {
   async function createCase(): Promise<string> {
     const file = createPhoto("a");
     const form = new FormData();
