@@ -11,7 +11,7 @@ beforeEach(async () => {
   process.env.CASE_STORE_FILE = path.join(tmpDir, "cases.sqlite");
   vi.resetModules();
   const db = await import("../db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   store = await import("../caseStore");
 });
 

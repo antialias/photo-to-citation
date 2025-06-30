@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import next from "next";
 import { type WebSocket, WebSocketServer } from "ws";
 import { caseEvents } from "./src/lib/caseEvents";
+import { migrationsReady } from "./src/lib/db";
 import { jobEvents } from "./src/lib/jobEvents";
 import { listJobs } from "./src/lib/jobScheduler";
 
@@ -11,7 +12,8 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
+  await migrationsReady();
   const server = createServer((req, res) => handle(req, res));
   const wss = new WebSocketServer({ noServer: true });
 

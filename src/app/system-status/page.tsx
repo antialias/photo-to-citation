@@ -1,4 +1,4 @@
-import { authOptions } from "@/lib/authOptions";
+import { getAuthOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
 import { getServerSession } from "next-auth/next";
 import SystemStatusClient from "./SystemStatusClient";
@@ -13,7 +13,7 @@ const handler = withAuthorization(
 );
 
 export default async function SystemStatusPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   return handler(new Request("http://localhost"), {
     params: Promise.resolve({}),
     session: session ?? undefined,
