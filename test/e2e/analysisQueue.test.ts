@@ -83,7 +83,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("analysis queue", () => {
+describe("analysis queue @smoke", () => {
   it("processes additional photos sequentially", async () => {
     const file = await createPhoto("a");
     const form = new FormData();

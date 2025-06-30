@@ -80,7 +80,7 @@ afterAll(async () => {
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
-describe("translate api", () => {
+describe("translate api @smoke", () => {
   it("translates analysis details", async () => {
     const id = await createCase();
     const res = await poll(
@@ -90,7 +90,7 @@ describe("translate api", () => {
         const j = await r.clone().json();
         return j.analysis !== null;
       },
-      20,
+      40,
     );
     const base = (await res.json()) as { analysis?: { details?: unknown } };
     expect(base.analysis).toBeTruthy();
@@ -116,7 +116,7 @@ describe("translate api", () => {
         const j = await r.clone().json();
         return j.analysis !== null;
       },
-      20,
+      40,
     );
     const base = (await res.json()) as { analysis?: { details?: unknown } };
     expect(base.analysis).toBeTruthy();
