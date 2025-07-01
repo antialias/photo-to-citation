@@ -19,6 +19,7 @@ RUN npm run build && npm prune --production
 FROM node:20-bookworm AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV NODE_OPTIONS=--enable-source-maps
 ENV PORT=3000
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
