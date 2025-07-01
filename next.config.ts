@@ -21,11 +21,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack: (config, {isServer}) => {
+  webpack: (config, { isServer }) => {
     if (isServer) {
-      config.devtool = 'source-map'
+      config.devtool = "source-map";
     }
-    return config
+    return config;
   },
 };
 

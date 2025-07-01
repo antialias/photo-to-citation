@@ -1,3 +1,4 @@
+import "source-map-support/register";
 import { createServer } from "node:http";
 import next from "next";
 import { type WebSocket, WebSocketServer } from "ws";
