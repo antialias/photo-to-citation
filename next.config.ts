@@ -6,6 +6,9 @@ const assetPrefix = basePath ? `${basePath}/` : undefined;
 const nextConfig: NextConfig = {
   basePath,
   assetPrefix,
+  experimental: {
+    serverSourceMaps: true,
+  },
   images: {
     remotePatterns: [
       {
