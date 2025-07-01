@@ -7,7 +7,7 @@
     "dev": "ts-node --transpile-only server.ts",
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "npm run build:jobs && next build",
-    "start": "ts-node --transpile-only server.ts",
+    "start": "NODE_OPTIONS=--enable-source-maps ts-node --transpile-only server.ts",
     "lint": "npm run lint:md && biome check .",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "format": "biome format . --write",
