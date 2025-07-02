@@ -27,6 +27,17 @@ export interface OwnershipModule {
   requestContactInfo?: (info: OwnershipRequestInfo) => Promise<void>;
 }
 
+export const IL_FORM_FIELD_MAP: Record<keyof OwnershipRequestInfo, string> = {
+  plate: "1",
+  state: "2",
+  vin: "3",
+  ownerName: "4",
+  address1: "5",
+  address2: "6",
+  city: "7",
+  postalCode: "8",
+};
+
 function parseAddress(text: string): MailingAddress {
   const lines = text.trim().split(/\n+/);
   let name: string | undefined;
@@ -63,28 +74,24 @@ async function mailPdf(address: string, pdfPath: string): Promise<void> {
 }
 
 export async function fillIlForm(info: OwnershipRequestInfo): Promise<string> {
-  const formPath = path.resolve(path.join(
-    "public",
-    "forms",
-    "il",
-    "vsd375.pdf",
-  ));
+  const formPath = path.resolve(
+    path.join("public", "forms", "il", "vsd375.pdf"),
+  );
   const bytes = fs.readFileSync(formPath);
   const pdf = await PDFDocument.load(new Uint8Array(bytes));
   const form = pdf.getForm();
-  const set = (name: string, value: string | undefined) => {
+  const setField = (name: string, value: string | undefined) => {
     try {
       form.getTextField(name).setText(value ?? "");
     } catch {}
   };
-  set("1", info.plate);
-  set("2", info.state);
-  set("3", info.vin ?? "");
-  set("4", info.ownerName ?? "");
-  set("5", info.address1 ?? "");
-  set("6", info.address2 ?? "");
-  set("7", info.city ?? "");
-  set("8", info.postalCode ?? "");
+  for (const [key, field] of Object.entries(IL_FORM_FIELD_MAP) as [
+    keyof OwnershipRequestInfo,
+    string,
+  ][]) {
+    const value = info[key] ?? undefined;
+    setField(field, value ?? "");
+  }
   const outDir = path.join(process.cwd(), "data", "ownership_tmp");
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, `${crypto.randomUUID()}.pdf`);
