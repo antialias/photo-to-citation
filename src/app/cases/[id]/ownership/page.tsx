@@ -1,6 +1,7 @@
 import { initI18n } from "@/i18n.server";
 import { getAuthorizedCase } from "@/lib/caseAccess";
 import { ownershipModules } from "@/lib/ownershipModules";
+import type { OwnershipModule } from "@/lib/ownershipModules";
 import { notFound } from "next/navigation";
 import OwnershipEditor from "./OwnershipEditor";
 
@@ -24,5 +25,13 @@ export default async function OwnershipPage({
       <div className="p-8">{t("noOwnershipModule", { label, supported })}</div>
     );
   }
-  return <OwnershipEditor caseId={id} module={mod} />;
+  const { requestVin: _rv, requestContactInfo: _rc, ...clientMod } = mod;
+  return (
+    <OwnershipEditor
+      caseId={id}
+      module={
+        clientMod as Omit<OwnershipModule, "requestVin" | "requestContactInfo">
+      }
+    />
+  );
 }

@@ -10,7 +10,7 @@ export default function OwnershipEditor({
   module,
 }: {
   caseId: string;
-  module: OwnershipModule;
+  module: Omit<OwnershipModule, "requestVin" | "requestContactInfo">;
 }) {
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
