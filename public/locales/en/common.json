@@ -201,6 +201,8 @@
   "checkNumberLabel": "Check Number",
   "sendSnailAutomatically": "Send snail mail automatically",
   "markRequested": "Mark as Requested",
+  "filledFormPreview": "Filled form preview",
+  "noPdfSupport": "Your browser cannot display PDFs. Please download the file.",
   "noOwnershipModule": "No ownership module for state {{label}}. Supported states: {{supported}}. Please ensure the license plate state uses a two-letter abbreviation.",
   "failedUpdateVin": "Failed to update VIN.",
   "failedClearVin": "Failed to clear VIN.",
