@@ -12,7 +12,7 @@ const handler = withAuthorization<
   {
     params: Promise<Record<string, string>>;
     session?: { user?: { role?: string } };
-    searchParams?: { tab?: string };
+    searchParams?: Promise<{ tab?: string }>;
   },
   Response | ReactElement
 >(
@@ -24,7 +24,7 @@ const handler = withAuthorization<
       searchParams,
     }: {
       session?: { user?: { role?: string } };
-      searchParams?: { tab?: string };
+      searchParams?: Promise<{ tab?: string }>;
     },
   ) => {
     const s = session ?? (await getServerSession(authOptions));
@@ -34,12 +34,13 @@ const handler = withAuthorization<
     }
     const users = listUsers();
     const rules = getCasbinRules();
-    const tab = searchParams?.tab === "config" ? "config" : "users";
+    const { tab } = (await searchParams) ?? {};
+    const t = tab === "config" ? "config" : "users";
     return (
       <AdminPageClient
         initialUsers={users}
         initialRules={rules}
-        initialTab={tab}
+        initialTab={t}
       />
     );
   },
@@ -48,7 +49,7 @@ const handler = withAuthorization<
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams?: { tab?: string };
+  searchParams?: Promise<{ tab?: string }>;
 }) {
   const session = await getServerSession(authOptions);
   return handler(new Request("http://localhost"), {
