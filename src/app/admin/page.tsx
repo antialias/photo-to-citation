@@ -1,5 +1,5 @@
 import { getCasbinRules, listUsers } from "@/lib/adminStore";
-import { authOptions } from "@/lib/authOptions";
+import { getAuthOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
 import { log } from "@/lib/logger";
 import { getServerSession } from "next-auth/next";
@@ -13,7 +13,7 @@ const handler = withAuthorization(
     _req: Request,
     { session }: { session?: { user?: { role?: string } } },
   ) => {
-    const s = session ?? (await getServerSession(authOptions));
+    const s = session ?? (await getServerSession(getAuthOptions()));
     log("admin page session", s?.user?.role);
     if (s?.user?.role !== "admin" && s?.user?.role !== "superadmin") {
       return new Response(null, { status: 403 });
@@ -25,7 +25,7 @@ const handler = withAuthorization(
 );
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   return handler(new Request("http://localhost"), {
     params: Promise.resolve({}),
     session: session ?? undefined,

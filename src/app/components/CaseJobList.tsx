@@ -1,5 +1,5 @@
 "use client";
-import { apiEventSource } from "@/apiClient";
+import { subscribe } from "@/eventClient";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -7,6 +7,7 @@ interface JobInfo {
   id: number;
   type: string;
   startedAt: number;
+  caseId?: string;
 }
 
 interface JobResponse {
@@ -17,10 +18,8 @@ interface JobResponse {
 
 export default function CaseJobList({
   caseId,
-  isPublic,
 }: {
   caseId: string;
-  isPublic: boolean;
 }) {
   const [jobs, setJobs] = useState<JobInfo[]>([]);
   const [auditedAt, setAuditedAt] = useState<number>(0);
@@ -28,18 +27,15 @@ export default function CaseJobList({
   const { t } = useTranslation();
 
   useEffect(() => {
-    const base = isPublic ? "/api/public/cases" : "/api/cases";
-    const es = apiEventSource(
-      `${base}/${encodeURIComponent(caseId)}/jobs/stream`,
-    );
-    es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
-      setJobs(data.jobs);
-      setAuditedAt(data.auditedAt);
-      setUpdatedAt(data.updatedAt);
-    };
-    return () => es.close();
-  }, [caseId, isPublic]);
+    const off = subscribe("jobUpdate", (data) => {
+      const info = data as JobResponse;
+      const filtered = info.jobs.filter((j) => j.caseId === caseId);
+      setJobs(filtered);
+      setAuditedAt(info.auditedAt);
+      setUpdatedAt(info.updatedAt);
+    });
+    return off;
+  }, [caseId]);
 
   if (jobs.length === 0) {
     return null;

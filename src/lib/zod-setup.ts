@@ -1,4 +1,11 @@
 import { extendZodWithOpenApi } from "@anatine/zod-openapi";
 import { z } from "zod";
 
-extendZodWithOpenApi(z);
+let extended = false;
+
+export function setupZodOpenApi(): void {
+  if (!extended) {
+    extendZodWithOpenApi(z);
+    extended = true;
+  }
+}

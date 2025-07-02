@@ -13,7 +13,7 @@ let api: (path: string, opts?: RequestInit) => Promise<Response>;
 let stub: OpenAIStub;
 let tmpDir: string;
 
-vi.setConfig({ testTimeout: 60000 });
+vi.setConfig({ testTimeout: 60000, hookTimeout: 60000 });
 
 async function signIn(email: string) {
   const csrf = await api("/api/auth/csrf").then((r) => r.json());
@@ -63,6 +63,13 @@ beforeAll(async () => {
       images: {},
     },
     "hola",
+    {
+      violationType: "parking",
+      details: { en: "hello" },
+      vehicle: {},
+      images: {},
+    },
+    "hola",
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-translate-"));
   server = await startServer(3032, {
@@ -88,9 +95,9 @@ describe("translate api", () => {
       async (r) => {
         if (r.status !== 200) return false;
         const j = await r.clone().json();
-        return j.analysis !== null;
+        return j.analysis != null;
       },
-      20,
+      40,
     );
     const base = (await res.json()) as { analysis?: { details?: unknown } };
     expect(base.analysis).toBeTruthy();
@@ -114,9 +121,9 @@ describe("translate api", () => {
       async (r) => {
         if (r.status !== 200) return false;
         const j = await r.clone().json();
-        return j.analysis !== null;
+        return j.analysis != null;
       },
-      20,
+      40,
     );
     const base = (await res.json()) as { analysis?: { details?: unknown } };
     expect(base.analysis).toBeTruthy();

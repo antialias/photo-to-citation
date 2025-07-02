@@ -1,7 +1,7 @@
 import { type Enforcer, newEnforcer, newModelFromString } from "casbin";
 import { getServerSession } from "next-auth/next";
 import { getAnonymousSessionId } from "./anonymousSession";
-import { authOptions } from "./authOptions";
+import { getAuthOptions } from "./authOptions";
 import { isCaseMember } from "./caseMembers";
 import { getCase } from "./caseStore";
 import { migrationsReady } from "./db";
@@ -13,7 +13,7 @@ let enforcer: Enforcer | undefined;
 
 async function loadEnforcer(): Promise<Enforcer> {
   if (enforcer) return enforcer;
-  await migrationsReady;
+  await migrationsReady();
   log("loading casbin enforcer");
   const model = newModelFromString(`
   [request_definition]
@@ -78,7 +78,7 @@ export async function loadAuthContext(
   const skipSessionLoad = process.env.VITEST && !process.env.TEST_APIS;
   const session = skipSessionLoad
     ? ctx.session
-    : (ctx.session ?? (await getServerSession(authOptions)) ?? undefined);
+    : (ctx.session ?? (await getServerSession(getAuthOptions())) ?? undefined);
   const { role, userId } = getSessionDetails({ session }, defaultRole);
   return { session, role, userId };
 }

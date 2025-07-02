@@ -1,8 +1,9 @@
 "use client";
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
 import MapPreview from "@/app/components/MapPreview";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import { subscribe } from "@/eventClient";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
@@ -68,25 +69,24 @@ export default function ClientCasesPage({
 
   useEffect(() => {
     if (!session) return;
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
+    const off = subscribe("caseUpdate", (data) => {
+      const c = data as Case & { deleted?: boolean };
       setCases((prev) => {
-        if (data.deleted) {
+        if (c.deleted) {
           return sortList(
-            prev.filter((c) => c.id !== data.id),
+            prev.filter((x) => x.id !== c.id),
             orderBy,
             userLocation,
           );
         }
-        const idx = prev.findIndex((c) => c.id === data.id);
-        if (idx === -1) return sortList([...prev, data], orderBy, userLocation);
+        const idx = prev.findIndex((x) => x.id === c.id);
+        if (idx === -1) return sortList([...prev, c], orderBy, userLocation);
         const copy = [...prev];
-        copy[idx] = data;
+        copy[idx] = c;
         return sortList(copy, orderBy, userLocation);
       });
-    };
-    return () => es.close();
+    });
+    return off;
   }, [orderBy, userLocation, session]);
 
   useEffect(() => {

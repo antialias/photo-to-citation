@@ -13,7 +13,7 @@ beforeEach(async () => {
   process.env.CASE_STORE_FILE = path.join(dataDir, "cases.sqlite");
   vi.resetModules();
   const db = await import("@/lib/db");
-  await db.migrationsReady;
+  await db.migrationsReady();
   ({ orm } = await import("@/lib/orm"));
   schema = await import("@/lib/schema");
   ({ eq } = await import("drizzle-orm"));

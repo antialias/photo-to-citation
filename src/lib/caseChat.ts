@@ -1,5 +1,4 @@
 import { z } from "zod";
-import "./zod-setup";
 import { localizedTextSchema, rawLocalizedTextSchema } from "./openai";
 
 export type CaseChatAction =

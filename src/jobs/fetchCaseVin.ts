@@ -4,7 +4,7 @@ import { migrationsReady } from "@/lib/db";
 import { fetchCaseVin } from "@/lib/vinLookup";
 
 (async () => {
-  await migrationsReady;
+  await migrationsReady();
   const { jobData } = workerData as { jobData: Case };
   await fetchCaseVin(jobData);
   if (parentPort) parentPort.postMessage("done");

@@ -2,7 +2,12 @@ import LoggedOutLanding from "@/app/LoggedOutLanding";
 import React from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+
+beforeAll(async () => {
+  const db = await import("@/lib/db");
+  await db.migrationsReady();
+});
 
 describe("hydration smoke test", () => {
   it("hydrates LoggedOutLanding without errors", async () => {

@@ -6,7 +6,6 @@ import type {
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions";
 import type { ZodSchema } from "zod";
-import "./zod-setup";
 
 export type LlmProgress =
   | {

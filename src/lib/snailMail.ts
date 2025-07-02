@@ -2,7 +2,6 @@ import docsmitProvider from "./docsmitProvider";
 import fileProvider from "./fileSnailMailProvider";
 import { runJob } from "./jobScheduler";
 import { log } from "./logger";
-import "./zod-setup";
 
 export interface MailingAddress {
   name?: string;

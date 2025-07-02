@@ -27,7 +27,7 @@ export async function seedSuperAdmin(newUser?: {
   id: string;
   email: string | null;
 }) {
-  await migrationsReady;
+  await migrationsReady();
   const existing = orm
     .select()
     .from(users)
