@@ -8,9 +8,11 @@ import { useNotify } from "../../../components/NotificationProvider";
 export default function OwnershipEditor({
   caseId,
   module,
+  showPdf = false,
 }: {
   caseId: string;
   module: Omit<OwnershipModule, "requestVin" | "requestContactInfo">;
+  showPdf?: boolean;
 }) {
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
@@ -40,6 +42,13 @@ export default function OwnershipEditor({
       <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
+      {showPdf ? (
+        <iframe
+          src={`/api/cases/${caseId}/ownership-form`}
+          className="w-full h-96 border"
+          title="Ownership form"
+        />
+      ) : null}
       <label className="flex flex-col">
         {t("checkNumberLabel")}
         <input
