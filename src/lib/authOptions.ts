@@ -10,6 +10,7 @@ import { authAdapter, seedSuperAdmin } from "./auth";
 import { config } from "./config";
 import { sendEmail } from "./email";
 import { log } from "./logger";
+import { getOauthProviderStatuses } from "./oauthProviders";
 
 if (
   process.env.NEXT_PHASE !== "phase-production-build" &&
@@ -37,16 +38,29 @@ export const authOptions: NextAuthOptions = {
       },
       from: config.SMTP_FROM,
     }),
-    GoogleProvider({
-      clientId: config.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
-      allowDangerousEmailAccountLinking: true,
-    }),
-    FacebookProvider({
-      clientId: config.FACEBOOK_CLIENT_ID ?? "",
-      clientSecret: config.FACEBOOK_CLIENT_SECRET ?? "",
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...(() => {
+      const statuses = getOauthProviderStatuses();
+      const googleEnabled = statuses.find((p) => p.id === "google")?.enabled;
+      const facebookEnabled = statuses.find(
+        (p) => p.id === "facebook",
+      )?.enabled;
+      return [
+        googleEnabled
+          ? GoogleProvider({
+              clientId: config.GOOGLE_CLIENT_ID ?? "",
+              clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
+              allowDangerousEmailAccountLinking: true,
+            })
+          : null,
+        facebookEnabled
+          ? FacebookProvider({
+              clientId: config.FACEBOOK_CLIENT_ID ?? "",
+              clientSecret: config.FACEBOOK_CLIENT_SECRET ?? "",
+              allowDangerousEmailAccountLinking: true,
+            })
+          : null,
+      ].filter(Boolean);
+    })(),
   ],
   pages: { signIn: "/signin" },
   session: { strategy: "database" as const },
