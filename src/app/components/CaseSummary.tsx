@@ -6,7 +6,7 @@ import {
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
-  hasViolation,
+  hasCaseViolation,
 } from "@/lib/caseUtils";
 import { useTranslation } from "react-i18next";
 import MultiCaseToolbar from "./MultiCaseToolbar";
@@ -19,7 +19,7 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
     return cases.every((c) => getter(c) === value) ? value : undefined;
   }
   const violation = allEqual((c) =>
-    hasViolation(c.analysis) ? c.analysis?.violationType : undefined,
+    hasCaseViolation(c) ? c.analysis?.violationType : undefined,
   );
   const plateNum = allEqual((c) => getCasePlateNumber(c));
   const plateState = allEqual((c) => getCasePlateState(c));
@@ -27,7 +27,7 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
   const contact = allEqual((c) => getCaseOwnerContact(c));
 
   const actionsDisabled = !cases.every(
-    (c) => c.analysisStatus === "complete" && hasViolation(c.analysis),
+    (c) => c.analysisStatus === "complete" && hasCaseViolation(c),
   );
   const hasOwnerAll = cases.every((c) => Boolean(getCaseOwnerContact(c)));
   const ids = cases.map((c) => c.id);

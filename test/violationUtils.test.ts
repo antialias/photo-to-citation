@@ -1,4 +1,9 @@
-import { getBestViolationPhoto, hasViolation } from "@/lib/caseUtils";
+import type { Case } from "@/lib/caseStore";
+import {
+  getBestViolationPhoto,
+  hasCaseViolation,
+  hasViolation,
+} from "@/lib/caseUtils";
 import { describe, expect, it } from "vitest";
 
 describe("hasViolation", () => {
@@ -41,6 +46,42 @@ describe("hasViolation", () => {
         images: {},
       }),
     ).toBe(false);
+  });
+});
+
+describe("hasCaseViolation", () => {
+  it("uses override when present", () => {
+    const c: Case = {
+      id: "1",
+      photos: [],
+      photoTimes: {},
+      photoGps: {},
+      createdAt: "0",
+      updatedAt: "0",
+      public: false,
+      sessionId: null,
+      gps: null,
+      streetAddress: null,
+      intersection: null,
+      vin: null,
+      vinOverride: null,
+      analysis: null,
+      analysisOverrides: null,
+      analysisStatus: "complete",
+      analysisStatusCode: null,
+      analysisError: null,
+      analysisProgress: null,
+      violationOverride: true,
+      violationOverrideReason: "",
+      sentEmails: [],
+      ownershipRequests: [],
+      threadImages: [],
+      closed: false,
+      note: null,
+      photoNotes: {},
+      archived: false,
+    };
+    expect(hasCaseViolation(c)).toBe(true);
   });
 });
 

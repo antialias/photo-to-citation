@@ -57,6 +57,11 @@ export function hasViolation(report?: ViolationReport | null): boolean {
   return Boolean(report.violationType?.trim());
 }
 
+export function hasCaseViolation(c: Case): boolean {
+  if (c.violationOverride) return true;
+  return hasViolation(c.analysis);
+}
+
 export function getCaseVin(caseData: Case): string | null {
   if (caseData.vin) return caseData.vin;
   const imgs = caseData.analysis?.images

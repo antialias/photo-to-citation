@@ -8,7 +8,7 @@ import {
   getCasePlateNumber,
   getCasePlateState,
   getCaseVin,
-  hasViolation,
+  hasCaseViolation,
 } from "@/lib/caseUtils";
 import {
   autoUpdate,
@@ -44,7 +44,7 @@ const allSteps = [
 export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
   const { t } = useTranslation();
   const analysisDone = caseData.analysisStatus === "complete";
-  const violation = analysisDone && hasViolation(caseData.analysis);
+  const violation = analysisDone && hasCaseViolation(caseData);
   const noviolation = analysisDone && !violation;
 
   const analysisPending =

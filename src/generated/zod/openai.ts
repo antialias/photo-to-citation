@@ -17,6 +17,13 @@ export const llmProgressSchema = z.union([
     step: z.number().optional(),
     steps: z.number().optional(),
   }),
+  z.object({
+    stage: z.literal("retry"),
+    attempt: z.number(),
+    reason: z.string(),
+    step: z.number().optional(),
+    steps: z.number().optional(),
+  }),
 ]);
 
 export const paperworkInfoSchema = z.object({

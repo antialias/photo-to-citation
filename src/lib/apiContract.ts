@@ -106,6 +106,30 @@ export const apiContract = c.router({
     summary: "Remove VIN override",
     description: "Clear any VIN override from a case.",
   }),
+  setViolationOverride: c.mutation({
+    method: "PUT",
+    path: "/api/cases/:id/violation-override",
+    pathParams: idParams,
+    body: c.type<{ violation: boolean | null; reason: string | null }>(),
+    responses: c.responses({
+      200: caseSchema,
+      404: errorSchema,
+    }),
+    summary: "Set violation override",
+    description: "Force a case to be a violation with an explanation.",
+  }),
+  clearViolationOverride: c.mutation({
+    method: "DELETE",
+    path: "/api/cases/:id/violation-override",
+    pathParams: idParams,
+    body: c.noBody(),
+    responses: c.responses({
+      200: caseSchema,
+      404: errorSchema,
+    }),
+    summary: "Remove violation override",
+    description: "Clear any violation override from a case.",
+  }),
   setCaseNote: c.mutation({
     method: "PUT",
     path: "/api/cases/:id/note",

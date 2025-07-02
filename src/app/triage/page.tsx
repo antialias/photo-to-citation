@@ -6,7 +6,7 @@ import {
   getCaseOwnerContactInfo,
   getCasePlateNumber,
   getCasePlateState,
-  hasViolation,
+  hasCaseViolation,
 } from "@/lib/caseUtils";
 import { reportModules } from "@/lib/reportModules";
 import { getServerSession } from "next-auth/next";
@@ -31,7 +31,7 @@ function nextAction(c: Case): string {
   if (c.analysisStatus === "pending") return "Awaiting image analysis.";
   if (c.analysisStatus === "failed" || !c.analysis)
     return "Re-run analysis with clearer photos.";
-  if (!hasViolation(c.analysis)) return "No violation detected.";
+  if (!hasCaseViolation(c)) return "No violation detected.";
   if (!getCasePlateNumber(c) && !getCasePlateState(c))
     return "Identify the license plate.";
   if (!getCaseOwnerContact(c)) return "Request ownership information.";
