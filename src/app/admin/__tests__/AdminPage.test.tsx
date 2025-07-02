@@ -20,6 +20,6 @@ it("returns 403 for non-admin", async () => {
   ).mockResolvedValue({
     user: { role: "user" },
   });
-  const res = (await AdminPage()) as Response;
+  const res = (await AdminPage({ searchParams: {} })) as Response;
   expect(res.status).toBe(403);
 });
