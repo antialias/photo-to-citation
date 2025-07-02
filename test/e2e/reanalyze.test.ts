@@ -198,7 +198,7 @@ describe("reanalysis", () => {
 
       const activeRes = await poll(
         () => api(`/api/cases/${caseId}/analysis-active`),
-        async (r) => (await r.json()).active === true,
+        async (r) => (await r.clone().json()).active === true,
         50,
         50,
       );
