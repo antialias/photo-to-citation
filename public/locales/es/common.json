@@ -94,7 +94,10 @@
     "delete": "Eliminar",
     "casbinRules": "Reglas Casbin",
     "addRule": "Agregar regla",
-    "saveRules": "Guardar reglas"
+    "saveRules": "Guardar reglas",
+    "deployedAt": "Desplegado: {{date}}",
+    "deployCommit": "Commit: {{commit}}",
+    "deployVersion": "Versión: {{version}}"
   },
   "menu": "Menú",
   "orderBy": "Ordenar por:",
