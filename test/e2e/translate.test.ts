@@ -63,6 +63,13 @@ beforeAll(async () => {
       images: {},
     },
     "hola",
+    {
+      violationType: "parking",
+      details: { en: "hello" },
+      vehicle: {},
+      images: {},
+    },
+    "bonjour",
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-translate-"));
   server = await startServer(3032, {
