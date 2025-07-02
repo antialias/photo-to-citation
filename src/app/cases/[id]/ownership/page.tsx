@@ -25,13 +25,14 @@ export default async function OwnershipPage({
       <div className="p-8">{t("noOwnershipModule", { label, supported })}</div>
     );
   }
-  const { requestVin: _rv, requestContactInfo: _rc, ...clientMod } = mod;
+  const { requestVin: _rv, requestContactInfo: rc, ...clientMod } = mod;
   return (
     <OwnershipEditor
       caseId={id}
       module={
         clientMod as Omit<OwnershipModule, "requestVin" | "requestContactInfo">
       }
+      showPdf={Boolean(rc)}
     />
   );
 }
