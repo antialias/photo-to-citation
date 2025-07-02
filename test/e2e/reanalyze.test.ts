@@ -93,7 +93,7 @@ describe("reanalysis", () => {
         { violationType: "parking", details: "d", vehicle: {}, images: {} },
         () => {
           const start = Date.now();
-          while (Date.now() - start < 2000) {}
+          while (Date.now() - start < 5000) {}
           return {
             violationType: "parking",
             details: "d",
@@ -177,18 +177,18 @@ describe("reanalysis", () => {
       });
       expect(rean.status).toBe(200);
 
+      const single = await api(
+        `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`,
+        { method: "POST" },
+      );
+      expect(single.status).toBe(409);
+
       await poll(
         () => api(`/api/cases/${caseId}/analysis-active`),
         async (r) => (await r.json()).active === true,
         50,
         50,
       );
-
-      const single = await api(
-        `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`,
-        { method: "POST" },
-      );
-      expect(single.status).toBe(409);
     });
   });
 
