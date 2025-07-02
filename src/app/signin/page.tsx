@@ -2,6 +2,7 @@
 import { signIn } from "@/app/useSession";
 import { withBasePath } from "@/basePath";
 import { log } from "@/lib/logger";
+import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -9,6 +10,11 @@ const MARKETING_URL = "https://antialias.github.io/photo-to-citation/website/";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
+  const { data: providers = [] } = useQuery<
+    Array<{ id: string; enabled: boolean }>
+  >({
+    queryKey: ["/api/oauth-providers"],
+  });
   const params = useSearchParams();
   const error = params.get("error");
   const errorMessages: Record<string, string> = {
@@ -45,20 +51,26 @@ export default function SignInPage() {
         <button type="submit" className="bg-blue-500 text-white px-4 py-2">
           Sign In
         </button>
-        <button
-          type="button"
-          onClick={() => signIn("google", { callbackUrl: withBasePath("/") })}
-          className="bg-red-500 text-white px-4 py-2 mt-2"
-        >
-          Sign in with Google
-        </button>
-        <button
-          type="button"
-          onClick={() => signIn("facebook", { callbackUrl: withBasePath("/") })}
-          className="bg-blue-600 text-white px-4 py-2 mt-2"
-        >
-          Sign in with Facebook
-        </button>
+        {providers.some((p) => p.id === "google" && p.enabled) && (
+          <button
+            type="button"
+            onClick={() => signIn("google", { callbackUrl: withBasePath("/") })}
+            className="bg-red-500 text-white px-4 py-2 mt-2"
+          >
+            Sign in with Google
+          </button>
+        )}
+        {providers.some((p) => p.id === "facebook" && p.enabled) && (
+          <button
+            type="button"
+            onClick={() =>
+              signIn("facebook", { callbackUrl: withBasePath("/") })
+            }
+            className="bg-blue-600 text-white px-4 py-2 mt-2"
+          >
+            Sign in with Facebook
+          </button>
+        )}
       </form>
       <a href={MARKETING_URL} className="underline mt-2">
         Learn more about Photo to Citation

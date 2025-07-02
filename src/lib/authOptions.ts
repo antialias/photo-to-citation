@@ -6,10 +6,12 @@ import type { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
 import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
+import type { Provider } from "next-auth/providers/index";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { config } from "./config";
 import { sendEmail } from "./email";
 import { log } from "./logger";
+import { getOauthProviderStatuses } from "./oauthProviders";
 
 if (
   process.env.NEXT_PHASE !== "phase-production-build" &&
@@ -37,16 +39,29 @@ export const authOptions: NextAuthOptions = {
       },
       from: config.SMTP_FROM,
     }),
-    GoogleProvider({
-      clientId: config.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
-      allowDangerousEmailAccountLinking: true,
-    }),
-    FacebookProvider({
-      clientId: config.FACEBOOK_CLIENT_ID ?? "",
-      clientSecret: config.FACEBOOK_CLIENT_SECRET ?? "",
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...(() => {
+      const statuses = getOauthProviderStatuses();
+      const googleEnabled = statuses.find((p) => p.id === "google")?.enabled;
+      const facebookEnabled = statuses.find(
+        (p) => p.id === "facebook",
+      )?.enabled;
+      return [
+        googleEnabled
+          ? GoogleProvider({
+              clientId: config.GOOGLE_CLIENT_ID ?? "",
+              clientSecret: config.GOOGLE_CLIENT_SECRET ?? "",
+              allowDangerousEmailAccountLinking: true,
+            })
+          : null,
+        facebookEnabled
+          ? FacebookProvider({
+              clientId: config.FACEBOOK_CLIENT_ID ?? "",
+              clientSecret: config.FACEBOOK_CLIENT_SECRET ?? "",
+              allowDangerousEmailAccountLinking: true,
+            })
+          : null,
+      ].filter(Boolean) as Provider[];
+    })(),
   ],
   pages: { signIn: "/signin" },
   session: { strategy: "database" as const },

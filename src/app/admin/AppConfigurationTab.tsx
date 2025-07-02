@@ -16,8 +16,14 @@ interface SnailMailProviderStatus {
   failureCount: number;
 }
 
+interface OauthProviderStatus {
+  id: string;
+  enabled: boolean;
+}
+
 const VIN_SOURCES_QUERY_KEY = ["/api/vin-sources"] as const;
 const MAIL_PROVIDERS_QUERY_KEY = ["/api/snail-mail-providers"] as const;
+const OAUTH_PROVIDERS_QUERY_KEY = ["/api/oauth-providers"] as const;
 
 export default function AppConfigurationTab() {
   const queryClient = useQueryClient();
@@ -26,6 +32,9 @@ export default function AppConfigurationTab() {
   });
   const { data: mailProviders = [] } = useQuery<SnailMailProviderStatus[]>({
     queryKey: MAIL_PROVIDERS_QUERY_KEY,
+  });
+  const { data: oauthProviders = [] } = useQuery<OauthProviderStatus[]>({
+    queryKey: OAUTH_PROVIDERS_QUERY_KEY,
   });
   const { data: session } = useSession();
   const isAdmin =
@@ -53,6 +62,19 @@ export default function AppConfigurationTab() {
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: MAIL_PROVIDERS_QUERY_KEY });
+    },
+  });
+
+  const oauthToggleMutation = useMutation({
+    async mutationFn({ id, enabled }: { id: string; enabled: boolean }) {
+      await apiFetch(`/api/oauth-providers/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled }),
+      });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: OAUTH_PROVIDERS_QUERY_KEY });
     },
   });
 
@@ -103,6 +125,28 @@ export default function AppConfigurationTab() {
                 {t("activate")}
               </button>
             )}
+          </li>
+        ))}
+      </ul>
+      <h1 className="text-xl font-bold my-4">{t("oauthProviders")}</h1>
+      <ul className="grid gap-2">
+        {oauthProviders.map((p) => (
+          <li key={p.id} className="flex items-center gap-4">
+            <span className="flex-1">{p.id}</span>
+            <button
+              type="button"
+              onClick={() =>
+                oauthToggleMutation.mutate({ id: p.id, enabled: !p.enabled })
+              }
+              disabled={!isAdmin}
+              className={
+                p.enabled
+                  ? "bg-green-500 text-white px-2 py-1 rounded"
+                  : "bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+              }
+            >
+              {p.enabled ? t("admin.disable") : t("enable")}
+            </button>
           </li>
         ))}
       </ul>
