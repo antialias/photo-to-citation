@@ -72,7 +72,7 @@ afterAll(async () => {
   await stub.close();
 });
 
-describe("anonymous access", () => {
+describe("anonymous access @smoke", () => {
   it("allows access to public case", async () => {
     await signIn("user@example.com");
     const id = await createCase();

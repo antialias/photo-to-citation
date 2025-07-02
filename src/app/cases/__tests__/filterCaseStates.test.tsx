@@ -12,14 +12,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.stubGlobal(
-  "EventSource",
-  class {
-    onmessage: ((this: unknown, ev: MessageEvent) => void) | null = null;
-    close() {}
-  },
-);
-
-vi.stubGlobal(
   "fetch",
   vi.fn(async () => ({ ok: true, json: async () => ({}) })),
 );

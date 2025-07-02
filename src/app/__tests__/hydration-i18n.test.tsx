@@ -3,7 +3,12 @@ import I18nProvider from "@/app/i18n-provider";
 import React from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+
+beforeAll(async () => {
+  const db = await import("@/lib/db");
+  await db.migrationsReady();
+});
 
 describe("i18n hydration smoke test", () => {
   it("hydrates LoggedOutLanding with I18nProvider without errors", async () => {

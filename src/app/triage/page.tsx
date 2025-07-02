@@ -1,4 +1,4 @@
-import { authOptions } from "@/lib/authOptions";
+import { getAuthOptions } from "@/lib/authOptions";
 import type { Case } from "@/lib/caseStore";
 import { getCases } from "@/lib/caseStore";
 import {
@@ -50,7 +50,7 @@ function nextAction(c: Case): string {
 }
 
 export default async function TriagePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   const cookieStore = await cookies();
   let lang = cookieStore.get("language")?.value;
   if (!lang) {

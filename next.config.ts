@@ -6,6 +6,9 @@ const assetPrefix = basePath ? `${basePath}/` : undefined;
 const nextConfig: NextConfig = {
   basePath,
   assetPrefix,
+  experimental: {
+    serverSourceMaps: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -17,6 +20,12 @@ const nextConfig: NextConfig = {
         hostname: "staticmap.openstreetmap.de",
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.devtool = "source-map";
+    }
+    return config;
   },
 };
 

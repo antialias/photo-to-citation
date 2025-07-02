@@ -1,11 +1,13 @@
 "use client";
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
+import { subscribe } from "@/eventClient";
 import { useEffect, useState } from "react";
 
 interface JobInfo {
   id: number;
   type: string;
   startedAt: number;
+  caseId?: string;
 }
 
 interface JobResponse {
@@ -38,19 +40,16 @@ export default function useCaseAnalysisActive(
 
     fetchStatus();
 
-    const es = apiEventSource(
-      `${base}/${encodeURIComponent(caseId)}/jobs/stream?type=analyzeCase`,
-    );
-    es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
-      setActive(data.jobs.length > 0);
-    };
-    es.onerror = () => {
-      /* ignore connection errors */
-    };
+    const off = subscribe("jobUpdate", (data) => {
+      const info = data as JobResponse;
+      const filtered = info.jobs.filter(
+        (j) => j.caseId === caseId && j.type === "analyzeCase",
+      );
+      setActive(filtered.length > 0);
+    });
     return () => {
       closed = true;
-      es.close();
+      off?.();
     };
   }, [caseId, isPublic]);
 

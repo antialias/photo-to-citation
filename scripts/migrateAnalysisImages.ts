@@ -6,7 +6,7 @@ import { orm } from "../src/lib/orm";
 import { casePhotoAnalysis, casePhotos } from "../src/lib/schema";
 
 async function run() {
-  await migrationsReady;
+  await migrationsReady();
   const cases = db.prepare("SELECT id, data FROM cases").all() as Array<{
     id: string;
     data: string;
