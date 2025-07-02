@@ -15,6 +15,11 @@ vi.mock("@/app/useSession", () => ({
 
 import { useSession } from "@/app/useSession";
 
+const mockReplace = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: mockReplace }),
+}));
+
 vi.mock("@/apiClient", () => ({
   apiFetch: vi.fn(),
 }));
@@ -47,6 +52,20 @@ describe("AdminPageClient", () => {
     expect(screen.getAllByDisplayValue("admin")[0]).toBeInTheDocument();
     expect(screen.getByDisplayValue("users")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save rules/i })).toBeDisabled();
+  });
+
+  it("updates url when tab changes", () => {
+    vi.mocked(apiFetch).mockResolvedValue({
+      ok: true,
+      json: async () => users,
+    } as Response);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AdminPageClient initialUsers={users} initialRules={rules} />
+      </QueryClientProvider>,
+    );
+    fireEvent.click(screen.getByText(/app configuration/i));
+    expect(mockReplace).toHaveBeenCalledWith("?tab=config");
   });
 
   it("enables saving for superadmins", async () => {

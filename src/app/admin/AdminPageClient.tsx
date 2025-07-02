@@ -3,6 +3,7 @@ import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { getPublicEnv } from "@/publicEnv";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import AppConfigurationTab from "./AppConfigurationTab";
@@ -87,9 +88,11 @@ const USERS_QUERY_KEY = ["/api/users"] as const;
 export default function AdminPageClient({
   initialUsers,
   initialRules,
+  initialTab = "users",
 }: {
   initialUsers: UserRecord[];
   initialRules: RuleInput[];
+  initialTab?: "users" | "config";
 }) {
   const queryClient = useQueryClient();
   const { data: users = [] } = useQuery<UserRecord[]>({
@@ -99,7 +102,8 @@ export default function AdminPageClient({
   const [rules, setRules] = useState(() =>
     initialRules.map((r) => ({ ...normalizeRule(r), id: crypto.randomUUID() })),
   );
-  const [tab, setTab] = useState<"users" | "config">("users");
+  const router = useRouter();
+  const [tab, setTab] = useState<"users" | "config">(initialTab);
   const [inviteEmail, setInviteEmail] = useState("");
   const { data: session } = useSession();
   const isSuperadmin = session?.user?.role === "superadmin";
@@ -220,18 +224,32 @@ export default function AdminPageClient({
   } = getPublicEnv();
   return (
     <div className="p-8">
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-4 mb-4 border-b">
         <button
           type="button"
-          onClick={() => setTab("users")}
-          className={tab === "users" ? "font-bold underline" : ""}
+          onClick={() => {
+            setTab("users");
+            router.replace("?tab=users");
+          }}
+          className={`px-3 py-1 border-b-2 rounded-t ${
+            tab === "users"
+              ? "border-blue-600 text-blue-600 font-bold"
+              : "border-transparent"
+          }`}
         >
           {t("admin.userManagement")}
         </button>
         <button
           type="button"
-          onClick={() => setTab("config")}
-          className={tab === "config" ? "font-bold underline" : ""}
+          onClick={() => {
+            setTab("config");
+            router.replace("?tab=config");
+          }}
+          className={`px-3 py-1 border-b-2 rounded-t ${
+            tab === "config"
+              ? "border-blue-600 text-blue-600 font-bold"
+              : "border-transparent"
+          }`}
         >
           {t("admin.appConfiguration")}
         </button>
