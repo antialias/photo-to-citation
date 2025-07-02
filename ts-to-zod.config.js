@@ -63,6 +63,13 @@ module.exports = [
     jsDoc: "extended",
   },
   {
+    name: "oauthProviders",
+    input: "src/lib/oauthProviders.ts",
+    output: "src/generated/zod/oauthProviders.ts",
+    skipValidation: true,
+    jsDoc: "extended",
+  },
+  {
     name: "citationStatusModules",
     input: "src/lib/citationStatusModules.ts",
     output: "src/generated/zod/citationStatusModules.ts",

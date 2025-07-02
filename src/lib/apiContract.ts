@@ -241,4 +241,25 @@ export const apiContract = c.router({
     summary: "Activate snail mail provider",
     description: "Select which snail mail provider is active.",
   }),
+  getOauthProviders: c.query({
+    method: "GET",
+    path: "/api/oauth-providers",
+    responses: c.responses({
+      200: z.array(z.object({ id: z.string(), enabled: z.boolean() })),
+    }),
+    summary: "List OAuth providers",
+    description: "Retrieve OAuth provider status list.",
+  }),
+  updateOauthProvider: c.mutation({
+    method: "PUT",
+    path: "/api/oauth-providers/:id",
+    pathParams: idParams,
+    body: z.object({ enabled: z.boolean() }),
+    responses: c.responses({
+      200: z.array(z.object({ id: z.string(), enabled: z.boolean() })),
+      404: errorSchema,
+    }),
+    summary: "Update OAuth provider",
+    description: "Enable or disable an OAuth sign-in provider.",
+  }),
 });

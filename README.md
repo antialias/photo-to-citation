@@ -83,6 +83,10 @@ To enable Facebook sign-in, set `FACEBOOK_CLIENT_ID` and
 Terraform module here, so create an app in the Facebook developer console and
 copy the credentials into `.env.local`.
 
+OAuth provider status is stored in `data/oauthProviders.json` (overridable via
+`OAUTH_PROVIDER_FILE`). Super admins can enable or disable each provider from
+the Admin page.
+
 Copy the outputs into `.env.local` for the production deployment.
 
 ## Generating Zod Schemas
