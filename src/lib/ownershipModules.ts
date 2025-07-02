@@ -74,9 +74,7 @@ async function mailPdf(address: string, pdfPath: string): Promise<void> {
 }
 
 export async function fillIlForm(info: OwnershipRequestInfo): Promise<string> {
-  const formPath = path.resolve(
-    path.join("forms", "il", "vsd375.pdf"),
-  );
+  const formPath = path.resolve(path.join("forms", "il", "vsd375.pdf"));
   const bytes = fs.readFileSync(formPath);
   const pdf = await PDFDocument.load(new Uint8Array(bytes));
   const form = pdf.getForm();
