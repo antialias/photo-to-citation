@@ -12,6 +12,9 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - If you edited any Markdown files, run `npm run lint:md` to check them before completing the task.
 - Do not introduce any new TypeScript errors. If you can quickly fix an error
   without side effects, include that fix in the same task.
+- A task is not complete if `npm run typecheck` fails. Any TypeScript errors
+  will immediately break the build, so ensure this command passes before
+  submitting changes.
 
 ## Testing
 
