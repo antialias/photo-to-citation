@@ -165,6 +165,7 @@
   "cameraAccessError": "Impossible d'accéder à la caméra. Vérifiez les autorisations.",
   "vinLookupModules": "Modules de recherche de VIN",
   "snailMailProviders": "Fournisseurs de courrier postal",
+  "oauthProviders": "Fournisseurs OAuth",
   "enable": "Activer",
   "activate": "Activer",
   "active": "Actif",
