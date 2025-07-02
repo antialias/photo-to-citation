@@ -3,8 +3,8 @@ import { authOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
 import { log } from "@/lib/logger";
 import { getServerSession } from "next-auth/next";
-import AdminPageClient from "./AdminPageClient";
 import type { ReactElement } from "react";
+import AdminPageClient from "./AdminPageClient";
 
 export const dynamic = "force-dynamic";
 

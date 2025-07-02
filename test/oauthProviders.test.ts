@@ -58,4 +58,13 @@ describe("oauth provider API authorization", () => {
     });
     expect(res.status).toBe(403);
   });
+
+  it("allows listing with superadmin role", async () => {
+    const mod = await import("@/app/api/oauth-providers/route");
+    const res = await mod.GET(new Request("http://test"), {
+      params: Promise.resolve({}) as Promise<Record<string, string>>,
+      session: { user: { role: "superadmin" } },
+    });
+    expect(res.status).toBe(200);
+  });
 });
