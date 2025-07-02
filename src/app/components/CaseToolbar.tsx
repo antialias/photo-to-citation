@@ -16,6 +16,7 @@ export default function CaseToolbar({
   canDelete = false,
   closed = false,
   archived = false,
+  violationOverride = false,
   readOnly = false,
 }: {
   caseId: string;
@@ -25,6 +26,7 @@ export default function CaseToolbar({
   canDelete?: boolean;
   closed?: boolean;
   archived?: boolean;
+  violationOverride?: boolean;
   readOnly?: boolean;
 }) {
   const { t } = useTranslation();
@@ -132,6 +134,35 @@ export default function CaseToolbar({
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
               >
                 {archived ? t("unarchiveCase") : t("archiveCase")}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!violationOverride) {
+                    const reason = prompt(t("forceViolationReason"));
+                    if (reason !== null) {
+                      await apiFetch(
+                        `/api/cases/${caseId}/violation-override`,
+                        {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ violation: true, reason }),
+                        },
+                      );
+                      window.location.reload();
+                    }
+                  } else {
+                    await apiFetch(`/api/cases/${caseId}/violation-override`, {
+                      method: "DELETE",
+                    });
+                    window.location.reload();
+                  }
+                }}
+                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                {violationOverride
+                  ? t("clearViolationOverride")
+                  : t("forceViolation")}
               </button>
               {disabled ? null : (
                 <>

@@ -44,6 +44,8 @@ export interface Case {
   closed?: boolean;
   note?: string | null;
   photoNotes?: Record<string, string | null>;
+  violationOverride?: boolean | null;
+  violationOverrideReason?: string | null;
   archived?: boolean;
 }
 
@@ -94,6 +96,12 @@ function rowToCase(row: {
   }
   if (!("archived" in base)) {
     (base as Partial<Case>).archived = false;
+  }
+  if (!("violationOverride" in base)) {
+    (base as Partial<Case>).violationOverride = null;
+  }
+  if (!("violationOverrideReason" in base)) {
+    (base as Partial<Case>).violationOverrideReason = null;
   }
   const photos = orm
     .select()
@@ -336,6 +344,8 @@ export function createCase(
     analysisProgress: null,
     note: null,
     photoNotes: { [photo]: null },
+    violationOverride: null,
+    violationOverrideReason: null,
     sentEmails: [],
     ownershipRequests: [],
     threadImages: [],
@@ -437,6 +447,24 @@ export function setCaseVinOverride(
   vin: string | null,
 ): Case | undefined {
   return updateCase(id, { vinOverride: vin });
+}
+
+export function setCaseViolationOverride(
+  id: string,
+  violation: boolean | null,
+  reason: string | null,
+): Case | undefined {
+  const current = getCaseRow(id);
+  if (!current) return undefined;
+  current.violationOverride = violation;
+  current.violationOverrideReason = reason;
+  current.updatedAt = new Date().toISOString();
+  saveCase(current);
+  const layered = getCase(id);
+  if (layered) {
+    caseEvents.emit("update", layered);
+  }
+  return layered;
 }
 
 export function setCaseNote(id: string, note: string | null): Case | undefined {

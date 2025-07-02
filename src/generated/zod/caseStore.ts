@@ -81,5 +81,7 @@ export const caseSchema = z.object({
   closed: z.boolean().optional(),
   note: z.string().optional().nullable(),
   photoNotes: z.record(z.string().nullable()).optional(),
+  violationOverride: z.boolean().optional().nullable(),
+  violationOverrideReason: z.string().optional().nullable(),
   archived: z.boolean().optional(),
 });

@@ -1,7 +1,7 @@
 "use client";
 import CaseToolbar from "@/app/components/CaseToolbar";
 import { useSession } from "@/app/useSession";
-import { getCaseOwnerContact, hasViolation } from "@/lib/caseUtils";
+import { getCaseOwnerContact, hasCaseViolation } from "@/lib/caseUtils";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft, FaShare } from "react-icons/fa";
@@ -23,7 +23,7 @@ export default function CaseHeader({
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const ownerContact = getCaseOwnerContact(caseData);
   const violationIdentified =
-    caseData.analysisStatus === "complete" && hasViolation(caseData.analysis);
+    caseData.analysisStatus === "complete" && hasCaseViolation(caseData);
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -59,6 +59,7 @@ export default function CaseHeader({
         canDelete={isAdmin}
         closed={caseData.closed}
         archived={caseData.archived}
+        violationOverride={Boolean(caseData.violationOverride)}
         readOnly={readOnly}
       />
     </div>

@@ -3,7 +3,7 @@ import {
   getCaseOwnerContactInfo,
   getCasePlateNumber,
   getCasePlateState,
-  hasViolation,
+  hasCaseViolation,
 } from "./caseUtils";
 import { reportModules } from "./reportModules";
 
@@ -72,7 +72,7 @@ export function getCaseActionStatus(
     let reason: string | undefined;
     switch (a.id) {
       case "compose":
-        if (c.analysisStatus !== "complete" || !hasViolation(c.analysis)) {
+        if (c.analysisStatus !== "complete" || !hasCaseViolation(c)) {
           applicable = false;
           reason = "analysis incomplete or no violation";
         } else if ((c.sentEmails ?? []).some((e) => e.to === authority)) {
