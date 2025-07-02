@@ -201,6 +201,8 @@
   "checkNumberLabel": "Número de cheque",
   "sendSnailAutomatically": "Enviar correo postal automáticamente",
   "markRequested": "Marcar como solicitado",
+  "filledFormPreview": "Vista previa del formulario completado",
+  "noPdfSupport": "Tu navegador no puede mostrar PDFs. Descarga el archivo.",
   "noOwnershipModule": "No hay módulo de titularidad para el estado {{label}}. Estados compatibles: {{supported}}. Asegúrate de que el estado de la matrícula use una abreviatura de dos letras.",
   "failedUpdateVin": "Error al actualizar el VIN.",
   "failedClearVin": "Error al borrar el VIN.",

@@ -8,9 +8,11 @@ import { useNotify } from "../../../components/NotificationProvider";
 export default function OwnershipEditor({
   caseId,
   module,
+  pdfData,
 }: {
   caseId: string;
   module: Omit<OwnershipModule, "requestVin" | "requestContactInfo">;
+  pdfData?: string;
 }) {
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
@@ -40,6 +42,18 @@ export default function OwnershipEditor({
       <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
+      {pdfData ? (
+        <div>
+          <p className="font-semibold">{t("filledFormPreview")}</p>
+          <object
+            data={`data:application/pdf;base64,${pdfData}`}
+            type="application/pdf"
+            className="w-full h-96 border"
+          >
+            <p>{t("noPdfSupport")}</p>
+          </object>
+        </div>
+      ) : null}
       <label className="flex flex-col">
         {t("checkNumberLabel")}
         <input
