@@ -21,5 +21,12 @@ describe("ownershipModules.il.requestVin", () => {
     expect(sendMock).toHaveBeenCalled();
     const opts = sendMock.mock.calls[0][1];
     expect(fs.existsSync(opts.contents)).toBe(true);
+    const { PDFDocument } = await import("pdf-lib");
+    const pdfBytes = fs.readFileSync(opts.contents);
+    const pdf = await PDFDocument.load(new Uint8Array(pdfBytes));
+    const form = pdf.getForm();
+    expect(form.getTextField("1").getText()).toBe("ABC123");
+    expect(form.getTextField("2").getText()).toBe("IL");
+    expect(form.getTextField("3").getText()).toBe("1HGCM82633A004352");
   });
 });
