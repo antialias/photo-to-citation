@@ -8,7 +8,7 @@
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "npm run build:jobs && next build",
     "start": "next start",
-    "lint": "npm run lint:md && biome check .",
+    "lint": "npm run lint:env && npm run lint:md && biome check .",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "format": "biome format . --write",
     "test": "vitest run",
