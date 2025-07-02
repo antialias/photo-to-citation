@@ -64,7 +64,6 @@ async function mailPdf(address: string, pdfPath: string): Promise<void> {
 
 export async function fillIlForm(info: OwnershipRequestInfo): Promise<string> {
   const formPath = path.resolve(path.join(
-    "public",
     "forms",
     "il",
     "vsd375.pdf",
