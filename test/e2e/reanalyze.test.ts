@@ -172,9 +172,24 @@ describe("reanalysis", () => {
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
 
-      // Warm up the analysis-active endpoint so the following
-      // polling requests aren't delayed by on-demand compilation.
-      await api(`/api/cases/${caseId}/analysis-active`);
+      // Warm up the reanalyze-photo route to avoid dev server compile delays
+      await api(`/api/cases/${caseId}/reanalyze-photo?photo=warmup`, {
+        method: "POST",
+      }).catch(() => {
+        /* ignore errors */
+      });
+
+      // Warm up the reanalyze route for the same reason
+      await api(`/api/cases/${caseId}/reanalyze`, { method: "POST" }).catch(
+        () => {
+          /* ignore errors */
+        },
+      );
+
+      // Warm up analysis-active route
+      await api(`/api/cases/${caseId}/analysis-active`).catch(() => {
+        /* ignore errors */
+      });
 
       const rean = await api(`/api/cases/${caseId}/reanalyze`, {
         method: "POST",
