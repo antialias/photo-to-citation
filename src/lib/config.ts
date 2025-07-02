@@ -57,6 +57,9 @@ const envSchema = z
     UPLOAD_DIR: z.string().default("uploads"),
     NEXT_PUBLIC_BROWSER_DEBUG: z.coerce.boolean().default(false),
     NEXT_PUBLIC_BASE_PATH: z.string().default(""),
+    NEXT_PUBLIC_APP_VERSION: z.string().optional(),
+    NEXT_PUBLIC_APP_COMMIT: z.string().optional(),
+    NEXT_PUBLIC_DEPLOY_TIME: z.string().optional(),
   })
   .passthrough();
 
@@ -72,5 +75,8 @@ export const config: Config = {
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   NEXT_PUBLIC_BROWSER_DEBUG: process.env.NEXT_PUBLIC_BROWSER_DEBUG === "true",
   NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
+  NEXT_PUBLIC_APP_COMMIT: process.env.NEXT_PUBLIC_APP_COMMIT,
+  NEXT_PUBLIC_DEPLOY_TIME: process.env.NEXT_PUBLIC_DEPLOY_TIME,
 };
 config.UPLOAD_DIR = path.resolve(config.UPLOAD_DIR);

@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
+import { getPublicEnv } from "@/publicEnv";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -212,6 +213,11 @@ export default function AdminPageClient({
   });
 
   const { t } = useTranslation();
+  const {
+    NEXT_PUBLIC_APP_COMMIT,
+    NEXT_PUBLIC_APP_VERSION,
+    NEXT_PUBLIC_DEPLOY_TIME,
+  } = getPublicEnv();
   return (
     <div className="p-8">
       <div className="flex gap-4 mb-4">
@@ -435,6 +441,27 @@ export default function AdminPageClient({
         </>
       )}
       {tab === "config" && <AppConfigurationTab />}
+      {isSuperadmin && (
+        <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+          <p>
+            {t("admin.deployedAt", {
+              date: NEXT_PUBLIC_DEPLOY_TIME
+                ? new Date(NEXT_PUBLIC_DEPLOY_TIME).toLocaleString()
+                : t("unknown"),
+            })}
+          </p>
+          <p>
+            {t("admin.deployCommit", {
+              commit: NEXT_PUBLIC_APP_COMMIT ?? t("unknown"),
+            })}
+          </p>
+          <p>
+            {t("admin.deployVersion", {
+              version: NEXT_PUBLIC_APP_VERSION ?? t("unknown"),
+            })}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
