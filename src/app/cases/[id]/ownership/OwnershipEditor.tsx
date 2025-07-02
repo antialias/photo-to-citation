@@ -8,9 +8,11 @@ import { useNotify } from "../../../components/NotificationProvider";
 export default function OwnershipEditor({
   caseId,
   module,
+  pdfUrl,
 }: {
   caseId: string;
   module: Omit<OwnershipModule, "requestVin" | "requestContactInfo">;
+  pdfUrl?: string;
 }) {
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
@@ -64,6 +66,13 @@ export default function OwnershipEditor({
       >
         {t("markRequested")}
       </button>
+      {pdfUrl ? (
+        <iframe
+          src={pdfUrl}
+          className="w-full h-[600px] border"
+          title="Ownership Request PDF"
+        />
+      ) : null}
     </div>
   );
 }
