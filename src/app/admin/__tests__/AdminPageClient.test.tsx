@@ -65,7 +65,7 @@ describe("AdminPageClient", () => {
       </QueryClientProvider>,
     );
     fireEvent.click(screen.getByRole("tab", { name: /app configuration/i }));
-    expect(mockReplace).toHaveBeenCalledWith("?tab=config");
+    waitFor(() => expect(mockReplace).toHaveBeenCalledWith("?tab=config"));
   });
 
   it("enables saving for superadmins", async () => {
