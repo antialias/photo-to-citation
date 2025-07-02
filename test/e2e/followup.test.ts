@@ -44,7 +44,7 @@ beforeAll(async () => {
       vehicle: {},
       images: {},
     },
-    { subject: { en: "s" }, body: { en: "b" } },
+    { subject: "s", body: "b" },
   ]);
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-"));
   const env = {
