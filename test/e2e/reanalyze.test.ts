@@ -172,17 +172,23 @@ describe("reanalysis", () => {
       const photo = json.photos[0] as string;
       photoName = path.basename(photo);
 
+      // Warm up the analysis-active endpoint so the following
+      // polling requests aren't delayed by on-demand compilation.
+      await api(`/api/cases/${caseId}/analysis-active`);
+
       const rean = await api(`/api/cases/${caseId}/reanalyze`, {
         method: "POST",
       });
       expect(rean.status).toBe(200);
 
-      await poll(
+      const activeRes = await poll(
         () => api(`/api/cases/${caseId}/analysis-active`),
         async (r) => (await r.json()).active === true,
         50,
         50,
       );
+      const active = (await activeRes.json()) as { active: boolean };
+      expect(active.active).toBe(true);
 
       const single = await api(
         `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`,
