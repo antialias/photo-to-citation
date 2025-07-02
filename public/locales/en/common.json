@@ -159,6 +159,7 @@
   "cameraAccessError": "Unable to access camera. Please check permissions.",
   "vinLookupModules": "VIN Lookup Modules",
   "snailMailProviders": "Snail Mail Providers",
+  "oauthProviders": "OAuth Providers",
   "enable": "Enable",
   "activate": "Activate",
   "active": "Active",

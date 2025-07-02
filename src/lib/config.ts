@@ -38,6 +38,7 @@ const envSchema = z
     VIN_SOURCE_FILE: z.string().optional(),
     SNAIL_MAIL_FILE: z.string().optional(),
     SNAIL_MAIL_PROVIDER_FILE: z.string().optional(),
+    OAUTH_PROVIDER_FILE: z.string().optional(),
     RETURN_ADDRESS: z.string().optional(),
     SNAIL_MAIL_PROVIDER: z.string().default("mock"),
     SNAIL_MAIL_OUT_DIR: z.string().optional(),
