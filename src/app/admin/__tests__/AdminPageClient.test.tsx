@@ -94,10 +94,11 @@ describe("AdminPageClient", () => {
       ok: true,
       json: async () => users,
     } as Response);
+    const deployTime = "2024-01-01T00:00:00Z";
     (window as unknown as { PUBLIC_ENV?: unknown }).PUBLIC_ENV = {
       NEXT_PUBLIC_APP_COMMIT: "abc123",
       NEXT_PUBLIC_APP_VERSION: "1.0.0",
-      NEXT_PUBLIC_DEPLOY_TIME: "2024-01-01T00:00:00Z",
+      NEXT_PUBLIC_DEPLOY_TIME: deployTime,
     };
     render(
       <QueryClientProvider client={queryClient}>
@@ -106,7 +107,9 @@ describe("AdminPageClient", () => {
     );
     expect(screen.getByText(/abc123/)).toBeInTheDocument();
     expect(screen.getByText(/1.0.0/)).toBeInTheDocument();
-    expect(screen.getByText(/2024/)).toBeInTheDocument();
+    const expectedDate = new Date(deployTime).toLocaleString();
+    const escaped = expectedDate.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    expect(screen.getByText(new RegExp(escaped))).toBeInTheDocument();
   });
 
   it("updates user role without reload", async () => {
