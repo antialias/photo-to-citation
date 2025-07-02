@@ -64,7 +64,7 @@ describe("AdminPageClient", () => {
         <AdminPageClient initialUsers={users} initialRules={rules} />
       </QueryClientProvider>,
     );
-    fireEvent.click(screen.getByText(/app configuration/i));
+    fireEvent.click(screen.getByRole("tab", { name: /app configuration/i }));
     expect(mockReplace).toHaveBeenCalledWith("?tab=config");
   });
 

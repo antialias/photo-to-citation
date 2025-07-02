@@ -5,6 +5,7 @@ import { getPublicEnv } from "@/publicEnv";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "react-i18next";
 import AppConfigurationTab from "./AppConfigurationTab";
 
@@ -224,241 +225,240 @@ export default function AdminPageClient({
   } = getPublicEnv();
   return (
     <div className="p-8">
-      <div className="flex gap-4 mb-4 border-b">
-        <button
-          type="button"
-          onClick={() => {
-            setTab("users");
-            router.replace("?tab=users");
-          }}
-          className={`px-3 py-1 border-b-2 rounded-t ${
-            tab === "users"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent"
-          }`}
-        >
-          {t("admin.userManagement")}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setTab("config");
-            router.replace("?tab=config");
-          }}
-          className={`px-3 py-1 border-b-2 rounded-t ${
-            tab === "config"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent"
-          }`}
-        >
-          {t("admin.appConfiguration")}
-        </button>
-      </div>
-      {tab === "users" && (
-        <>
-          <h1 className="text-xl font-bold mb-4">{t("admin.users")}</h1>
-          <div className="mb-4 flex gap-2">
-            <input
-              type="email"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              className="border rounded p-1 bg-white dark:bg-gray-900"
-            />
-            <button
-              type="button"
-              onClick={() => inviteMutation.mutate()}
-              className="bg-blue-600 text-white px-2 py-1 rounded"
-            >
-              {t("admin.invite")}
-            </button>
-          </div>
-          <ul className="grid gap-2">
-            {users.map((u) => (
-              <li key={u.id} className="flex items-center gap-2">
-                <span className="flex-1">{u.email ?? u.id}</span>
-                <select
-                  value={u.role}
-                  onChange={(e) =>
-                    changeRoleMutation.mutate({
-                      id: u.id,
-                      role: e.target.value,
-                    })
-                  }
-                  className="border rounded p-1 bg-white dark:bg-gray-900"
-                >
-                  <option value="user">user</option>
-                  <option value="admin">admin</option>
-                  <option value="superadmin">superadmin</option>
-                  <option value="disabled">disabled</option>
-                </select>
-                {u.role !== "disabled" && (
+      <Tabs
+        value={tab}
+        onValueChange={(v) => {
+          setTab(v as "users" | "config");
+          router.replace(`?tab=${v}`);
+        }}
+      >
+        <TabsList className="mb-4 flex gap-4 border-b">
+          <TabsTrigger value="users">{t("admin.userManagement")}</TabsTrigger>
+          <TabsTrigger value="config">
+            {t("admin.appConfiguration")}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="users">
+          <>
+            <h1 className="text-xl font-bold mb-4">{t("admin.users")}</h1>
+            <div className="mb-4 flex gap-2">
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                className="border rounded p-1 bg-white dark:bg-gray-900"
+              />
+              <button
+                type="button"
+                onClick={() => inviteMutation.mutate()}
+                className="bg-blue-600 text-white px-2 py-1 rounded"
+              >
+                {t("admin.invite")}
+              </button>
+            </div>
+            <ul className="grid gap-2">
+              {users.map((u) => (
+                <li key={u.id} className="flex items-center gap-2">
+                  <span className="flex-1">{u.email ?? u.id}</span>
+                  <select
+                    value={u.role}
+                    onChange={(e) =>
+                      changeRoleMutation.mutate({
+                        id: u.id,
+                        role: e.target.value,
+                      })
+                    }
+                    className="border rounded p-1 bg-white dark:bg-gray-900"
+                  >
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                    <option value="superadmin">superadmin</option>
+                    <option value="disabled">disabled</option>
+                  </select>
+                  {u.role !== "disabled" && (
+                    <button
+                      type="button"
+                      onClick={() => disableMutation.mutate(u.id)}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded"
+                    >
+                      {t("admin.disable")}
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => disableMutation.mutate(u.id)}
-                    className="bg-yellow-500 text-white px-2 py-1 rounded"
+                    onClick={() => removeMutation.mutate(u.id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded"
                   >
-                    {t("admin.disable")}
+                    {t("admin.delete")}
                   </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeMutation.mutate(u.id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  {t("admin.delete")}
-                </button>
-              </li>
-            ))}
-          </ul>
-          <h1 className="text-xl font-bold my-4">{t("admin.casbinRules")}</h1>
-          <table className="mb-2 border-collapse w-full">
-            <thead>
-              <tr>
-                <th className="border px-1">ptype</th>
-                <th className="border px-1">v0</th>
-                <th className="border px-1">v1</th>
-                <th className="border px-1">v2</th>
-                <th className="border px-1">v3</th>
-                <th className="border px-1">v4</th>
-                <th className="border px-1">v5</th>
-                <th className="border px-1" />
-              </tr>
-            </thead>
-            <tbody>
-              {rules.map((r) => {
-                const ptypeOptions = ["p", "g"];
-                const v0Options =
-                  r.ptype === "p"
-                    ? Object.keys(policyOptions)
-                    : Object.keys(groupOptions);
-                const v1Options =
-                  r.ptype === "p"
-                    ? r.v0
-                      ? Object.keys(
-                          policyOptions[r.v0 as keyof typeof policyOptions] ??
-                            {},
-                        )
-                      : []
-                    : r.v0
-                      ? (groupOptions[r.v0 as keyof typeof groupOptions] ?? [])
+                </li>
+              ))}
+            </ul>
+            <h1 className="text-xl font-bold my-4">{t("admin.casbinRules")}</h1>
+            <table className="mb-2 border-collapse w-full">
+              <thead>
+                <tr>
+                  <th className="border px-1">ptype</th>
+                  <th className="border px-1">v0</th>
+                  <th className="border px-1">v1</th>
+                  <th className="border px-1">v2</th>
+                  <th className="border px-1">v3</th>
+                  <th className="border px-1">v4</th>
+                  <th className="border px-1">v5</th>
+                  <th className="border px-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {rules.map((r) => {
+                  const ptypeOptions = ["p", "g"];
+                  const v0Options =
+                    r.ptype === "p"
+                      ? Object.keys(policyOptions)
+                      : Object.keys(groupOptions);
+                  const v1Options =
+                    r.ptype === "p"
+                      ? r.v0
+                        ? Object.keys(
+                            policyOptions[r.v0 as keyof typeof policyOptions] ??
+                              {},
+                          )
+                        : []
+                      : r.v0
+                        ? (groupOptions[r.v0 as keyof typeof groupOptions] ??
+                          [])
+                        : [];
+                  const v2Options =
+                    r.ptype === "p" && r.v0 && r.v1
+                      ? (policyOptions[r.v0 as keyof typeof policyOptions][
+                          r.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions]
+                        ] ?? [])
                       : [];
-                const v2Options =
-                  r.ptype === "p" && r.v0 && r.v1
-                    ? (policyOptions[r.v0 as keyof typeof policyOptions][
-                        r.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions]
-                      ] ?? [])
-                    : [];
-                return (
-                  <tr key={r.id}>
-                    <td className="border">
-                      <select
-                        value={r.ptype}
-                        onChange={(e) =>
-                          updateRule(r.id, "ptype", e.target.value)
-                        }
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      >
-                        {ptypeOptions.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="border">
-                      <select
-                        value={r.v0 ?? ""}
-                        onChange={(e) => updateRule(r.id, "v0", e.target.value)}
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      >
-                        {v0Options.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="border">
-                      <select
-                        value={r.v1 ?? ""}
-                        onChange={(e) => updateRule(r.id, "v1", e.target.value)}
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      >
-                        {v1Options.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="border">
-                      <select
-                        value={r.v2 ?? ""}
-                        onChange={(e) => updateRule(r.id, "v2", e.target.value)}
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      >
-                        {v2Options.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="border">
-                      <input
-                        value={r.v3 ?? ""}
-                        onChange={(e) => updateRule(r.id, "v3", e.target.value)}
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      />
-                    </td>
-                    <td className="border">
-                      <input
-                        value={r.v4 ?? ""}
-                        onChange={(e) => updateRule(r.id, "v4", e.target.value)}
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      />
-                    </td>
-                    <td className="border">
-                      <input
-                        value={r.v5 ?? ""}
-                        onChange={(e) => updateRule(r.id, "v5", e.target.value)}
-                        className="w-full p-1 bg-white dark:bg-gray-900"
-                      />
-                    </td>
-                    <td className="border">
-                      <button
-                        type="button"
-                        onClick={() => removeRule(r.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="flex gap-2 mb-2">
+                  return (
+                    <tr key={r.id}>
+                      <td className="border">
+                        <select
+                          value={r.ptype}
+                          onChange={(e) =>
+                            updateRule(r.id, "ptype", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        >
+                          {ptypeOptions.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="border">
+                        <select
+                          value={r.v0 ?? ""}
+                          onChange={(e) =>
+                            updateRule(r.id, "v0", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        >
+                          {v0Options.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="border">
+                        <select
+                          value={r.v1 ?? ""}
+                          onChange={(e) =>
+                            updateRule(r.id, "v1", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        >
+                          {v1Options.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="border">
+                        <select
+                          value={r.v2 ?? ""}
+                          onChange={(e) =>
+                            updateRule(r.id, "v2", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        >
+                          {v2Options.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="border">
+                        <input
+                          value={r.v3 ?? ""}
+                          onChange={(e) =>
+                            updateRule(r.id, "v3", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        />
+                      </td>
+                      <td className="border">
+                        <input
+                          value={r.v4 ?? ""}
+                          onChange={(e) =>
+                            updateRule(r.id, "v4", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        />
+                      </td>
+                      <td className="border">
+                        <input
+                          value={r.v5 ?? ""}
+                          onChange={(e) =>
+                            updateRule(r.id, "v5", e.target.value)
+                          }
+                          className="w-full p-1 bg-white dark:bg-gray-900"
+                        />
+                      </td>
+                      <td className="border">
+                        <button
+                          type="button"
+                          onClick={() => removeRule(r.id)}
+                          className="bg-red-500 text-white px-2 py-1 rounded"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className="flex gap-2 mb-2">
+              <button
+                type="button"
+                onClick={addRule}
+                className="bg-green-600 text-white px-2 py-1 rounded"
+              >
+                {t("admin.addRule")}
+              </button>
+            </div>
             <button
               type="button"
-              onClick={addRule}
-              className="bg-green-600 text-white px-2 py-1 rounded"
+              onClick={() => saveRulesMutation.mutate()}
+              disabled={!isSuperadmin}
+              className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50"
             >
-              {t("admin.addRule")}
+              {t("admin.saveRules")}
             </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => saveRulesMutation.mutate()}
-            disabled={!isSuperadmin}
-            className="bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-50"
-          >
-            {t("admin.saveRules")}
-          </button>
-        </>
-      )}
-      {tab === "config" && <AppConfigurationTab />}
+          </>
+        </TabsContent>
+        <TabsContent value="config">
+          <AppConfigurationTab />
+        </TabsContent>
+      </Tabs>
       {isSuperadmin && (
         <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 space-y-1">
           <p>
