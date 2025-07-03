@@ -17,6 +17,8 @@ const envSchema = z
     LLM_OCR_PAPERWORK_PROVIDER: z.string().default("openai"),
     LLM_EXTRACT_INFO_MODEL: z.string().default("gpt-4o"),
     LLM_EXTRACT_INFO_PROVIDER: z.string().default("openai"),
+    LLM_PROFILE_REVIEW_MODEL: z.string().default("gpt-4o"),
+    LLM_PROFILE_REVIEW_PROVIDER: z.string().default("openai"),
     GOOGLE_MAPS_API_KEY: z.string().optional(),
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
     SMTP_HOST: z.string().optional(),
