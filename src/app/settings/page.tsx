@@ -38,6 +38,7 @@ export default function UserSettingsPage() {
       };
     },
     enabled: !!session,
+    refetchInterval: 5000,
   });
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
