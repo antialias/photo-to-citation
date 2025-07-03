@@ -37,7 +37,7 @@ describe("profile API", () => {
 
     const req = new Request("http://test", {
       method: "PUT",
-      body: JSON.stringify({ name: "Bob" }),
+      body: JSON.stringify({ name: "Bob", bio: "Hi" }),
     });
     await mod.PUT(req, {
       params: Promise.resolve({}),
@@ -47,5 +47,7 @@ describe("profile API", () => {
     const { getUser } = await import("@/lib/userStore");
     const updated = getUser("u1");
     expect(updated?.name).toBe("Bob");
+    expect(updated?.bio).toBe("Hi");
+    expect(updated?.profileStatus).toBe("under_review");
   });
 });
