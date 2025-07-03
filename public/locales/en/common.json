@@ -16,6 +16,7 @@
     "admin": "Admin",
     "systemStatus": "System Status",
     "userSettings": "User Settings",
+    "publicProfile": "Public Profile",
     "profile": "Profile",
     "signOut": "Sign Out",
     "signIn": "Sign In"

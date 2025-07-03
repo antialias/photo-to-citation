@@ -16,6 +16,7 @@
     "admin": "Admin",
     "systemStatus": "État du système",
     "userSettings": "Paramètres utilisateur",
+    "publicProfile": "Profil public",
     "profile": "Profil",
     "signOut": "Déconnexion",
     "signIn": "Connexion"

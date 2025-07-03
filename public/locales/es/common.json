@@ -16,6 +16,7 @@
     "admin": "Admin",
     "systemStatus": "Estado del sistema",
     "userSettings": "Configuración de usuario",
+    "publicProfile": "Perfil público",
     "profile": "Perfil",
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión"
