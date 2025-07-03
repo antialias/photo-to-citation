@@ -1,21 +1,28 @@
-import fs from "node:fs";
-import path from "node:path";
 import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
-import { IL_FORM_FIELD_MAP } from "@/lib/ownershipModules";
 import type { Meta, StoryObj } from "@storybook/react";
 import { PDFDocument } from "pdf-lib";
 import { useEffect, useState } from "react";
 
-const pdfBase64 = fs.readFileSync(
-  path.resolve(process.cwd(), "forms", "il", "vsd375.pdf"),
-  "base64",
-);
+const pdfUrl = new URL("../../../forms/il/vsd375.pdf", import.meta.url);
+
+const IL_FORM_FIELD_MAP: Record<keyof OwnershipRequestInfo, string> = {
+  plate: "1",
+  state: "2",
+  vin: "3",
+  ownerName: "4",
+  address1: "5",
+  address2: "6",
+  city: "7",
+  postalCode: "8",
+};
 
 function IlFormViewer(props: OwnershipRequestInfo) {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     async function build() {
-      const pdf = await PDFDocument.load(Buffer.from(pdfBase64, "base64"));
+      const response = await fetch(pdfUrl);
+      const bytes = await response.arrayBuffer();
+      const pdf = await PDFDocument.load(bytes);
       const form = pdf.getForm();
       for (const [key, field] of Object.entries(IL_FORM_FIELD_MAP) as [
         keyof OwnershipRequestInfo,
