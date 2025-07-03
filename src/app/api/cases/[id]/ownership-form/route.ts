@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { withCaseAuthorization } from "@/lib/authz";
 import { getCase } from "@/lib/caseStore";
 import { fillIlForm } from "@/lib/ownershipModules";
+import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const GET = withCaseAuthorization(
   { obj: "cases" },
-  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;
     const c = getCase(id);
     if (!c) {
@@ -19,12 +20,18 @@ export const GET = withCaseAuthorization(
     if (state !== "il") {
       return NextResponse.json({ error: "unsupported" }, { status: 400 });
     }
-    const info = {
+    const search = new URL(req.url).searchParams;
+    const info: Record<string, unknown> = {
       plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
       state: c.analysis?.vehicle?.licensePlateState ?? "",
       vin: c.vinOverride ?? c.vin ?? undefined,
+      reasonForRequestingRecords: "private investigation",
+      reasonH: true,
     };
-    const pdfPath = await fillIlForm(info);
+    for (const [k, v] of search.entries()) {
+      info[k] = v;
+    }
+    const pdfPath = await fillIlForm(info as unknown as OwnershipRequestInfo);
     const data = fs.readFileSync(pdfPath);
     fs.rmSync(pdfPath);
     return new NextResponse(data, {

@@ -56,6 +56,7 @@ export const violationReportSchema = z.object({
     color: z.string().optional(),
     licensePlateState: z.string().optional(),
     licensePlateNumber: z.string().optional(),
+    plateCategoryOptions: z.array(z.string()).optional(),
   }),
   images: z.record(
     z.object({
@@ -68,4 +69,9 @@ export const violationReportSchema = z.object({
       paperworkInfo: paperworkInfoSchema.optional(),
     }),
   ),
+});
+
+export const profileReviewSchema = z.object({
+  flagged: z.boolean(),
+  reason: z.string().optional(),
 });
