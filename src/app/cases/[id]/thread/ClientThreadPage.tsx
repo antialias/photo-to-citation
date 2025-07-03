@@ -1,5 +1,6 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import SnailMailStatusIcon from "@/components/SnailMailStatusIcon";
 import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
@@ -133,15 +134,7 @@ export default function ClientThreadPage({
             <pre className="whitespace-pre-wrap text-sm">{mail.body}</pre>
             {mail.snailMailStatus ? (
               <div className="text-sm">
-                {t(
-                  mail.snailMailStatus === "queued"
-                    ? "snailMailQueued"
-                    : mail.snailMailStatus === "saved"
-                      ? "snailMailSaved"
-                      : mail.snailMailStatus === "shortfall"
-                        ? "snailMailShortfall"
-                        : "snailMailError",
-                )}
+                <SnailMailStatusIcon status={mail.snailMailStatus} />
               </div>
             ) : null}
             {mail.attachments && mail.attachments.length > 0 ? (
