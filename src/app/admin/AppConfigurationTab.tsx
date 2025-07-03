@@ -183,7 +183,8 @@ export default function AppConfigurationTab() {
           type="email"
           value={mockTo}
           onChange={(e) => setMockTo(e.target.value)}
-          className="flex-1 p-1 bg-white dark:bg-gray-900"
+          placeholder={t("mockEmailRecipientPlaceholder")}
+          className="flex-1 border rounded p-1 bg-white dark:bg-gray-900"
           disabled={!isAdmin}
         />
         <button
