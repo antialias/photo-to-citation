@@ -69,3 +69,8 @@ export const violationReportSchema = z.object({
     }),
   ),
 });
+
+export const profileReviewSchema = z.object({
+  flagged: z.boolean(),
+  reason: z.string().optional(),
+});
