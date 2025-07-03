@@ -50,6 +50,13 @@ export default function AnalysisInfo({
         {vehicle.model ? <span>Model: {vehicle.model}</span> : null}
         {vehicle.type ? <span>Type: {vehicle.type}</span> : null}
         {vehicle.color ? <span>Color: {vehicle.color}</span> : null}
+        {vehicle.licensePlateCategoryOptions &&
+        vehicle.licensePlateCategoryOptions.length > 0 ? (
+          <span>
+            Plate Category Options:{" "}
+            {vehicle.licensePlateCategoryOptions.join(", ")}
+          </span>
+        ) : null}
         {onPlateChange || onStateChange ? (
           <span className="inline-flex items-center gap-1">
             Plate:

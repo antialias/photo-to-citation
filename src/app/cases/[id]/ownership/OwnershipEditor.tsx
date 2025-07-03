@@ -1,8 +1,9 @@
 "use client";
 import { apiFetch } from "@/apiClient";
+import { useSession } from "@/app/useSession";
 import type { OwnershipModule } from "@/lib/ownershipModules";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
 
@@ -17,9 +18,47 @@ export default function OwnershipEditor({
 }) {
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
+  const { data: session } = useSession();
+  const [info, setInfo] = useState({
+    requesterName: session?.user?.name || "",
+    requesterEmailAddress: session?.user?.email || "",
+    requesterAddress: "",
+    requesterCityStateZip: "",
+  });
+  const [requestType, setRequestType] = useState("titleSearch");
+  const fees: Record<string, number> = {
+    titleSearch: 5,
+    registrationSearch: 5,
+    certifiedTitleSearch: 5,
+    certifiedRegistrationSearch: 5,
+  };
+  const total = module.fee + fees[requestType];
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const notify = useNotify();
   const router = useRouter();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    async function update() {
+      if (!showPdf) return;
+      const payload = {
+        ...info,
+        reasonH: true,
+        reasonForRequestingRecords: "private investigation",
+        [requestType]: true,
+      };
+      const res = await apiFetch(`/api/cases/${caseId}/ownership-form`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        setPdfUrl(URL.createObjectURL(blob));
+      }
+    }
+    void update();
+  }, [info, requestType, showPdf, caseId]);
 
   async function record() {
     const res = await apiFetch(`/api/cases/${caseId}/ownership-request`, {
@@ -59,13 +98,71 @@ export default function OwnershipEditor({
       <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
-      {showPdf ? (
+      {showPdf && pdfUrl ? (
         <iframe
-          src={`/api/cases/${caseId}/ownership-form`}
+          src={pdfUrl}
           className="w-full h-96 border"
           title="Ownership form"
         />
       ) : null}
+      <label className="flex flex-col">
+        Requester Name
+        <input
+          type="text"
+          value={info.requesterName}
+          onChange={(e) => setInfo({ ...info, requesterName: e.target.value })}
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        Requester Address
+        <input
+          type="text"
+          value={info.requesterAddress}
+          onChange={(e) =>
+            setInfo({ ...info, requesterAddress: e.target.value })
+          }
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        City/State/Zip
+        <input
+          type="text"
+          value={info.requesterCityStateZip}
+          onChange={(e) =>
+            setInfo({ ...info, requesterCityStateZip: e.target.value })
+          }
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        Email
+        <input
+          type="text"
+          value={info.requesterEmailAddress}
+          onChange={(e) =>
+            setInfo({ ...info, requesterEmailAddress: e.target.value })
+          }
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        Section 2 Option
+        <select
+          value={requestType}
+          onChange={(e) => setRequestType(e.target.value)}
+          className="border p-1"
+        >
+          <option value="titleSearch">Title Search</option>
+          <option value="registrationSearch">Registration Search</option>
+          <option value="certifiedTitleSearch">Certified Title Search</option>
+          <option value="certifiedRegistrationSearch">
+            Certified Registration Search
+          </option>
+        </select>
+      </label>
+      <p>Total Fee: ${total}</p>
       <label className="flex flex-col">
         {t("checkNumberLabel")}
         <input
