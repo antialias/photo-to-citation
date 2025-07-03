@@ -2,11 +2,16 @@
 import EditableText from "@/app/components/EditableText";
 import ImageHighlights from "@/app/components/ImageHighlights";
 import ZoomableImage from "@/app/components/ZoomableImage";
-import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
-import { useRef } from "react";
+
 import { useTranslation } from "react-i18next";
 
 export default function PhotoViewer({
@@ -37,14 +42,9 @@ export default function PhotoViewer({
   photoNote: string;
   updatePhotoNote: (value: string) => Promise<void>;
   removePhoto: (photo: string) => Promise<void>;
-  reanalyzePhoto: (
-    photo: string,
-    detailsEl?: HTMLDetailsElement | null,
-  ) => Promise<void>;
+  reanalyzePhoto: (photo: string) => Promise<void>;
   onTranslate: (path: string) => Promise<void>;
 }) {
-  const photoMenuRef = useRef<HTMLDetailsElement>(null);
-  useCloseOnOutsideClick(photoMenuRef);
   const { t } = useTranslation();
   const time = caseData.photoTimes[selectedPhoto];
   return (
@@ -63,51 +63,40 @@ export default function PhotoViewer({
           </div>
         ) : null}
         {readOnly ? null : (
-          <details
-            ref={photoMenuRef}
-            className="absolute top-1 right-1 text-white"
-            onToggle={() => {
-              if (photoMenuRef.current?.open) {
-                photoMenuRef.current
-                  .querySelector<HTMLElement>("button, a")
-                  ?.focus();
-              }
-            }}
-          >
-            <summary
-              className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-              aria-label={t("photoActionsMenu")}
-            >
-              ⋮
-            </summary>
-            <div
-              className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-              role="menu"
-            >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                onClick={(e) =>
-                  reanalyzePhoto(
-                    selectedPhoto,
-                    e.currentTarget.closest("details"),
-                  )
-                }
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                disabled={
-                  caseData.analysisStatus === "pending" && analysisActive
-                }
+                className="absolute top-1 right-1 text-white cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
+                aria-label={t("photoActionsMenu")}
               >
-                {t("reanalyzePhoto")}
+                ⋮
               </button>
-              <button
-                type="button"
-                onClick={() => removePhoto(selectedPhoto)}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-              >
-                {t("deleteImage")}
-              </button>
-            </div>
-          </details>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="mt-1">
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  onClick={() => reanalyzePhoto(selectedPhoto)}
+                  className="w-full text-left"
+                  disabled={
+                    caseData.analysisStatus === "pending" && analysisActive
+                  }
+                >
+                  {t("reanalyzePhoto")}
+                </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  onClick={() => removePhoto(selectedPhoto)}
+                  className="w-full text-left"
+                >
+                  {t("deleteImage")}
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
         {caseData.analysis ? (
           <div className="group absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm max-h-20 overflow-hidden hover:max-h-none hover:overflow-visible active:max-h-none active:overflow-visible">

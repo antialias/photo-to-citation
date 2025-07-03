@@ -1,5 +1,6 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 export interface Transform {
   scale: number;
@@ -39,149 +40,43 @@ export function constrainPan(
   };
 }
 
-interface Props {
-  src: string;
-  alt: string;
-}
-
-export default function ZoomableImage({ src, alt }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [naturalSize, setNaturalSize] = useState<{
-    width: number;
-    height: number;
-  }>();
-  const pointers = useRef(new Map<number, { x: number; y: number }>());
-  const lastDistance = useRef<number | null>(null);
-  const lastCenter = useRef<{ x: number; y: number } | null>(null);
-
-  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    if (e.currentTarget === e.target) {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    }
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  }
-
-  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (!pointers.current.has(e.pointerId)) return;
-    const prev = pointers.current.get(e.pointerId);
-    if (!prev) return;
-    const cur = { x: e.clientX, y: e.clientY };
-    pointers.current.set(e.pointerId, cur);
-
-    if (pointers.current.size === 2) {
-      const [p1, p2] = Array.from(pointers.current.values());
-      const center = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-      const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-      if (lastDistance.current === null) {
-        lastDistance.current = dist;
-        lastCenter.current = center;
-        return;
-      }
-      const scaleDelta = dist / lastDistance.current;
-      lastDistance.current = dist;
-      const dx = center.x - (lastCenter.current?.x ?? center.x);
-      const dy = center.y - (lastCenter.current?.y ?? center.y);
-      lastCenter.current = center;
-
-      setTransform((t) => {
-        const scale = Math.min(5, Math.max(1, t.scale * scaleDelta));
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (!rect) return t;
-        const originX = (center.x - rect.left - t.x) / t.scale;
-        const originY = (center.y - rect.top - t.y) / t.scale;
-        const x = t.x - (scale - t.scale) * originX + dx;
-        const y = t.y - (scale - t.scale) * originY + dy;
-        return constrainPan(rect, naturalSize, { scale, x, y });
-      });
-    } else if (pointers.current.size === 1 && lastDistance.current === null) {
-      const dx = cur.x - prev.x;
-      const dy = cur.y - prev.y;
-      setTransform((t) => {
-        const rect = containerRef.current?.getBoundingClientRect();
-        return constrainPan(rect, naturalSize, {
-          scale: t.scale,
-          x: t.x + dx,
-          y: t.y + dy,
-        });
-      });
-    }
-  }
-
-  function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
-    pointers.current.delete(e.pointerId);
-    if (pointers.current.size < 2) {
-      lastDistance.current = null;
-      lastCenter.current = null;
-    }
-  }
-
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      e.preventDefault();
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
-      const zoom = Math.exp(-e.deltaY / 200);
-      setTransform((t) => {
-        const scale = Math.min(5, Math.max(1, t.scale * zoom));
-        const originX = (cursorX - t.x) / t.scale;
-        const originY = (cursorY - t.y) / t.scale;
-        const x = t.x - (scale - t.scale) * originX;
-        const y = t.y - (scale - t.scale) * originY;
-        return constrainPan(rect, naturalSize, { scale, x, y });
-      });
-    },
-    [naturalSize],
-  );
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.addEventListener("wheel", handleWheel, { passive: false });
-    return () => {
-      el.removeEventListener("wheel", handleWheel);
-    };
-  }, [handleWheel]);
-
+export default function ZoomableImage({
+  src,
+  alt,
+}: { src: string; alt: string }) {
+  const [scale, setScale] = useState(1);
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-full relative overflow-hidden touch-none"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
+    <TransformWrapper
+      maxScale={5}
+      wheel={{ step: 0.2 }}
+      onZoomStop={(ref) => setScale(ref.state.scale)}
+      onPanningStop={(ref) => setScale(ref.state.scale)}
     >
-      <img
-        src={src}
-        alt={alt}
-        ref={imgRef}
-        onLoad={(e) =>
-          setNaturalSize({
-            width: (e.currentTarget as HTMLImageElement).naturalWidth,
-            height: (e.currentTarget as HTMLImageElement).naturalHeight,
-          })
-        }
-        draggable={false}
-        className="object-contain select-none absolute inset-0 w-full h-full"
-        loading="lazy"
-        style={{
-          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-          transformOrigin: "0 0",
-        }}
-      />
-      {transform.scale > 1 ? (
-        <button
-          type="button"
-          onClick={() => setTransform({ scale: 1, x: 0, y: 0 })}
-          className="absolute top-1 left-1 z-sticky bg-black/60 text-white rounded px-1 text-xs"
-        >
-          Reset zoom
-        </button>
-      ) : null}
-    </div>
+      {({ resetTransform }) => (
+        <div className="w-full h-full relative">
+          <TransformComponent
+            wrapperClass="w-full h-full"
+            contentClass="w-full h-full"
+          >
+            <img
+              src={src}
+              alt={alt}
+              draggable={false}
+              className="object-contain select-none w-full h-full"
+              loading="lazy"
+            />
+          </TransformComponent>
+          {scale > 1 ? (
+            <button
+              type="button"
+              onClick={() => resetTransform()}
+              className="absolute top-1 left-1 z-sticky bg-black/60 text-white rounded px-1 text-xs"
+            >
+              Reset zoom
+            </button>
+          ) : null}
+        </div>
+      )}
+    </TransformWrapper>
   );
 }

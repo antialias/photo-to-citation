@@ -1,4 +1,5 @@
 "use client";
+import { useTextField } from "@react-aria/textfield";
 import { useEffect, useId, useRef, useState } from "react";
 
 export default function EditableText({
@@ -18,6 +19,13 @@ export default function EditableText({
   const [text, setText] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const listId = useId();
+  const { inputProps } = useTextField(
+    {
+      value: text,
+      onChange: setText,
+    },
+    inputRef,
+  );
 
   useEffect(() => {
     setText(value);
@@ -43,11 +51,10 @@ export default function EditableText({
       <>
         <input
           ref={inputRef}
+          {...inputProps}
           type="text"
-          value={text}
           placeholder={placeholder}
           list={options ? listId : undefined}
-          onChange={(e) => setText(e.target.value)}
           onBlur={finish}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
