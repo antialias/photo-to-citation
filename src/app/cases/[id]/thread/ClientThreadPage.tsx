@@ -131,6 +131,19 @@ export default function ClientThreadPage({
             </div>
             <div className="font-semibold">{mail.subject}</div>
             <pre className="whitespace-pre-wrap text-sm">{mail.body}</pre>
+            {mail.snailMailStatus ? (
+              <div className="text-sm">
+                {t(
+                  mail.snailMailStatus === "queued"
+                    ? "snailMailQueued"
+                    : mail.snailMailStatus === "saved"
+                      ? "snailMailSaved"
+                      : mail.snailMailStatus === "shortfall"
+                        ? "snailMailShortfall"
+                        : "snailMailError",
+                )}
+              </div>
+            ) : null}
             {mail.attachments && mail.attachments.length > 0 ? (
               <ul className="mt-2 flex flex-col gap-1">
                 <li className="font-semibold">{t("attachments")}</li>

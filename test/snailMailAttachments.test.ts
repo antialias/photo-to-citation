@@ -98,13 +98,14 @@ describe("sendSnailMail attachments", () => {
     const mockSend = vi.fn().mockResolvedValue({ id: "1", status: "queued" });
     snailMailProviders.mock.send =
       mockSend as typeof snailMailProviders.mock.send;
-    await sendSnailMail({
+    const result = await sendSnailMail({
       address: "You\n2 B St\nSomewhere, ST 67890",
       subject: "Hello",
       body: "Body",
       attachments: ["img.png"],
     });
     expect(mockSend).toHaveBeenCalled();
+    expect(result.status).toBe("queued");
     expect(createdPdf?.getPageCount()).toBe(2);
   });
 });
