@@ -66,7 +66,9 @@ const envSchema = z
 
 export type Config = z.infer<typeof envSchema>;
 export function getConfig(): Config {
-  return envSchema.parse(process.env);
+  const cfg = envSchema.parse(process.env);
+  if (cfg.MOCK_EMAIL_TO === "") cfg.MOCK_EMAIL_TO = undefined;
+  return cfg;
 }
 // For NEXT_PUBLIC_* variables we must reference them directly so Next.js can
 // inline them for client-side usage. When using the dev server a full page
