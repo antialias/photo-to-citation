@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { FaUserCircle } from "react-icons/fa";
 
@@ -24,9 +25,11 @@ export default function PublicProfileClient({
   return (
     <div className="p-8 flex flex-col items-center gap-4 text-center">
       {user.image ? (
-        <img
+        <Image
           src={user.image}
           alt="avatar"
+          width={96}
+          height={96}
           className="w-24 h-24 rounded-full object-cover"
         />
       ) : (

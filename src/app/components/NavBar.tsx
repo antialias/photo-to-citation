@@ -3,6 +3,7 @@
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import { signIn, signOut, useSession } from "@/app/useSession";
 import * as Popover from "@radix-ui/react-popover";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
@@ -95,9 +96,11 @@ export default function NavBar() {
     <details className="relative" onToggle={() => setMenuOpen(false)}>
       <summary className="cursor-pointer list-none flex items-center">
         {session?.user?.image ? (
-          <img
+          <Image
             src={session.user.image}
             alt="avatar"
+            width={24}
+            height={24}
             className="w-6 h-6 rounded-full object-cover"
           />
         ) : (
