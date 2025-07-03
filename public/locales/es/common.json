@@ -17,6 +17,7 @@
     "systemStatus": "Estado del sistema",
     "userSettings": "Configuración de usuario",
     "profile": "Perfil",
+    "publicProfile": "Perfil Público",
     "signOut": "Cerrar sesión",
     "signIn": "Iniciar sesión"
   },

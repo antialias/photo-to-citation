@@ -17,6 +17,7 @@
     "systemStatus": "État du système",
     "userSettings": "Paramètres utilisateur",
     "profile": "Profil",
+    "publicProfile": "Profil Public",
     "signOut": "Déconnexion",
     "signIn": "Connexion"
   },
