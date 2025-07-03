@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { gravatarUrl } from "./gravatar";
 import { orm } from "./orm";
 import { users } from "./schema";
 
@@ -16,7 +17,9 @@ export interface UserRecord {
 
 export function getUser(id: string): UserRecord | null {
   const row = orm.select().from(users).where(eq(users.id, id)).get();
-  return row ? { ...row } : null;
+  if (!row) return null;
+  const image = row.image ?? (row.email ? gravatarUrl(row.email) : null);
+  return { ...row, image };
 }
 
 export function updateUser(
