@@ -1,9 +1,8 @@
 "use client";
 import { apiFetch } from "@/apiClient";
-import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
-import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function MultiCaseToolbar({
@@ -17,29 +16,22 @@ export default function MultiCaseToolbar({
 }) {
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
-  const detailsRef = useRef<HTMLDetailsElement>(null);
   const { t } = useTranslation();
-  useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex justify-end">
-      <details
-        ref={detailsRef}
-        className="relative"
-        onToggle={() => {
-          if (detailsRef.current?.open) {
-            detailsRef.current.querySelector<HTMLElement>("button, a")?.focus();
-          }
-        }}
-      >
-        <summary
-          className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-          aria-label={t("caseActionsMenu")}
-        >
-          {t("actions")}
-        </summary>
-        <div
-          className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
-          role="menu"
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button
+            type="button"
+            className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+            aria-label={t("caseActionsMenu")}
+          >
+            {t("actions")}
+          </button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          className="bg-white dark:bg-gray-900 border rounded shadow mt-1"
+          align="end"
         >
           <button
             type="button"
@@ -122,8 +114,8 @@ export default function MultiCaseToolbar({
           >
             {t("deleteCase")}
           </button>
-        </div>
-      </details>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
     </div>
   );
 }

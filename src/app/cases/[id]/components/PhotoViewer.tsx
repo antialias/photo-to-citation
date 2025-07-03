@@ -2,11 +2,10 @@
 import EditableText from "@/app/components/EditableText";
 import ImageHighlights from "@/app/components/ImageHighlights";
 import ZoomableImage from "@/app/components/ZoomableImage";
-import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { Progress } from "@/components/ui/progress";
 import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
-import { useRef } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useTranslation } from "react-i18next";
 
 export default function PhotoViewer({
@@ -43,8 +42,6 @@ export default function PhotoViewer({
   ) => Promise<void>;
   onTranslate: (path: string) => Promise<void>;
 }) {
-  const photoMenuRef = useRef<HTMLDetailsElement>(null);
-  useCloseOnOutsideClick(photoMenuRef);
   const { t } = useTranslation();
   const time = caseData.photoTimes[selectedPhoto];
   return (
@@ -63,35 +60,23 @@ export default function PhotoViewer({
           </div>
         ) : null}
         {readOnly ? null : (
-          <details
-            ref={photoMenuRef}
-            className="absolute top-1 right-1 text-white"
-            onToggle={() => {
-              if (photoMenuRef.current?.open) {
-                photoMenuRef.current
-                  .querySelector<HTMLElement>("button, a")
-                  ?.focus();
-              }
-            }}
-          >
-            <summary
-              className="cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
-              aria-label={t("photoActionsMenu")}
-            >
-              ⋮
-            </summary>
-            <div
-              className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-              role="menu"
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                type="button"
+                className="absolute top-1 right-1 text-white cursor-pointer select-none bg-black/40 rounded px-1 opacity-70"
+                aria-label={t("photoActionsMenu")}
+              >
+                ⋮
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              className="bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white mt-1"
+              align="end"
             >
               <button
                 type="button"
-                onClick={(e) =>
-                  reanalyzePhoto(
-                    selectedPhoto,
-                    e.currentTarget.closest("details"),
-                  )
-                }
+                onClick={() => reanalyzePhoto(selectedPhoto)}
                 className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
                 disabled={
                   caseData.analysisStatus === "pending" && analysisActive
@@ -106,8 +91,8 @@ export default function PhotoViewer({
               >
                 {t("deleteImage")}
               </button>
-            </div>
-          </details>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         )}
         {caseData.analysis ? (
           <div className="group absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2 text-sm max-h-20 overflow-hidden hover:max-h-none hover:overflow-visible active:max-h-none active:overflow-visible">
