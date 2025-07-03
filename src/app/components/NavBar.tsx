@@ -96,13 +96,6 @@ export default function NavBar() {
           >
             {t("nav.userSettings")}
           </Link>
-          <Link
-            href="/profile"
-            className="hover:text-gray-600 dark:hover:text-gray-300"
-            onClick={() => setMenuOpen(false)}
-          >
-            {t("nav.profile")}
-          </Link>
         </>
       ) : null}
       {session ? (

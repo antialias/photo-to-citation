@@ -43,7 +43,7 @@ afterAll(async () => {
 
 describe("profile page e2e @smoke", () => {
   it("blocks anonymous access", async () => {
-    const res = await api("/profile");
+    const res = await api("/settings");
     const html = await res.text();
     const dom = new JSDOM(html);
     expect(dom.window.document.body.textContent).toMatch(/not logged in/i);
@@ -60,7 +60,12 @@ describe("profile page e2e @smoke", () => {
     res = await api("/api/profile", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: "Tester", image: "http://img" }),
+      body: JSON.stringify({
+        name: "Tester",
+        image: "http://img",
+        bio: "hi",
+        socialLinks: "http://link",
+      }),
     });
     expect(res.status).toBe(200);
 
@@ -69,10 +74,10 @@ describe("profile page e2e @smoke", () => {
     expect(data.name).toBe("Tester");
     expect(data.image).toBe("http://img");
 
-    const page = await api("/profile").then((r) => r.text());
+    const page = await api("/settings").then((r) => r.text());
     const dom = new JSDOM(page);
     const heading = getByRole(dom.window.document, "heading", {
-      name: /user profile/i,
+      name: /user settings/i,
     });
     expect(heading).toBeTruthy();
   });

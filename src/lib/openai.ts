@@ -520,3 +520,57 @@ export async function ocrPaperwork(
   }
   return { text: "", info: null };
 }
+
+export interface ProfileReview {
+  flagged: boolean;
+  reason?: string;
+}
+
+export const profileReviewSchema: z.ZodType<ProfileReview> = z.object({
+  flagged: z.boolean(),
+  reason: z.string().optional(),
+}) as z.ZodType<ProfileReview>;
+
+export async function reviewProfile(profile: {
+  name?: string | null;
+  bio?: string | null;
+  socialLinks?: string | null;
+}): Promise<ProfileReview> {
+  const schema = {
+    type: "object",
+    properties: { flagged: { type: "boolean" }, reason: { type: "string" } },
+  };
+  const messages: ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content: `You review user profiles for obscene or inappropriate content and respond in JSON strictly following the provided schema: ${JSON.stringify(schema)}`,
+    },
+    {
+      role: "user",
+      content: `Name: ${profile.name ?? ""}\nBio: ${profile.bio ?? ""}\nLinks: ${profile.socialLinks ?? ""}`,
+    },
+  ];
+  const { client, model } = getLlm("profile_review");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await client.chat.completions.create({
+      model,
+      messages,
+      max_tokens: 50,
+      response_format: { type: "json_object" },
+    });
+    const text = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(text);
+      return profileReviewSchema.parse(parsed);
+    } catch (err) {
+      logBadResponse(attempt, text, err);
+      if (attempt === 2) throw new AnalysisError("schema");
+      messages.push({ role: "assistant", content: text });
+      messages.push({
+        role: "user",
+        content: `The JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  throw new AnalysisError("schema");
+}
