@@ -131,6 +131,34 @@ export default function ClientThreadPage({
             </div>
             <div className="font-semibold">{mail.subject}</div>
             <pre className="whitespace-pre-wrap text-sm">{mail.body}</pre>
+            {mail.attachments && mail.attachments.length > 0 && (
+              <div className="flex gap-2 flex-wrap mt-2">
+                {mail.attachments.map((att) =>
+                  att.toLowerCase().endsWith(".pdf") ? (
+                    <a
+                      key={att}
+                      href={`/uploads/${att}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {t("viewAttachment")}
+                    </a>
+                  ) : (
+                    <ThumbnailImage
+                      key={att}
+                      src={getThumbnailUrl(att, 128)}
+                      alt="attachment"
+                      width={96}
+                      height={72}
+                      className="cursor-pointer"
+                      imgClassName="object-contain"
+                      onClick={() => setViewImage(`/uploads/${att}`)}
+                    />
+                  ),
+                )}
+              </div>
+            )}
           </li>
         ))}
         {images.map((img) => (

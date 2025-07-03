@@ -1,10 +1,16 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
 import { NextResponse } from "next/server";
 
 import { withCaseAuthorization } from "@/lib/authz";
-import { addCaseEmail, addOwnershipRequest, getCase } from "@/lib/caseStore";
+import {
+  addCaseEmail,
+  addCaseThreadImage,
+  addOwnershipRequest,
+  getCase,
+} from "@/lib/caseStore";
 import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
@@ -88,14 +94,24 @@ export const POST = withCaseAuthorization(
         storedAttachments.push(att);
       }
     }
+    const sentAt = new Date().toISOString();
     const withEmail = addCaseEmail(id, {
       to: mod?.address ?? "",
       subject: "Ownership information request",
       body: `Check number: ${checkNumber ?? ""}`,
       attachments: storedAttachments,
-      sentAt: new Date().toISOString(),
+      sentAt,
       replyTo: null,
     });
+
+    for (const file of storedAttachments) {
+      addCaseThreadImage(id, {
+        id: `${sentAt}-${crypto.randomUUID()}`,
+        threadParent: sentAt,
+        url: file,
+        uploadedAt: sentAt,
+      });
+    }
     return NextResponse.json({ case: withEmail ?? updated });
   },
 );
