@@ -520,3 +520,54 @@ export async function ocrPaperwork(
   }
   return { text: "", info: null };
 }
+
+export interface ProfileReviewResult {
+  publish: boolean;
+  reason?: string;
+}
+
+export async function reviewProfileContent(
+  text: string,
+): Promise<ProfileReviewResult> {
+  const schema = {
+    type: "object",
+    properties: { publish: { type: "boolean" }, reason: { type: "string" } },
+    required: ["publish"],
+  };
+  const baseMessages: ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content:
+        "You moderate user profiles. If the profile contains obscene or inappropriate content, set publish to false and explain why in the reason field. Otherwise set publish to true. Reply in JSON strictly matching the provided schema.",
+    },
+    {
+      role: "user",
+      content: `Review this profile information:\n${text}\nRespond with JSON matching this schema: ${JSON.stringify(schema)}`,
+    } as ChatCompletionMessageParam,
+  ];
+  const messages: ChatCompletionMessageParam[] = [...baseMessages];
+  const { client, model } = getLlm("profile_review");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await client.chat.completions.create({
+      model,
+      messages,
+      max_tokens: 100,
+      response_format: { type: "json_object" },
+    });
+    const output = res.choices[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(output) as ProfileReviewResult;
+      if (typeof parsed.publish !== "boolean") throw new Error("schema");
+      return parsed;
+    } catch (err) {
+      logBadResponse(attempt, output, err);
+      if (attempt === 2) return { publish: true };
+      messages.push({ role: "assistant", content: output });
+      messages.push({
+        role: "user",
+        content: `The previous JSON did not match the schema: ${err}. Please reply with corrected JSON only.`,
+      });
+    }
+  }
+  return { publish: true };
+}

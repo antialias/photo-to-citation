@@ -52,6 +52,10 @@ export const users = sqliteTable("user", {
   emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
   image: text("image"),
   role: text("role").notNull().default("user"),
+  socialLinks: text("social_links"),
+  bio: text("bio"),
+  profileStatus: text("profile_status").notNull().default("under_review"),
+  reviewReason: text("review_reason"),
 });
 
 export const casbinRules = sqliteTable("casbin_rules", {
