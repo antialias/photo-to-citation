@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAddCredits from "../hooks/useAddCredits";
 import useCreditBalance from "../hooks/useCreditBalance";
+import useEventSource from "../hooks/useEventSource";
 
 export default function UserSettingsPage() {
   const { data: session } = useSession();
@@ -39,6 +40,16 @@ export default function UserSettingsPage() {
     },
     enabled: !!session,
     refetchInterval: 5000,
+  });
+  useEventSource<{
+    name?: string;
+    image?: string;
+    bio?: string;
+    socialLinks?: string;
+    profileStatus?: string;
+    profileReviewNotes?: string | null;
+  }>(session ? "/api/profile/stream" : null, (payload) => {
+    queryClient.setQueryData(["/api/profile"], payload);
   });
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
