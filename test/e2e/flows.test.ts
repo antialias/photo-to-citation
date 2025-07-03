@@ -188,6 +188,10 @@ describe("e2e flows (unauthenticated)", () => {
       body: JSON.stringify({ moduleId: "il", checkNumber: "42" }),
     });
     expect(ownRes.status).toBe(200);
+    const ownData = (await ownRes.json()) as {
+      case: { sentEmails?: unknown[] };
+    };
+    expect(Array.isArray(ownData.case.sentEmails)).toBe(true);
 
     const delCase = await api(`/api/cases/${caseId}`, {
       method: "DELETE",
