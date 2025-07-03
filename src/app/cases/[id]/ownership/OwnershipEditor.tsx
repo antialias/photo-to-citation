@@ -71,7 +71,7 @@ export default function OwnershipEditor({
         onClick={() => record()}
         className="bg-blue-500 text-white px-2 py-1 rounded"
       >
-        {t("markRequested")}
+        {snailMail ? t("sendSnailMailRequest") : t("markRequested")}
       </button>
     </div>
   );

@@ -200,6 +200,7 @@
   "sendCheckTo": "Envoyez un chèque de ${{fee}} à :",
   "checkNumberLabel": "Numéro de chèque",
   "sendSnailAutomatically": "Envoyer le courrier postal automatiquement",
+  "sendSnailMailRequest": "Envoyer la demande par courrier",
   "markRequested": "Marquer comme demandé",
   "noOwnershipModule": "Aucun module de propriété pour l'état {{label}}. États pris en charge : {{supported}}. Veuillez vous assurer que l'état de la plaque utilise une abréviation de deux lettres.",
   "failedUpdateVin": "Échec de la mise à jour du VIN.",
