@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { config } from "./config";
 import { addSentEmail } from "./emailStore";
 import { log } from "./logger";
+import { getMockEmailSettings } from "./mockEmailSettings";
 
 export interface EmailOptions {
   /** @zod.email */
@@ -20,7 +21,8 @@ export async function sendEmail({
 }: EmailOptions): Promise<void> {
   log("sendEmail", to, subject);
 
-  const finalTo = config.MOCK_EMAIL_TO || to;
+  const runtime = getMockEmailSettings();
+  const finalTo = config.MOCK_EMAIL_TO || runtime.to || to;
   if (config.EMAIL_FILE) {
     addSentEmail({
       to: finalTo,

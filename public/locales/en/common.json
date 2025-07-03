@@ -166,6 +166,8 @@
   "vinLookupModules": "VIN Lookup Modules",
   "snailMailProviders": "Snail Mail Providers",
   "oauthProviders": "OAuth Providers",
+  "mockEmailRecipient": "Mock Email Recipient",
+  "envVarOverrides": "MOCK_EMAIL_TO environment variable overrides this setting.",
   "enable": "Enable",
   "activate": "Activate",
   "active": "Active",
