@@ -1,0 +1,4 @@
+ALTER TABLE user ADD COLUMN bio TEXT;
+ALTER TABLE user ADD COLUMN social TEXT;
+ALTER TABLE user ADD COLUMN profile_status TEXT NOT NULL DEFAULT 'under_review';
+ALTER TABLE user ADD COLUMN profile_reason TEXT;

@@ -51,6 +51,10 @@ export const users = sqliteTable("user", {
   email: text("email").unique(),
   emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
   image: text("image"),
+  bio: text("bio"),
+  social: text("social"),
+  profileStatus: text("profile_status").notNull().default("under_review"),
+  profileReason: text("profile_reason"),
   role: text("role").notNull().default("user"),
 });
 

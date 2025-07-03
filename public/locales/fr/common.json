@@ -59,6 +59,14 @@
   "userProfile": "Profil utilisateur",
   "nameLabel": "Nom",
   "imageUrlLabel": "URL de l'image",
+  "socialLabel": "Liens sociaux",
+  "bioLabel": "À propos de vous",
+  "profileStatusLabel": "Statut du profil :",
+  "profileStatus": {
+    "under_review": "En cours de révision",
+    "published": "Publié",
+    "hidden": "Masqué"
+  },
   "emailLabel": "Email :",
   "roleLabel": "Rôle :",
   "save": "Enregistrer",
