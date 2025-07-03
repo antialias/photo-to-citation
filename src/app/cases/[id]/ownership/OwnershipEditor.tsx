@@ -17,7 +17,6 @@ export default function OwnershipEditor({
   showPdf?: boolean;
 }) {
   const [checkNumber, setCheckNumber] = useState("");
-  const [snailMail, setSnailMail] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({
     reasonForRequestingRecords: "private investigation",
     reasonH: "true",
@@ -64,7 +63,7 @@ export default function OwnershipEditor({
       body: JSON.stringify({
         moduleId: module.id,
         checkNumber,
-        ...(snailMail ? { snailMail: true } : {}),
+        snailMail: true,
         form: { ...form, [option]: true },
       }),
     });
@@ -172,20 +171,12 @@ export default function OwnershipEditor({
           className="border p-1"
         />
       </label>
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={snailMail}
-          onChange={(e) => setSnailMail(e.target.checked)}
-        />
-        <span>{t("sendSnailAutomatically")}</span>
-      </label>
       <button
         type="button"
         onClick={() => record()}
         className="bg-blue-500 text-white px-2 py-1 rounded"
       >
-        {snailMail ? t("sendSnailMailRequest") : t("markRequested")}
+        {t("sendSnailMailRequest")}
       </button>
     </div>
   );
