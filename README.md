@@ -215,7 +215,9 @@ EMAIL_FILE=emails.json
 
 If `MOCK_EMAIL_TO` is set, all outgoing email will be directed there instead of
 the authority's address. Omit the variable in production to send to the real
-recipient.
+recipient. When the variable is unset, super admins can specify an override
+address from the **App Configuration** tab. This runtime value is ignored when
+`MOCK_EMAIL_TO` is present.
 When running end-to-end tests, `startServer` automatically assigns
 `EMAIL_FILE` to a temporary path so that all emails are captured rather than
 sent.

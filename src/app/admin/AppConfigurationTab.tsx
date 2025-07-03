@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface VinSourceStatus {
@@ -24,6 +25,7 @@ interface OauthProviderStatus {
 const VIN_SOURCES_QUERY_KEY = ["/api/vin-sources"] as const;
 const MAIL_PROVIDERS_QUERY_KEY = ["/api/snail-mail-providers"] as const;
 const OAUTH_PROVIDERS_QUERY_KEY = ["/api/oauth-providers"] as const;
+const MOCK_EMAIL_QUERY_KEY = ["/api/mock-email"] as const;
 
 export default function AppConfigurationTab() {
   const queryClient = useQueryClient();
@@ -36,10 +38,22 @@ export default function AppConfigurationTab() {
   const { data: oauthProviders = [] } = useQuery<OauthProviderStatus[]>({
     queryKey: OAUTH_PROVIDERS_QUERY_KEY,
   });
+  const { data: mockEmail } = useQuery<{
+    to: string;
+    envOverride: boolean;
+    settingsTo: string;
+  }>({
+    queryKey: MOCK_EMAIL_QUERY_KEY,
+  });
   const { data: session } = useSession();
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const { t } = useTranslation();
+  const [mockTo, setMockTo] = useState("");
+
+  useEffect(() => {
+    if (mockEmail) setMockTo(mockEmail.settingsTo);
+  }, [mockEmail]);
 
   const toggleMutation = useMutation({
     async mutationFn({ id, enabled }: { id: string; enabled: boolean }) {
@@ -75,6 +89,19 @@ export default function AppConfigurationTab() {
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: OAUTH_PROVIDERS_QUERY_KEY });
+    },
+  });
+
+  const mockEmailMutation = useMutation({
+    async mutationFn(to: string) {
+      await apiFetch("/api/mock-email", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to }),
+      });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: MOCK_EMAIL_QUERY_KEY });
     },
   });
 
@@ -150,6 +177,27 @@ export default function AppConfigurationTab() {
           </li>
         ))}
       </ul>
+      <h1 className="text-xl font-bold my-4">{t("mockEmailRecipient")}</h1>
+      <div className="flex items-center gap-2 mb-2">
+        <input
+          type="email"
+          value={mockTo}
+          onChange={(e) => setMockTo(e.target.value)}
+          className="flex-1 p-1 bg-white dark:bg-gray-900"
+          disabled={!isAdmin}
+        />
+        <button
+          type="button"
+          onClick={() => mockEmailMutation.mutate(mockTo)}
+          disabled={!isAdmin}
+          className="bg-blue-600 text-white px-2 py-1 rounded"
+        >
+          {t("save")}
+        </button>
+      </div>
+      {mockEmail?.envOverride && (
+        <p className="text-sm text-red-600">{t("envVarOverrides")}</p>
+      )}
     </div>
   );
 }

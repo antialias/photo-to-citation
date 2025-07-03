@@ -69,6 +69,13 @@ describe("email sending", () => {
   }
 
   it("stores emails instead of sending", async () => {
+    const setRes = await api("/api/mock-email", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: "mock@domain.com" }),
+    });
+    expect(setRes.status).toBe(200);
+
     const id = await createCase();
     const res = await api(`/api/cases/${id}/report`, {
       method: "POST",
@@ -80,6 +87,21 @@ describe("email sending", () => {
       fs.readFileSync(path.join(tmpDir, "emails.json"), "utf8"),
     );
     expect(emails).toHaveLength(1);
-    expect(emails[0].to).toBe("police@oak-park.us");
+    expect(emails[0].to).toBe("mock@domain.com");
+  });
+
+  it("updates and retrieves runtime setting", async () => {
+    const put = await api("/api/mock-email", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: "other@domain.com" }),
+    });
+    expect(put.status).toBe(200);
+    const data = (await put.json()) as { to: string };
+    expect(data.to).toBe("other@domain.com");
+
+    const get = await api("/api/mock-email").then((r) => r.json());
+    expect(get.to).toBe("other@domain.com");
+    expect(get.envOverride).toBe(false);
   });
 });

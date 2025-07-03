@@ -166,6 +166,8 @@
   "vinLookupModules": "Módulos de búsqueda de VIN",
   "snailMailProviders": "Proveedores de correo postal",
   "oauthProviders": "Proveedores OAuth",
+  "mockEmailRecipient": "Destinatario de correo simulado",
+  "envVarOverrides": "La variable de entorno MOCK_EMAIL_TO tiene prioridad.",
   "enable": "Habilitar",
   "activate": "Activar",
   "active": "Activo",
