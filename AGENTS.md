@@ -28,6 +28,8 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
   modify test code to accept incorrect behavior from the app.
 - No task is complete unless all `e2e:smoke` tests pass. Ideally, run the
   entire e2e suite and ensure it passes as well.
+- Provide a list of manual testing steps for a human to verify your changes.
+  No task is complete without these instructions.
 
 ## Code Style
 
