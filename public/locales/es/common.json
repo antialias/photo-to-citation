@@ -265,5 +265,6 @@
     "awaitingAuthorityResponse": "esperando respuesta de las autoridades",
     "citationProcessing": "procesando citación",
     "awaitingDelivery": "esperando entrega"
-  }
+  },
+  "plateCategories": "Categorías de placa"
 }

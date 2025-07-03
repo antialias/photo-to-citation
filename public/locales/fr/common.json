@@ -265,5 +265,6 @@
     "awaitingAuthorityResponse": "en attente de réponse des autorités",
     "citationProcessing": "traitement de la citation",
     "awaitingDelivery": "en attente de livraison"
-  }
+  },
+  "plateCategories": "Catégories de plaque"
 }

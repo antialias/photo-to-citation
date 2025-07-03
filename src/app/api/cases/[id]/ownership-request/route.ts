@@ -24,10 +24,11 @@ export const POST = withCaseAuthorization(
     },
   ) => {
     const { id } = await params;
-    const { moduleId, checkNumber, snailMail } = (await req.json()) as {
+    const { moduleId, checkNumber, snailMail, form } = (await req.json()) as {
       moduleId: string;
       checkNumber?: string | null;
       snailMail?: boolean;
+      form?: Record<string, unknown>;
     };
     const updated = addOwnershipRequest(id, {
       moduleId,
@@ -44,7 +45,7 @@ export const POST = withCaseAuthorization(
       if (c) {
         const user = session?.user?.id ? getUser(session.user.id) : null;
         const addrLines = (config.RETURN_ADDRESS || "").split(/\n+/);
-        const info = {
+        const info: Record<string, unknown> = {
           plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
           state: c.analysis?.vehicle?.licensePlateState ?? "",
           vin: c.vinOverride ?? c.vin ?? undefined,
@@ -53,8 +54,15 @@ export const POST = withCaseAuthorization(
           requesterAddress: addrLines[1] ?? "",
           requesterCityStateZip: addrLines[2] ?? "",
           requesterEmailAddress: user?.email ?? undefined,
+          reasonForRequestingRecords: "private investigation",
+          reasonH: true,
         } as Partial<OwnershipRequestInfo>;
-        const result = await mod.generateForms(info as OwnershipRequestInfo);
+        if (form) {
+          Object.assign(info, form);
+        }
+        const result = await mod.generateForms(
+          info as unknown as OwnershipRequestInfo,
+        );
         attachments = attachments.concat(
           Array.isArray(result) ? result : [result],
         );

@@ -265,5 +265,6 @@
     "awaitingAuthorityResponse": "awaiting response from authorities",
     "citationProcessing": "citation processing",
     "awaitingDelivery": "awaiting delivery"
-  }
+  },
+  "plateCategories": "Plate categories"
 }

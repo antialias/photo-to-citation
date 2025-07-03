@@ -127,6 +127,7 @@ export interface ViolationReport {
     color?: string;
     licensePlateState?: string;
     licensePlateNumber?: string;
+    plateCategoryOptions?: string[];
   };
   images: Record<
     string,
@@ -154,6 +155,7 @@ export const violationReportSchema: z.ZodType<ViolationReport> = z.object({
       color: z.string().optional(),
       licensePlateState: licensePlateStateSchema.optional(),
       licensePlateNumber: z.string().optional(),
+      plateCategoryOptions: z.array(z.string()).optional(),
     })
     .default({}),
   images: z
@@ -183,6 +185,7 @@ const violationReportInputSchema = z.object({
       color: z.string().optional(),
       licensePlateState: licensePlateStateSchema.optional(),
       licensePlateNumber: z.string().optional(),
+      plateCategoryOptions: z.array(z.string()).optional(),
     })
     .default({}),
   images: z
@@ -225,6 +228,7 @@ export async function analyzeViolation(
           color: { type: "string" },
           licensePlateState: { type: "string", enum: US_STATES },
           licensePlateNumber: { type: "string" },
+          plateCategoryOptions: { type: "array", items: { type: "string" } },
         },
       },
       images: {

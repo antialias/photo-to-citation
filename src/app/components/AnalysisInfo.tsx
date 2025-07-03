@@ -82,6 +82,12 @@ export default function AnalysisInfo({
             {vehicle.licensePlateNumber}
           </span>
         ) : null}
+        {vehicle.plateCategoryOptions &&
+        vehicle.plateCategoryOptions.length > 0 ? (
+          <span>
+            {t("plateCategories")}: {vehicle.plateCategoryOptions.join(", ")}
+          </span>
+        ) : null}
       </div>
     </div>
   );
