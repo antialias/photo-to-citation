@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { orm } from "./orm";
+import { profileEvents } from "./profileEvents";
 import { users } from "./schema";
 
 export interface UserRecord {
@@ -44,7 +45,9 @@ export function updateUser(
     data.profileReviewNotes = updates.profileReviewNotes;
   if (Object.keys(data).length)
     orm.update(users).set(data).where(eq(users.id, id)).run();
-  return getUser(id);
+  const updated = getUser(id);
+  if (updated) profileEvents.emit("update", updated);
+  return updated;
 }
 
 export function setProfileStatus(
@@ -57,4 +60,6 @@ export function setProfileStatus(
     .set({ profileStatus: status, profileReviewNotes: notes ?? null })
     .where(eq(users.id, id))
     .run();
+  const updated = getUser(id);
+  if (updated) profileEvents.emit("update", updated);
 }
