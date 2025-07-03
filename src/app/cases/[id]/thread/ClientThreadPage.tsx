@@ -145,21 +145,28 @@ export default function ClientThreadPage({
               </div>
             ) : null}
             {mail.attachments && mail.attachments.length > 0 ? (
-              <ul className="mt-2 flex flex-col gap-1">
-                <li className="font-semibold">{t("attachments")}</li>
-                {mail.attachments.map((att) => (
-                  <li key={att}>
-                    <a
-                      href={`/uploads/${att}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 underline"
-                    >
-                      {att}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-2 flex flex-col gap-1">
+                <span className="font-semibold">{t("attachments")}</span>
+                <ul className="flex gap-2 flex-wrap">
+                  {mail.attachments.map((att) => (
+                    <li key={att}>
+                      <a
+                        href={`/uploads/${att}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ThumbnailImage
+                          src={getThumbnailUrl(att, 128)}
+                          alt="attachment"
+                          width={96}
+                          height={72}
+                          imgClassName="object-contain"
+                        />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
           </li>
         ))}
