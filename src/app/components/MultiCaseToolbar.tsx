@@ -1,9 +1,13 @@
 "use client";
 import { apiFetch } from "@/apiClient";
-import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function MultiCaseToolbar({
@@ -17,113 +21,115 @@ export default function MultiCaseToolbar({
 }) {
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
-  const detailsRef = useRef<HTMLDetailsElement>(null);
   const { t } = useTranslation();
-  useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex justify-end">
-      <details
-        ref={detailsRef}
-        className="relative"
-        onToggle={() => {
-          if (detailsRef.current?.open) {
-            detailsRef.current.querySelector<HTMLElement>("button, a")?.focus();
-          }
-        }}
-      >
-        <summary
-          className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-          aria-label={t("caseActionsMenu")}
-        >
-          {t("actions")}
-        </summary>
-        <div
-          className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
-          role="menu"
-        >
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <button
             type="button"
-            onClick={async () => {
-              await Promise.all(
-                caseIds.map((id) =>
-                  apiFetch(`/api/cases/${id}/reanalyze`, {
-                    method: "POST",
-                  }),
-                ),
-              );
-              window.location.reload();
-            }}
-            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+            className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+            aria-label={t("caseActionsMenu")}
           >
-            {t("rerunAnalysis")}
+            {t("actions")}
           </button>
-          <button
-            type="button"
-            onClick={async () => {
-              await Promise.all(
-                caseIds.map((id) =>
-                  apiFetch(`/api/cases/${id}/archived`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ archived: true }),
-                  }),
-                ),
-              );
-              window.location.reload();
-            }}
-            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-          >
-            {t("archiveCase")}
-          </button>
-          {disabled ? null : (
-            <>
-              <Link
-                href={`/cases/${first}/compose?ids=${idsParam}`}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                {t("draftEmail")}
-              </Link>
-              {hasOwner ? null : (
-                <Link
-                  href={`/cases/${first}/ownership?ids=${idsParam}`}
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  {t("requestOwnershipInfo")}
-                </Link>
-              )}
-              {hasOwner ? (
-                <Link
-                  href={`/cases/${first}/notify-owner?ids=${idsParam}`}
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  {t("notifyRegisteredOwner")}
-                </Link>
-              ) : null}
-            </>
-          )}
-          <button
-            type="button"
-            onClick={async () => {
-              const code = Math.random().toString(36).slice(2, 6);
-              const input = prompt(t("confirmDelete", { code }));
-              if (input === code) {
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="mt-1">
+          <DropdownMenuItem asChild>
+            <button
+              type="button"
+              onClick={async () => {
                 await Promise.all(
                   caseIds.map((id) =>
-                    apiFetch(`/api/cases/${id}`, {
-                      method: "DELETE",
+                    apiFetch(`/api/cases/${id}/reanalyze`, {
+                      method: "POST",
                     }),
                   ),
                 );
-                window.location.href = withBasePath("/cases");
-              }
-            }}
-            data-testid="delete-cases-button"
-            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-          >
-            {t("deleteCase")}
-          </button>
-        </div>
-      </details>
+                window.location.reload();
+              }}
+              className="w-full text-left"
+            >
+              {t("rerunAnalysis")}
+            </button>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <button
+              type="button"
+              onClick={async () => {
+                await Promise.all(
+                  caseIds.map((id) =>
+                    apiFetch(`/api/cases/${id}/archived`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ archived: true }),
+                    }),
+                  ),
+                );
+                window.location.reload();
+              }}
+              className="w-full text-left"
+            >
+              {t("archiveCase")}
+            </button>
+          </DropdownMenuItem>
+          {disabled ? null : (
+            <>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={`/cases/${first}/compose?ids=${idsParam}`}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  {t("draftEmail")}
+                </Link>
+              </DropdownMenuItem>
+              {hasOwner ? null : (
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/cases/${first}/ownership?ids=${idsParam}`}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    {t("requestOwnershipInfo")}
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {hasOwner ? (
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/cases/${first}/notify-owner?ids=${idsParam}`}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    {t("notifyRegisteredOwner")}
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
+            </>
+          )}
+          <DropdownMenuItem asChild>
+            <button
+              type="button"
+              onClick={async () => {
+                const code = Math.random().toString(36).slice(2, 6);
+                const input = prompt(t("confirmDelete", { code }));
+                if (input === code) {
+                  await Promise.all(
+                    caseIds.map((id) =>
+                      apiFetch(`/api/cases/${id}`, {
+                        method: "DELETE",
+                      }),
+                    ),
+                  );
+                  window.location.href = withBasePath("/cases");
+                }
+              }}
+              data-testid="delete-cases-button"
+              className="w-full text-left"
+            >
+              {t("deleteCase")}
+            </button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

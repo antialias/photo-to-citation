@@ -1,11 +1,15 @@
 "use client";
 import { apiFetch } from "@/apiClient";
-import useCloseOnOutsideClick from "@/app/useCloseOnOutsideClick";
 import { withBasePath } from "@/basePath";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
-import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function CaseToolbar({
@@ -66,8 +70,6 @@ export default function CaseToolbar({
     progress?.steps !== undefined && progress.step !== undefined
       ? ((progress.step - 1 + (requestValue ?? 0) / 100) / progress.steps) * 100
       : undefined;
-  const detailsRef = useRef<HTMLDetailsElement>(null);
-  useCloseOnOutsideClick(detailsRef);
   return (
     <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2 flex-1">
       {progress ? (
@@ -87,159 +89,173 @@ export default function CaseToolbar({
       ) : null}
       {readOnly ? null : (
         <div className="flex justify-end">
-          <details
-            ref={detailsRef}
-            className="relative"
-            onToggle={() => {
-              if (detailsRef.current?.open) {
-                detailsRef.current
-                  .querySelector<HTMLElement>("button, a")
-                  ?.focus();
-              }
-            }}
-          >
-            <summary
-              className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-              aria-label={t("caseActionsMenu")}
-            >
-              {t("actions")}
-            </summary>
-            <div
-              className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow"
-              role="menu"
-            >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                onClick={async () => {
-                  await apiFetch(`/api/cases/${caseId}/reanalyze`, {
-                    method: "POST",
-                  });
-                  window.location.reload();
-                }}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+                aria-label={t("caseActionsMenu")}
               >
-                {t("rerunAnalysis")}
+                {t("actions")}
               </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  await apiFetch(`/api/cases/${caseId}/archived`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ archived: !archived }),
-                  });
-                  window.location.reload();
-                }}
-                data-testid="archive-case-button"
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-              >
-                {archived ? t("unarchiveCase") : t("archiveCase")}
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!violationOverride) {
-                    const reason = prompt(t("forceViolationReason"));
-                    if (reason !== null) {
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="mt-1">
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await apiFetch(`/api/cases/${caseId}/reanalyze`, {
+                      method: "POST",
+                    });
+                    window.location.reload();
+                  }}
+                  className="w-full text-left"
+                >
+                  {t("rerunAnalysis")}
+                </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await apiFetch(`/api/cases/${caseId}/archived`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ archived: !archived }),
+                    });
+                    window.location.reload();
+                  }}
+                  data-testid="archive-case-button"
+                  className="w-full text-left"
+                >
+                  {archived ? t("unarchiveCase") : t("archiveCase")}
+                </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!violationOverride) {
+                      const reason = prompt(t("forceViolationReason"));
+                      if (reason !== null) {
+                        await apiFetch(
+                          `/api/cases/${caseId}/violation-override`,
+                          {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ violation: true, reason }),
+                          },
+                        );
+                        window.location.reload();
+                      }
+                    } else {
                       await apiFetch(
                         `/api/cases/${caseId}/violation-override`,
                         {
-                          method: "PUT",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ violation: true, reason }),
+                          method: "DELETE",
                         },
                       );
                       window.location.reload();
                     }
-                  } else {
-                    await apiFetch(`/api/cases/${caseId}/violation-override`, {
-                      method: "DELETE",
-                    });
-                    window.location.reload();
-                  }
-                }}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-              >
-                {violationOverride
-                  ? t("clearViolationOverride")
-                  : t("forceViolation")}
-              </button>
+                  }}
+                  className="w-full text-left"
+                >
+                  {violationOverride
+                    ? t("clearViolationOverride")
+                    : t("forceViolation")}
+                </button>
+              </DropdownMenuItem>
               {disabled ? null : (
                 <>
                   {progress ? (
+                    <DropdownMenuItem asChild>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await apiFetch(
+                            `/api/cases/${caseId}/cancel-analysis`,
+                            {
+                              method: "POST",
+                            },
+                          );
+                          window.location.reload();
+                        }}
+                        className="w-full text-left"
+                      >
+                        {t("cancelAnalysis")}
+                      </button>
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/cases/${caseId}/compose`}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t("draftEmail")}
+                    </Link>
+                  </DropdownMenuItem>
+                  {hasOwner ? null : (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/cases/${caseId}/ownership`}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t("requestOwnershipInfo")}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {hasOwner ? (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/cases/${caseId}/notify-owner`}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t("notifyRegisteredOwner")}
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuItem asChild>
                     <button
                       type="button"
                       onClick={async () => {
-                        await apiFetch(`/api/cases/${caseId}/cancel-analysis`, {
-                          method: "POST",
+                        await apiFetch(`/api/cases/${caseId}/closed`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ closed: !closed }),
                         });
                         window.location.reload();
                       }}
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                      data-testid="close-case-button"
+                      className="w-full text-left"
                     >
-                      {t("cancelAnalysis")}
+                      {closed ? t("reopenCase") : t("closeCase")}
                     </button>
-                  ) : null}
-                  <Link
-                    href={`/cases/${caseId}/compose`}
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    {t("draftEmail")}
-                  </Link>
-                  {hasOwner ? null : (
-                    <Link
-                      href={`/cases/${caseId}/ownership`}
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      {t("requestOwnershipInfo")}
-                    </Link>
-                  )}
-                  {hasOwner ? (
-                    <Link
-                      href={`/cases/${caseId}/notify-owner`}
-                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      {t("notifyRegisteredOwner")}
-                    </Link>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await apiFetch(`/api/cases/${caseId}/closed`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ closed: !closed }),
-                      });
-                      window.location.reload();
-                    }}
-                    data-testid="close-case-button"
-                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                  >
-                    {closed ? t("reopenCase") : t("closeCase")}
-                  </button>
+                  </DropdownMenuItem>
                 </>
               )}
               {canDelete ? (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const code = Math.random().toString(36).slice(2, 6);
-                    const input = prompt(t("confirmDelete", { code }));
-                    if (input === code) {
-                      await apiFetch(`/api/cases/${caseId}`, {
-                        method: "DELETE",
-                      });
-                      window.location.href = withBasePath("/cases");
-                    }
-                  }}
-                  data-testid="delete-case-button"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
-                >
-                  {t("deleteCase")}
-                </button>
+                <DropdownMenuItem asChild>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const code = Math.random().toString(36).slice(2, 6);
+                      const input = prompt(t("confirmDelete", { code }));
+                      if (input === code) {
+                        await apiFetch(`/api/cases/${caseId}`, {
+                          method: "DELETE",
+                        });
+                        window.location.href = withBasePath("/cases");
+                      }
+                    }}
+                    data-testid="delete-case-button"
+                    className="w-full text-left"
+                  >
+                    {t("deleteCase")}
+                  </button>
+                </DropdownMenuItem>
               ) : null}
-            </div>
-          </details>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
     </div>

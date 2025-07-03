@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.gravatar.com",
       },
+      {
+        protocol: "http",
+        hostname: "img",
+      },
     ],
   },
 };

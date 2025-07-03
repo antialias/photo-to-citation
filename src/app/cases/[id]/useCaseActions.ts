@@ -155,10 +155,7 @@ export default function useCaseActions() {
   }
 
   const reanalyzePhotoMutation = useMutation({
-    async mutationFn({
-      photo,
-      detailsEl,
-    }: { photo: string; detailsEl?: HTMLDetailsElement | null }) {
+    async mutationFn({ photo }: { photo: string }) {
       const url = `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`;
       if (caseData)
         queryClient.setQueryData(caseQueryKey(caseId), {
@@ -168,7 +165,6 @@ export default function useCaseActions() {
       setReanalyzingPhoto(photo);
       const res = await apiFetch(url, { method: "POST" });
       if (!res.ok) throw new Error(t("failedReanalyzePhoto"));
-      if (detailsEl) detailsEl.open = false;
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: caseQueryKey(caseId) });
@@ -234,11 +230,8 @@ export default function useCaseActions() {
   const togglePublic = () => togglePublicMutation.mutate();
   const toggleClosed = () => toggleClosedMutation.mutate();
   const toggleArchived = () => toggleArchivedMutation.mutate();
-  const reanalyzePhoto = (
-    photo: string,
-    detailsEl?: HTMLDetailsElement | null,
-  ): Promise<void> =>
-    reanalyzePhotoMutation.mutateAsync({ photo, detailsEl }).then(() => {});
+  const reanalyzePhoto = (photo: string): Promise<void> =>
+    reanalyzePhotoMutation.mutateAsync({ photo }).then(() => {});
   const retryAnalysis = () => retryAnalysisMutation.mutate();
   const removePhoto = (photo: string) => removePhotoMutation.mutateAsync(photo);
 
