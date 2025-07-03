@@ -4,6 +4,7 @@ import { withAuthorization } from "@/lib/authz";
 import { log } from "@/lib/logger";
 import { getServerSession } from "next-auth/next";
 import type { ReactElement } from "react";
+import AdminDeploymentInfo from "./AdminDeploymentInfo";
 import AdminPageClient from "./AdminPageClient";
 
 export const dynamic = "force-dynamic";
@@ -36,12 +37,16 @@ const handler = withAuthorization<
     const rules = getCasbinRules();
     const { tab } = (await searchParams) ?? {};
     const t = tab === "config" ? "config" : "users";
+    const isSuperadmin = s?.user?.role === "superadmin";
     return (
-      <AdminPageClient
-        initialUsers={users}
-        initialRules={rules}
-        initialTab={t}
-      />
+      <div className="p-8">
+        <AdminPageClient
+          initialUsers={users}
+          initialRules={rules}
+          initialTab={t}
+        />
+        {isSuperadmin && <AdminDeploymentInfo />}
+      </div>
     );
   },
 );

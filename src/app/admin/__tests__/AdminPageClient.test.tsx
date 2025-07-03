@@ -86,32 +86,6 @@ describe("AdminPageClient", () => {
     ).not.toBeDisabled();
   });
 
-  it("shows deployment info for superadmins", () => {
-    vi.mocked(useSession).mockReturnValueOnce({
-      data: { user: { role: "superadmin" }, expires: "0" },
-    } as unknown as ReturnType<typeof useSessionFn>);
-    vi.mocked(apiFetch).mockResolvedValue({
-      ok: true,
-      json: async () => users,
-    } as Response);
-    const deployTime = "2024-01-01T00:00:00Z";
-    (window as unknown as { PUBLIC_ENV?: unknown }).PUBLIC_ENV = {
-      NEXT_PUBLIC_APP_COMMIT: "abc123",
-      NEXT_PUBLIC_APP_VERSION: "1.0.0",
-      NEXT_PUBLIC_DEPLOY_TIME: deployTime,
-    };
-    render(
-      <QueryClientProvider client={queryClient}>
-        <AdminPageClient initialUsers={users} initialRules={rules} />
-      </QueryClientProvider>,
-    );
-    expect(screen.getByText(/abc123/)).toBeInTheDocument();
-    expect(screen.getByText(/1.0.0/)).toBeInTheDocument();
-    const expectedDate = new Date(deployTime).toLocaleString();
-    const escaped = expectedDate.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    expect(screen.getByText(new RegExp(escaped))).toBeInTheDocument();
-  });
-
   it("updates user role without reload", async () => {
     vi.mocked(apiFetch).mockReset();
     vi.mocked(apiFetch).mockResolvedValueOnce({
