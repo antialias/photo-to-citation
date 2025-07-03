@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa";
+import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import { useNotify } from "../../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../../hooks/useCase";
 import useEventSource from "../../../hooks/useEventSource";
@@ -147,6 +148,17 @@ export default function ClientThreadPage({
                   </li>
                 ))}
               </ul>
+            ) : null}
+            {mail.snailMailStatus ? (
+              <div className="mt-2 text-sm flex items-center gap-1">
+                {mail.snailMailStatus === "queued" ||
+                mail.snailMailStatus === "saved" ? (
+                  <FaCheckCircle className="text-green-600" />
+                ) : (
+                  <FaExclamationCircle className="text-red-600" />
+                )}
+                <span>{mail.snailMailStatus}</span>
+              </div>
             ) : null}
           </li>
         ))}

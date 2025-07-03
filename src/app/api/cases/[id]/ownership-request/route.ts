@@ -68,13 +68,20 @@ export const POST = withCaseAuthorization(
         );
       }
     }
+    let snailStatus: string | undefined;
     if (snailMail && mod?.address) {
-      await sendSnailMail({
-        address: mod.address,
-        subject: "Ownership information request",
-        body: `Check number: ${checkNumber ?? ""}`,
-        attachments,
-      });
+      try {
+        const res = await sendSnailMail({
+          address: mod.address,
+          subject: "Ownership information request",
+          body: `Check number: ${checkNumber ?? ""}`,
+          attachments,
+        });
+        snailStatus = res.status;
+      } catch (err) {
+        console.error("Failed to send snail mail", err);
+        snailStatus = "error";
+      }
     }
     const storedAttachments: string[] = [];
     for (const att of attachments) {
@@ -95,6 +102,7 @@ export const POST = withCaseAuthorization(
       attachments: storedAttachments,
       sentAt: new Date().toISOString(),
       replyTo: null,
+      ...(snailStatus ? { snailMailStatus: snailStatus } : {}),
     });
     return NextResponse.json({ case: withEmail ?? updated });
   },

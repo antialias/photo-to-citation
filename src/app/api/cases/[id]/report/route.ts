@@ -70,17 +70,20 @@ export const POST = withAuthorization(
       console.error("Failed to send email", err);
       results.email = { success: false, error: (err as Error).message };
     }
+    let snailStatus: string | undefined;
     if (snailMail && reportModule.authorityAddress) {
       try {
-        await sendSnailMail({
+        const res = await sendSnailMail({
           address: reportModule.authorityAddress,
           subject,
           body,
           attachments,
         });
+        snailStatus = res.status;
         results.snailMail = { success: true };
       } catch (err) {
         console.error("Failed to send snail mail", err);
+        snailStatus = "error";
         results.snailMail = { success: false, error: (err as Error).message };
       }
     }
@@ -94,6 +97,7 @@ export const POST = withAuthorization(
           attachments,
           sentAt: new Date().toISOString(),
           replyTo: null,
+          ...(snailStatus ? { snailMailStatus: snailStatus } : {}),
         }) ?? c;
     }
     return NextResponse.json({ case: updated, results });

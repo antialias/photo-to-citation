@@ -84,13 +84,18 @@ export const POST = withAuthorization(
       return NextResponse.json({ error: "No owner contact" }, { status: 400 });
     }
     const results: Record<string, { success: boolean; error?: string }> = {};
-    async function run(name: string, fn: () => Promise<void>) {
+    async function run<T>(
+      name: string,
+      fn: () => Promise<T>,
+    ): Promise<T | undefined> {
       try {
-        await fn();
+        const val = await fn();
         results[name] = { success: true };
+        return val;
       } catch (err) {
         console.error(`Failed to send ${name}`, err);
         results[name] = { success: false, error: (err as Error).message };
+        return undefined;
       }
     }
     if (methods.includes("email") && contactInfo.email) {
@@ -116,9 +121,10 @@ export const POST = withAuthorization(
       const phone = contactInfo.phone;
       await run("robocall", () => makeRobocall(phone, body));
     }
+    let snailStatus: string | undefined;
     if (methods.includes("snailMail") && contactInfo.address) {
       const address = contactInfo.address;
-      await run("snailMail", () =>
+      const res = await run("snailMail", () =>
         sendSnailMail({
           address,
           subject,
@@ -126,10 +132,11 @@ export const POST = withAuthorization(
           attachments,
         }),
       );
+      snailStatus = res?.status ?? snailStatus;
     }
     if (methods.includes("snailMailLocation") && c.streetAddress) {
       const address = c.streetAddress;
-      await run("snailMailLocation", () =>
+      const res = await run("snailMailLocation", () =>
         sendSnailMail({
           address,
           subject,
@@ -137,6 +144,7 @@ export const POST = withAuthorization(
           attachments,
         }),
       );
+      snailStatus = res?.status ?? snailStatus;
     }
     let updated = c;
     if (
@@ -153,6 +161,7 @@ export const POST = withAuthorization(
           attachments,
           sentAt: new Date().toISOString(),
           replyTo: null,
+          ...(snailStatus ? { snailMailStatus: snailStatus } : {}),
         }) ?? c;
     }
     return NextResponse.json({ case: updated, results });

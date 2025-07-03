@@ -10,6 +10,7 @@ export const sentEmailSchema = z.object({
   attachments: z.array(z.string()),
   sentAt: z.string(),
   replyTo: z.string().optional().nullable(),
+  snailMailStatus: z.string().optional().nullable(),
 });
 
 export const ownershipRequestSchema = z.object({
