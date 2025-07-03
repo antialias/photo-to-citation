@@ -25,8 +25,7 @@ describe("ownershipModules.il.requestVin", () => {
     const pdfBytes = fs.readFileSync(opts.contents);
     const pdf = await PDFDocument.load(new Uint8Array(pdfBytes));
     const form = pdf.getForm();
-    expect(form.getTextField("1").getText()).toBe("ABC123");
-    expect(form.getTextField("2").getText()).toBe("IL");
-    expect(form.getTextField("3").getText()).toBe("1HGCM82633A004352");
+    expect(form.getTextField("16").getText()).toBe("ABC123");
+    expect(form.getTextField("13").getText()).toBe("1HGCM82633A004352");
   });
 });

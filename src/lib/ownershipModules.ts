@@ -15,6 +15,22 @@ export interface OwnershipRequestInfo {
   address2?: string | null;
   city?: string | null;
   postalCode?: string | null;
+  vehicleYear?: string | null;
+  vehicleMake?: string | null;
+  titleNumber?: string | null;
+  plateYear?: string | null;
+  requesterName?: string | null;
+  requesterBusinessName?: string | null;
+  requesterAddress?: string | null;
+  requesterCityStateZip?: string | null;
+  requesterDaytimePhoneNumber?: string | null;
+  requesterDriverLicenseNumber?: string | null;
+  requesterEmailAddress?: string | null;
+  requesterPhoneNumber?: string | null;
+  reasonForRequestingRecords?: string | null;
+  plateCategoryOther?: string | null;
+  requesterPositionInOrginization?: string | null;
+  requesterProfessionalLicenseOrARDCNumber?: string | null;
 }
 
 export interface OwnershipModule {
@@ -33,15 +49,55 @@ export interface OwnershipModule {
   generateForms?: (info: OwnershipRequestInfo) => Promise<string | string[]>;
 }
 
-export const IL_FORM_FIELD_MAP: Record<keyof OwnershipRequestInfo, string> = {
-  plate: "1",
-  state: "2",
-  vin: "3",
-  ownerName: "4",
-  address1: "5",
-  address2: "6",
-  city: "7",
-  postalCode: "8",
+export const IL_FORM_FIELD_MAP: Partial<
+  Record<keyof OwnershipRequestInfo, string>
+> = {
+  plate: "16",
+  vin: "13",
+  vehicleYear: "11",
+  ownerName: "15",
+  vehicleMake: "12",
+  requesterName: "1",
+  requesterAddress: "4",
+  requesterBusinessName: "2",
+  requesterCityStateZip: "3",
+  requesterDaytimePhoneNumber: "5",
+  requesterDriverLicenseNumber: "6",
+  requesterEmailAddress: "7",
+  requesterPhoneNumber: "9",
+  titleNumber: "10",
+  plateYear: "17",
+  reasonForRequestingRecords: "19",
+  plateCategoryOther: "14",
+  requesterPositionInOrginization: "20",
+  requesterProfessionalLicenseOrARDCNumber: "21",
+};
+
+export const IL_FORM_CHECKBOXES = {
+  titleSearch: "cb1",
+  registrationSearch: "cb2",
+  certifiedTitleSearch: "cb3",
+  certifiedRegistrationSearch: "cb4",
+  microfilmWithSearch: "cb5",
+  microfilmOnly: "cb5a",
+  plateCategoryPassenger: "cb6",
+  plateCategoryBTruck: "cb7",
+  plateCategoryOther: "cb8",
+  reasonA: "cb9",
+  reasonB: "cb10",
+  reasonC: "cb11",
+  reasonD: "cb12",
+  reasonE: "cb13",
+  reasonF: "cb14",
+  reasonG: "cb15",
+  reasonH: "cb16",
+  reasonI: "cb17",
+  reasonJ: "cb18",
+  reasonK: "cb19",
+  reasonL: "cb20",
+  reasonM: "cb21",
+  reasonN: "cb22",
+  reasonO: "cb23",
 };
 
 function parseAddress(text: string): MailingAddress {
@@ -96,6 +152,15 @@ export async function fillIlForm(info: OwnershipRequestInfo): Promise<string> {
     const value = info[key] ?? undefined;
     setField(field, value ?? "");
   }
+  const checkBox = (name: string, value: boolean) => {
+    try {
+      const cb = form.getCheckBox(name);
+      if (value) cb.check();
+      else cb.uncheck();
+    } catch {}
+  };
+  checkBox(IL_FORM_CHECKBOXES.titleSearch, true);
+  checkBox(IL_FORM_CHECKBOXES.reasonO, true);
   const outDir = path.join(process.cwd(), "data", "ownership_tmp");
   fs.mkdirSync(outDir, { recursive: true });
   const outPath = path.join(outDir, `${crypto.randomUUID()}.pdf`);

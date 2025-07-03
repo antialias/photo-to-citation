@@ -10,6 +10,22 @@ export const ownershipRequestInfoSchema = z.object({
   address2: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
   postalCode: z.string().optional().nullable(),
+  vehicleYear: z.string().optional().nullable(),
+  vehicleMake: z.string().optional().nullable(),
+  titleNumber: z.string().optional().nullable(),
+  plateYear: z.string().optional().nullable(),
+  requesterName: z.string().optional().nullable(),
+  requesterBusinessName: z.string().optional().nullable(),
+  requesterAddress: z.string().optional().nullable(),
+  requesterCityStateZip: z.string().optional().nullable(),
+  requesterDaytimePhoneNumber: z.string().optional().nullable(),
+  requesterDriverLicenseNumber: z.string().optional().nullable(),
+  requesterEmailAddress: z.string().optional().nullable(),
+  requesterPhoneNumber: z.string().optional().nullable(),
+  reasonForRequestingRecords: z.string().optional().nullable(),
+  plateCategoryOther: z.string().optional().nullable(),
+  requesterPositionInOrginization: z.string().optional().nullable(),
+  requesterProfessionalLicenseOrARDCNumber: z.string().optional().nullable(),
 });
 
 export const ownershipModuleSchema = z.object({
@@ -27,5 +43,10 @@ export const ownershipModuleSchema = z.object({
     .function()
     .args(ownershipRequestInfoSchema)
     .returns(z.promise(z.void()))
+    .optional(),
+  generateForms: z
+    .function()
+    .args(ownershipRequestInfoSchema)
+    .returns(z.promise(z.union([z.string(), z.array(z.string())])))
     .optional(),
 });
