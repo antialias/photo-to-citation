@@ -62,7 +62,7 @@ describe("profile page e2e @smoke", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: "Tester",
-        image: "http://img",
+        image: "/img",
         bio: "hi",
         socialLinks: "http://link",
       }),
@@ -72,7 +72,7 @@ describe("profile page e2e @smoke", () => {
     res = await api("/api/profile");
     data = (await res.json()) as { name?: string; image?: string };
     expect(data.name).toBe("Tester");
-    expect(data.image).toBe("http://img");
+    expect(data.image).toBe("/img");
 
     const page = await api("/settings").then((r) => r.text());
     const dom = new JSDOM(page);
