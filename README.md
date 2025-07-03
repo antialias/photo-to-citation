@@ -512,6 +512,20 @@ overlay. Hold the Option key while hovering over case images, details, or chat
 messages to reveal the tooltip. The tooltip remains visible while you move the
 cursor over it so you can easily copy the JSON.
 
+## Feature Flags
+
+Connect to an [Unleash](https://www.getunleash.io/) instance to control
+experimental functionality:
+
+```bash
+UNLEASH_URL=https://app.your-unleash.com/api
+UNLEASH_API_TOKEN=server-secret
+NEXT_PUBLIC_UNLEASH_PROXY_URL=https://app.your-unleash.com/proxy
+NEXT_PUBLIC_UNLEASH_CLIENT_KEY=frontend-key
+```
+
+When these variables are omitted, all feature flags default to disabled.
+
 ## Project Links
 
 - [**GitHub Repository**](https://github.com/antialias/photo-to-citation) — star the project or submit a pull request.
