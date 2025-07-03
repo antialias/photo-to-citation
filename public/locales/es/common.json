@@ -18,7 +18,8 @@
     "userSettings": "Configuración de usuario",
     "profile": "Perfil",
     "signOut": "Cerrar sesión",
-    "signIn": "Iniciar sesión"
+    "signIn": "Iniciar sesión",
+    "publicProfile": "Perfil público"
   },
   "addImage": "+ agregar imagen",
   "uploadImage": "Subir imagen",
