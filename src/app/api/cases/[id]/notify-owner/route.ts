@@ -118,25 +118,25 @@ export const POST = withAuthorization(
     }
     if (methods.includes("snailMail") && contactInfo.address) {
       const address = contactInfo.address;
-      await run("snailMail", () =>
-        sendSnailMail({
+      await run("snailMail", async () => {
+        await sendSnailMail({
           address,
           subject,
           body,
           attachments,
-        }),
-      );
+        });
+      });
     }
     if (methods.includes("snailMailLocation") && c.streetAddress) {
       const address = c.streetAddress;
-      await run("snailMailLocation", () =>
-        sendSnailMail({
+      await run("snailMailLocation", async () => {
+        await sendSnailMail({
           address,
           subject,
           body,
           attachments,
-        }),
-      );
+        });
+      });
     }
     let updated = c;
     if (
