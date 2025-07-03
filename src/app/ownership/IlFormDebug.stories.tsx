@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 const pdfUrl = new URL("../../../forms/il/vsd375.pdf", import.meta.url);
 
-const IL_FORM_FIELD_MAP: Record<keyof OwnershipRequestInfo, string> = {
+const IL_FORM_FIELD_MAP: Record<string, string> = {
   driversLicense: "6",
   plate: "16",
   vin: "13",
@@ -28,6 +28,33 @@ const IL_FORM_FIELD_MAP: Record<keyof OwnershipRequestInfo, string> = {
   requesterProfessionalLicenseOrARDCNumber: "21",
 };
 
+const IL_FORM_CHECKBOX_MAP: Record<string, string> = {
+  titleSearch: "cb1",
+  registrationSearch: "cb2",
+  certifiedTitleSearch: "cb3",
+  certifiedRegistrationSearch: "cb4",
+  microfilmWithSearchOption: "cb5",
+  passenger: "cb8",
+  bTruck: "cb6",
+  plateCategoryOtherCheck: "cb7",
+  reasonA: "cb9",
+  reasonB: "cb10",
+  reasonC: "cb11",
+  reasonD: "cb12",
+  reasonE: "cb13",
+  reasonF: "cb14",
+  reasonG: "cb15",
+  reasonH: "cb16",
+  reasonI: "cb17",
+  reasonJ: "cb18",
+  reasonK: "cb19",
+  reasonL: "cb20",
+  reasonM: "cb21",
+  reasonN: "cb22",
+  reasonO: "cb23",
+  microfilmOnly: "cb5a",
+};
+
 function IlFormViewer(props: OwnershipRequestInfo) {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
@@ -36,13 +63,21 @@ function IlFormViewer(props: OwnershipRequestInfo) {
       const bytes = await response.arrayBuffer();
       const pdf = await PDFDocument.load(bytes);
       const form = pdf.getForm();
-      for (const [key, field] of Object.entries(IL_FORM_FIELD_MAP) as [
-        keyof OwnershipRequestInfo,
-        string,
-      ][]) {
-        const val = props[key];
+      for (const [key, field] of Object.entries(IL_FORM_FIELD_MAP)) {
+        const val = (props as unknown as Record<string, unknown>)[key];
         try {
-          form.getTextField(field).setText(val ?? "");
+          form.getTextField(field).setText(val ? String(val) : "");
+        } catch {}
+      }
+      for (const [key, field] of Object.entries(IL_FORM_CHECKBOX_MAP)) {
+        const val = (props as unknown as Record<string, unknown>)[key];
+        try {
+          const cb = form.getCheckBox(field);
+          if (val) {
+            cb.check();
+          } else {
+            cb.uncheck();
+          }
         } catch {}
       }
       const b64 = await pdf.saveAsBase64({ dataUri: true });
@@ -73,7 +108,8 @@ export const Default: Story = {
     requesterEmailAddress: "requesterEmailAddress",
     requesterPhoneNumber: "requesterPhoneNumber",
     requesterPositionInOrginization: "requesterPositionInOrginization",
-    requesterProfessionalLicenseOrARDCNumber: "requesterProfessionalLicenseOrARDCNumber",
+    requesterProfessionalLicenseOrARDCNumber:
+      "requesterProfessionalLicenseOrARDCNumber",
     titleNumber: "titleNumber",
     plateYear: "plateYear",
     reasonForRequestingRecords: "reasonForRequestingRecords",
@@ -84,5 +120,29 @@ export const Default: Story = {
     state: "IL",
     vin: "1HGCM82633A004352",
     ownerName: "John Doe",
+    titleSearch: true,
+    registrationSearch: true,
+    certifiedTitleSearch: false,
+    certifiedRegistrationSearch: false,
+    microfilmWithSearchOption: false,
+    passenger: true,
+    bTruck: false,
+    plateCategoryOtherCheck: false,
+    reasonA: true,
+    reasonB: false,
+    reasonC: false,
+    reasonD: false,
+    reasonE: false,
+    reasonF: false,
+    reasonG: false,
+    reasonH: false,
+    reasonI: false,
+    reasonJ: false,
+    reasonK: false,
+    reasonL: false,
+    reasonM: false,
+    reasonN: false,
+    reasonO: false,
+    microfilmOnly: false,
   },
 };

@@ -8,6 +8,8 @@ import { addCaseEmail, addOwnershipRequest, getCase } from "@/lib/caseStore";
 import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
+import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
+import { getUser } from "@/lib/userStore";
 
 export const POST = withCaseAuthorization(
   { obj: "cases", act: "update" },
@@ -15,7 +17,7 @@ export const POST = withCaseAuthorization(
     req: Request,
     {
       params,
-      session: _session,
+      session,
     }: {
       params: Promise<{ id: string }>;
       session?: { user?: { id?: string; role?: string } };
@@ -40,12 +42,19 @@ export const POST = withCaseAuthorization(
     if (mod?.generateForms) {
       const c = getCase(id);
       if (c) {
+        const user = session?.user?.id ? getUser(session.user.id) : null;
+        const addrLines = (config.RETURN_ADDRESS || "").split(/\n+/);
         const info = {
           plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
           state: c.analysis?.vehicle?.licensePlateState ?? "",
           vin: c.vinOverride ?? c.vin ?? undefined,
-        };
-        const result = await mod.generateForms(info);
+          vehicleMake: c.analysis?.vehicle?.make ?? undefined,
+          requesterName: user?.name ?? addrLines[0] ?? "",
+          requesterAddress: addrLines[1] ?? "",
+          requesterCityStateZip: addrLines[2] ?? "",
+          requesterEmailAddress: user?.email ?? undefined,
+        } as Partial<OwnershipRequestInfo>;
+        const result = await mod.generateForms(info as OwnershipRequestInfo);
         attachments = attachments.concat(
           Array.isArray(result) ? result : [result],
         );
