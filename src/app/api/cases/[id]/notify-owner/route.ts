@@ -1,6 +1,7 @@
 import { withAuthorization, withCaseAuthorization } from "@/lib/authz";
 import { draftOwnerNotification } from "@/lib/caseReport";
 import { addCaseEmail, getCase } from "@/lib/caseStore";
+import type { SentEmail } from "@/lib/caseStore";
 import { getCaseOwnerContactInfo } from "@/lib/caseUtils";
 import {
   makeRobocall,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/contactMethods";
 import { sendEmail } from "@/lib/email";
 import { reportModules } from "@/lib/reportModules";
+import type { SnailMailStatus } from "@/lib/snailMail";
 import { NextResponse } from "next/server";
 
 export const GET = withCaseAuthorization(
@@ -84,15 +86,22 @@ export const POST = withAuthorization(
       return NextResponse.json({ error: "No owner contact" }, { status: 400 });
     }
     const results: Record<string, { success: boolean; error?: string }> = {};
-    async function run(name: string, fn: () => Promise<void>) {
+    async function run<T>(
+      name: string,
+      fn: () => Promise<T>,
+    ): Promise<T | undefined> {
       try {
-        await fn();
+        const res = await fn();
         results[name] = { success: true };
+        return res;
       } catch (err) {
         console.error(`Failed to send ${name}`, err);
         results[name] = { success: false, error: (err as Error).message };
+        return undefined;
       }
     }
+    let snailMailStatus: SentEmail["snailMailStatus"];
+
     if (methods.includes("email") && contactInfo.email) {
       const toEmail = contactInfo.email;
       await run("email", () =>
@@ -118,7 +127,7 @@ export const POST = withAuthorization(
     }
     if (methods.includes("snailMail") && contactInfo.address) {
       const address = contactInfo.address;
-      await run("snailMail", () =>
+      const res = await run("snailMail", () =>
         sendSnailMail({
           address,
           subject,
@@ -126,10 +135,13 @@ export const POST = withAuthorization(
           attachments,
         }),
       );
+      snailMailStatus =
+        (res?.status as SentEmail["snailMailStatus"] | undefined) ??
+        (results.snailMail?.success ? undefined : "error");
     }
     if (methods.includes("snailMailLocation") && c.streetAddress) {
       const address = c.streetAddress;
-      await run("snailMailLocation", () =>
+      const res = await run("snailMailLocation", () =>
         sendSnailMail({
           address,
           subject,
@@ -137,6 +149,11 @@ export const POST = withAuthorization(
           attachments,
         }),
       );
+      if (!snailMailStatus) {
+        snailMailStatus =
+          (res?.status as SentEmail["snailMailStatus"] | undefined) ??
+          (results.snailMailLocation?.success ? undefined : "error");
+      }
     }
     let updated = c;
     if (
@@ -153,6 +170,7 @@ export const POST = withAuthorization(
           attachments,
           sentAt: new Date().toISOString(),
           replyTo: null,
+          snailMailStatus,
         }) ?? c;
     }
     return NextResponse.json({ case: updated, results });

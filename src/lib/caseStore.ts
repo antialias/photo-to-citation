@@ -59,6 +59,8 @@ export interface SentEmail {
   sentAt: string;
   /** @zod.email */
   replyTo?: string | null;
+  /** @zod.enum(["queued", "saved", "shortfall", "error"]).optional().nullable() */
+  snailMailStatus?: "queued" | "saved" | "shortfall" | "error" | null;
 }
 
 export interface OwnershipRequest {

@@ -6,6 +6,7 @@ import { sendSnailMail } from "@/lib/contactMethods";
 import { sendEmail } from "@/lib/email";
 import { log } from "@/lib/logger";
 import { reportModules } from "@/lib/reportModules";
+import type { SnailMailStatus } from "@/lib/snailMail";
 import { NextResponse } from "next/server";
 
 function getThread(c: Case, startId?: string | null): SentEmail[] {
@@ -98,6 +99,7 @@ export const POST = withAuthorization(
       reportModule.authorityEmail;
     log(`followup POST case=${id} to=${target} replyTo=${replyTo ?? "none"}`);
     const results: Record<string, { success: boolean; error?: string }> = {};
+    let snailMailStatus: SentEmail["snailMailStatus"];
     try {
       await sendEmail({ to: target, subject, body, attachments });
       results.email = { success: true };
@@ -107,16 +109,18 @@ export const POST = withAuthorization(
     }
     if (snailMail && reportModule.authorityAddress) {
       try {
-        await sendSnailMail({
+        const res = await sendSnailMail({
           address: reportModule.authorityAddress,
           subject,
           body,
           attachments,
         });
+        snailMailStatus = res.status as SentEmail["snailMailStatus"];
         results.snailMail = { success: true };
       } catch (err) {
         console.error("Failed to send snail mail", err);
         results.snailMail = { success: false, error: (err as Error).message };
+        snailMailStatus = "error";
       }
     }
     let updated = c;
@@ -129,6 +133,7 @@ export const POST = withAuthorization(
           attachments,
           sentAt: new Date().toISOString(),
           replyTo: replyTo ?? null,
+          snailMailStatus,
         }) ?? c;
     }
     return NextResponse.json({ case: updated, results });

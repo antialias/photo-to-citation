@@ -82,12 +82,14 @@ export async function makeRobocall(to: string, message: string): Promise<void> {
   });
 }
 
+import type { SnailMailStatus } from "./snailMail";
+
 export async function sendSnailMail(options: {
   address: string;
   subject: string;
   body: string;
   attachments: string[];
-}): Promise<void> {
+}): Promise<SnailMailStatus> {
   const { SNAIL_MAIL_PROVIDER: provider = "mock", RETURN_ADDRESS: returnAddr } =
     getConfig();
   if (!returnAddr) {
@@ -177,4 +179,5 @@ export async function sendSnailMail(options: {
   if (result.status !== "queued" && result.status !== "saved") {
     throw new Error(`Unable to send mail: provider error ${result.status}`);
   }
+  return result;
 }
