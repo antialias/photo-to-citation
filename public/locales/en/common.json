@@ -200,6 +200,7 @@
   "sendCheckTo": "Send a check for ${{fee}} to:",
   "checkNumberLabel": "Check Number",
   "sendSnailAutomatically": "Send snail mail automatically",
+  "sendSnailMailRequest": "Send Snail Mail Request",
   "markRequested": "Mark as Requested",
   "noOwnershipModule": "No ownership module for state {{label}}. Supported states: {{supported}}. Please ensure the license plate state uses a two-letter abbreviation.",
   "failedUpdateVin": "Failed to update VIN.",

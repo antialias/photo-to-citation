@@ -25,6 +25,12 @@ export interface OwnershipModule {
   requiresCheck: boolean;
   requestVin?: (info: OwnershipRequestInfo) => Promise<void>;
   requestContactInfo?: (info: OwnershipRequestInfo) => Promise<void>;
+  /**
+   * Generate one or more PDF forms required for this state's
+   * ownership request process. The returned paths should be absolute
+   * and will be appended to the outgoing snail‑mail request.
+   */
+  generateForms?: (info: OwnershipRequestInfo) => Promise<string | string[]>;
 }
 
 export const IL_FORM_FIELD_MAP: Record<keyof OwnershipRequestInfo, string> = {
@@ -105,6 +111,10 @@ export const ownershipModules: Record<string, OwnershipModule> = {
       "Driver Records Unit\n2701 S. Dirksen Pkwy.\nSpringfield, IL 62723",
     fee: 12,
     requiresCheck: true,
+    async generateForms(info) {
+      const pdfPath = await fillIlForm(info);
+      return pdfPath;
+    },
     async requestVin(info) {
       const pdfPath = await fillIlForm(info);
       await mailPdf(this.address, pdfPath);

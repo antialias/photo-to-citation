@@ -200,6 +200,7 @@
   "sendCheckTo": "Envía un cheque por ${{fee}} a:",
   "checkNumberLabel": "Número de cheque",
   "sendSnailAutomatically": "Enviar correo postal automáticamente",
+  "sendSnailMailRequest": "Enviar solicitud por correo",
   "markRequested": "Marcar como solicitado",
   "noOwnershipModule": "No hay módulo de titularidad para el estado {{label}}. Estados compatibles: {{supported}}. Asegúrate de que el estado de la matrícula use una abreviatura de dos letras.",
   "failedUpdateVin": "Error al actualizar el VIN.",

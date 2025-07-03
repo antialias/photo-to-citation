@@ -134,25 +134,33 @@ export async function sendSnailMail(options: {
     y -= fontSize * 1.2;
   }
   for (const att of options.attachments) {
-    const abs = path.join(config.UPLOAD_DIR, att);
+    const abs = path.isAbsolute(att) ? att : path.join(config.UPLOAD_DIR, att);
     if (!fs.existsSync(abs)) continue;
     const bytes = fs.readFileSync(abs);
     const ext = path.extname(abs).toLowerCase();
-    const image =
-      ext === ".png" ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes);
-    const ratio = Math.min(
-      maxWidth / image.width,
-      (height - 100) / image.height,
-      1,
-    );
-    const dims = image.scale(ratio);
-    page = pdf.addPage();
-    page.drawImage(image, {
-      x: 50 + (maxWidth - dims.width) / 2,
-      y: height - 50 - dims.height,
-      width: dims.width,
-      height: dims.height,
-    });
+    if (ext === ".pdf") {
+      const src = await PDFDocument.load(bytes);
+      const pages = await pdf.copyPages(src, src.getPageIndices());
+      for (const p of pages) {
+        pdf.addPage(p);
+      }
+    } else {
+      const image =
+        ext === ".png" ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes);
+      const ratio = Math.min(
+        maxWidth / image.width,
+        (height - 100) / image.height,
+        1,
+      );
+      const dims = image.scale(ratio);
+      page = pdf.addPage();
+      page.drawImage(image, {
+        x: 50 + (maxWidth - dims.width) / 2,
+        y: height - 50 - dims.height,
+        width: dims.width,
+        height: dims.height,
+      });
+    }
   }
   fs.writeFileSync(filePath, await pdf.save());
   const result = await providerSendSnailMail(provider, {

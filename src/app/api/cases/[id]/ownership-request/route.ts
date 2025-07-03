@@ -1,5 +1,5 @@
 import { withCaseAuthorization } from "@/lib/authz";
-import { addOwnershipRequest } from "@/lib/caseStore";
+import { addOwnershipRequest, getCase } from "@/lib/caseStore";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
 import { NextResponse } from "next/server";
@@ -33,11 +33,26 @@ export const POST = withCaseAuthorization(
     if (snailMail) {
       const mod = ownershipModules[moduleId];
       if (mod?.address) {
+        let attachments: string[] = [];
+        if (mod.generateForms) {
+          const c = getCase(id);
+          if (c) {
+            const info = {
+              plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
+              state: c.analysis?.vehicle?.licensePlateState ?? "",
+              vin: c.vinOverride ?? c.vin ?? undefined,
+            };
+            const result = await mod.generateForms(info);
+            attachments = attachments.concat(
+              Array.isArray(result) ? result : [result],
+            );
+          }
+        }
         await sendSnailMail({
           address: mod.address,
           subject: "Ownership information request",
           body: `Check number: ${checkNumber ?? ""}`,
-          attachments: [],
+          attachments,
         });
       }
     }
