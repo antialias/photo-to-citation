@@ -1,5 +1,5 @@
 "use client";
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case, SentEmail, ThreadImage } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa";
 import { useNotify } from "../../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../../hooks/useCase";
+import useEventSource from "../../../hooks/useEventSource";
 
 function buildThread(c: Case, startId: string): SentEmail[] {
   const list = c.sentEmails ?? [];
@@ -41,19 +42,14 @@ export default function ClientThreadPage({
   const notify = useNotify();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
-      if (data.id !== caseId) return;
-      if (data.deleted) {
-        queryClient.setQueryData(caseQueryKey(caseId), null);
-      } else {
-        queryClient.setQueryData(caseQueryKey(caseId), data);
-      }
-    };
-    return () => es.close();
-  }, [caseId, queryClient]);
+  useEventSource<Case & { deleted?: boolean }>("/api/cases/stream", (data) => {
+    if (data.id !== caseId) return;
+    if (data.deleted) {
+      queryClient.setQueryData(caseQueryKey(caseId), null);
+    } else {
+      queryClient.setQueryData(caseQueryKey(caseId), data);
+    }
+  });
 
   async function uploadScan(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;

@@ -1,5 +1,5 @@
 "use client";
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
 import MapPreview from "@/app/components/MapPreview";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../components/NotificationProvider";
 import { caseQueryKey } from "../hooks/useCase";
+import useEventSource from "../hooks/useEventSource";
 import { useSession } from "../useSession";
 import useDragReset from "./useDragReset";
 
@@ -66,11 +67,9 @@ export default function ClientCasesPage({
     searchParams.get("ids")?.split(",").filter(Boolean) ??
     (params.id ? [params.id] : []);
 
-  useEffect(() => {
-    if (!session) return;
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
+  useEventSource<Case & { deleted?: boolean }>(
+    session ? "/api/cases/stream" : null,
+    (data) => {
       setCases((prev) => {
         if (data.deleted) {
           return sortList(
@@ -85,9 +84,8 @@ export default function ClientCasesPage({
         copy[idx] = data;
         return sortList(copy, orderBy, userLocation);
       });
-    };
-    return () => es.close();
-  }, [orderBy, userLocation, session]);
+    },
+  );
 
   useEffect(() => {
     setCases((prev) => sortList(prev, orderBy, userLocation));
