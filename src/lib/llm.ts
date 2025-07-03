@@ -12,7 +12,8 @@ export type LlmFeature =
   | "analyze_images"
   | "ocr_paperwork"
   | "extract_info"
-  | "lookup_code";
+  | "lookup_code"
+  | "profile_review";
 
 function loadProviders(): Record<string, LlmProvider> {
   const list = config.LLM_PROVIDERS.split(/[,\s]+/);
