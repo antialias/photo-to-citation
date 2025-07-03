@@ -124,7 +124,7 @@ export const Default: Story = {
     registrationSearch: true,
     certifiedTitleSearch: false,
     certifiedRegistrationSearch: false,
-    microfilmWithSearchOption: false,
+    microfilmWithSearchOption: true,
     passenger: true,
     bTruck: false,
     plateCategoryOtherCheck: false,

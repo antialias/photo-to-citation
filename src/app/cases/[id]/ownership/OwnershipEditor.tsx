@@ -23,6 +23,9 @@ export default function OwnershipEditor({
     reasonH: "true",
   });
   const [option, setOption] = useState<string>("titleSearch");
+  const [microfilmWithSearchOption, setMicrofilmWithSearchOption] =
+    useState(false);
+  const [microfilmOnly, setMicrofilmOnly] = useState(false);
   const notify = useNotify();
   const router = useRouter();
   const { t } = useTranslation();
@@ -40,22 +43,38 @@ export default function OwnershipEditor({
   }, [session]);
 
   const optionCost = useMemo(() => {
+    let cost = 0;
     switch (option) {
       case "certifiedTitleSearch":
       case "certifiedRegistrationSearch":
-        return 20;
+        cost += 10;
+        break;
+      case "titleSearch":
+      case "registrationSearch":
+        cost += 5;
+        break;
       default:
-        return 5;
+        break;
     }
-  }, [option]);
+    if (microfilmOnly) {
+      cost += 5;
+    }
+    return cost;
+  }, [option, microfilmOnly]);
 
   const total = module.fee + optionCost;
 
   const pdfUrl = useMemo(() => {
     const params = new URLSearchParams(form);
     params.set(option, "true");
+    if (microfilmWithSearchOption) {
+      params.set("microfilmWithSearchOption", "true");
+    }
+    if (microfilmOnly) {
+      params.set("microfilmOnly", "true");
+    }
     return `/api/cases/${caseId}/ownership-form?${params.toString()}`;
-  }, [caseId, form, option]);
+  }, [caseId, form, option, microfilmWithSearchOption, microfilmOnly]);
 
   async function record() {
     const res = await apiFetch(`/api/cases/${caseId}/ownership-request`, {
@@ -65,7 +84,14 @@ export default function OwnershipEditor({
         moduleId: module.id,
         checkNumber,
         ...(snailMail ? { snailMail: true } : {}),
-        form: { ...form, [option]: true },
+        form: {
+          ...form,
+          [option]: true,
+          ...(microfilmWithSearchOption
+            ? { microfilmWithSearchOption: true }
+            : {}),
+          ...(microfilmOnly ? { microfilmOnly: true } : {}),
+        },
       }),
     });
     if (res.ok) {
@@ -154,13 +180,33 @@ export default function OwnershipEditor({
           onChange={(e) => setOption(e.target.value)}
           className="border p-1"
         >
-          <option value="titleSearch">Title Search</option>
-          <option value="registrationSearch">Registration Search</option>
-          <option value="certifiedTitleSearch">Certified Title Search</option>
+          <option value="titleSearch">Title Search — $5 each</option>
+          <option value="registrationSearch">
+            Registration Search — $5 each
+          </option>
+          <option value="certifiedTitleSearch">
+            Certified Title Search — $10 each
+          </option>
           <option value="certifiedRegistrationSearch">
-            Certified Registration Search
+            Certified Registration Search — $10 each
           </option>
         </select>
+      </label>
+      <label className="flex items-center gap-2 mt-2">
+        <input
+          type="checkbox"
+          checked={microfilmWithSearchOption}
+          onChange={(e) => setMicrofilmWithSearchOption(e.target.checked)}
+        />
+        <span>Microfilm Requested with any Search Option, no charge</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={microfilmOnly}
+          onChange={(e) => setMicrofilmOnly(e.target.checked)}
+        />
+        <span>Microfilm Only — $5</span>
       </label>
       <p>Total: ${total}</p>
       <label className="flex flex-col">
