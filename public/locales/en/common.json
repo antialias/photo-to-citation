@@ -18,7 +18,8 @@
     "userSettings": "User Settings",
     "profile": "Profile",
     "signOut": "Sign Out",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "publicProfile": "Public Profile"
   },
   "addImage": "+ add image",
   "uploadImage": "Upload Image",

@@ -18,7 +18,8 @@
     "userSettings": "Paramètres utilisateur",
     "profile": "Profil",
     "signOut": "Déconnexion",
-    "signIn": "Connexion"
+    "signIn": "Connexion",
+    "publicProfile": "Profil public"
   },
   "addImage": "+ ajouter image",
   "uploadImage": "Téléverser une image",

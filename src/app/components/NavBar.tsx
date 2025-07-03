@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaUserCircle } from "react-icons/fa";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function NavBar() {
@@ -87,41 +87,49 @@ export default function NavBar() {
           {t("nav.systemStatus")}
         </Link>
       ) : null}
-      {session ? (
-        <>
-          <Link
-            href="/settings"
-            className="hover:text-gray-600 dark:hover:text-gray-300"
-            onClick={() => setMenuOpen(false)}
-          >
-            {t("nav.userSettings")}
-          </Link>
-        </>
-      ) : null}
-      {session ? (
-        <button
-          type="button"
-          onClick={() => {
-            setMenuOpen(false);
-            signOut();
-          }}
-          className="hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          {t("nav.signOut")}
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={() => {
-            setMenuOpen(false);
-            signIn();
-          }}
-          className="hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          {t("nav.signIn")}
-        </button>
-      )}
     </>
+  );
+
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const userMenu = session ? (
+    <>
+      <Link
+        href={`/public/users/${session.user?.id}`}
+        className="hover:text-gray-600 dark:hover:text-gray-300"
+        onClick={() => setUserMenuOpen(false)}
+      >
+        {t("nav.publicProfile")}
+      </Link>
+      <Link
+        href="/settings"
+        className="hover:text-gray-600 dark:hover:text-gray-300"
+        onClick={() => setUserMenuOpen(false)}
+      >
+        {t("nav.userSettings")}
+      </Link>
+      <button
+        type="button"
+        onClick={() => {
+          setUserMenuOpen(false);
+          signOut();
+        }}
+        className="hover:text-gray-600 dark:hover:text-gray-300"
+      >
+        {t("nav.signOut")}
+      </button>
+    </>
+  ) : (
+    <button
+      type="button"
+      onClick={() => {
+        setUserMenuOpen(false);
+        signIn();
+      }}
+      className="hover:text-gray-600 dark:hover:text-gray-300"
+    >
+      {t("nav.signIn")}
+    </button>
   );
 
   return (
@@ -143,6 +151,33 @@ export default function NavBar() {
       <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm items-center">
         {navLinks}
         <LanguageSwitcher />
+        <Popover.Root open={userMenuOpen} onOpenChange={setUserMenuOpen}>
+          <Popover.Trigger asChild>
+            <button
+              type="button"
+              className="text-xl p-1 rounded-full overflow-hidden flex items-center justify-center"
+            >
+              {session?.user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={session.user.image}
+                  alt=""
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              ) : (
+                <FaUserCircle />
+              )}
+            </button>
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Content
+              sideOffset={4}
+              className="flex flex-col gap-2 text-sm bg-gray-100 dark:bg-gray-900 border rounded shadow p-4"
+            >
+              {userMenu}
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
       </div>
       <Popover.Root open={menuOpen} onOpenChange={setMenuOpen}>
         <Popover.Trigger asChild>
@@ -161,6 +196,7 @@ export default function NavBar() {
           >
             {navLinks}
             <LanguageSwitcher />
+            <div className="border-t pt-2 mt-2">{userMenu}</div>
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
