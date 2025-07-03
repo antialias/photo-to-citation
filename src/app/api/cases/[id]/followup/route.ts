@@ -98,6 +98,7 @@ export const POST = withAuthorization(
       reportModule.authorityEmail;
     log(`followup POST case=${id} to=${target} replyTo=${replyTo ?? "none"}`);
     const results: Record<string, { success: boolean; error?: string }> = {};
+    let snailStatus: SentEmail["snailMailStatus"] | undefined;
     try {
       await sendEmail({ to: target, subject, body, attachments });
       results.email = { success: true };
@@ -107,16 +108,23 @@ export const POST = withAuthorization(
     }
     if (snailMail && reportModule.authorityAddress) {
       try {
-        await sendSnailMail({
+        const res = await sendSnailMail({
           address: reportModule.authorityAddress,
           subject,
           body,
           attachments,
         });
-        results.snailMail = { success: true };
+        snailStatus = res.status as SentEmail["snailMailStatus"];
+        results.snailMail = {
+          success: res.status === "queued" || res.status === "saved",
+          ...(res.status !== "queued" && res.status !== "saved"
+            ? { error: res.status }
+            : {}),
+        };
       } catch (err) {
         console.error("Failed to send snail mail", err);
         results.snailMail = { success: false, error: (err as Error).message };
+        snailStatus = "error";
       }
     }
     let updated = c;
@@ -129,6 +137,7 @@ export const POST = withAuthorization(
           attachments,
           sentAt: new Date().toISOString(),
           replyTo: replyTo ?? null,
+          ...(snailStatus ? { snailMailStatus: snailStatus } : {}),
         }) ?? c;
     }
     return NextResponse.json({ case: updated, results });

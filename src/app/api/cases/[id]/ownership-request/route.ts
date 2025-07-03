@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseEmail, addOwnershipRequest, getCase } from "@/lib/caseStore";
+import type { SentEmail } from "@/lib/caseStore";
 import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
@@ -68,13 +69,19 @@ export const POST = withCaseAuthorization(
         );
       }
     }
+    let snailStatus: SentEmail["snailMailStatus"] | undefined;
     if (snailMail && mod?.address) {
-      await sendSnailMail({
-        address: mod.address,
-        subject: "Ownership information request",
-        body: `Check number: ${checkNumber ?? ""}`,
-        attachments,
-      });
+      try {
+        const res = await sendSnailMail({
+          address: mod.address,
+          subject: "Ownership information request",
+          body: `Check number: ${checkNumber ?? ""}`,
+          attachments,
+        });
+        snailStatus = res.status as SentEmail["snailMailStatus"];
+      } catch {
+        snailStatus = "error";
+      }
     }
     const storedAttachments: string[] = [];
     for (const att of attachments) {
@@ -95,6 +102,7 @@ export const POST = withCaseAuthorization(
       attachments: storedAttachments,
       sentAt: new Date().toISOString(),
       replyTo: null,
+      ...(snailStatus ? { snailMailStatus: snailStatus } : {}),
     });
     return NextResponse.json({ case: withEmail ?? updated });
   },

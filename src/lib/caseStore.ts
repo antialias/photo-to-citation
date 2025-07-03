@@ -59,6 +59,7 @@ export interface SentEmail {
   sentAt: string;
   /** @zod.email */
   replyTo?: string | null;
+  snailMailStatus?: "queued" | "saved" | "shortfall" | "error";
 }
 
 export interface OwnershipRequest {

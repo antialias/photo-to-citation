@@ -12,6 +12,7 @@ import { config, getConfig } from "./config";
 
 import {
   type MailingAddress,
+  type SnailMailStatus,
   sendSnailMail as providerSendSnailMail,
 } from "./snailMail";
 
@@ -87,7 +88,7 @@ export async function sendSnailMail(options: {
   subject: string;
   body: string;
   attachments: string[];
-}): Promise<void> {
+}): Promise<SnailMailStatus> {
   const { SNAIL_MAIL_PROVIDER: provider = "mock", RETURN_ADDRESS: returnAddr } =
     getConfig();
   if (!returnAddr) {
@@ -169,12 +170,5 @@ export async function sendSnailMail(options: {
     subject: options.subject,
     contents: filePath,
   });
-  if (result.status === "shortfall") {
-    throw new Error(
-      `Unable to send mail: provider shortfall of ${result.shortfall}`,
-    );
-  }
-  if (result.status !== "queued" && result.status !== "saved") {
-    throw new Error(`Unable to send mail: provider error ${result.status}`);
-  }
+  return result;
 }

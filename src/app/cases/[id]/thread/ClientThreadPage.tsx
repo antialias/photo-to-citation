@@ -148,6 +148,11 @@ export default function ClientThreadPage({
                 ))}
               </ul>
             ) : null}
+            {mail.snailMailStatus ? (
+              <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                Snail mail status: {mail.snailMailStatus}
+              </div>
+            ) : null}
           </li>
         ))}
         {images.map((img) => (
