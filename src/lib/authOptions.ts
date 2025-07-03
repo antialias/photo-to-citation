@@ -10,6 +10,7 @@ import type { Provider } from "next-auth/providers/index";
 import { authAdapter, seedSuperAdmin } from "./auth";
 import { config } from "./config";
 import { sendEmail } from "./email";
+import { gravatarUrl } from "./gravatar";
 import { log } from "./logger";
 import { getOauthProviderStatuses } from "./oauthProviders";
 
@@ -78,6 +79,9 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as User & { role?: string }).role = user.role;
         (session.user as User & { id: string }).id = user.id;
+        if (!session.user.image && user.email) {
+          (session.user as User).image = gravatarUrl(user.email);
+        }
       }
       return session;
     },
