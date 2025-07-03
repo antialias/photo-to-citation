@@ -60,7 +60,9 @@ export async function GET(
           ? "image/webp"
           : ext === ".jpg" || ext === ".jpeg"
             ? "image/jpeg"
-            : "application/octet-stream";
+            : ext === ".pdf"
+              ? "application/pdf"
+              : "application/octet-stream";
     return new NextResponse(data, {
       headers: { "Content-Type": contentType },
     });
