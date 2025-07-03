@@ -168,6 +168,7 @@
   "oauthProviders": "OAuth Providers",
   "mockEmailRecipient": "Mock Email Recipient",
   "envVarOverrides": "MOCK_EMAIL_TO environment variable overrides this setting.",
+  "mockEmailRecipientPlaceholder": "example@example.com",
   "enable": "Enable",
   "activate": "Activate",
   "active": "Active",

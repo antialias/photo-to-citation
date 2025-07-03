@@ -168,6 +168,7 @@
   "oauthProviders": "Proveedores OAuth",
   "mockEmailRecipient": "Destinatario de correo simulado",
   "envVarOverrides": "La variable de entorno MOCK_EMAIL_TO tiene prioridad.",
+  "mockEmailRecipientPlaceholder": "ejemplo@correo.com",
   "enable": "Habilitar",
   "activate": "Activar",
   "active": "Activo",
