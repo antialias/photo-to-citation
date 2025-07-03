@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import type { OwnershipModule } from "@/lib/ownershipModules";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../../../components/NotificationProvider";
@@ -17,10 +18,11 @@ export default function OwnershipEditor({
   const [checkNumber, setCheckNumber] = useState("");
   const [snailMail, setSnailMail] = useState(false);
   const notify = useNotify();
+  const router = useRouter();
   const { t } = useTranslation();
 
   async function record() {
-    await apiFetch(`/api/cases/${caseId}/ownership-request`, {
+    const res = await apiFetch(`/api/cases/${caseId}/ownership-request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -29,7 +31,22 @@ export default function OwnershipEditor({
         ...(snailMail ? { snailMail: true } : {}),
       }),
     });
-    notify(t("requestRecorded"));
+    if (res.ok) {
+      const data = (await res.json()) as {
+        case: { sentEmails?: { sentAt: string }[] };
+      };
+      const newEmail = data.case.sentEmails?.at(-1);
+      const url = newEmail
+        ? `/cases/${caseId}/thread/${encodeURIComponent(newEmail.sentAt)}`
+        : null;
+      if (url) {
+        router.push(url);
+        return;
+      }
+      notify(t("requestRecorded"));
+    } else {
+      notify(t("requestRecorded"));
+    }
   }
 
   return (
