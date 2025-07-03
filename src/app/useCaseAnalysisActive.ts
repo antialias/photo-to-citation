@@ -1,6 +1,7 @@
 "use client";
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import { useEffect, useState } from "react";
+import useEventSource from "./hooks/useEventSource";
 
 interface JobInfo {
   id: number;
@@ -37,22 +38,17 @@ export default function useCaseAnalysisActive(
     }
 
     fetchStatus();
-
-    const es = apiEventSource(
-      `${base}/${encodeURIComponent(caseId)}/jobs/stream?type=analyzeCase`,
-    );
-    es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
-      setActive(data.jobs.length > 0);
-    };
-    es.onerror = () => {
-      /* ignore connection errors */
-    };
     return () => {
       closed = true;
-      es.close();
     };
   }, [caseId, isPublic]);
+
+  useEventSource<JobResponse>(
+    `${isPublic ? "/api/public/cases" : "/api/cases"}/${encodeURIComponent(caseId)}/jobs/stream?type=analyzeCase`,
+    (data) => {
+      setActive(data.jobs.length > 0);
+    },
+  );
 
   return active;
 }

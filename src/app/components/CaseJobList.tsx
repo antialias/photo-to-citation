@@ -1,7 +1,7 @@
 "use client";
-import { apiEventSource } from "@/apiClient";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import useEventSource from "../hooks/useEventSource";
 
 interface JobInfo {
   id: number;
@@ -27,19 +27,14 @@ export default function CaseJobList({
   const [updatedAt, setUpdatedAt] = useState<number>(0);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const base = isPublic ? "/api/public/cases" : "/api/cases";
-    const es = apiEventSource(
-      `${base}/${encodeURIComponent(caseId)}/jobs/stream`,
-    );
-    es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
+  useEventSource<JobResponse>(
+    `${isPublic ? "/api/public/cases" : "/api/cases"}/${encodeURIComponent(caseId)}/jobs/stream`,
+    (data) => {
       setJobs(data.jobs);
       setAuditedAt(data.auditedAt);
       setUpdatedAt(data.updatedAt);
-    };
-    return () => es.close();
-  }, [caseId, isPublic]);
+    },
+  );
 
   if (jobs.length === 0) {
     return null;

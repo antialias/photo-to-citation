@@ -1,6 +1,6 @@
 "use client";
 
-import { apiEventSource, apiFetch } from "@/apiClient";
+import { apiFetch } from "@/apiClient";
 import useCaseAnalysisActive from "@/app/useCaseAnalysisActive";
 import type { Case } from "@/lib/caseStore";
 import { getRepresentativePhoto } from "@/lib/caseUtils";
@@ -12,6 +12,7 @@ import useCase, { caseQueryKey } from "../../hooks/useCase";
 import useCaseMembers, {
   caseMembersQueryKey,
 } from "../../hooks/useCaseMembers";
+import useEventSource from "../../hooks/useEventSource";
 
 interface CaseMember {
   userId: string;
@@ -61,20 +62,15 @@ export function CaseProvider({
     caseData?.public ?? false,
   );
 
-  useEffect(() => {
-    const es = apiEventSource("/api/cases/stream");
-    es.onmessage = (e) => {
-      const data = JSON.parse(e.data) as Case & { deleted?: boolean };
-      if (data.id !== caseId) return;
-      if (data.deleted) {
-        queryClient.setQueryData(caseQueryKey(caseId), null);
-      } else {
-        queryClient.setQueryData(caseQueryKey(caseId), data);
-        sessionStorage.removeItem(`preview-${caseId}`);
-      }
-    };
-    return () => es.close();
-  }, [caseId, queryClient]);
+  useEventSource<Case & { deleted?: boolean }>("/api/cases/stream", (data) => {
+    if (data.id !== caseId) return;
+    if (data.deleted) {
+      queryClient.setQueryData(caseQueryKey(caseId), null);
+    } else {
+      queryClient.setQueryData(caseQueryKey(caseId), data);
+      sessionStorage.removeItem(`preview-${caseId}`);
+    }
+  });
 
   useEffect(() => {
     if (caseData) {

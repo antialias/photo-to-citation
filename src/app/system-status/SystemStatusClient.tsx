@@ -1,7 +1,7 @@
 "use client";
-import { apiEventSource } from "@/apiClient";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import useEventSource from "../hooks/useEventSource";
 
 interface JobInfo {
   id: number;
@@ -23,20 +23,16 @@ export default function SystemStatusClient() {
   const [filter, setFilter] = useState<string>("");
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const url =
-      filter !== ""
-        ? `/api/system/jobs/stream?type=${encodeURIComponent(filter)}`
-        : "/api/system/jobs/stream";
-    const es = apiEventSource(url);
-    es.onmessage = (e) => {
-      const data: JobResponse = JSON.parse(e.data);
+  useEventSource<JobResponse>(
+    filter !== ""
+      ? `/api/system/jobs/stream?type=${encodeURIComponent(filter)}`
+      : "/api/system/jobs/stream",
+    (data) => {
       setJobs(data.jobs);
       setAuditedAt(data.auditedAt);
       setUpdatedAt(data.updatedAt);
-    };
-    return () => es.close();
-  }, [filter]);
+    },
+  );
 
   const types = Array.from(new Set(jobs.map((j) => j.type)));
 
