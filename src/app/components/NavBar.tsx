@@ -6,18 +6,38 @@ import * as Popover from "@radix-ui/react-popover";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaBars, FaUserCircle } from "react-icons/fa";
-import LanguageSwitcher from "./LanguageSwitcher";
+import SystemLanguageBanner from "./SystemLanguageBanner";
 
 export default function NavBar() {
   const pathname = usePathname();
   const uploadCase = useNewCaseFromFiles();
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: session } = useSession();
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [systemLang, setSystemLang] = useState<string | null>(null);
+  const [showLangPrompt, setShowLangPrompt] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    const supported = ["en", "es", "fr"];
+    for (const l of navigator.languages ?? []) {
+      const code = l.toLowerCase().split("-")[0];
+      if (supported.includes(code)) {
+        setSystemLang(code);
+        break;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (systemLang && systemLang !== i18n.language) {
+      setShowLangPrompt(true);
+    }
+  }, [systemLang, i18n.language]);
   if (pathname.startsWith("/point")) {
     return (
       <nav className="p-2 flex justify-end bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -142,49 +162,59 @@ export default function NavBar() {
   );
 
   return (
-    <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-nav">
-      <Link
-        href="/"
-        className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
-      >
-        {t("title")}
-      </Link>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        hidden
-        ref={inputRef}
-        onChange={(e) => uploadCase(e.target.files)}
-      />
-      <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm items-center">
-        {navLinks}
-        <LanguageSwitcher />
-        {userMenu}
-      </div>
-      <div className="sm:hidden flex items-center gap-2">
-        <Popover.Root open={menuOpen} onOpenChange={setMenuOpen}>
-          <Popover.Trigger asChild>
-            <button
-              type="button"
-              className="sm:hidden text-xl p-2 hover:text-gray-600 dark:hover:text-gray-300"
-              aria-label={t("menu")}
-            >
-              <FaBars />
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              sideOffset={4}
-              className="sm:hidden flex flex-col gap-2 text-sm bg-gray-100 dark:bg-gray-900 border rounded shadow p-4"
-            >
-              {navLinks}
-              <LanguageSwitcher />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-        {userMenu}
-      </div>
-    </nav>
+    <>
+      {showLangPrompt && systemLang ? (
+        <SystemLanguageBanner
+          lang={systemLang}
+          onSwitch={() => {
+            i18n.changeLanguage(systemLang);
+            setShowLangPrompt(false);
+          }}
+          onDismiss={() => setShowLangPrompt(false)}
+        />
+      ) : null}
+      <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-nav">
+        <Link
+          href="/"
+          className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          {t("title")}
+        </Link>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          ref={inputRef}
+          onChange={(e) => uploadCase(e.target.files)}
+        />
+        <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm items-center">
+          {navLinks}
+          {userMenu}
+        </div>
+        <div className="sm:hidden flex items-center gap-2">
+          <Popover.Root open={menuOpen} onOpenChange={setMenuOpen}>
+            <Popover.Trigger asChild>
+              <button
+                type="button"
+                className="sm:hidden text-xl p-2 hover:text-gray-600 dark:hover:text-gray-300"
+                aria-label={t("menu")}
+              >
+                <FaBars />
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                sideOffset={4}
+                className="sm:hidden flex flex-col gap-2 text-sm bg-gray-100 dark:bg-gray-900 border rounded shadow p-4"
+              >
+                {navLinks}
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+          {userMenu}
+        </div>
+      </nav>
+    </>
   );
 }

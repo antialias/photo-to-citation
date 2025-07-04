@@ -6,12 +6,16 @@ import { US_STATES } from "@/lib/usStates";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ConfirmDialog from "../components/ConfirmDialog";
+import LanguageSwitcher, {
+  LANGUAGE_NAMES,
+} from "../components/LanguageSwitcher";
 import useAddCredits from "../hooks/useAddCredits";
 import useCreditBalance from "../hooks/useCreditBalance";
 
 export default function UserSettingsPage() {
   const { data: session } = useSession();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<"profile" | "credits">("profile");
   const [usd, setUsd] = useState("0");
   const { data: balanceData } = useCreditBalance(tab === "credits");
@@ -30,6 +34,7 @@ export default function UserSettingsPage() {
     driverLicenseState?: string;
     profileStatus?: string;
     profileReviewNotes?: string | null;
+    language?: string;
   }>({
     queryKey: ["/api/profile"],
     queryFn: async () => {
@@ -46,6 +51,7 @@ export default function UserSettingsPage() {
         driverLicenseState?: string;
         profileStatus?: string;
         profileReviewNotes?: string | null;
+        language?: string;
       };
     },
     enabled: !!session,
@@ -60,6 +66,8 @@ export default function UserSettingsPage() {
   const [daytimePhone, setDaytimePhone] = useState("");
   const [driverLicenseNumber, setDriverLicenseNumber] = useState("");
   const [driverLicenseState, setDriverLicenseState] = useState("IL");
+  const [language, setLanguage] = useState("en");
+  const [confirmLang, setConfirmLang] = useState(false);
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string | null | undefined>(undefined);
 
@@ -74,6 +82,7 @@ export default function UserSettingsPage() {
       setDaytimePhone(data.daytimePhone ?? "");
       setDriverLicenseNumber(data.driverLicenseNumber ?? "");
       setDriverLicenseState(data.driverLicenseState ?? "IL");
+      setLanguage(data.language ?? "en");
       setStatus(data.profileStatus);
       setNotes(data.profileReviewNotes ?? null);
     }
@@ -94,6 +103,7 @@ export default function UserSettingsPage() {
           daytimePhone,
           driverLicenseNumber,
           driverLicenseState,
+          language,
         }),
       });
     },
@@ -122,7 +132,11 @@ export default function UserSettingsPage() {
             className="grid gap-2 max-w-md"
             onSubmit={(e) => {
               e.preventDefault();
-              mutation.mutate();
+              if (language !== data?.language) {
+                setConfirmLang(true);
+              } else {
+                mutation.mutate();
+              }
             }}
           >
             <p>
@@ -194,6 +208,15 @@ export default function UserSettingsPage() {
                 ))}
               </select>
             </label>
+            <label htmlFor="language" className="flex flex-col">
+              {t("languageLabel")}
+            </label>
+            <LanguageSwitcher
+              id="language"
+              value={language}
+              onChange={(v) => setLanguage(v)}
+              immediate={false}
+            />
             <label className="flex flex-col">
               {t("socialLinksLabel")}
               <textarea
@@ -230,6 +253,21 @@ export default function UserSettingsPage() {
             <button type="submit" className="bg-blue-500 text-white px-4 py-2">
               {t("save")}
             </button>
+            <ConfirmDialog
+              open={confirmLang}
+              message={t("confirmLanguageChange", {
+                language: LANGUAGE_NAMES[language],
+              })}
+              onConfirm={() => {
+                setConfirmLang(false);
+                mutation.mutate(undefined, {
+                  onSuccess() {
+                    i18n.changeLanguage(language);
+                  },
+                });
+              }}
+              onCancel={() => setConfirmLang(false)}
+            />
           </form>
         </TabsContent>
         <TabsContent value="credits">

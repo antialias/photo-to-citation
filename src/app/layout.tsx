@@ -32,8 +32,9 @@ export default async function RootLayout({
 }>) {
   const session = await getServerSession(authOptions);
   const cookieStore = await cookies();
-  // Prefer the language cookie but fall back to Accept-Language
-  let storedLang = cookieStore.get("language")?.value;
+  // Prefer the user's profile language, then cookie, then Accept-Language
+  let storedLang =
+    session?.user?.language || cookieStore.get("language")?.value;
   if (!storedLang) {
     const headerList = await headers();
     const accept = headerList.get("accept-language") ?? "";
