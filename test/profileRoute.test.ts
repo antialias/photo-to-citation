@@ -43,6 +43,8 @@ describe("profile API", () => {
         address: "123 A St",
         cityStateZip: "City, ST 12345",
         daytimePhone: "555-0000",
+        driverLicenseNumber: "D123",
+        driverLicenseState: "IL",
       }),
     });
     await mod.PUT(req, {
@@ -57,5 +59,7 @@ describe("profile API", () => {
     expect(updated?.address).toBe("123 A St");
     expect(updated?.cityStateZip).toBe("City, ST 12345");
     expect(updated?.daytimePhone).toBe("555-0000");
+    expect(updated?.driverLicenseNumber).toBe("D123");
+    expect(updated?.driverLicenseState).toBe("IL");
   });
 });

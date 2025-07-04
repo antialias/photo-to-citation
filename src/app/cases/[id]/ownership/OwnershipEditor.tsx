@@ -1,6 +1,7 @@
 "use client";
 import { apiFetch } from "@/apiClient";
 import type { OwnershipModule } from "@/lib/ownershipModules";
+import { US_STATES } from "@/lib/usStates";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,7 @@ export default function OwnershipEditor({
   const [form, setForm] = useState<Record<string, string>>({
     reasonForRequestingRecords: "private investigation",
     reasonH: "true",
+    requesterDriverLicenseState: "IL",
   });
   const [option, setOption] = useState<string>("titleSearch");
   const [microfilmWithSearchOption, setMicrofilmWithSearchOption] =
@@ -53,6 +55,8 @@ export default function OwnershipEditor({
             address?: string;
             cityStateZip?: string;
             daytimePhone?: string;
+            driverLicenseNumber?: string;
+            driverLicenseState?: string;
           }) => {
             setForm((f) => ({
               ...f,
@@ -61,6 +65,10 @@ export default function OwnershipEditor({
                 p.cityStateZip ?? f.requesterCityStateZip ?? "",
               requesterDaytimePhoneNumber:
                 p.daytimePhone ?? f.requesterDaytimePhoneNumber ?? "",
+              requesterDriverLicenseNumber:
+                p.driverLicenseNumber ?? f.requesterDriverLicenseNumber ?? "",
+              requesterDriverLicenseState:
+                p.driverLicenseState ?? f.requesterDriverLicenseState ?? "IL",
             }));
           },
         )
@@ -129,6 +137,8 @@ export default function OwnershipEditor({
           address: form.requesterAddress,
           cityStateZip: form.requesterCityStateZip,
           daytimePhone: form.requesterDaytimePhoneNumber,
+          driverLicenseNumber: form.requesterDriverLicenseNumber,
+          driverLicenseState: form.requesterDriverLicenseState,
         }),
       }).catch(() => {});
     }
@@ -234,6 +244,39 @@ export default function OwnershipEditor({
           }
           className="border p-1"
         />
+      </label>
+      <label className="flex flex-col">
+        {t("driverLicenseNumberLabel")}
+        <input
+          type="text"
+          value={form.requesterDriverLicenseNumber ?? ""}
+          onChange={(e) =>
+            setForm((f) => ({
+              ...f,
+              requesterDriverLicenseNumber: e.target.value,
+            }))
+          }
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        {t("driverLicenseStateLabel")}
+        <select
+          value={form.requesterDriverLicenseState ?? "IL"}
+          onChange={(e) =>
+            setForm((f) => ({
+              ...f,
+              requesterDriverLicenseState: e.target.value,
+            }))
+          }
+          className="border p-1"
+        >
+          {US_STATES.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
       </label>
       <label className="flex flex-col">
         Section 2

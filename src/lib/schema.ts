@@ -56,6 +56,8 @@ export const users = sqliteTable("user", {
   address: text("address"),
   cityStateZip: text("city_state_zip"),
   daytimePhone: text("daytime_phone"),
+  driverLicenseNumber: text("driver_license_number"),
+  driverLicenseState: text("driver_license_state"),
   profileStatus: text("profile_status").notNull().default("under_review"),
   profileReviewNotes: text("profile_review_notes"),
   role: text("role").notNull().default("user"),

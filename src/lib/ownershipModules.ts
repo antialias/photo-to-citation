@@ -23,6 +23,7 @@ export interface OwnershipRequestInfo {
   requesterCityStateZip?: string | null;
   requesterDaytimePhoneNumber?: string | null;
   requesterDriverLicenseNumber?: string | null;
+  requesterDriverLicenseState?: string | null;
   requesterEmailAddress?: string | null;
   requesterPhoneNumber?: string | null;
   vehicleYear?: string | null;

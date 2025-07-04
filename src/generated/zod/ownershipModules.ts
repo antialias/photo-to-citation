@@ -17,6 +17,7 @@ export const ownershipRequestInfoSchema = z.object({
   requesterCityStateZip: z.string().optional().nullable(),
   requesterDaytimePhoneNumber: z.string().optional().nullable(),
   requesterDriverLicenseNumber: z.string().optional().nullable(),
+  requesterDriverLicenseState: z.string().optional().nullable(),
   requesterEmailAddress: z.string().optional().nullable(),
   requesterPhoneNumber: z.string().optional().nullable(),
   vehicleYear: z.string().optional().nullable(),
@@ -74,4 +75,11 @@ export const ownershipModuleSchema = z.object({
     .args(ownershipRequestInfoSchema)
     .returns(z.promise(z.union([z.string(), z.array(z.string())])))
     .optional(),
+});
+
+export const ownershipModuleStatusSchema = z.object({
+  id: z.string(),
+  state: z.string(),
+  enabled: z.boolean(),
+  failureCount: z.number(),
 });

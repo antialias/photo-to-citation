@@ -26,16 +26,27 @@ export async function PUT(
 ) {
   const { userId } = await loadAuthContext(ctx, "user");
   if (!userId) return new Response(null, { status: 401 });
-  const { name, image, bio, socialLinks, address, cityStateZip, daytimePhone } =
-    (await req.json()) as {
-      name?: string | null;
-      image?: string | null;
-      bio?: string | null;
-      socialLinks?: string | null;
-      address?: string | null;
-      cityStateZip?: string | null;
-      daytimePhone?: string | null;
-    };
+  const {
+    name,
+    image,
+    bio,
+    socialLinks,
+    address,
+    cityStateZip,
+    daytimePhone,
+    driverLicenseNumber,
+    driverLicenseState,
+  } = (await req.json()) as {
+    name?: string | null;
+    image?: string | null;
+    bio?: string | null;
+    socialLinks?: string | null;
+    address?: string | null;
+    cityStateZip?: string | null;
+    daytimePhone?: string | null;
+    driverLicenseNumber?: string | null;
+    driverLicenseState?: string | null;
+  };
   const user = updateUser(userId, {
     name,
     image,
@@ -44,6 +55,8 @@ export async function PUT(
     address,
     cityStateZip,
     daytimePhone,
+    driverLicenseNumber,
+    driverLicenseState,
     profileStatus: "under_review",
     profileReviewNotes: null,
   });
