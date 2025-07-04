@@ -1,10 +1,11 @@
 import {
+  type AnySQLiteColumn,
   integer,
   primaryKey,
   real,
-  sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
+import { sqliteTable } from "drizzle-orm/sqlite-core/table";
 
 export const cases = sqliteTable("cases", {
   id: text("id").primaryKey(),
@@ -22,7 +23,7 @@ export const casePhotos = sqliteTable(
     gpsLat: real("gps_lat"),
     gpsLon: real("gps_lon"),
   },
-  (photos) => ({
+  (photos: { caseId: AnySQLiteColumn; url: AnySQLiteColumn }) => ({
     caseIdx: primaryKey(photos.caseId, photos.url),
   }),
 );
@@ -40,7 +41,7 @@ export const casePhotoAnalysis = sqliteTable(
     paperworkInfo: text("paperwork_info"),
     context: text("context"),
   },
-  (t) => ({
+  (t: { caseId: AnySQLiteColumn; url: AnySQLiteColumn }) => ({
     pk: primaryKey(t.caseId, t.url),
   }),
 );
@@ -78,7 +79,7 @@ export const caseMembers = sqliteTable(
     userId: text("user_id").notNull(),
     role: text("role").notNull(),
   },
-  (t) => ({
+  (t: { caseId: AnySQLiteColumn; userId: AnySQLiteColumn }) => ({
     pk: primaryKey(t.caseId, t.userId),
   }),
 );

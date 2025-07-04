@@ -26,7 +26,9 @@ async function run() {
       [string, ViolationReport["images"][string]]
     >;
     for (const [name, info] of entries) {
-      const photoRow = photos.find((p) => path.basename(p.url) === name);
+      const photoRow = photos.find(
+        (p: { url: string }) => path.basename(p.url) === name,
+      );
       if (!photoRow) continue;
       orm
         .insert(casePhotoAnalysis)
