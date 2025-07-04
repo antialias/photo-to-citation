@@ -82,7 +82,7 @@ export default function AdminPageClient({
       </TabsContent>
       {isSuperadmin && (
         <TabsContent value="status">
-          <SystemStatusClient />
+          {tab === "status" && <SystemStatusClient />}
         </TabsContent>
       )}
     </Tabs>
