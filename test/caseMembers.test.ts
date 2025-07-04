@@ -47,7 +47,9 @@ describe("case members", () => {
     expect(list).toHaveLength(2);
     members.removeCaseMember(c.id, "u2");
     list = members.listCaseMembers(c.id);
-    expect(list.some((m) => m.userId === "u2")).toBe(false);
+    expect(
+      list.some((m: unknown) => (m as { userId: string }).userId === "u2"),
+    ).toBe(false);
   });
 
   it("stores public flag", () => {
@@ -79,7 +81,9 @@ describe("case members", () => {
     );
     expect(res.status).toBe(200);
     const list = members.listCaseMembers(c.id);
-    expect(list.some((m) => m.userId === "u2")).toBe(true);
+    expect(
+      list.some((m: unknown) => (m as { userId: string }).userId === "u2"),
+    ).toBe(true);
   });
 
   it("rejects collaborator invite", async () => {
@@ -110,7 +114,9 @@ describe("case members", () => {
     });
     expect(res.status).toBe(200);
     const list = members.listCaseMembers(c.id);
-    expect(list.some((m) => m.userId === "u2")).toBe(false);
+    expect(
+      list.some((m: unknown) => (m as { userId: string }).userId === "u2"),
+    ).toBe(false);
   });
 
   it("non-owner cannot remove member", async () => {
