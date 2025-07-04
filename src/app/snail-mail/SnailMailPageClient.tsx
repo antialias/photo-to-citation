@@ -18,9 +18,27 @@ export default function SnailMailPageClient() {
   const [openOnly, setOpenOnly] = useState(true);
   const [hideDelivered, setHideDelivered] = useState(true);
   const [mails, setMails] = useState<MailInfo[]>([]);
+  const [violation, setViolation] = useState<string | null>(null);
   const { t } = useTranslation();
   const params = useSearchParams();
   const caseId = params.get("case");
+
+  useEffect(() => {
+    if (!caseId) {
+      setViolation(null);
+      return;
+    }
+    apiFetch(`/api/cases/${caseId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((c) => {
+        if (c && typeof c === "object") {
+          setViolation(c.analysis?.violationType ?? null);
+        } else {
+          setViolation(null);
+        }
+      })
+      .catch(() => setViolation(null));
+  }, [caseId]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -58,6 +76,14 @@ export default function SnailMailPageClient() {
           {t("hideDelivered")}
         </label>
       </div>
+      {caseId ? (
+        <div className="mb-4">
+          <h2 className="font-semibold">{t("caseLabel", { id: caseId })}</h2>
+          <p className="text-sm text-gray-500">
+            {t("violationLabel", { type: violation || t("unknown") })}
+          </p>
+        </div>
+      ) : null}
       {mails.length === 0 ? (
         <p>{t("noSnailMail")}</p>
       ) : (
