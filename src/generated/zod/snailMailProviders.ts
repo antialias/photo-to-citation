@@ -5,4 +5,7 @@ export const snailMailProviderStatusSchema = z.object({
   id: z.string(),
   active: z.boolean(),
   failureCount: z.number(),
+  ready: z.boolean().optional(),
+  message: z.string().optional(),
+  testable: z.boolean().optional(),
 });

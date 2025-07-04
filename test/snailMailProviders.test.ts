@@ -48,6 +48,15 @@ describe("snail mail provider store", () => {
       .find((p) => p.id === "mock");
     expect(item?.failureCount).toBe(1);
   });
+
+  it("reports readiness", async () => {
+    const store = await import("@/lib/snailMailProviders");
+    const list = store.getSnailMailProviderStatuses();
+    const mockStatus = list.find((p) => p.id === "mock");
+    const docStatus = list.find((p) => p.id === "docsmit");
+    expect(mockStatus?.ready).toBe(true);
+    expect(docStatus?.ready).toBe(false);
+  });
 });
 
 describe("snail mail provider API authorization", () => {
@@ -65,6 +74,16 @@ describe("snail mail provider API authorization", () => {
     const req = new Request("http://test", { method: "PUT" });
     const res = await mod.PUT(req, {
       params: Promise.resolve({ id: "mock" }) as Promise<{ id: string }>,
+      session: { user: { role: "user" } },
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it("rejects test without admin role", async () => {
+    const mod = await import("@/app/api/snail-mail-providers/[id]/test/route");
+    const req = new Request("http://test", { method: "POST" });
+    const res = await mod.POST(req, {
+      params: Promise.resolve({ id: "docsmit" }) as Promise<{ id: string }>,
       session: { user: { role: "user" } },
     });
     expect(res.status).toBe(403);

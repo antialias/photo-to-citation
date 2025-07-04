@@ -8,6 +8,9 @@ export interface SnailMailProviderStatus {
   id: string;
   active: boolean;
   failureCount: number;
+  ready?: boolean;
+  message?: string;
+  testable?: boolean;
 }
 
 const dataFile = config.SNAIL_MAIL_PROVIDER_FILE
@@ -36,7 +39,17 @@ function saveStatuses(list: SnailMailProviderStatus[]): void {
 }
 
 export function getSnailMailProviderStatuses(): SnailMailProviderStatus[] {
-  return loadStatuses();
+  const list = loadStatuses();
+  return list.map((s) => {
+    const provider = snailMailProviders[s.id];
+    const check = provider.check?.();
+    return {
+      ...s,
+      ready: check?.ready,
+      message: check?.message,
+      testable: !!provider.test,
+    };
+  });
 }
 
 export function setActiveSnailMailProvider(

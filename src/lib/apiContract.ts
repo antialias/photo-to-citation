@@ -265,6 +265,18 @@ export const apiContract = c.router({
     summary: "Activate snail mail provider",
     description: "Select which snail mail provider is active.",
   }),
+  testSnailMailProvider: c.mutation({
+    method: "POST",
+    path: "/api/snail-mail-providers/:id/test",
+    pathParams: idParams,
+    body: c.noBody(),
+    responses: c.responses({
+      200: z.object({ success: z.boolean(), message: z.string().optional() }),
+      404: errorSchema,
+    }),
+    summary: "Test snail mail provider",
+    description: "Attempt to contact the snail mail provider API.",
+  }),
   getOauthProviders: c.query({
     method: "GET",
     path: "/api/oauth-providers",

@@ -101,6 +101,28 @@ const provider: SnailMailProvider = {
   id: "docsmit",
   label: "Docsmit",
   docs: "https://docs.docsmit.com",
+  check() {
+    const email = config.DOCSMIT_EMAIL || "";
+    const password = config.DOCSMIT_PASSWORD || "";
+    const softwareID = config.DOCSMIT_SOFTWARE_ID || "";
+    if (!email || !password || !softwareID) {
+      return { ready: false, message: "Docsmit env vars not set" };
+    }
+    return { ready: true };
+  },
+  async test() {
+    try {
+      const base =
+        config.DOCSMIT_BASE_URL || "https://secure.tracksmit.com/api/v1";
+      const email = config.DOCSMIT_EMAIL || "";
+      const password = config.DOCSMIT_PASSWORD || "";
+      const softwareID = config.DOCSMIT_SOFTWARE_ID || "";
+      await getToken(base, email, password, softwareID);
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: (err as Error).message };
+    }
+  },
   async send(opts: SnailMailOptions): Promise<SnailMailStatus> {
     const base =
       config.DOCSMIT_BASE_URL || "https://secure.tracksmit.com/api/v1";
