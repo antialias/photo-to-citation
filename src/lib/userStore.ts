@@ -15,6 +15,7 @@ export interface UserRecord {
   daytimePhone: string | null;
   driverLicenseNumber: string | null;
   driverLicenseState: string | null;
+  language: string | null;
   profileStatus: string;
   profileReviewNotes: string | null;
   role: string;
@@ -41,6 +42,7 @@ export function updateUser(
       | "daytimePhone"
       | "driverLicenseNumber"
       | "driverLicenseState"
+      | "language"
       | "profileStatus"
       | "profileReviewNotes"
     >
@@ -60,6 +62,7 @@ export function updateUser(
     data.driverLicenseNumber = updates.driverLicenseNumber;
   if (updates.driverLicenseState !== undefined)
     data.driverLicenseState = updates.driverLicenseState;
+  if (updates.language !== undefined) data.language = updates.language;
   if (updates.profileStatus !== undefined)
     data.profileStatus = updates.profileStatus;
   if (updates.profileReviewNotes !== undefined)
