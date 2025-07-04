@@ -172,6 +172,7 @@
   "cameraAccessError": "Impossible d'accéder à la caméra. Vérifiez les autorisations.",
   "vinLookupModules": "Modules de recherche de VIN",
   "snailMailProviders": "Fournisseurs de courrier postal",
+  "ownershipModules": "Modules de demande d'information",
   "oauthProviders": "Fournisseurs OAuth",
   "mockEmailRecipient": "Destinataire de courriel factice",
   "envVarOverrides": "La variable d'environnement MOCK_EMAIL_TO a priorité.",

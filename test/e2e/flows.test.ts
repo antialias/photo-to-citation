@@ -67,6 +67,7 @@ beforeAll(async () => {
   const env = {
     CASE_STORE_FILE: path.join(tmpDir, "cases.sqlite"),
     VIN_SOURCE_FILE: path.join(tmpDir, "vinSources.json"),
+    OWNERSHIP_MODULE_FILE: path.join(tmpDir, "ownershipModules.json"),
     OPENAI_BASE_URL: stub.url,
     NEXTAUTH_SECRET: "secret",
   };
@@ -76,6 +77,17 @@ beforeAll(async () => {
       [
         { id: "edmunds", enabled: false, failureCount: 0 },
         { id: "carfax", enabled: false, failureCount: 0 },
+      ],
+      null,
+      2,
+    ),
+  );
+  fs.writeFileSync(
+    env.OWNERSHIP_MODULE_FILE,
+    JSON.stringify(
+      [
+        { id: "il", state: "Illinois", enabled: false, failureCount: 0 },
+        { id: "ca", state: "California", enabled: false, failureCount: 0 },
       ],
       null,
       2,
@@ -268,6 +280,49 @@ describe("e2e flows (unauthenticated)", () => {
     const id = list[0].id;
     const before = list[0].enabled;
     const update = await api(`/api/vin-sources/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: !before }),
+    });
+    expect(update.status).toBe(200);
+    const afterList = (await update.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const updated = afterList.find((s) => s.id === id);
+    expect(updated?.enabled).toBe(!before);
+    await signOut();
+    await signIn("user@example.com");
+  });
+
+  it("toggles ownership modules", async () => {
+    const listRes = await api("/api/ownership-modules");
+    expect(listRes.status).toBe(200);
+    const list = (await listRes.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const id = list[0].id;
+    const update = await api(`/api/ownership-modules/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: false }),
+    });
+    expect(update.status).toBe(403);
+  });
+
+  it("allows admin to toggle ownership modules", async () => {
+    await signOut();
+    await signIn("admin@example.com");
+    const listRes = await api("/api/ownership-modules");
+    expect(listRes.status).toBe(200);
+    const list = (await listRes.json()) as Array<{
+      id: string;
+      enabled: boolean;
+    }>;
+    const id = list[0].id;
+    const before = list[0].enabled;
+    const update = await api(`/api/ownership-modules/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ enabled: !before }),

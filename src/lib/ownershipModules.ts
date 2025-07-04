@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { PDFDocument } from "pdf-lib";
 import { config } from "./config";
+import { readJsonFile, writeJsonFile } from "./fileUtils";
 import type { MailingAddress } from "./snailMail";
 import { sendSnailMail as providerSendSnailMail } from "./snailMail";
 
@@ -222,3 +223,94 @@ export const ownershipModules: Record<string, OwnershipModule> = {
     requiresCheck: true,
   },
 };
+
+export interface OwnershipModuleStatus {
+  id: string;
+  state: string;
+  enabled: boolean;
+  failureCount: number;
+}
+
+const dataFile = config.OWNERSHIP_MODULE_FILE
+  ? path.resolve(config.OWNERSHIP_MODULE_FILE)
+  : path.join(process.cwd(), "data", "ownershipModules.json");
+
+function defaultStatuses(): OwnershipModuleStatus[] {
+  return Object.values(ownershipModules).map((m) => ({
+    id: m.id,
+    state: m.state,
+    enabled: true,
+    failureCount: 0,
+  }));
+}
+
+function loadStatuses(): OwnershipModuleStatus[] {
+  if (!fs.existsSync(dataFile)) {
+    const defaults = defaultStatuses();
+    writeJsonFile(dataFile, defaults);
+    return defaults;
+  }
+  const list = readJsonFile<OwnershipModuleStatus[]>(
+    dataFile,
+    defaultStatuses(),
+  );
+  const known = Object.values(ownershipModules);
+  for (const mod of known) {
+    if (!list.some((s) => s.id === mod.id)) {
+      list.push({
+        id: mod.id,
+        state: mod.state,
+        enabled: true,
+        failureCount: 0,
+      });
+    }
+  }
+  saveStatuses(list);
+  return list;
+}
+
+function saveStatuses(list: OwnershipModuleStatus[]): void {
+  writeJsonFile(dataFile, list);
+}
+
+export function getOwnershipModuleStatuses(): OwnershipModuleStatus[] {
+  return loadStatuses();
+}
+
+function updateStatus(
+  id: string,
+  cb: (s: OwnershipModuleStatus) => OwnershipModuleStatus,
+): void {
+  const list = loadStatuses();
+  const idx = list.findIndex((s) => s.id === id);
+  if (idx === -1) return;
+  list[idx] = cb(list[idx]);
+  saveStatuses(list);
+}
+
+export function setOwnershipModuleEnabled(
+  id: string,
+  enabled: boolean,
+): OwnershipModuleStatus | undefined {
+  let result: OwnershipModuleStatus | undefined;
+  updateStatus(id, (s) => {
+    result = { ...s, enabled };
+    return result as OwnershipModuleStatus;
+  });
+  return result;
+}
+
+export function recordOwnershipModuleSuccess(id: string): void {
+  updateStatus(id, (s) => ({ ...s, failureCount: 0 }));
+}
+
+export function recordOwnershipModuleFailure(id: string): void {
+  updateStatus(id, (s) => {
+    const failures = s.failureCount + 1;
+    return {
+      ...s,
+      failureCount: failures,
+      enabled: failures > 3 ? false : s.enabled,
+    };
+  });
+}
