@@ -13,6 +13,8 @@ export default function RulesTable({
     removeRule,
     saveRulesMutation,
     isSuperadmin,
+    policyOptions,
+    groupOptions,
   } = hooks;
   const { t } = useTranslation();
   return (
@@ -37,6 +39,8 @@ export default function RulesTable({
               rule={r}
               onChange={(field, value) => updateRule(r.id, field, value)}
               onRemove={() => removeRule(r.id)}
+              policyOptions={policyOptions}
+              groupOptions={groupOptions}
             />
           ))}
         </tbody>

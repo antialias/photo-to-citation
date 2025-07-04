@@ -1,15 +1,19 @@
 "use client";
 import type { CasbinRule } from "../AdminPageClient";
-import { groupOptions, policyOptions } from "../hooks/useCasbinRules";
+import type { GroupOptions, PolicyOptions } from "../hooks/useCasbinRules";
 
 export default function RuleRow({
   rule,
   onChange,
   onRemove,
+  policyOptions,
+  groupOptions,
 }: {
   rule: CasbinRule;
   onChange: (field: keyof Omit<CasbinRule, "id">, value: string) => void;
   onRemove: () => void;
+  policyOptions: PolicyOptions;
+  groupOptions: GroupOptions;
 }) {
   const ptypeOptions = ["p", "g"];
   const v0Options =
@@ -17,18 +21,14 @@ export default function RuleRow({
   const v1Options =
     rule.ptype === "p"
       ? rule.v0
-        ? Object.keys(
-            policyOptions[rule.v0 as keyof typeof policyOptions] ?? {},
-          )
+        ? Object.keys(policyOptions[rule.v0] ?? {})
         : []
       : rule.v0
-        ? (groupOptions[rule.v0 as keyof typeof groupOptions] ?? [])
+        ? (groupOptions[rule.v0] ?? [])
         : [];
   const v2Options =
     rule.ptype === "p" && rule.v0 && rule.v1
-      ? (policyOptions[rule.v0 as keyof typeof policyOptions][
-          rule.v1 as keyof (typeof policyOptions)[keyof typeof policyOptions]
-        ] ?? [])
+      ? (policyOptions[rule.v0][rule.v1] ?? [])
       : [];
 
   return (
