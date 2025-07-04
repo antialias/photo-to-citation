@@ -8,6 +8,7 @@ import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
 import I18nProvider from "./i18n-provider";
 import QueryProvider from "./query-provider";
+import { UnleashProvider } from "./unleash-provider";
 import "./globals.css";
 
 export const runtime = "nodejs";
@@ -66,14 +67,16 @@ export default async function RootLayout({
           }}
         />
         <QueryProvider>
-          <I18nProvider lang={storedLang}>
-            <NotificationProvider>
-              <AuthProvider session={session}>
-                <NavBar />
-                {children}
-              </AuthProvider>
-            </NotificationProvider>
-          </I18nProvider>
+          <UnleashProvider>
+            <I18nProvider lang={storedLang}>
+              <NotificationProvider>
+                <AuthProvider session={session}>
+                  <NavBar />
+                  {children}
+                </AuthProvider>
+              </NotificationProvider>
+            </I18nProvider>
+          </UnleashProvider>
         </QueryProvider>
       </body>
     </html>
