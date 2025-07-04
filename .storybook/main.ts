@@ -19,6 +19,11 @@ const config: StorybookConfig = {
         ".storybook",
         "MapPreviewStub.tsx",
       ),
+      "next-auth/react": path.resolve(
+        process.cwd(),
+        ".storybook",
+        "NextAuthStub.tsx",
+      ),
       "@": path.resolve(process.cwd(), "src"),
     };
     config.resolve.fallback = {
