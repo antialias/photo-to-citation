@@ -15,9 +15,7 @@ export default function CasesLayoutClient({
   const hasCase = Boolean(params.id);
   return (
     <div className="lg:grid lg:grid-cols-[20%_80%] h-[calc(100vh-4rem)]">
-      <div
-        className={`${hasCase ? "hidden lg:block" : ""} border-r overflow-y-auto`}
-      >
+      <div className={`${hasCase ? "hidden lg:block" : ""} border-r h-full`}>
         <ClientCasesPage initialCases={initialCases} />
       </div>
       <div className={`${hasCase ? "" : "hidden lg:block"} overflow-y-auto`}>
