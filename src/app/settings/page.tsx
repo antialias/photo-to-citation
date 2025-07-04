@@ -6,6 +6,7 @@ import { US_STATES } from "@/lib/usStates";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import useAddCredits from "../hooks/useAddCredits";
 import useCreditBalance from "../hooks/useCreditBalance";
 
@@ -30,6 +31,7 @@ export default function UserSettingsPage() {
     driverLicenseState?: string;
     profileStatus?: string;
     profileReviewNotes?: string | null;
+    language?: string;
   }>({
     queryKey: ["/api/profile"],
     queryFn: async () => {
@@ -46,6 +48,7 @@ export default function UserSettingsPage() {
         driverLicenseState?: string;
         profileStatus?: string;
         profileReviewNotes?: string | null;
+        language?: string;
       };
     },
     enabled: !!session,
@@ -60,6 +63,7 @@ export default function UserSettingsPage() {
   const [daytimePhone, setDaytimePhone] = useState("");
   const [driverLicenseNumber, setDriverLicenseNumber] = useState("");
   const [driverLicenseState, setDriverLicenseState] = useState("IL");
+  const [language, setLanguage] = useState("en");
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string | null | undefined>(undefined);
 
@@ -74,6 +78,7 @@ export default function UserSettingsPage() {
       setDaytimePhone(data.daytimePhone ?? "");
       setDriverLicenseNumber(data.driverLicenseNumber ?? "");
       setDriverLicenseState(data.driverLicenseState ?? "IL");
+      setLanguage(data.language ?? "en");
       setStatus(data.profileStatus);
       setNotes(data.profileReviewNotes ?? null);
     }
@@ -94,6 +99,7 @@ export default function UserSettingsPage() {
           daytimePhone,
           driverLicenseNumber,
           driverLicenseState,
+          language,
         }),
       });
     },
@@ -194,6 +200,14 @@ export default function UserSettingsPage() {
                 ))}
               </select>
             </label>
+            <label htmlFor="language" className="flex flex-col">
+              {t("languageLabel")}
+            </label>
+            <LanguageSwitcher
+              id="language"
+              value={language}
+              onChange={(v) => setLanguage(v)}
+            />
             <label className="flex flex-col">
               {t("socialLinksLabel")}
               <textarea
