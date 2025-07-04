@@ -10,7 +10,7 @@ export function getUnleash(): Unleash {
     if (!UNLEASH_URL) {
       client = {
         isEnabled() {
-          return false;
+          return Boolean(process.env.TEST_APIS);
         },
       } as unknown as Unleash;
     } else {

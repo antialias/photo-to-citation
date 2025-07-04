@@ -136,6 +136,13 @@ describe("reanalysis", () => {
       photoName = path.basename(photo);
       expect(json.analysis?.vehicle?.licensePlateNumber).toBeUndefined();
 
+      await poll(
+        () => api(`/api/cases/${caseId}/analysis-active`),
+        async (r) => (await r.clone().json()).active === false,
+        50,
+        100,
+      );
+
       const re = await api(
         `/api/cases/${caseId}/reanalyze-photo?photo=${encodeURIComponent(photo)}`,
         { method: "POST" },
