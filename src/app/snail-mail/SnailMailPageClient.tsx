@@ -1,59 +1,27 @@
 "use client";
 
-import { apiFetch } from "@/apiClient";
 import SnailMailStatusIcon from "@/components/SnailMailStatusIcon";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface MailInfo {
-  caseId: string;
-  subject: string;
-  status: "queued" | "saved" | "shortfall" | "error";
-  sentAt: string;
-}
+import useCase from "../hooks/useCase";
+import useSnailMail from "../hooks/useSnailMail";
 
 export default function SnailMailPageClient() {
-  const [openOnly, setOpenOnly] = useState(true);
-  const [hideDelivered, setHideDelivered] = useState(true);
-  const [mails, setMails] = useState<MailInfo[]>([]);
-  const [violation, setViolation] = useState<string | null>(null);
   const { t } = useTranslation();
   const params = useSearchParams();
   const caseId = params.get("case");
 
-  useEffect(() => {
-    if (!caseId) {
-      setViolation(null);
-      return;
-    }
-    apiFetch(`/api/cases/${caseId}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((c) => {
-        if (c && typeof c === "object") {
-          setViolation(c.analysis?.violationType ?? null);
-        } else {
-          setViolation(null);
-        }
-      })
-      .catch(() => setViolation(null));
-  }, [caseId]);
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    params.set("open", openOnly ? "true" : "false");
-    if (caseId) params.set("case", caseId);
-    if (hideDelivered) {
-      params.append("status", "queued");
-      params.append("status", "shortfall");
-      params.append("status", "error");
-    }
-    apiFetch(`/api/snail-mail?${params.toString()}`)
-      .then((r) => r.json() as Promise<MailInfo[]>)
-      .then(setMails)
-      .catch(() => setMails([]));
-  }, [openOnly, hideDelivered, caseId]);
+  const [openOnly, setOpenOnly] = useState(true);
+  const [hideDelivered, setHideDelivered] = useState(true);
+  const { data: mails = [] } = useSnailMail({
+    openOnly,
+    hideDelivered,
+    caseId,
+  });
+  const { data: caseData } = useCase(caseId ?? "");
+  const violation = caseData?.analysis?.violationType ?? null;
 
   return (
     <div className="p-8">
