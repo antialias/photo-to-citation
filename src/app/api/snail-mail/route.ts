@@ -8,10 +8,13 @@ export const GET = withAuthorization({ obj: "cases" }, async (req: Request) => {
   const url = new URL(req.url);
   const statuses = url.searchParams.getAll("status");
   const openParam = url.searchParams.get("open");
+  const caseId = url.searchParams.get("case");
   const openOnly = openParam !== "false" && openParam !== "0";
-  const cases = getCases().filter((c) =>
-    openOnly ? !c.closed && !c.archived : true,
-  );
+  const cases = getCases().filter((c) => {
+    if (caseId && c.id !== caseId) return false;
+    if (!caseId && openOnly && (c.closed || c.archived)) return false;
+    return true;
+  });
   const mails: Array<{
     caseId: string;
     subject: string;

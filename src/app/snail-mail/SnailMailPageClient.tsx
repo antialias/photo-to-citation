@@ -3,6 +3,7 @@
 import { apiFetch } from "@/apiClient";
 import SnailMailStatusIcon from "@/components/SnailMailStatusIcon";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -18,10 +19,13 @@ export default function SnailMailPageClient() {
   const [hideDelivered, setHideDelivered] = useState(true);
   const [mails, setMails] = useState<MailInfo[]>([]);
   const { t } = useTranslation();
+  const params = useSearchParams();
+  const caseId = params.get("case");
 
   useEffect(() => {
     const params = new URLSearchParams();
     params.set("open", openOnly ? "true" : "false");
+    if (caseId) params.set("case", caseId);
     if (hideDelivered) {
       params.append("status", "queued");
       params.append("status", "shortfall");
@@ -31,7 +35,7 @@ export default function SnailMailPageClient() {
       .then((r) => r.json() as Promise<MailInfo[]>)
       .then(setMails)
       .catch(() => setMails([]));
-  }, [openOnly, hideDelivered]);
+  }, [openOnly, hideDelivered, caseId]);
 
   return (
     <div className="p-8">
