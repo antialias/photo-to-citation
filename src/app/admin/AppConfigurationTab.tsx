@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNotify } from "../components/NotificationProvider";
 
 interface VinSourceStatus {
   id: string;
@@ -16,6 +17,9 @@ interface SnailMailProviderStatus {
   id: string;
   active: boolean;
   failureCount: number;
+  ready?: boolean;
+  message?: string;
+  testable?: boolean;
 }
 
 interface OauthProviderStatus {
@@ -61,6 +65,7 @@ export default function AppConfigurationTab() {
   const isAdmin =
     session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const { t } = useTranslation();
+  const notify = useNotify();
   const [mockTo, setMockTo] = useState("");
 
   useEffect(() => {
@@ -88,6 +93,24 @@ export default function AppConfigurationTab() {
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: MAIL_PROVIDERS_QUERY_KEY });
+    },
+  });
+
+  const testMutation = useMutation({
+    async mutationFn(id: string) {
+      const res = await apiFetch(`/api/snail-mail-providers/${id}/test`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("test failed");
+      return (await res.json()) as { success: boolean; message?: string };
+    },
+    onSuccess(data) {
+      notify(
+        data.success ? t("testSucceeded") : data.message || t("testFailed"),
+      );
+    },
+    onError() {
+      notify(t("testFailed"));
     },
   });
 
@@ -184,6 +207,14 @@ export default function AppConfigurationTab() {
                 <span className="flex-1">
                   {p.id} (failures: {p.failureCount})
                 </span>
+                <span className="flex items-center gap-1">
+                  <span
+                    className={p.ready ? "text-green-600" : "text-yellow-600"}
+                  >
+                    ●
+                  </span>
+                  {p.ready ? t("ready") : t("notReady")}
+                </span>
                 {p.active ? (
                   <span className="px-2 py-1 bg-green-500 text-white rounded">
                     {t("active")}
@@ -197,6 +228,19 @@ export default function AppConfigurationTab() {
                   >
                     {t("activate")}
                   </button>
+                )}
+                {p.testable && (
+                  <button
+                    type="button"
+                    onClick={() => testMutation.mutate(p.id)}
+                    disabled={!isAdmin}
+                    className="bg-blue-600 text-white px-2 py-1 rounded"
+                  >
+                    {t("test")}
+                  </button>
+                )}
+                {!p.ready && p.message && (
+                  <span className="text-sm text-yellow-600">{p.message}</span>
                 )}
               </li>
             ))}

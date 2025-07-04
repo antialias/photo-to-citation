@@ -28,6 +28,16 @@ export interface SnailMailStatus {
   shortfall?: number;
 }
 
+export interface SnailMailProviderCheck {
+  ready: boolean;
+  message?: string;
+}
+
+export interface SnailMailProviderTestResult {
+  success: boolean;
+  message?: string;
+}
+
 export interface SnailMailProvider {
   id: string;
   label: string;
@@ -41,6 +51,10 @@ export interface SnailMailProvider {
     id: string,
     config?: Record<string, unknown>,
   ) => Promise<SnailMailStatus | null>;
+  check?: (config?: Record<string, unknown>) => SnailMailProviderCheck;
+  test?: (
+    config?: Record<string, unknown>,
+  ) => Promise<SnailMailProviderTestResult>;
   poll?: (config?: Record<string, unknown>) => Promise<void>;
   webhooks?: Record<string, (payload: unknown) => Promise<void>>;
 }
@@ -50,6 +64,9 @@ export const snailMailProviders: Record<string, SnailMailProvider> = {
     id: "mock",
     label: "Mock Snail Mail Provider",
     docs: "A no-op provider used during development.",
+    check() {
+      return { ready: true };
+    },
     async send(opts) {
       log("mock snail mail", opts);
       return {

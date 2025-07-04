@@ -13,6 +13,19 @@ const provider: SnailMailProvider = {
   id: "file",
   label: "File System Provider",
   docs: "Save snail mail PDFs and a manifest locally.",
+  check(cfg?: Record<string, unknown>) {
+    const dir =
+      (cfg?.dir as string | undefined) ??
+      (appConfig.SNAIL_MAIL_OUT_DIR as string | undefined) ??
+      path.join(process.cwd(), "data", "snailmail_out");
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.accessSync(dir, fs.constants.W_OK);
+      return { ready: true };
+    } catch {
+      return { ready: false, message: `Cannot write to ${dir}` };
+    }
+  },
   async send(
     opts: SnailMailOptions,
     cfg?: Record<string, unknown>,

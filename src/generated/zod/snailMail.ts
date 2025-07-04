@@ -24,6 +24,16 @@ export const snailMailStatusSchema = z.object({
   shortfall: z.number().optional(),
 });
 
+export const snailMailProviderCheckSchema = z.object({
+  ready: z.boolean(),
+  message: z.string().optional(),
+});
+
+export const snailMailProviderTestResultSchema = z.object({
+  success: z.boolean(),
+  message: z.string().optional(),
+});
+
 export const snailMailProviderSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -36,6 +46,16 @@ export const snailMailProviderSchema = z.object({
     .function()
     .args(z.string(), z.record(z.unknown()).optional())
     .returns(z.promise(snailMailStatusSchema.nullable()))
+    .optional(),
+  check: z
+    .function()
+    .args(z.record(z.unknown()).optional())
+    .returns(snailMailProviderCheckSchema)
+    .optional(),
+  test: z
+    .function()
+    .args(z.record(z.unknown()).optional())
+    .returns(z.promise(snailMailProviderTestResultSchema))
     .optional(),
   poll: z
     .function()
