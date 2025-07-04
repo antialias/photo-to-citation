@@ -2,6 +2,10 @@ export interface SentMail {
   id: string;
   providerId: string;
   providerMessageId: string;
+  /** Optional case this mail relates to */
+  caseId?: string;
+  /** Optional user who initiated the mail */
+  userId?: string;
   to: import("./snailMail").MailingAddress;
   from: import("./snailMail").MailingAddress;
   subject?: string;
