@@ -240,7 +240,7 @@ export default function ClientCasesPage({
                     setDropCase(null);
                   }
                 }}
-                className={`border p-2 mb-4 last:mb-0 h-[150px] ${
+                className={`border p-2 mb-4 last:mb-0 h-[150px] overflow-hidden ${
                   selectedIds.includes(c.id)
                     ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                     : dropCase === c.id
@@ -264,7 +264,7 @@ export default function ClientCasesPage({
                       router.push(`/cases?ids=${ids.join(",")}`);
                     }
                   }}
-                  className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
+                  className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left h-full overflow-hidden"
                 >
                   <div className="relative">
                     {(() => {
@@ -297,7 +297,7 @@ export default function ClientCasesPage({
                       />
                     ) : null;
                   })()}
-                  <div className="flex flex-col text-sm gap-1">
+                  <div className="flex flex-col text-sm gap-1 overflow-hidden">
                     <span className="font-semibold">
                       {t("caseLabel", { id: c.id })}
                     </span>
@@ -340,7 +340,7 @@ export default function ClientCasesPage({
                   setDropCase(null);
                 }
               }}
-              className={`border p-2 h-[150px] ${
+              className={`border p-2 h-[150px] overflow-hidden ${
                 selectedIds.includes(c.id)
                   ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                   : dropCase === c.id
@@ -357,7 +357,7 @@ export default function ClientCasesPage({
                     router.push(`/cases?ids=${ids.join(",")}`);
                   }
                 }}
-                className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
+                className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left h-full overflow-hidden"
               >
                 <div className="relative">
                   {(() => {
@@ -390,7 +390,7 @@ export default function ClientCasesPage({
                     />
                   ) : null;
                 })()}
-                <div className="flex flex-col text-sm gap-1">
+                <div className="flex flex-col text-sm gap-1 overflow-hidden">
                   <span className="font-semibold">
                     {t("caseLabel", { id: c.id })}
                   </span>
