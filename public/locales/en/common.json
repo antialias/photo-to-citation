@@ -173,6 +173,7 @@
   "cameraAccessError": "Unable to access camera. Please check permissions.",
   "vinLookupModules": "VIN Lookup Modules",
   "snailMailProviders": "Snail Mail Providers",
+  "ownershipModules": "Request Information Modules",
   "oauthProviders": "OAuth Providers",
   "mockEmailRecipient": "Mock Email Recipient",
   "envVarOverrides": "MOCK_EMAIL_TO environment variable overrides this setting.",
