@@ -34,10 +34,19 @@ describe("profile API", () => {
     });
     const user = await getRes.json();
     expect(user.name).toBe("Alice");
+    expect(user.address).toBeNull();
+    expect(user.cityStateZip).toBeNull();
+    expect(user.daytimePhoneNumber).toBeNull();
 
     const req = new Request("http://test", {
       method: "PUT",
-      body: JSON.stringify({ name: "Bob", bio: "bio" }),
+      body: JSON.stringify({
+        name: "Bob",
+        bio: "bio",
+        address: "1 A St",
+        cityStateZip: "Nowhere, XY 12345",
+        daytimePhoneNumber: "555-5555",
+      }),
     });
     await mod.PUT(req, {
       params: Promise.resolve({}),
@@ -48,5 +57,8 @@ describe("profile API", () => {
     const updated = getUser("u1");
     expect(updated?.name).toBe("Bob");
     expect(updated?.bio).toBe("bio");
+    expect(updated?.address).toBe("1 A St");
+    expect(updated?.cityStateZip).toBe("Nowhere, XY 12345");
+    expect(updated?.daytimePhoneNumber).toBe("555-5555");
   });
 });

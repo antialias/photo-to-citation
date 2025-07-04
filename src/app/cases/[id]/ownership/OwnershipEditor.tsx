@@ -21,7 +21,13 @@ export default function OwnershipEditor({
   const [form, setForm] = useState<Record<string, string>>({
     reasonForRequestingRecords: "private investigation",
     reasonH: "true",
+    requesterDaytimePhoneNumber: "",
   });
+  const [profile, setProfile] = useState<{
+    address?: string | null;
+    cityStateZip?: string | null;
+    daytimePhoneNumber?: string | null;
+  } | null>(null);
   const [option, setOption] = useState<string>("titleSearch");
   const notify = useNotify();
   const router = useRouter();
@@ -37,6 +43,25 @@ export default function OwnershipEditor({
         requesterEmailAddress: email ?? "",
       }));
     }
+  }, [session]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      if (session?.user) {
+        const res = await apiFetch("/api/profile");
+        const data = (await res.json()) as {
+          address?: string | null;
+          cityStateZip?: string | null;
+          daytimePhoneNumber?: string | null;
+        };
+        if (!cancelled) setProfile(data);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [session]);
 
   const optionCost = useMemo(() => {
@@ -81,6 +106,23 @@ export default function OwnershipEditor({
         return;
       }
       notify(t("requestRecorded"));
+      if (session?.user) {
+        const updates: Record<string, string> = {};
+        if (!profile?.address && form.requesterAddress)
+          updates.address = form.requesterAddress;
+        if (!profile?.cityStateZip && form.requesterCityStateZip)
+          updates.cityStateZip = form.requesterCityStateZip;
+        if (!profile?.daytimePhoneNumber && form.requesterDaytimePhoneNumber)
+          updates.daytimePhoneNumber = form.requesterDaytimePhoneNumber;
+        if (Object.keys(updates).length) {
+          await apiFetch("/api/profile", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updates),
+          });
+          setProfile((p) => ({ ...(p ?? {}), ...updates }));
+        }
+      }
     } else {
       notify(t("requestRecorded"));
     }
@@ -96,6 +138,25 @@ export default function OwnershipEditor({
       <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
+      {profile &&
+      (profile.address ||
+        profile.cityStateZip ||
+        profile.daytimePhoneNumber) ? (
+        <button
+          type="button"
+          onClick={() =>
+            setForm((f) => ({
+              ...f,
+              requesterAddress: profile.address ?? "",
+              requesterCityStateZip: profile.cityStateZip ?? "",
+              requesterDaytimePhoneNumber: profile.daytimePhoneNumber ?? "",
+            }))
+          }
+          className="self-start bg-gray-200 px-2 py-1 rounded"
+        >
+          {t("useSavedContactInfo")}
+        </button>
+      ) : null}
       {showPdf ? (
         <iframe
           src={pdfUrl}
@@ -143,6 +204,20 @@ export default function OwnershipEditor({
           value={form.requesterCityStateZip ?? ""}
           onChange={(e) =>
             setForm((f) => ({ ...f, requesterCityStateZip: e.target.value }))
+          }
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        {t("daytimePhoneLabel")}
+        <input
+          type="text"
+          value={form.requesterDaytimePhoneNumber ?? ""}
+          onChange={(e) =>
+            setForm((f) => ({
+              ...f,
+              requesterDaytimePhoneNumber: e.target.value,
+            }))
           }
           className="border p-1"
         />

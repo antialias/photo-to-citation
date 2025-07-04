@@ -209,6 +209,8 @@
   "stateLabel": "State:",
   "sendCheckTo": "Send a check for ${{fee}} to:",
   "checkNumberLabel": "Check Number",
+  "useSavedContactInfo": "Use saved contact info",
+  "daytimePhoneLabel": "Daytime Phone Number",
   "sendSnailAutomatically": "Send snail mail automatically",
   "sendSnailMailRequest": "Send Snail Mail Request",
   "snailMailQueued": "Snail mail queued",
