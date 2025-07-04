@@ -220,6 +220,8 @@
   "stateLabel": "State:",
   "sendCheckTo": "Send a check for ${{fee}} to:",
   "checkNumberLabel": "Check Number",
+  "driverLicenseNumberLabel": "Driver License Number",
+  "driverLicenseStateLabel": "Driver License State",
   "sendSnailAutomatically": "Send snail mail automatically",
   "sendSnailMailRequest": "Send Snail Mail Request",
   "snailMailQueued": "Snail mail queued",

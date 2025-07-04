@@ -60,6 +60,8 @@ describe("profile page e2e @smoke", () => {
       address?: string;
       cityStateZip?: string;
       daytimePhone?: string;
+      driverLicenseNumber?: string;
+      driverLicenseState?: string;
     };
     expect(data.name ?? "").toBe("");
 
@@ -74,6 +76,8 @@ describe("profile page e2e @smoke", () => {
         address: "123 A St",
         cityStateZip: "City, ST 12345",
         daytimePhone: "555-0000",
+        driverLicenseNumber: "D123",
+        driverLicenseState: "IL",
       }),
     });
     expect(res.status).toBe(200);
@@ -85,12 +89,16 @@ describe("profile page e2e @smoke", () => {
       address?: string;
       cityStateZip?: string;
       daytimePhone?: string;
+      driverLicenseNumber?: string;
+      driverLicenseState?: string;
     };
     expect(data.name).toBe("Tester");
     expect(data.image).toBe("/img");
     expect(data.address).toBe("123 A St");
     expect(data.cityStateZip).toBe("City, ST 12345");
     expect(data.daytimePhone).toBe("555-0000");
+    expect(data.driverLicenseNumber).toBe("D123");
+    expect(data.driverLicenseState).toBe("IL");
 
     const page = await api("/settings").then((r) => r.text());
     const dom = new JSDOM(page);

@@ -13,6 +13,8 @@ export interface UserRecord {
   address: string | null;
   cityStateZip: string | null;
   daytimePhone: string | null;
+  driverLicenseNumber: string | null;
+  driverLicenseState: string | null;
   profileStatus: string;
   profileReviewNotes: string | null;
   role: string;
@@ -37,6 +39,8 @@ export function updateUser(
       | "address"
       | "cityStateZip"
       | "daytimePhone"
+      | "driverLicenseNumber"
+      | "driverLicenseState"
       | "profileStatus"
       | "profileReviewNotes"
     >
@@ -52,6 +56,10 @@ export function updateUser(
     data.cityStateZip = updates.cityStateZip;
   if (updates.daytimePhone !== undefined)
     data.daytimePhone = updates.daytimePhone;
+  if (updates.driverLicenseNumber !== undefined)
+    data.driverLicenseNumber = updates.driverLicenseNumber;
+  if (updates.driverLicenseState !== undefined)
+    data.driverLicenseState = updates.driverLicenseState;
   if (updates.profileStatus !== undefined)
     data.profileStatus = updates.profileStatus;
   if (updates.profileReviewNotes !== undefined)

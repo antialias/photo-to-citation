@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { US_STATES } from "@/lib/usStates";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,6 +26,8 @@ export default function UserSettingsPage() {
     address?: string;
     cityStateZip?: string;
     daytimePhone?: string;
+    driverLicenseNumber?: string;
+    driverLicenseState?: string;
     profileStatus?: string;
     profileReviewNotes?: string | null;
   }>({
@@ -39,6 +42,8 @@ export default function UserSettingsPage() {
         address?: string;
         cityStateZip?: string;
         daytimePhone?: string;
+        driverLicenseNumber?: string;
+        driverLicenseState?: string;
         profileStatus?: string;
         profileReviewNotes?: string | null;
       };
@@ -53,6 +58,8 @@ export default function UserSettingsPage() {
   const [address, setAddress] = useState("");
   const [cityStateZip, setCityStateZip] = useState("");
   const [daytimePhone, setDaytimePhone] = useState("");
+  const [driverLicenseNumber, setDriverLicenseNumber] = useState("");
+  const [driverLicenseState, setDriverLicenseState] = useState("IL");
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string | null | undefined>(undefined);
 
@@ -65,6 +72,8 @@ export default function UserSettingsPage() {
       setAddress(data.address ?? "");
       setCityStateZip(data.cityStateZip ?? "");
       setDaytimePhone(data.daytimePhone ?? "");
+      setDriverLicenseNumber(data.driverLicenseNumber ?? "");
+      setDriverLicenseState(data.driverLicenseState ?? "IL");
       setStatus(data.profileStatus);
       setNotes(data.profileReviewNotes ?? null);
     }
@@ -83,6 +92,8 @@ export default function UserSettingsPage() {
           address,
           cityStateZip,
           daytimePhone,
+          driverLicenseNumber,
+          driverLicenseState,
         }),
       });
     },
@@ -160,6 +171,28 @@ export default function UserSettingsPage() {
                 onChange={(e) => setDaytimePhone(e.target.value)}
                 className="border p-1"
               />
+            </label>
+            <label className="flex flex-col">
+              {t("driverLicenseNumberLabel")}
+              <input
+                value={driverLicenseNumber}
+                onChange={(e) => setDriverLicenseNumber(e.target.value)}
+                className="border p-1"
+              />
+            </label>
+            <label className="flex flex-col">
+              {t("driverLicenseStateLabel")}
+              <select
+                value={driverLicenseState}
+                onChange={(e) => setDriverLicenseState(e.target.value)}
+                className="border p-1"
+              >
+                {US_STATES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="flex flex-col">
               {t("socialLinksLabel")}
