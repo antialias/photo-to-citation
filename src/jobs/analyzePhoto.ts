@@ -7,15 +7,6 @@ import { getUnleash } from "@/lib/unleash";
 
 (async () => {
   await migrationsReady;
-  if (!getUnleash().isEnabled("photo-analysis")) {
-    if (parentPort) parentPort.postMessage("done");
-    const { jobData } = workerData as { jobData: { caseData: Case } };
-    updateCase(jobData.caseData.id, {
-      analysisStatus: "complete",
-      analysisStatusCode: 204,
-    });
-    return;
-  }
   const { jobData } = workerData as {
     jobData: { caseData: Case; photo: string; lang: string };
   };
