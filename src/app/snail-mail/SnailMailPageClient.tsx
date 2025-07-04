@@ -1,41 +1,27 @@
 "use client";
 
-import { apiFetch } from "@/apiClient";
 import SnailMailStatusIcon from "@/components/SnailMailStatusIcon";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface MailInfo {
-  caseId: string;
-  subject: string;
-  status: "queued" | "saved" | "shortfall" | "error";
-  sentAt: string;
-}
+import useCase from "../hooks/useCase";
+import useSnailMail from "../hooks/useSnailMail";
 
 export default function SnailMailPageClient() {
-  const [openOnly, setOpenOnly] = useState(true);
-  const [hideDelivered, setHideDelivered] = useState(true);
-  const [mails, setMails] = useState<MailInfo[]>([]);
   const { t } = useTranslation();
   const params = useSearchParams();
   const caseId = params.get("case");
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    params.set("open", openOnly ? "true" : "false");
-    if (caseId) params.set("case", caseId);
-    if (hideDelivered) {
-      params.append("status", "queued");
-      params.append("status", "shortfall");
-      params.append("status", "error");
-    }
-    apiFetch(`/api/snail-mail?${params.toString()}`)
-      .then((r) => r.json() as Promise<MailInfo[]>)
-      .then(setMails)
-      .catch(() => setMails([]));
-  }, [openOnly, hideDelivered, caseId]);
+  const [openOnly, setOpenOnly] = useState(true);
+  const [hideDelivered, setHideDelivered] = useState(true);
+  const { data: mails = [] } = useSnailMail({
+    openOnly,
+    hideDelivered,
+    caseId,
+  });
+  const { data: caseData } = useCase(caseId ?? "");
+  const violation = caseData?.analysis?.violationType ?? null;
 
   return (
     <div className="p-8">
@@ -58,6 +44,14 @@ export default function SnailMailPageClient() {
           {t("hideDelivered")}
         </label>
       </div>
+      {caseId ? (
+        <div className="mb-4">
+          <h2 className="font-semibold">{t("caseLabel", { id: caseId })}</h2>
+          <p className="text-sm text-gray-500">
+            {t("violationLabel", { type: violation || t("unknown") })}
+          </p>
+        </div>
+      ) : null}
       {mails.length === 0 ? (
         <p>{t("noSnailMail")}</p>
       ) : (
