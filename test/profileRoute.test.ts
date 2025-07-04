@@ -62,4 +62,19 @@ describe("profile API", () => {
     expect(updated?.driverLicenseNumber).toBe("D123");
     expect(updated?.driverLicenseState).toBe("IL");
   });
+
+  it("defaults image to gravatar when blank", async () => {
+    const { orm } = await import("@/lib/orm");
+    const schema = await import("@/lib/schema");
+    const { eq } = await import("drizzle-orm");
+    orm
+      .update(schema.users)
+      .set({ image: "" })
+      .where(eq(schema.users.id, "u1"))
+      .run();
+
+    const { getUser } = await import("@/lib/userStore");
+    const user = getUser("u1");
+    expect(user?.image).toMatch(/gravatar\.com/);
+  });
 });

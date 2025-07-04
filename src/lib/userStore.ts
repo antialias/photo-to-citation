@@ -23,7 +23,11 @@ export interface UserRecord {
 export function getUser(id: string): UserRecord | null {
   const row = orm.select().from(users).where(eq(users.id, id)).get();
   if (!row) return null;
-  const image = row.image ?? (row.email ? gravatarUrl(row.email) : null);
+  const image = row.image?.trim()
+    ? row.image
+    : row.email
+      ? gravatarUrl(row.email)
+      : null;
   return { ...row, image };
 }
 
@@ -48,7 +52,8 @@ export function updateUser(
 ): UserRecord | null {
   const data: Record<string, string | null> = {};
   if (updates.name !== undefined) data.name = updates.name;
-  if (updates.image !== undefined) data.image = updates.image;
+  if (updates.image !== undefined)
+    data.image = updates.image?.trim() ? updates.image : null;
   if (updates.bio !== undefined) data.bio = updates.bio;
   if (updates.socialLinks !== undefined) data.socialLinks = updates.socialLinks;
   if (updates.address !== undefined) data.address = updates.address;
