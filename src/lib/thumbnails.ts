@@ -11,9 +11,10 @@ export async function generateThumbnails(
   filename: string,
 ): Promise<void> {
   const base = path.basename(filename);
+  const ext = path.extname(base).toLowerCase();
   const uploadDir = path.join(config.UPLOAD_DIR, "thumbs");
   try {
-    await sharp(buffer).metadata();
+    await sharp(buffer, ext === ".pdf" ? { page: 0 } : undefined).metadata();
   } catch (err) {
     console.warn("Skipping thumbnail generation for invalid image", err);
     return;
@@ -22,15 +23,22 @@ export async function generateThumbnails(
     THUMB_SIZES.map(async (size) => {
       const dir = path.join(uploadDir, String(size));
       fs.mkdirSync(dir, { recursive: true });
-      await sharp(buffer)
-        .resize(size, undefined, { fit: "inside" })
-        .toFile(path.join(dir, base));
+      const outBase = ext === ".pdf" ? base.replace(/\.pdf$/i, ".jpg") : base;
+      const img = sharp(
+        buffer,
+        ext === ".pdf" ? { page: 0 } : undefined,
+      ).resize(size, undefined, { fit: "inside" });
+      if (ext === ".pdf") img.jpeg();
+      await img.toFile(path.join(dir, outBase));
     }),
   );
 }
 
 export function getThumbnailUrl(url: string, size: number): string {
   const base = path.basename(url);
+  if (base.toLowerCase().endsWith(".pdf")) {
+    return `/uploads/thumbs/${size}/${base.replace(/\.pdf$/i, ".jpg")}`;
+  }
   return `/uploads/thumbs/${size}/${base}`;
 }
 
