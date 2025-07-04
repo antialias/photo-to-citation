@@ -7,9 +7,10 @@ import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
 import { useQueryClient } from "@tanstack/react-query";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNotify } from "../components/NotificationProvider";
 import { caseQueryKey } from "../hooks/useCase";
@@ -43,8 +44,10 @@ function sortList(
 
 export default function ClientCasesPage({
   initialCases,
+  scrollElement,
 }: {
   initialCases: Case[];
+  scrollElement?: RefObject<HTMLDivElement | null>;
 }) {
   const [orderBy, setOrderBy] = useState<Order>("createdAt");
   const [cases, setCases] = useState(() => sortList(initialCases, "createdAt"));
@@ -66,6 +69,22 @@ export default function ClientCasesPage({
   const selectedIds =
     searchParams.get("ids")?.split(",").filter(Boolean) ??
     (params.id ? [params.id] : []);
+
+  const localScrollRef = useRef<HTMLDivElement>(null);
+
+  const filteredCases = cases.filter((c) => {
+    const state = c.archived ? "archived" : c.closed ? "closed" : "open";
+    return states.includes(state);
+  });
+
+  const rowVirtualizer = scrollElement
+    ? useVirtualizer({
+        count: filteredCases.length,
+        getScrollElement: () => scrollElement.current,
+        estimateSize: () => 150,
+        overscan: 5,
+      })
+    : null;
 
   useEventSource<Case & { deleted?: boolean }>(
     session ? "/api/cases/stream" : null,
@@ -140,6 +159,7 @@ export default function ClientCasesPage({
 
   return (
     <div
+      ref={scrollElement ? undefined : localScrollRef}
       className="p-8 relative h-full"
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
@@ -198,17 +218,117 @@ export default function ClientCasesPage({
           </select>
         </label>
       </div>
-      <ul className="grid gap-4">
-        {cases
-          .filter((c) => {
-            const state = c.archived
-              ? "archived"
-              : c.closed
-                ? "closed"
-                : "open";
-            return states.includes(state);
-          })
-          .map((c) => (
+      {rowVirtualizer ? (
+        <div
+          style={{
+            height: rowVirtualizer.getTotalSize(),
+            position: "relative",
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const c = filteredCases[virtualRow.index];
+            return (
+              <div
+                key={c.id}
+                ref={rowVirtualizer.measureElement}
+                onDragEnter={() => {
+                  setDropCase(c.id);
+                  setDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setDropCase(null);
+                  }
+                }}
+                className={`border p-2 mb-4 last:mb-0 ${
+                  selectedIds.includes(c.id)
+                    ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
+                    : dropCase === c.id
+                      ? "ring-2 ring-green-500"
+                      : "ring-1 ring-transparent"
+                }`}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                <Link
+                  href={session ? `/cases/${c.id}` : `/public/cases/${c.id}`}
+                  onClick={(e) => {
+                    if (e.shiftKey) {
+                      e.preventDefault();
+                      const ids = Array.from(new Set([...selectedIds, c.id]));
+                      router.push(`/cases?ids=${ids.join(",")}`);
+                    }
+                  }}
+                  className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left"
+                >
+                  <div className="relative">
+                    {(() => {
+                      const photo = getRepresentativePhoto(c);
+                      return photo ? (
+                        <img
+                          src={`/uploads/${photo}`}
+                          alt={t("casePreview")}
+                          width={80}
+                          height={60}
+                          loading="lazy"
+                        />
+                      ) : null;
+                    })()}
+                    {c.photos.length > 1 ? (
+                      <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
+                        {c.photos.length}
+                      </span>
+                    ) : null}
+                  </div>
+                  {(() => {
+                    const g = getOfficialCaseGps(c);
+                    return g ? (
+                      <MapPreview
+                        lat={g.lat}
+                        lon={g.lon}
+                        width={120}
+                        height={90}
+                        className="w-20 aspect-[4/3]"
+                      />
+                    ) : null;
+                  })()}
+                  <div className="flex flex-col text-sm gap-1">
+                    <span className="font-semibold">
+                      {t("caseLabel", { id: c.id })}
+                    </span>
+                    {c.analysis ? (
+                      <>
+                        <AnalysisInfo
+                          analysis={c.analysis}
+                          onTranslate={() =>
+                            translate(c.id, "analysis.details", i18n.language)
+                          }
+                        />
+                        {c.analysisStatus === "pending" ? (
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {t("updatingAnalysis")}
+                          </span>
+                        ) : null}
+                      </>
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {t("analyzingPhoto")}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <ul className="grid gap-4">
+          {filteredCases.map((c) => (
             <li
               key={c.id}
               onDragEnter={() => {
@@ -297,7 +417,8 @@ export default function ClientCasesPage({
               </Link>
             </li>
           ))}
-      </ul>
+        </ul>
+      )}
       {dragging ? (
         <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-nav">
           {dropCase
