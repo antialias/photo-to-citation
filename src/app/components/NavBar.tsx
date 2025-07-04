@@ -60,6 +60,13 @@ export default function NavBar() {
       >
         {t("nav.mapView")}
       </Link>
+      <Link
+        href="/snail-mail"
+        className="hover:text-gray-600 dark:hover:text-gray-300"
+        onClick={() => setMenuOpen(false)}
+      >
+        {t("nav.snailMail")}
+      </Link>
       {session ? (
         <Link
           href="/triage"
