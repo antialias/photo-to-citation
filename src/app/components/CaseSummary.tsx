@@ -30,6 +30,9 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
     (c) => c.analysisStatus === "complete" && hasCaseViolation(c),
   );
   const hasOwnerAll = cases.every((c) => Boolean(getCaseOwnerContact(c)));
+  const ownershipRequestedAll = cases.every(
+    (c) => (c.ownershipRequests ?? []).length > 0,
+  );
   const ids = cases.map((c) => c.id);
   const { t } = useTranslation();
 
@@ -39,6 +42,7 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
         caseIds={ids}
         disabled={actionsDisabled}
         hasOwner={hasOwnerAll}
+        ownershipRequested={ownershipRequestedAll}
       />
       <div className="p-8 flex flex-col gap-2">
         <h1 className="text-xl font-semibold">{t("caseSummary")}</h1>

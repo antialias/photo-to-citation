@@ -44,6 +44,13 @@ export const caseActions: CaseAction[] = [
       "Record the steps for requesting official ownership details from the state. Use if the license plate is known but contact info is missing.",
   },
   {
+    id: "view-ownership-request",
+    label: "View Ownership Request",
+    href: (id) => `/cases/${id}/ownership-request`,
+    description:
+      "View the ownership information request that was previously sent.",
+  },
+  {
     id: "upload-photo",
     label: "Upload Photo",
     href: (id) => `/upload?case=${id}`,
@@ -110,6 +117,12 @@ export function getCaseActionStatus(
         } else if ((c.ownershipRequests ?? []).length > 0) {
           applicable = false;
           reason = "ownership info already requested";
+        }
+        break;
+      case "view-ownership-request":
+        if ((c.ownershipRequests ?? []).length === 0) {
+          applicable = false;
+          reason = "no ownership request";
         }
         break;
       default:
