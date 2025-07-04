@@ -11,6 +11,7 @@ import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
 import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
 import type { SnailMailStatus } from "@/lib/snailMail";
+import { generateThumbnailsInBackground } from "@/lib/thumbnails";
 import { getUser } from "@/lib/userStore";
 
 export const POST = withCaseAuthorization(
@@ -90,7 +91,9 @@ export const POST = withCaseAuthorization(
       if (path.isAbsolute(att)) {
         const dest = path.join(config.UPLOAD_DIR, path.basename(att));
         try {
+          const data = fs.readFileSync(att);
           fs.copyFileSync(att, dest);
+          generateThumbnailsInBackground(data, path.basename(att));
           storedAttachments.push(path.basename(att));
         } catch {}
       } else {
