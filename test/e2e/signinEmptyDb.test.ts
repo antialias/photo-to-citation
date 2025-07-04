@@ -32,7 +32,10 @@ describe("sign in with empty db @smoke", () => {
       (
         await api("/api/auth/signin/email", {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "accept-language": "es",
+          },
           body: new URLSearchParams({
             csrfToken: csrf.csrfToken,
             email,
@@ -46,10 +49,15 @@ describe("sign in with empty db @smoke", () => {
     expect(ver.url).toBeTruthy();
     await api(
       `${new URL(ver.url).pathname}?${new URL(ver.url).searchParams.toString()}`,
+      {
+        headers: { "accept-language": "es" },
+      },
     );
 
     const session = await api("/api/auth/session").then((r) => r.json());
     expect(session?.user?.email).toBe(email);
     expect(session?.user?.role).toBe("superadmin");
+    const profile = await api("/api/profile").then((r) => r.json());
+    expect(profile.language).toBe("es");
   });
 });

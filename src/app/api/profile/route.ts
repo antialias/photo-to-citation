@@ -36,6 +36,7 @@ export async function PUT(
     daytimePhone,
     driverLicenseNumber,
     driverLicenseState,
+    language,
   } = (await req.json()) as {
     name?: string | null;
     image?: string | null;
@@ -46,6 +47,7 @@ export async function PUT(
     daytimePhone?: string | null;
     driverLicenseNumber?: string | null;
     driverLicenseState?: string | null;
+    language?: string | null;
   };
   const user = updateUser(userId, {
     name,
@@ -57,6 +59,7 @@ export async function PUT(
     daytimePhone,
     driverLicenseNumber,
     driverLicenseState,
+    language,
     profileStatus: "under_review",
     profileReviewNotes: null,
   });

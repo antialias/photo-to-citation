@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaBars, FaUserCircle } from "react-icons/fa";
-import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -159,7 +158,6 @@ export default function NavBar() {
       />
       <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm items-center">
         {navLinks}
-        <LanguageSwitcher />
         {userMenu}
       </div>
       <div className="sm:hidden flex items-center gap-2">
@@ -179,7 +177,6 @@ export default function NavBar() {
               className="sm:hidden flex flex-col gap-2 text-sm bg-gray-100 dark:bg-gray-900 border rounded shadow p-4"
             >
               {navLinks}
-              <LanguageSwitcher />
             </Popover.Content>
           </Popover.Portal>
         </Popover.Root>
