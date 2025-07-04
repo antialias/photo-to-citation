@@ -1,10 +1,15 @@
 "use client";
 import { apiFetch } from "@/apiClient";
-import AnalysisInfo from "@/app/components/AnalysisInfo";
-import MapPreview from "@/app/components/MapPreview";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import ThumbnailImage from "@/components/thumbnail-image";
 import type { Case } from "@/lib/caseStore";
-import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
+import {
+  getCasePlateNumber,
+  getCasePlateState,
+  getOfficialCaseGps,
+  getRepresentativePhoto,
+} from "@/lib/caseUtils";
+import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { distanceBetween } from "@/lib/distance";
 import { useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -12,6 +17,7 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import { useNotify } from "../components/NotificationProvider";
 import { caseQueryKey } from "../hooks/useCase";
 import useEventSource from "../hooks/useEventSource";
@@ -270,12 +276,12 @@ export default function ClientCasesPage({
                     {(() => {
                       const photo = getRepresentativePhoto(c);
                       return photo ? (
-                        <img
-                          src={`/uploads/${photo}`}
+                        <ThumbnailImage
+                          src={getThumbnailUrl(photo, 256)}
                           alt={t("casePreview")}
                           width={80}
                           height={60}
-                          loading="lazy"
+                          imgClassName="object-cover"
                         />
                       ) : null;
                     })()}
@@ -288,38 +294,38 @@ export default function ClientCasesPage({
                   {(() => {
                     const g = getOfficialCaseGps(c);
                     return g ? (
-                      <MapPreview
-                        lat={g.lat}
-                        lon={g.lon}
-                        width={120}
-                        height={90}
-                        className="w-20 aspect-[4/3]"
-                      />
+                      <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <FaMapMarkerAlt className="w-3 h-3" />
+                        {g.lat.toFixed(3)}, {g.lon.toFixed(3)}
+                      </span>
                     ) : null;
                   })()}
                   <div className="flex flex-col text-sm gap-1 overflow-hidden">
-                    <span className="font-semibold">
+                    <span className="font-semibold truncate">
                       {t("caseLabel", { id: c.id })}
                     </span>
                     {c.analysis ? (
-                      <>
-                        <AnalysisInfo
-                          analysis={c.analysis}
-                          onTranslate={() =>
-                            translate(c.id, "analysis.details", i18n.language)
-                          }
-                        />
-                        {c.analysisStatus === "pending" ? (
-                          <span className="text-gray-500 dark:text-gray-400">
-                            {t("updatingAnalysis")}
-                          </span>
-                        ) : null}
-                      </>
+                      <span className="truncate">
+                        {c.analysis.violationType}
+                      </span>
                     ) : (
                       <span className="text-gray-500 dark:text-gray-400">
                         {t("analyzingPhoto")}
                       </span>
                     )}
+                    {(() => {
+                      const plateNum = getCasePlateNumber(c);
+                      const plateState = getCasePlateState(c);
+                      return plateNum || plateState ? (
+                        <span className="truncate">
+                          {plateState ? `${plateState} ` : ""}
+                          {plateNum}
+                        </span>
+                      ) : null;
+                    })()}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(c.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </Link>
               </div>
@@ -363,12 +369,12 @@ export default function ClientCasesPage({
                   {(() => {
                     const photo = getRepresentativePhoto(c);
                     return photo ? (
-                      <img
-                        src={`/uploads/${photo}`}
+                      <ThumbnailImage
+                        src={getThumbnailUrl(photo, 256)}
                         alt={t("casePreview")}
                         width={80}
                         height={60}
-                        loading="lazy"
+                        imgClassName="object-cover"
                       />
                     ) : null;
                   })()}
@@ -381,38 +387,36 @@ export default function ClientCasesPage({
                 {(() => {
                   const g = getOfficialCaseGps(c);
                   return g ? (
-                    <MapPreview
-                      lat={g.lat}
-                      lon={g.lon}
-                      width={120}
-                      height={90}
-                      className="w-20 aspect-[4/3]"
-                    />
+                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <FaMapMarkerAlt className="w-3 h-3" />
+                      {g.lat.toFixed(3)}, {g.lon.toFixed(3)}
+                    </span>
                   ) : null;
                 })()}
                 <div className="flex flex-col text-sm gap-1 overflow-hidden">
-                  <span className="font-semibold">
+                  <span className="font-semibold truncate">
                     {t("caseLabel", { id: c.id })}
                   </span>
                   {c.analysis ? (
-                    <>
-                      <AnalysisInfo
-                        analysis={c.analysis}
-                        onTranslate={() =>
-                          translate(c.id, "analysis.details", i18n.language)
-                        }
-                      />
-                      {c.analysisStatus === "pending" ? (
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {t("updatingAnalysis")}
-                        </span>
-                      ) : null}
-                    </>
+                    <span className="truncate">{c.analysis.violationType}</span>
                   ) : (
                     <span className="text-gray-500 dark:text-gray-400">
                       {t("analyzingPhoto")}
                     </span>
                   )}
+                  {(() => {
+                    const plateNum = getCasePlateNumber(c);
+                    const plateState = getCasePlateState(c);
+                    return plateNum || plateState ? (
+                      <span className="truncate">
+                        {plateState ? `${plateState} ` : ""}
+                        {plateNum}
+                      </span>
+                    ) : null;
+                  })()}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
               </Link>
             </li>
