@@ -68,6 +68,7 @@ export default function SnailMailPageClient() {
               <th className="border px-2 py-1">{t("subjectLabel")}</th>
               <th className="border px-2 py-1">{t("status")}</th>
               <th className="border px-2 py-1">{t("sent")}</th>
+              <th className="border px-2 py-1">{t("thread")}</th>
             </tr>
           </thead>
           <tbody>
@@ -87,6 +88,14 @@ export default function SnailMailPageClient() {
                 </td>
                 <td className="border px-2 py-1">
                   {new Date(m.sentAt).toLocaleString()}
+                </td>
+                <td className="border px-2 py-1">
+                  <Link
+                    href={`/cases/${m.caseId}/thread/${encodeURIComponent(m.sentAt)}`}
+                    className="text-blue-500 underline"
+                  >
+                    {t("viewThread")}
+                  </Link>
                 </td>
               </tr>
             ))}
