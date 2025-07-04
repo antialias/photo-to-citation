@@ -6,7 +6,12 @@ export const POST = withAuthorization(
   { obj: "snail_mail_providers", act: "update" },
   async (
     _req: Request,
-    { params }: { params: Promise<{ id: string }>; session?: { user?: { role?: string } } }
+    {
+      params,
+    }: {
+      params: Promise<{ id: string }>;
+      session?: { user?: { role?: string } };
+    },
   ) => {
     const { id } = await params;
     const provider = snailMailProviders[id];
