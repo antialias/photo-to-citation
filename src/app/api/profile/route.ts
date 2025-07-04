@@ -26,17 +26,24 @@ export async function PUT(
 ) {
   const { userId } = await loadAuthContext(ctx, "user");
   if (!userId) return new Response(null, { status: 401 });
-  const { name, image, bio, socialLinks } = (await req.json()) as {
-    name?: string | null;
-    image?: string | null;
-    bio?: string | null;
-    socialLinks?: string | null;
-  };
+  const { name, image, bio, socialLinks, address, cityStateZip, daytimePhone } =
+    (await req.json()) as {
+      name?: string | null;
+      image?: string | null;
+      bio?: string | null;
+      socialLinks?: string | null;
+      address?: string | null;
+      cityStateZip?: string | null;
+      daytimePhone?: string | null;
+    };
   const user = updateUser(userId, {
     name,
     image,
     bio,
     socialLinks,
+    address,
+    cityStateZip,
+    daytimePhone,
     profileStatus: "under_review",
     profileReviewNotes: null,
   });

@@ -37,7 +37,13 @@ describe("profile API", () => {
 
     const req = new Request("http://test", {
       method: "PUT",
-      body: JSON.stringify({ name: "Bob", bio: "bio" }),
+      body: JSON.stringify({
+        name: "Bob",
+        bio: "bio",
+        address: "123 A St",
+        cityStateZip: "City, ST 12345",
+        daytimePhone: "555-0000",
+      }),
     });
     await mod.PUT(req, {
       params: Promise.resolve({}),
@@ -48,5 +54,8 @@ describe("profile API", () => {
     const updated = getUser("u1");
     expect(updated?.name).toBe("Bob");
     expect(updated?.bio).toBe("bio");
+    expect(updated?.address).toBe("123 A St");
+    expect(updated?.cityStateZip).toBe("City, ST 12345");
+    expect(updated?.daytimePhone).toBe("555-0000");
   });
 });

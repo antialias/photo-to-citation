@@ -39,6 +39,30 @@ export default function OwnershipEditor({
     }
   }, [session]);
 
+  useEffect(() => {
+    if (session?.user) {
+      apiFetch("/api/profile")
+        .then((r) => r.json())
+        .then(
+          (p: {
+            address?: string;
+            cityStateZip?: string;
+            daytimePhone?: string;
+          }) => {
+            setForm((f) => ({
+              ...f,
+              requesterAddress: p.address ?? f.requesterAddress ?? "",
+              requesterCityStateZip:
+                p.cityStateZip ?? f.requesterCityStateZip ?? "",
+              requesterDaytimePhoneNumber:
+                p.daytimePhone ?? f.requesterDaytimePhoneNumber ?? "",
+            }));
+          },
+        )
+        .catch(() => {});
+    }
+  }, [session]);
+
   const optionCost = useMemo(() => {
     switch (option) {
       case "certifiedTitleSearch":
@@ -68,6 +92,17 @@ export default function OwnershipEditor({
         form: { ...form, [option]: true },
       }),
     });
+    if (session?.user) {
+      await apiFetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: form.requesterAddress,
+          cityStateZip: form.requesterCityStateZip,
+          daytimePhone: form.requesterDaytimePhoneNumber,
+        }),
+      }).catch(() => {});
+    }
     if (res.ok) {
       const data = (await res.json()) as {
         case: { sentEmails?: { sentAt: string }[] };
@@ -143,6 +178,20 @@ export default function OwnershipEditor({
           value={form.requesterCityStateZip ?? ""}
           onChange={(e) =>
             setForm((f) => ({ ...f, requesterCityStateZip: e.target.value }))
+          }
+          className="border p-1"
+        />
+      </label>
+      <label className="flex flex-col">
+        Daytime Phone
+        <input
+          type="text"
+          value={form.requesterDaytimePhoneNumber ?? ""}
+          onChange={(e) =>
+            setForm((f) => ({
+              ...f,
+              requesterDaytimePhoneNumber: e.target.value,
+            }))
           }
           className="border p-1"
         />
