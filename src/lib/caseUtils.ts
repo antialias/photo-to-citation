@@ -167,6 +167,15 @@ export function getCaseOwnerContactInfo(
   return parseContactInfo(contact);
 }
 
+export function getLatestOwnershipRequestLink(caseData: Case): string | null {
+  const email = [...(caseData.sentEmails ?? [])]
+    .filter((m) => m.subject === "Ownership information request")
+    .sort((a, b) => b.sentAt.localeCompare(a.sentAt))[0];
+  return email
+    ? `/cases/${caseData.id}/thread/${encodeURIComponent(email.sentAt)}`
+    : null;
+}
+
 export function getBestViolationPhoto(
   caseData: Pick<Case, "photos" | "analysis">,
 ): { photo: string; caption?: string } | null {

@@ -192,3 +192,7 @@ export function useCaseContext() {
   if (!ctx) throw new Error("useCaseContext must be used within CaseProvider");
   return ctx;
 }
+
+export function useOptionalCaseContext() {
+  return useContext(CaseContext);
+}

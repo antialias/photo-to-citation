@@ -1,7 +1,12 @@
 "use client";
 import CaseToolbar from "@/app/components/CaseToolbar";
 import { useSession } from "@/app/useSession";
-import { getCaseOwnerContact, hasCaseViolation } from "@/lib/caseUtils";
+import { getCaseActionStatus } from "@/lib/caseActions";
+import {
+  getCaseOwnerContact,
+  getLatestOwnershipRequestLink,
+  hasCaseViolation,
+} from "@/lib/caseUtils";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft, FaShare } from "react-icons/fa";
@@ -24,6 +29,14 @@ export default function CaseHeader({
   const ownerContact = getCaseOwnerContact(caseData);
   const violationIdentified =
     caseData.analysisStatus === "complete" && hasCaseViolation(caseData);
+  const statuses = getCaseActionStatus(caseData);
+  const viewRequestStatus = statuses.find(
+    (s) => s.id === "view-ownership-request",
+  );
+  const ownershipRequested = Boolean(viewRequestStatus?.applicable);
+  const ownershipRequestLink = ownershipRequested
+    ? getLatestOwnershipRequestLink(caseData)
+    : null;
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -55,6 +68,8 @@ export default function CaseHeader({
         caseId={caseId}
         disabled={!violationIdentified}
         hasOwner={Boolean(ownerContact)}
+        ownershipRequested={ownershipRequested}
+        ownershipRequestLink={ownershipRequestLink}
         progress={isPhotoReanalysis ? null : progress}
         canDelete={isAdmin}
         closed={caseData.closed}

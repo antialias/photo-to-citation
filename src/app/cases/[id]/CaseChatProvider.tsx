@@ -4,6 +4,7 @@ import ThumbnailImage from "@/components/thumbnail-image";
 import { caseActions } from "@/lib/caseActions";
 import type { CaseChatAction, CaseChatReply } from "@/lib/caseChat";
 import type { EmailDraft } from "@/lib/caseReport";
+import { getLatestOwnershipRequestLink } from "@/lib/caseUtils";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { getLocalizedText } from "@/lib/localizedText";
 import type { ReportModule } from "@/lib/reportModules";
@@ -22,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import InlineTranslateButton from "../../components/InlineTranslateButton";
 import { useNotify } from "../../components/NotificationProvider";
 import useChatTranslate from "../../useChatTranslate";
+import { useOptionalCaseContext } from "./CaseContext";
 
 export interface Message {
   id: string;
@@ -130,6 +132,7 @@ export function CaseChatProvider({
   const [open, setOpen] = useState(false);
   const [expandedState, setExpandedState] = useState(false);
   const expanded = controlledExpanded ?? expandedState;
+  const { caseData } = useOptionalCaseContext() ?? { caseData: null };
   const [messages, setMessages] = useState<Message[]>([]);
   const [history, setHistory] = useState<ChatSession[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -561,6 +564,11 @@ export function CaseChatProvider({
                   void openDraft(msgId);
                 } else if (act.id === "take-photo") {
                   openCamera(msgId);
+                } else if (act.id === "view-ownership-request") {
+                  const link = caseData
+                    ? getLatestOwnershipRequestLink(caseData)
+                    : null;
+                  if (link) router.push(link);
                 } else {
                   router.push(act.href(caseId));
                 }
