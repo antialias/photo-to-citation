@@ -3,6 +3,7 @@ import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import { useTranslation } from "react-i18next";
+import { FaFileAlt, FaFilePdf } from "react-icons/fa";
 import { useCaseContext } from "../CaseContext";
 import { baseName, buildThreads } from "../utils";
 
@@ -43,6 +44,48 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                 <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
                   {mail.body}
                 </span>
+                {mail.attachments && mail.attachments.length > 0 ? (
+                  <ul className="flex flex-wrap gap-2 mt-1">
+                    {mail.attachments.map((att) => {
+                      const ext = att.toLowerCase().split(".").pop() ?? "";
+                      const isImage = [
+                        "jpg",
+                        "jpeg",
+                        "png",
+                        "webp",
+                        "gif",
+                      ].includes(ext);
+                      const isPdf = ext === "pdf";
+                      return (
+                        <li key={att}>
+                          <a
+                            href={`/uploads/${att}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1"
+                          >
+                            {isImage ? (
+                              <ThumbnailImage
+                                src={getThumbnailUrl(att, 128)}
+                                alt={att}
+                                width={64}
+                                height={48}
+                                imgClassName="object-contain"
+                              />
+                            ) : isPdf ? (
+                              <FaFilePdf className="w-8 h-8 text-red-600" />
+                            ) : (
+                              <FaFileAlt className="w-8 h-8" />
+                            )}
+                            <span className="text-blue-500 underline">
+                              {att}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
                 <a
                   href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
                   className="self-start text-blue-500 underline"
