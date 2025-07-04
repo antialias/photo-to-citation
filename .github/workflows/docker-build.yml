@@ -10,14 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
       - name: Install dependencies
-        run: |
-          corepack install -g pnpm@9.15.4
-          pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Verify build
         run: pnpm run build
       - name: Set build time
