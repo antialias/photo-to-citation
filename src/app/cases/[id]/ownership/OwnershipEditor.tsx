@@ -152,7 +152,7 @@ export default function OwnershipEditor({
       <p>
         {t("stateLabel")} {module.state}
       </p>
-      <p>{t("sendCheckTo", { fee: module.fee })}</p>
+      <p>{t("sendCheckTo", { fee: total })}</p>
       <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
         {module.address}
       </pre>
@@ -256,7 +256,6 @@ export default function OwnershipEditor({
         />
         <span>Microfilm Only — $5</span>
       </label>
-      <p>Total: ${total}</p>
       <label className="flex flex-col">
         {t("checkNumberLabel")}
         <input
