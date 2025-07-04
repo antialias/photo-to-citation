@@ -1,7 +1,7 @@
 "use client";
 import type { Case } from "@/lib/caseStore";
 import { useParams } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import ClientCasesPage from "./ClientCasesPage";
 
 export default function CasesLayoutClient({
@@ -13,12 +13,14 @@ export default function CasesLayoutClient({
 }) {
   const params = useParams<{ id?: string }>();
   const hasCase = Boolean(params.id);
+  const listRef = useRef<HTMLDivElement>(null);
   return (
     <div className="lg:grid lg:grid-cols-[20%_80%] h-[calc(100vh-4rem)]">
       <div
+        ref={listRef}
         className={`${hasCase ? "hidden lg:block" : ""} border-r overflow-y-auto`}
       >
-        <ClientCasesPage initialCases={initialCases} />
+        <ClientCasesPage initialCases={initialCases} scrollElement={listRef} />
       </div>
       <div className={`${hasCase ? "" : "hidden lg:block"} overflow-y-auto`}>
         {children}
