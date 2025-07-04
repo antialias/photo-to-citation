@@ -216,6 +216,8 @@
   "snailMailSaved": "Snail mail saved",
   "snailMailShortfall": "Snail mail payment required",
   "snailMailError": "Snail mail error",
+  "openCasesOnly": "Open cases only",
+  "pendingOnly": "Pending only",
   "markRequested": "Mark as Requested",
   "noOwnershipModule": "No ownership module for state {{label}}. Supported states: {{supported}}. Please ensure the license plate state uses a two-letter abbreviation.",
   "failedUpdateVin": "Failed to update VIN.",
