@@ -36,8 +36,11 @@ const handler = withAuthorization<
     const users = listUsers();
     const rules = getCasbinRules();
     const { tab } = (await searchParams) ?? {};
-    const t = tab === "config" ? "config" : "users";
     const isSuperadmin = s?.user?.role === "superadmin";
+    const t =
+      tab === "config" || (tab === "status" && isSuperadmin)
+        ? (tab as "config" | "status")
+        : "users";
     return (
       <div className="p-8">
         <AdminPageClient

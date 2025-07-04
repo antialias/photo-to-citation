@@ -79,15 +79,6 @@ export default function NavBar() {
           {t("nav.admin")}
         </Link>
       ) : null}
-      {session?.user?.role === "superadmin" ? (
-        <Link
-          href="/system-status"
-          className="hover:text-gray-600 dark:hover:text-gray-300"
-          onClick={() => setMenuOpen(false)}
-        >
-          {t("nav.systemStatus")}
-        </Link>
-      ) : null}
       {/* user menu items removed from navLinks */}
     </>
   );

@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import SystemStatusClient from "../system-status/SystemStatusClient";
 import AppConfigurationTab from "./AppConfigurationTab";
 import InviteUserForm from "./components/InviteUserForm";
 import RulesTable from "./components/RulesTable";
@@ -38,11 +39,12 @@ export default function AdminPageClient({
 }: {
   initialUsers: UserRecord[];
   initialRules: RuleInput[];
-  initialTab?: "users" | "config";
+  initialTab?: "users" | "config" | "status";
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"users" | "config">(initialTab);
+  const [tab, setTab] = useState<"users" | "config" | "status">(initialTab);
   const { data: session } = useSession();
+  const isSuperadmin = session?.user?.role === "superadmin";
 
   const userHooks = useUsers(initialUsers);
   const ruleHooks = useCasbinRules(
@@ -55,13 +57,16 @@ export default function AdminPageClient({
     <Tabs
       value={tab}
       onValueChange={(v) => {
-        setTab(v as "users" | "config");
+        setTab(v as "users" | "config" | "status");
         router.replace(`?tab=${v}`);
       }}
     >
       <TabsList className="mb-4 flex gap-4 border-b">
         <TabsTrigger value="users">{t("admin.userManagement")}</TabsTrigger>
         <TabsTrigger value="config">{t("admin.appConfiguration")}</TabsTrigger>
+        {isSuperadmin && (
+          <TabsTrigger value="status">{t("admin.systemStatus")}</TabsTrigger>
+        )}
       </TabsList>
       <TabsContent value="users">
         <>
@@ -75,6 +80,11 @@ export default function AdminPageClient({
       <TabsContent value="config">
         <AppConfigurationTab />
       </TabsContent>
+      {isSuperadmin && (
+        <TabsContent value="status">
+          <SystemStatusClient />
+        </TabsContent>
+      )}
     </Tabs>
   );
 }
