@@ -92,6 +92,26 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                 >
                   {t("viewThread")}
                 </a>
+                {mail.attachments && mail.attachments.length > 0 ? (
+                  <div className="flex gap-2 flex-wrap mt-1">
+                    {mail.attachments.map((att) => (
+                      <a
+                        key={att}
+                        href={`/uploads/${att}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ThumbnailImage
+                          src={getThumbnailUrl(att, 64)}
+                          alt="attachment"
+                          width={60}
+                          height={45}
+                          imgClassName="object-contain"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>
