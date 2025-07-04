@@ -25,15 +25,15 @@ This stack is designed for performance, type safety, and complete control over h
 Install dependencies and start the development server:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Use [`Biome`](https://biomejs.dev/) for consistent formatting and linting:
 
 ```bash
-npm run lint
-npm run format
+pnpm run lint
+pnpm run format
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
@@ -47,7 +47,7 @@ cookie is still missing.
 For local HTTPS, run:
 
 ```bash
-npm run https
+pnpm run https
 ```
 
 Then browse to [https://localhost](https://localhost).
@@ -94,7 +94,7 @@ Copy the outputs into `.env.local` for the production deployment.
 When interfaces in `src/lib` change, update the runtime schemas and verify the output with:
 
 ```bash
-npm run generate:schemas
+pnpm run generate:schemas
 ```
 
 The command uses `ts-to-zod` with `ts-to-zod.config.js` to write schemas under `src/generated/zod`.
@@ -105,20 +105,20 @@ It then type-checks the generated files using `tsc` and fails if any errors are 
 Run database migrations whenever the schema changes:
 
 ```bash
-npm run migrate
+pnpm run migrate
 ```
 
 Generate new migration files from the Drizzle schema with:
 
 ```bash
-npm run generate:migrations
+pnpm run generate:migrations
 ```
 
 To consolidate old migrations into a single baseline, keep only the most recent
 files using:
 
 ```bash
-npm run squash:migrations -- --keep 5
+pnpm run squash:migrations -- --keep 5
 ```
 
 Omit the `--keep` option to retain the latest 10 migrations. Pass `--help` for
@@ -177,7 +177,7 @@ If a case ends up without analysis or the last attempt failed with a retryable
 error code, you can trigger a new pass with:
 
 ```bash
-npm run reanalyze
+pnpm run reanalyze
 ```
 
 This command scans stored cases and reprocesses any that meet the retry
@@ -244,7 +244,7 @@ SNAIL_MAIL_OUT_DIR=data/snailmail_out
 ```
 
 All sent mail is logged to `data/snailMail.json` or the file specified by
-`SNAIL_MAIL_FILE`. Run `npm run poll:snailmail` to invoke provider polling.
+`SNAIL_MAIL_FILE`. Run `pnpm run poll:snailmail` to invoke provider polling.
 
 Snail mail provider health is stored in `data/snailMailProviders.json` (overridable
 via `SNAIL_MAIL_PROVIDER_FILE`). The active provider and failure counts can be
@@ -291,7 +291,7 @@ IMAP_TLS=true
 INBOX_STATE_FILE=data/inbox.json
 ```
 
-Run `npm run scan:inbox` to start listening for new messages. Each email with
+Run `pnpm run scan:inbox` to start listening for new messages. Each email with
 one or more photo attachments becomes a new case. Multiple photos in the same
 email are added to that case before analysis and geocoding run in the
 background.
@@ -301,13 +301,13 @@ background.
 Remove abandoned anonymous cases by running:
 
 ```bash
-npm run cleanup:anon-cases
+pnpm run cleanup:anon-cases
 ```
 
 Add this command to cron or another scheduler to run daily, e.g.:
 
 ```cron
-0 3 * * * cd /path/to/app && npm run cleanup:anon-cases >> cleanup.log 2>&1
+0 3 * * * cd /path/to/app && pnpm run cleanup:anon-cases >> cleanup.log 2>&1
 ```
 
 ## Folder Structure
@@ -396,7 +396,7 @@ export const citationStatusModules: Record<string, CitationStatusModule> = {
 };
 ```
 
-Add new modules to this record and run `npm run generate:schemas` to update the
+Add new modules to this record and run `pnpm run generate:schemas` to update the
 runtime schema.
 
 ## Testing
@@ -404,20 +404,20 @@ runtime schema.
 Run all unit tests with:
 
 ```bash
-npm test
+pnpm test
 ```
 
 Generate a coverage report and fail if coverage drops below the configured
 thresholds with:
 
 ```bash
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 Run just the essential end-to-end smoke tests with:
 
 ```bash
-npm run e2e:smoke
+pnpm run e2e:smoke
 ```
 
 ## Docker
@@ -459,7 +459,7 @@ compiled to static HTML.
 Build the site with:
 
 ```bash
-npm run website
+pnpm run website
 ```
 
 The output is written to `website/dist`.

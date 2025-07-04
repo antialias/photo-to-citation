@@ -5,7 +5,7 @@ const DEFAULT_KEEP = 10;
 const migrationsDir = path.join(process.cwd(), "migrations");
 
 function usage(): void {
-  console.log(`Usage: npm run squash:migrations -- [options]
+  console.log(`Usage: pnpm run squash:migrations -- [options]
 
 Squash old migration files into a single baseline migration.
 
