@@ -54,7 +54,13 @@ describe("profile page e2e @smoke", () => {
 
     let res = await api("/api/profile");
     expect(res.status).toBe(200);
-    let data = (await res.json()) as { name?: string; image?: string };
+    let data = (await res.json()) as {
+      name?: string;
+      image?: string;
+      address?: string;
+      cityStateZip?: string;
+      daytimePhone?: string;
+    };
     expect(data.name ?? "").toBe("");
 
     res = await api("/api/profile", {
@@ -65,14 +71,26 @@ describe("profile page e2e @smoke", () => {
         image: "/img",
         bio: "hi",
         socialLinks: "http://link",
+        address: "123 A St",
+        cityStateZip: "City, ST 12345",
+        daytimePhone: "555-0000",
       }),
     });
     expect(res.status).toBe(200);
 
     res = await api("/api/profile");
-    data = (await res.json()) as { name?: string; image?: string };
+    data = (await res.json()) as {
+      name?: string;
+      image?: string;
+      address?: string;
+      cityStateZip?: string;
+      daytimePhone?: string;
+    };
     expect(data.name).toBe("Tester");
     expect(data.image).toBe("/img");
+    expect(data.address).toBe("123 A St");
+    expect(data.cityStateZip).toBe("City, ST 12345");
+    expect(data.daytimePhone).toBe("555-0000");
 
     const page = await api("/settings").then((r) => r.text());
     const dom = new JSDOM(page);

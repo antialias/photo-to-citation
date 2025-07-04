@@ -22,6 +22,9 @@ export default function UserSettingsPage() {
     image?: string;
     bio?: string;
     socialLinks?: string;
+    address?: string;
+    cityStateZip?: string;
+    daytimePhone?: string;
     profileStatus?: string;
     profileReviewNotes?: string | null;
   }>({
@@ -33,6 +36,9 @@ export default function UserSettingsPage() {
         image?: string;
         bio?: string;
         socialLinks?: string;
+        address?: string;
+        cityStateZip?: string;
+        daytimePhone?: string;
         profileStatus?: string;
         profileReviewNotes?: string | null;
       };
@@ -44,6 +50,9 @@ export default function UserSettingsPage() {
   const [image, setImage] = useState("");
   const [bio, setBio] = useState("");
   const [links, setLinks] = useState("");
+  const [address, setAddress] = useState("");
+  const [cityStateZip, setCityStateZip] = useState("");
+  const [daytimePhone, setDaytimePhone] = useState("");
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string | null | undefined>(undefined);
 
@@ -53,6 +62,9 @@ export default function UserSettingsPage() {
       setImage(data.image ?? "");
       setBio(data.bio ?? "");
       setLinks(data.socialLinks ?? "");
+      setAddress(data.address ?? "");
+      setCityStateZip(data.cityStateZip ?? "");
+      setDaytimePhone(data.daytimePhone ?? "");
       setStatus(data.profileStatus);
       setNotes(data.profileReviewNotes ?? null);
     }
@@ -63,7 +75,15 @@ export default function UserSettingsPage() {
       await apiFetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, image, bio, socialLinks: links }),
+        body: JSON.stringify({
+          name,
+          image,
+          bio,
+          socialLinks: links,
+          address,
+          cityStateZip,
+          daytimePhone,
+        }),
       });
     },
     onSuccess: () => {
@@ -114,6 +134,30 @@ export default function UserSettingsPage() {
               <input
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
+                className="border p-1"
+              />
+            </label>
+            <label className="flex flex-col">
+              Address
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="border p-1"
+              />
+            </label>
+            <label className="flex flex-col">
+              City/State/Zip
+              <input
+                value={cityStateZip}
+                onChange={(e) => setCityStateZip(e.target.value)}
+                className="border p-1"
+              />
+            </label>
+            <label className="flex flex-col">
+              Daytime Phone
+              <input
+                value={daytimePhone}
+                onChange={(e) => setDaytimePhone(e.target.value)}
                 className="border p-1"
               />
             </label>
