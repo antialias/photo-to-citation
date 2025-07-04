@@ -142,6 +142,26 @@ export interface OwnerContactInfo {
   address?: string;
 }
 
+export function getLatestOwnershipRequestThread(caseData: Case): string | null {
+  const reqs = caseData.ownershipRequests;
+  if (!reqs || reqs.length === 0) return null;
+  const latest = [...reqs].sort(
+    (a, b) =>
+      new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime(),
+  )[0];
+  const mails = caseData.sentEmails ?? [];
+  const email = [...mails]
+    .reverse()
+    .find(
+      (m) =>
+        m.subject === "Ownership information request" &&
+        new Date(m.sentAt).getTime() >= new Date(latest.requestedAt).getTime(),
+    );
+  return email
+    ? `/cases/${caseData.id}/thread/${encodeURIComponent(email.sentAt)}`
+    : null;
+}
+
 function parseContactInfo(text: string): OwnerContactInfo {
   const emailMatch = text.match(
     /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/,

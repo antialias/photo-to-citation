@@ -54,7 +54,6 @@ export default function CaseHeader({
       <CaseToolbar
         caseId={caseId}
         disabled={!violationIdentified}
-        hasOwner={Boolean(ownerContact)}
         progress={isPhotoReanalysis ? null : progress}
         canDelete={isAdmin}
         closed={caseData.closed}
