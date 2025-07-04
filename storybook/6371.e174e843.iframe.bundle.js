@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapp_scaffold=self.webpackChunkapp_scaffold||[]).push([[6371],{"./public/locales/en/common.json":module=>{module.exports={}},"./public/locales/es/common.json":module=>{module.exports={}},"./public/locales/fr/common.json":module=>{module.exports={}}}]);
