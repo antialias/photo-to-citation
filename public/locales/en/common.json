@@ -64,6 +64,7 @@
   "imageUrlLabel": "Image URL",
   "socialLinksLabel": "Social Links (one per line)",
   "bioLabel": "About You",
+  "languageLabel": "Language",
   "profileStatusUnderReview": "Profile under review",
   "profileStatusPublished": "Profile published",
   "profileStatusHidden": "Profile hidden. Revision requested:",

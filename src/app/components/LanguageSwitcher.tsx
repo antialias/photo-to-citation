@@ -12,15 +12,25 @@ const LABELS: Record<string, string> = {
   fr: "Fran\u00e7ais",
 };
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({
+  id,
+  value = i18n.language,
+  onChange,
+}: {
+  id?: string;
+  value?: string;
+  onChange?: (lang: string) => void;
+}) {
   return (
     <select
+      id={id}
       className="border rounded p-1 text-sm bg-white dark:bg-gray-800"
-      value={i18n.language}
+      value={value}
       onChange={(e) => {
         const lang = e.target.value;
         document.cookie = `language=${lang}; path=/; max-age=31536000`;
         i18n.changeLanguage(lang);
+        onChange?.(lang);
       }}
     >
       <option value="en" aria-label={LABELS.en}>
