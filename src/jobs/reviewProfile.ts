@@ -1,10 +1,15 @@
 import { parentPort, workerData } from "node:worker_threads";
 import { migrationsReady } from "@/lib/db";
 import { reviewProfile } from "@/lib/openai";
+import { getUnleash } from "@/lib/unleash";
 import { getUser, setProfileStatus } from "@/lib/userStore";
 
 (async () => {
   await migrationsReady;
+  if (!getUnleash().isEnabled("profile-review")) {
+    if (parentPort) parentPort.postMessage("done");
+    return;
+  }
   const { jobData } = workerData as { jobData: { userId: string } };
   const user = getUser(jobData.userId);
   if (!user) throw new Error("user not found");
