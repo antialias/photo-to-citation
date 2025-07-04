@@ -1,6 +1,7 @@
 import { parentPort, workerData } from "node:worker_threads";
 import { reanalyzePhoto } from "@/lib/caseAnalysis";
 import type { Case } from "@/lib/caseStore";
+import { updateCase } from "@/lib/caseStore";
 import { migrationsReady } from "@/lib/db";
 import { getUnleash } from "@/lib/unleash";
 
@@ -8,6 +9,11 @@ import { getUnleash } from "@/lib/unleash";
   await migrationsReady;
   if (!getUnleash().isEnabled("photo-analysis")) {
     if (parentPort) parentPort.postMessage("done");
+    const { jobData } = workerData as { jobData: { caseData: Case } };
+    updateCase(jobData.caseData.id, {
+      analysisStatus: "complete",
+      analysisStatusCode: 204,
+    });
     return;
   }
   const { jobData } = workerData as {
