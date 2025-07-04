@@ -2,6 +2,12 @@
 
 This repository is a Next.js TypeScript project using Vitest and Biome.
 
+## Design System
+
+- Follow the guidelines in
+  [docs/design-system-guidelines.md](docs/design-system-guidelines.md) when
+  creating or updating UI components.
+
 ## Formatting and Linting
 
 - Run `npm install` first to ensure the Biome CLI and other optional binaries are present.
