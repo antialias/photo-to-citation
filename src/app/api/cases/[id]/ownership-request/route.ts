@@ -12,6 +12,7 @@ import { ownershipModules } from "@/lib/ownershipModules";
 import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
 import type { SnailMailStatus } from "@/lib/snailMail";
 import { getUser } from "@/lib/userStore";
+import { getModelYearFromVin } from "@/lib/vin";
 
 export const POST = withCaseAuthorization(
   { obj: "cases", act: "update" },
@@ -47,11 +48,13 @@ export const POST = withCaseAuthorization(
       if (c) {
         const user = session?.user?.id ? getUser(session.user.id) : null;
         const addrLines = (config.RETURN_ADDRESS || "").split(/\n+/);
+        const vin = c.vinOverride ?? c.vin ?? undefined;
         const info: Record<string, unknown> = {
           plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
           state: c.analysis?.vehicle?.licensePlateState ?? "",
-          vin: c.vinOverride ?? c.vin ?? undefined,
+          vin,
           vehicleMake: c.analysis?.vehicle?.make ?? undefined,
+          vehicleYear: getModelYearFromVin(vin) ?? undefined,
           requesterName: user?.name ?? addrLines[0] ?? "",
           requesterAddress: addrLines[1] ?? "",
           requesterCityStateZip: addrLines[2] ?? "",
