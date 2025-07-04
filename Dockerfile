@@ -3,12 +3,14 @@
 # Install dependencies only, no dev dependencies after build
 FROM node:20-bookworm AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN corepack install -g pnpm@9.15.4 \
+    && pnpm install --frozen-lockfile
 
 # Build the application
 FROM node:20-bookworm AS builder
 WORKDIR /app
+RUN corepack install -g pnpm@9.15.4
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_BASE_PATH=""
@@ -19,11 +21,12 @@ ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 ENV NEXT_PUBLIC_APP_VERSION=$NEXT_PUBLIC_APP_VERSION
 ENV NEXT_PUBLIC_APP_COMMIT=$NEXT_PUBLIC_APP_COMMIT
 ENV NEXT_PUBLIC_DEPLOY_TIME=$NEXT_PUBLIC_DEPLOY_TIME
-RUN npm run build && npm prune --production
+RUN pnpm run build && pnpm prune --prod
 
 # Runtime image
 FROM node:20-bookworm AS runner
 WORKDIR /app
+RUN corepack install -g pnpm@9.15.4
 ENV NODE_ENV=production
 ENV PORT=3000
 ARG NEXT_PUBLIC_BASE_PATH=""
@@ -45,4 +48,4 @@ COPY --from=builder /app/forms ./forms
 COPY --from=builder /app/dist/jobs ./dist/jobs
 COPY --from=builder /app/src/lib ./src/lib
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]

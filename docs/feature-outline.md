@@ -31,11 +31,11 @@ the proper authorities.
 **Photo To Citation** runs on Node.js and uses environment variables to connect
 to various services. Follow these basic steps to get a local copy running:
 
-1. Clone the repository and install dependencies using `npm install`.
+1. Clone the repository and install dependencies using `pnpm install`.
 2. Copy `.env.example` to `.env.local` and populate the required variables. The
    most important keys include those for your LLM provider (see `OPENAI_API_KEY`),
    Twilio, and the snail mail service.
-3. Start the development server with `npm run dev` and open
+3. Start the development server with `pnpm run dev` and open
    `http://localhost:3000` to see the app.
 
 These steps give you a working development environment. The server reloads when
