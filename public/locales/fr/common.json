@@ -209,6 +209,8 @@
   "stateLabel": "État :",
   "sendCheckTo": "Envoyez un chèque de ${{fee}} à :",
   "checkNumberLabel": "Numéro de chèque",
+  "useSavedContactInfo": "Utiliser les informations enregistrées",
+  "daytimePhoneLabel": "Téléphone de jour",
   "sendSnailAutomatically": "Envoyer le courrier postal automatiquement",
   "sendSnailMailRequest": "Envoyer la demande par courrier",
   "snailMailQueued": "Courrier postal en file d'attente",

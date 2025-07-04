@@ -10,6 +10,9 @@ export interface UserRecord {
   image: string | null;
   bio: string | null;
   socialLinks: string | null;
+  address: string | null;
+  cityStateZip: string | null;
+  daytimePhoneNumber: string | null;
   profileStatus: string;
   profileReviewNotes: string | null;
   role: string;
@@ -31,6 +34,9 @@ export function updateUser(
       | "image"
       | "bio"
       | "socialLinks"
+      | "address"
+      | "cityStateZip"
+      | "daytimePhoneNumber"
       | "profileStatus"
       | "profileReviewNotes"
     >
@@ -41,6 +47,11 @@ export function updateUser(
   if (updates.image !== undefined) data.image = updates.image;
   if (updates.bio !== undefined) data.bio = updates.bio;
   if (updates.socialLinks !== undefined) data.socialLinks = updates.socialLinks;
+  if (updates.address !== undefined) data.address = updates.address;
+  if (updates.cityStateZip !== undefined)
+    data.cityStateZip = updates.cityStateZip;
+  if (updates.daytimePhoneNumber !== undefined)
+    data.daytimePhoneNumber = updates.daytimePhoneNumber;
   if (updates.profileStatus !== undefined)
     data.profileStatus = updates.profileStatus;
   if (updates.profileReviewNotes !== undefined)
