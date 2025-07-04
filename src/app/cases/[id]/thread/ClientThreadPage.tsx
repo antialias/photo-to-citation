@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaFileAlt, FaFilePdf } from "react-icons/fa";
 import { useNotify } from "../../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../../hooks/useCase";
 import useEventSource from "../../../hooks/useEventSource";
@@ -140,28 +140,42 @@ export default function ClientThreadPage({
             {mail.attachments && mail.attachments.length > 0 ? (
               <ul className="mt-2 flex flex-col gap-1">
                 <li className="font-semibold">{t("attachments")}</li>
-                <li>
-                  <div className="flex gap-2 flex-wrap">
-                    {mail.attachments.map((att) => (
+                {mail.attachments.map((att) => {
+                  const ext = att.toLowerCase().split(".").pop() ?? "";
+                  const isImage = [
+                    "jpg",
+                    "jpeg",
+                    "png",
+                    "webp",
+                    "gif",
+                  ].includes(ext);
+                  const isPdf = ext === "pdf";
+                  return (
+                    <li key={att} className="flex items-center gap-2">
                       <a
-                        key={att}
                         href={`/uploads/${att}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex flex-col items-center gap-1 text-blue-500 underline"
+                        className="flex items-center gap-2 text-blue-500 underline"
                       >
-                        <ThumbnailImage
-                          src={getThumbnailUrl(att, 128)}
-                          alt="attachment"
-                          width={80}
-                          height={60}
-                          imgClassName="object-contain"
-                        />
+                        {isImage ? (
+                          <ThumbnailImage
+                            src={getThumbnailUrl(att, 128)}
+                            alt={att}
+                            width={64}
+                            height={48}
+                            imgClassName="object-contain"
+                          />
+                        ) : isPdf ? (
+                          <FaFilePdf className="w-8 h-8 text-red-600" />
+                        ) : (
+                          <FaFileAlt className="w-8 h-8" />
+                        )}
                         <span>{att}</span>
                       </a>
-                    ))}
-                  </div>
-                </li>
+                    </li>
+                  );
+                })}
               </ul>
             ) : null}
           </li>
