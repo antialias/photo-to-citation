@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { withCaseAuthorization } from "@/lib/authz";
 import { getCase } from "@/lib/caseStore";
+import { getCaseVehicleMake, getCaseVehicleYear } from "@/lib/caseUtils";
 import { fillIlForm } from "@/lib/ownershipModules";
 import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
 import { NextResponse } from "next/server";
@@ -25,6 +26,8 @@ export const GET = withCaseAuthorization(
       plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
       state: c.analysis?.vehicle?.licensePlateState ?? "",
       vin: c.vinOverride ?? c.vin ?? undefined,
+      vehicleMake: getCaseVehicleMake(c) ?? undefined,
+      vehicleYear: getCaseVehicleYear(c) ?? undefined,
       reasonForRequestingRecords: "private investigation",
       reasonH: true,
     };

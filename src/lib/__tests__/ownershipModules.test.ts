@@ -16,6 +16,8 @@ describe("ownershipModules.il.requestVin", () => {
       plate: "ABC123",
       state: "IL",
       vin: "1HGCM82633A004352",
+      vehicleMake: "Honda",
+      vehicleYear: "2003",
     });
 
     expect(sendMock).toHaveBeenCalled();
@@ -27,5 +29,7 @@ describe("ownershipModules.il.requestVin", () => {
     const form = pdf.getForm();
     expect(form.getTextField("16").getText()).toBe("ABC123");
     expect(form.getTextField("13").getText()).toBe("1HGCM82633A004352");
+    expect(form.getTextField("12").getText()).toBe("Honda");
+    expect(form.getTextField("11").getText()).toBe("2003");
   });
 });

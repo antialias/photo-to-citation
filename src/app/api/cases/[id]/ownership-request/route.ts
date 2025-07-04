@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseEmail, addOwnershipRequest, getCase } from "@/lib/caseStore";
 import type { SentEmail } from "@/lib/caseStore";
+import { getCaseVehicleMake, getCaseVehicleYear } from "@/lib/caseUtils";
 import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
@@ -51,7 +52,8 @@ export const POST = withCaseAuthorization(
           plate: c.analysis?.vehicle?.licensePlateNumber ?? "",
           state: c.analysis?.vehicle?.licensePlateState ?? "",
           vin: c.vinOverride ?? c.vin ?? undefined,
-          vehicleMake: c.analysis?.vehicle?.make ?? undefined,
+          vehicleMake: getCaseVehicleMake(c) ?? undefined,
+          vehicleYear: getCaseVehicleYear(c) ?? undefined,
           requesterName: user?.name ?? addrLines[0] ?? "",
           requesterAddress: addrLines[1] ?? "",
           requesterCityStateZip: addrLines[2] ?? "",
