@@ -106,7 +106,8 @@
     "saveRules": "Enregistrer les règles",
     "deployedAt": "Déployé : {{date}}",
     "deployCommit": "Commit : {{commit}}",
-    "deployVersion": "Version : {{version}}"
+    "deployVersion": "Version : {{version}}",
+    "systemStatus": "État du système"
   },
   "menu": "Menu",
   "orderBy": "Trier par :",

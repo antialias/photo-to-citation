@@ -106,7 +106,8 @@
     "saveRules": "Guardar reglas",
     "deployedAt": "Desplegado: {{date}}",
     "deployCommit": "Commit: {{commit}}",
-    "deployVersion": "Versión: {{version}}"
+    "deployVersion": "Versión: {{version}}",
+    "systemStatus": "Estado del sistema"
   },
   "menu": "Menú",
   "orderBy": "Ordenar por:",

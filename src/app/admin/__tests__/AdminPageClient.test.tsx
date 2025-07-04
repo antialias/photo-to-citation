@@ -166,4 +166,35 @@ describe("AdminPageClient", () => {
     await waitFor(() => expect(confirmSpy).toHaveBeenCalled());
     expect(apiFetch).toHaveBeenCalledTimes(1);
   });
+
+  it("shows system status tab for superadmins", () => {
+    vi.mocked(useSession).mockReturnValueOnce({
+      data: { user: { role: "superadmin" }, expires: "0" },
+    } as unknown as ReturnType<typeof useSessionFn>);
+    vi.mocked(apiFetch).mockResolvedValue({
+      ok: true,
+      json: async () => users,
+    } as Response);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AdminPageClient initialUsers={users} initialRules={rules} />
+      </QueryClientProvider>,
+    );
+    expect(
+      screen.getByRole("tab", { name: /system status/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("hides system status tab for admins", () => {
+    vi.mocked(apiFetch).mockResolvedValue({
+      ok: true,
+      json: async () => users,
+    } as Response);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AdminPageClient initialUsers={users} initialRules={rules} />
+      </QueryClientProvider>,
+    );
+    expect(screen.queryByRole("tab", { name: /system status/i })).toBeNull();
+  });
 });
