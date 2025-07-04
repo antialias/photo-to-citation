@@ -21,14 +21,16 @@ jobs:
         run: |
           git remote set-url origin https://github.com/${{ github.repository }}.git
           git fetch origin gh-pages --depth=1 || true
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
       - name: Install dependencies
-        run: |
-          corepack install -g pnpm@9.15.4
-          pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - run: pnpm run website
         env:
           PATH_PREFIX: /photo-to-citation/website/
