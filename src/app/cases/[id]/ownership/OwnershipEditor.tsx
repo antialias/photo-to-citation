@@ -25,6 +25,9 @@ export default function OwnershipEditor({
   const [microfilmWithSearchOption, setMicrofilmWithSearchOption] =
     useState(false);
   const [microfilmOnly, setMicrofilmOnly] = useState(false);
+  const [snailMailResult, setSnailMailResult] = useState<
+    { status: string; error?: string } | undefined
+  >();
   const notify = useNotify();
   const router = useRouter();
   const { t } = useTranslation();
@@ -100,6 +103,7 @@ export default function OwnershipEditor({
   }, [caseId, form, option, microfilmWithSearchOption, microfilmOnly]);
 
   async function record() {
+    setSnailMailResult({ status: "sending" });
     const res = await apiFetch(`/api/cases/${caseId}/ownership-request`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -131,7 +135,16 @@ export default function OwnershipEditor({
     if (res.ok) {
       const data = (await res.json()) as {
         case: { sentEmails?: { sentAt: string }[] };
+        results: Record<string, { success: boolean; error?: string }>;
       };
+      const snail = data.results?.snailMail;
+      if (snail) {
+        setSnailMailResult(
+          snail.success
+            ? { status: "success" }
+            : { status: "error", error: snail.error },
+        );
+      }
       const newEmail = data.case.sentEmails?.at(-1);
       const url = newEmail
         ? `/cases/${caseId}/thread/${encodeURIComponent(newEmail.sentAt)}`
@@ -142,6 +155,7 @@ export default function OwnershipEditor({
       }
       notify(t("requestRecorded"));
     } else {
+      setSnailMailResult({ status: "error", error: res.statusText });
       notify(t("requestRecorded"));
     }
   }
@@ -272,6 +286,9 @@ export default function OwnershipEditor({
       >
         {t("sendSnailMailRequest")}
       </button>
+      {snailMailResult?.status === "error" && (
+        <span className="text-red-600 text-sm">{snailMailResult.error}</span>
+      )}
     </div>
   );
 }
