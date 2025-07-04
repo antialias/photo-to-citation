@@ -8,14 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
+import { caseActions, getCaseActionStatus } from "@/lib/caseActions";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { useCaseContext } from "../cases/[id]/CaseContext";
 
 export default function CaseToolbar({
   caseId,
   disabled = false,
-  hasOwner = false,
   progress,
   canDelete = false,
   closed = false,
@@ -25,7 +26,6 @@ export default function CaseToolbar({
 }: {
   caseId: string;
   disabled?: boolean;
-  hasOwner?: boolean;
   progress?: LlmProgress | null;
   canDelete?: boolean;
   closed?: boolean;
@@ -34,6 +34,22 @@ export default function CaseToolbar({
   readOnly?: boolean;
 }) {
   const { t } = useTranslation();
+  const { caseData } = useCaseContext();
+  const statuses = caseData ? getCaseActionStatus(caseData) : [];
+  const canRequestOwnership = statuses.some(
+    (s) => s.id === "ownership" && s.applicable,
+  );
+  const canNotifyOwner = statuses.some(
+    (s) => s.id === "notify-owner" && s.applicable,
+  );
+  const canViewOwnership = statuses.some(
+    (s) => s.id === "view-ownership-request" && s.applicable,
+  );
+  const viewOwnershipUrl = caseData
+    ? caseActions
+        .find((a) => a.id === "view-ownership-request")
+        ?.href(caseId, caseData)
+    : null;
   const reqText = progress
     ? progress.stage === "upload"
       ? progress.index > 0
@@ -194,7 +210,7 @@ export default function CaseToolbar({
                       {t("draftEmail")}
                     </Link>
                   </DropdownMenuItem>
-                  {hasOwner ? null : (
+                  {canRequestOwnership ? (
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/ownership`}
@@ -203,8 +219,18 @@ export default function CaseToolbar({
                         {t("requestOwnershipInfo")}
                       </Link>
                     </DropdownMenuItem>
-                  )}
-                  {hasOwner ? (
+                  ) : null}
+                  {canViewOwnership ? (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={viewOwnershipUrl ?? "#"}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t("viewOwnershipRequest")}
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canNotifyOwner ? (
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/notify-owner`}

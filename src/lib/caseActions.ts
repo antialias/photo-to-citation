@@ -3,6 +3,7 @@ import {
   getCaseOwnerContactInfo,
   getCasePlateNumber,
   getCasePlateState,
+  getLatestOwnershipRequestThread,
   hasCaseViolation,
 } from "./caseUtils";
 import { reportModules } from "./reportModules";
@@ -10,7 +11,7 @@ import { reportModules } from "./reportModules";
 export interface CaseAction {
   id: string;
   label: string;
-  href: (caseId: string) => string;
+  href: (caseId: string, c: import("./caseStore").Case) => string;
   description: string;
 }
 
@@ -18,41 +19,47 @@ export const caseActions: CaseAction[] = [
   {
     id: "compose",
     label: "Draft Report",
-    href: (id) => `/cases/${id}/compose`,
+    href: (id, _c) => `/cases/${id}/compose`,
     description:
       "Open a modal to draft an email report to the relevant authority. Use when the user wants to formally report the violation.",
   },
   {
     id: "followup",
     label: "Follow Up",
-    href: (id) => `/cases/${id}/followup`,
+    href: (id, _c) => `/cases/${id}/followup`,
     description:
       "Send a follow-up email referencing previous correspondence. Suggest this when the user needs to check the status of a prior report.",
   },
   {
     id: "notify-owner",
     label: "Notify Owner",
-    href: (id) => `/cases/${id}/notify-owner`,
+    href: (id, _c) => `/cases/${id}/notify-owner`,
     description:
       "Send an anonymous notice to the vehicle owner about the violation. Useful when the owner might not know they were reported.",
   },
   {
     id: "ownership",
     label: "Request Ownership Info",
-    href: (id) => `/cases/${id}/ownership`,
+    href: (id, _c) => `/cases/${id}/ownership`,
     description:
       "Record the steps for requesting official ownership details from the state. Use if the license plate is known but contact info is missing.",
   },
   {
+    id: "view-ownership-request",
+    label: "View Ownership Request",
+    href: (id, c) => getLatestOwnershipRequestThread(c) ?? `/cases/${id}`,
+    description: "View the ownership information request that was sent.",
+  },
+  {
     id: "upload-photo",
     label: "Upload Photo",
-    href: (id) => `/upload?case=${id}`,
+    href: (id, _c) => `/upload?case=${id}`,
     description: "Upload an existing photo to this case.",
   },
   {
     id: "take-photo",
     label: "Take Photo",
-    href: (id) => `/point?case=${id}`,
+    href: (id, _c) => `/point?case=${id}`,
     description: "Use your camera to take a new photo for this case.",
   },
 ];
@@ -110,6 +117,12 @@ export function getCaseActionStatus(
         } else if ((c.ownershipRequests ?? []).length > 0) {
           applicable = false;
           reason = "ownership info already requested";
+        }
+        break;
+      case "view-ownership-request":
+        if ((c.ownershipRequests ?? []).length === 0) {
+          applicable = false;
+          reason = "ownership info not requested";
         }
         break;
       default:

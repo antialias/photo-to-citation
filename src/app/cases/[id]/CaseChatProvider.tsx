@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import InlineTranslateButton from "../../components/InlineTranslateButton";
 import { useNotify } from "../../components/NotificationProvider";
 import useChatTranslate from "../../useChatTranslate";
+import { useCaseContext } from "./CaseContext";
 
 export interface Message {
   id: string;
@@ -548,6 +549,10 @@ export function CaseChatProvider({
   }
 
   function renderActions(actions: CaseChatAction[], msgId: string) {
+    let caseData: import("@/lib/caseStore").Case | null = null;
+    try {
+      caseData = useCaseContext().caseData;
+    } catch {}
     const buttons = actions.map((a, idx) => {
       if ("id" in a) {
         const act = caseActions.find((c) => c.id === a.id);
@@ -562,7 +567,7 @@ export function CaseChatProvider({
                 } else if (act.id === "take-photo") {
                   openCamera(msgId);
                 } else {
-                  router.push(act.href(caseId));
+                  router.push(act.href(caseId, caseData ?? ({} as any)));
                 }
               }}
               className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
