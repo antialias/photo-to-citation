@@ -240,7 +240,7 @@ export default function ClientCasesPage({
                     setDropCase(null);
                   }
                 }}
-                className={`border p-2 mb-4 last:mb-0 ${
+                className={`border p-2 mb-4 last:mb-0 h-[150px] ${
                   selectedIds.includes(c.id)
                     ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                     : dropCase === c.id
@@ -340,7 +340,7 @@ export default function ClientCasesPage({
                   setDropCase(null);
                 }
               }}
-              className={`border p-2 ${
+              className={`border p-2 h-[150px] ${
                 selectedIds.includes(c.id)
                   ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                   : dropCase === c.id
