@@ -2,6 +2,7 @@
 import DebugWrapper from "@/app/components/DebugWrapper";
 import ThumbnailImage from "@/components/thumbnail-image";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { FaFileAlt, FaFilePdf } from "react-icons/fa";
 import { useCaseContext } from "../CaseContext";
@@ -11,6 +12,7 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
   const { caseData, selectedPhoto, setSelectedPhoto } = useCaseContext();
   const { t } = useTranslation();
   if (!caseData) return null;
+  const hasSnail = (caseData.sentEmails ?? []).some((m) => m.snailMailStatus);
   const analysisImages = caseData.analysis?.images ?? {};
   const paperworkScans = (caseData.threadImages ?? []).map((img) => ({
     url: img.url,
@@ -27,7 +29,17 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
     <div className="grid gap-4 md:grid-cols-2">
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
-          <h2 className="font-semibold">{t("emailLog")}</h2>
+          <h2 className="font-semibold flex items-center gap-2">
+            {t("emailLog")}
+            {hasSnail && (
+              <Link
+                href={`/snail-mail?case=${caseId}`}
+                className="text-blue-500 underline text-sm"
+              >
+                {t("viewSnailMail")}
+              </Link>
+            )}
+          </h2>
           <ul className="flex flex-col gap-2 text-sm">
             {buildThreads(caseData).map((mail) => (
               <li
