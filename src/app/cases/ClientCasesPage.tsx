@@ -1,10 +1,9 @@
 "use client";
 import { apiFetch } from "@/apiClient";
-import AnalysisInfo from "@/app/components/AnalysisInfo";
-import MapPreview from "@/app/components/MapPreview";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import CaseCard from "@/components/CaseCard";
 import type { Case } from "@/lib/caseStore";
-import { getOfficialCaseGps, getRepresentativePhoto } from "@/lib/caseUtils";
+import { getOfficialCaseGps } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
 import { useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -240,12 +239,12 @@ export default function ClientCasesPage({
                     setDropCase(null);
                   }
                 }}
-                className={`border p-2 mb-4 last:mb-0 h-[150px] overflow-hidden ${
+                className={`mb-4 last:mb-0${
                   selectedIds.includes(c.id)
-                    ? "bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
+                    ? " bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
                     : dropCase === c.id
-                      ? "ring-2 ring-green-500"
-                      : "ring-1 ring-transparent"
+                      ? " ring-2 ring-green-500"
+                      : " ring-1 ring-transparent"
                 }`}
                 style={{
                   position: "absolute",
@@ -255,7 +254,8 @@ export default function ClientCasesPage({
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
               >
-                <Link
+                <CaseCard
+                  caseData={c}
                   href={session ? `/cases/${c.id}` : `/public/cases/${c.id}`}
                   onClick={(e) => {
                     if (e.shiftKey) {
@@ -264,64 +264,7 @@ export default function ClientCasesPage({
                       router.push(`/cases?ids=${ids.join(",")}`);
                     }
                   }}
-                  className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left h-full overflow-hidden"
-                >
-                  <div className="relative">
-                    {(() => {
-                      const photo = getRepresentativePhoto(c);
-                      return photo ? (
-                        <img
-                          src={`/uploads/${photo}`}
-                          alt={t("casePreview")}
-                          width={80}
-                          height={60}
-                          loading="lazy"
-                        />
-                      ) : null;
-                    })()}
-                    {c.photos.length > 1 ? (
-                      <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
-                        {c.photos.length}
-                      </span>
-                    ) : null}
-                  </div>
-                  {(() => {
-                    const g = getOfficialCaseGps(c);
-                    return g ? (
-                      <MapPreview
-                        lat={g.lat}
-                        lon={g.lon}
-                        width={120}
-                        height={90}
-                        className="w-20 aspect-[4/3]"
-                      />
-                    ) : null;
-                  })()}
-                  <div className="flex flex-col text-sm gap-1 overflow-hidden">
-                    <span className="font-semibold">
-                      {t("caseLabel", { id: c.id })}
-                    </span>
-                    {c.analysis ? (
-                      <>
-                        <AnalysisInfo
-                          analysis={c.analysis}
-                          onTranslate={() =>
-                            translate(c.id, "analysis.details", i18n.language)
-                          }
-                        />
-                        {c.analysisStatus === "pending" ? (
-                          <span className="text-gray-500 dark:text-gray-400">
-                            {t("updatingAnalysis")}
-                          </span>
-                        ) : null}
-                      </>
-                    ) : (
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {t("analyzingPhoto")}
-                      </span>
-                    )}
-                  </div>
-                </Link>
+                />
               </div>
             );
           })}
@@ -348,7 +291,8 @@ export default function ClientCasesPage({
                     : "ring-1 ring-transparent"
               }`}
             >
-              <Link
+              <CaseCard
+                caseData={c}
                 href={session ? `/cases/${c.id}` : `/public/cases/${c.id}`}
                 onClick={(e) => {
                   if (e.shiftKey) {
@@ -357,64 +301,7 @@ export default function ClientCasesPage({
                     router.push(`/cases?ids=${ids.join(",")}`);
                   }
                 }}
-                className="flex flex-wrap lg:flex-nowrap items-start gap-4 w-full text-left h-full overflow-hidden"
-              >
-                <div className="relative">
-                  {(() => {
-                    const photo = getRepresentativePhoto(c);
-                    return photo ? (
-                      <img
-                        src={`/uploads/${photo}`}
-                        alt={t("casePreview")}
-                        width={80}
-                        height={60}
-                        loading="lazy"
-                      />
-                    ) : null;
-                  })()}
-                  {c.photos.length > 1 ? (
-                    <span className="absolute bottom-1 right-1 bg-black bg-opacity-75 text-white text-xs rounded px-1">
-                      {c.photos.length}
-                    </span>
-                  ) : null}
-                </div>
-                {(() => {
-                  const g = getOfficialCaseGps(c);
-                  return g ? (
-                    <MapPreview
-                      lat={g.lat}
-                      lon={g.lon}
-                      width={120}
-                      height={90}
-                      className="w-20 aspect-[4/3]"
-                    />
-                  ) : null;
-                })()}
-                <div className="flex flex-col text-sm gap-1 overflow-hidden">
-                  <span className="font-semibold">
-                    {t("caseLabel", { id: c.id })}
-                  </span>
-                  {c.analysis ? (
-                    <>
-                      <AnalysisInfo
-                        analysis={c.analysis}
-                        onTranslate={() =>
-                          translate(c.id, "analysis.details", i18n.language)
-                        }
-                      />
-                      {c.analysisStatus === "pending" ? (
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {t("updatingAnalysis")}
-                        </span>
-                      ) : null}
-                    </>
-                  ) : (
-                    <span className="text-gray-500 dark:text-gray-400">
-                      {t("analyzingPhoto")}
-                    </span>
-                  )}
-                </div>
-              </Link>
+              />
             </li>
           ))}
         </ul>
