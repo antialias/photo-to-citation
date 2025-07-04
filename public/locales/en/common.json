@@ -106,7 +106,8 @@
     "addRule": "Add Rule",
     "saveRules": "Save Rules",
     "deployedAt": "Deployed: {{date}}",
-    "deployCommit": "Commit: {{commit}}",
+    "deployCommit": "Commit:",
+    "copyCommitHash": "Copy commit hash",
     "deployVersion": "Version: {{version}}",
     "systemStatus": "System Status"
   },
