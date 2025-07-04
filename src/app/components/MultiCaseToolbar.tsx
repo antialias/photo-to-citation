@@ -14,10 +14,12 @@ export default function MultiCaseToolbar({
   caseIds,
   disabled = false,
   hasOwner = false,
+  ownershipRequested = false,
 }: {
   caseIds: string[];
   disabled?: boolean;
   hasOwner?: boolean;
+  ownershipRequested?: boolean;
 }) {
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
@@ -83,7 +85,16 @@ export default function MultiCaseToolbar({
                   {t("draftEmail")}
                 </Link>
               </DropdownMenuItem>
-              {hasOwner ? null : (
+              {hasOwner ? null : ownershipRequested ? (
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/cases/${first}/ownership-request?ids=${idsParam}`}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    {t("viewOwnershipRequest")}
+                  </Link>
+                </DropdownMenuItem>
+              ) : (
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/cases/${first}/ownership?ids=${idsParam}`}

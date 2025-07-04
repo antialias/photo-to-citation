@@ -16,6 +16,7 @@ export default function CaseToolbar({
   caseId,
   disabled = false,
   hasOwner = false,
+  ownershipRequested = false,
   progress,
   canDelete = false,
   closed = false,
@@ -26,6 +27,7 @@ export default function CaseToolbar({
   caseId: string;
   disabled?: boolean;
   hasOwner?: boolean;
+  ownershipRequested?: boolean;
   progress?: LlmProgress | null;
   canDelete?: boolean;
   closed?: boolean;
@@ -194,7 +196,16 @@ export default function CaseToolbar({
                       {t("draftEmail")}
                     </Link>
                   </DropdownMenuItem>
-                  {hasOwner ? null : (
+                  {hasOwner ? null : ownershipRequested ? (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/cases/${caseId}/ownership-request`}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t("viewOwnershipRequest")}
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : (
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/ownership`}
