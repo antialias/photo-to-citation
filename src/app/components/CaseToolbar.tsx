@@ -22,6 +22,8 @@ export default function CaseToolbar({
   archived = false,
   violationOverride = false,
   readOnly = false,
+  ownershipRequested = false,
+  ownershipRequestLink,
 }: {
   caseId: string;
   disabled?: boolean;
@@ -32,6 +34,8 @@ export default function CaseToolbar({
   archived?: boolean;
   violationOverride?: boolean;
   readOnly?: boolean;
+  ownershipRequested?: boolean;
+  ownershipRequestLink?: string | null;
 }) {
   const { t } = useTranslation();
   const reqText = progress
@@ -194,7 +198,19 @@ export default function CaseToolbar({
                       {t("draftEmail")}
                     </Link>
                   </DropdownMenuItem>
-                  {hasOwner ? null : (
+                  {hasOwner ? null : ownershipRequested ? (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={
+                          ownershipRequestLink ??
+                          `/cases/${caseId}/ownership-request`
+                        }
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {t("viewOwnershipRequest")}
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : (
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/ownership`}
