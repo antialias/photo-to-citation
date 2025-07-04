@@ -43,6 +43,30 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                 <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
                   {mail.body}
                 </span>
+                {mail.attachments && mail.attachments.length > 0 ? (
+                  <div className="flex flex-col gap-1 mt-1">
+                    <span className="font-semibold">{t("attachments")}</span>
+                    <ul className="flex gap-2 flex-wrap">
+                      {mail.attachments.map((att) => (
+                        <li key={att}>
+                          <a
+                            href={`/uploads/${att}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ThumbnailImage
+                              src={getThumbnailUrl(att, 128)}
+                              alt="attachment"
+                              width={96}
+                              height={72}
+                              imgClassName="object-contain"
+                            />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 <a
                   href={`/cases/${caseId}/thread/${encodeURIComponent(mail.sentAt)}`}
                   className="self-start text-blue-500 underline"
