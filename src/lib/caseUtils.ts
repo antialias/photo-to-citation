@@ -100,6 +100,31 @@ export function getCasePlateState(caseData: Case): string | null {
   return null;
 }
 
+export function getCaseVehicleMake(caseData: Case): string | null {
+  const direct = caseData.analysis?.vehicle?.make;
+  if (direct) return direct;
+  return null;
+}
+
+export function decodeVinYear(vin: string): string | null {
+  if (vin.length < 10) return null;
+  const codes = "ABCDEFGHJKLMNPRSTVWXY123456789";
+  const idx = codes.indexOf(vin[9].toUpperCase());
+  if (idx === -1) return null;
+  let year = 1980 + idx;
+  const current = new Date().getFullYear() + 1;
+  while (year + 30 <= current) year += 30;
+  return String(year);
+}
+
+export function getCaseVehicleYear(caseData: Case): string | null {
+  if (caseData.vin) {
+    const year = decodeVinYear(caseData.vin);
+    if (year) return year;
+  }
+  return null;
+}
+
 export function getCaseOwnerContact(caseData: Case): string | null {
   const imgs = caseData.analysis?.images
     ? Object.values(caseData.analysis.images)
