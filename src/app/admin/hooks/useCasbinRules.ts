@@ -9,6 +9,7 @@ const policyOptions = {
     upload: ["create"],
     cases: ["read", "update", "delete"],
     snail_mail_providers: ["read"],
+    ownership_modules: ["read"],
     vin_sources: ["read"],
   },
   admin: {
@@ -16,6 +17,7 @@ const policyOptions = {
     users: ["create", "read", "update", "delete"],
     cases: ["update", "delete"],
     snail_mail_providers: ["update"],
+    ownership_modules: ["update"],
     vin_sources: ["update"],
   },
   superadmin: { superadmin: ["read", "update"] },

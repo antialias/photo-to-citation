@@ -36,6 +36,7 @@ const envSchema = z
     FACEBOOK_CLIENT_SECRET: z.string().optional(),
     CASE_STORE_FILE: z.string().optional(),
     VIN_SOURCE_FILE: z.string().optional(),
+    OWNERSHIP_MODULE_FILE: z.string().optional(),
     SNAIL_MAIL_FILE: z.string().optional(),
     SNAIL_MAIL_PROVIDER_FILE: z.string().optional(),
     OAUTH_PROVIDER_FILE: z.string().optional(),
