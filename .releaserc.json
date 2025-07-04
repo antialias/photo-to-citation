@@ -1,0 +1,25 @@
+{
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "docker build -t photo-to-citation:${nextRelease.version} . && docker save photo-to-citation:${nextRelease.version} | gzip > photo-to-citation-${nextRelease.version}.tar.gz"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "photo-to-citation-${nextRelease.version}.tar.gz",
+            "label": "Container image"
+          }
+        ]
+      }
+    ]
+  ]
+}
