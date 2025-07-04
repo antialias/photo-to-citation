@@ -11,7 +11,6 @@ import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
 import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
-import type { SnailMailStatus } from "@/lib/snailMail";
 import { getUser } from "@/lib/userStore";
 
 export const POST = withCaseAuthorization(
@@ -72,6 +71,7 @@ export const POST = withCaseAuthorization(
         );
       }
     }
+    const results: Record<string, { success: boolean; error?: string }> = {};
     let snailMailStatus: SentEmail["snailMailStatus"];
     if (snailMail && mod?.address) {
       try {
@@ -82,8 +82,10 @@ export const POST = withCaseAuthorization(
           attachments,
         });
         snailMailStatus = res.status as SentEmail["snailMailStatus"];
+        results.snailMail = { success: true };
       } catch (err) {
         console.error("Failed to send snail mail", err);
+        results.snailMail = { success: false, error: (err as Error).message };
         snailMailStatus = "error";
       }
     }
@@ -108,6 +110,6 @@ export const POST = withCaseAuthorization(
       replyTo: null,
       snailMailStatus,
     });
-    return NextResponse.json({ case: withEmail ?? updated });
+    return NextResponse.json({ case: withEmail ?? updated, results });
   },
 );
