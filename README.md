@@ -532,5 +532,6 @@ When these variables are omitted, all feature flags default to disabled.
 - [**Documentation Outline**](docs/feature-outline.md) — discover planned features and architecture.
 - [**Credit System**](docs/credit-system.md) — how users purchase credits and how balances update.
 - [**Case Chat Buttons**](docs/case-chat-actions.md) — LLM syntax for inserting action buttons.
+- [**Capacitor Build Plan**](docs/capacitor-parallel-build.md) — run native builds alongside the web app.
 - [**Releases**](https://github.com/antialias/photo-to-citation/releases) — download the latest packaged version.
 - [**Live Demo**](https://730op.synology.me/photo-citation) — try the hosted web app.
