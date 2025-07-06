@@ -232,6 +232,8 @@
   "snailMailSaved": "Correo postal guardado",
   "snailMailShortfall": "Pago requerido para correo postal",
   "snailMailError": "Error de correo postal",
+  "checkGenerated": "Cheque adjuntado",
+  "checkGenerationFailed": "No se gener\u00f3 el cheque: {{reason}}",
   "hideDelivered": "Ocultar entregados",
   "noSnailMail": "No se encontró correo postal.",
   "markRequested": "Marcar como solicitado",

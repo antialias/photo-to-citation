@@ -232,6 +232,8 @@
   "snailMailSaved": "Snail mail saved",
   "snailMailShortfall": "Snail mail payment required",
   "snailMailError": "Snail mail error",
+  "checkGenerated": "Check attached",
+  "checkGenerationFailed": "Check not generated: {{reason}}",
   "hideDelivered": "Hide Delivered",
   "noSnailMail": "No snail mail found.",
   "markRequested": "Mark as Requested",
