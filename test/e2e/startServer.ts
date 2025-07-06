@@ -28,7 +28,7 @@ export async function startServer(
   // so no real messages are sent during tests.
   const emailFile =
     env.EMAIL_FILE ?? path.join(os.tmpdir(), `e2e-emails-${port}.json`);
-  const proc = spawn(nextBin, ["dev", "-p", String(port), "--turbo"], {
+  const proc = spawn(nextBin, ["dev", "-p", String(port)], {
     env: {
       ...process.env,
       NEXT_TELEMETRY_DISABLED: "1",
