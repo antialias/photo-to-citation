@@ -30,6 +30,9 @@ export default function OwnershipEditor({
   const [snailMailResult, setSnailMailResult] = useState<
     { status: string; error?: string } | undefined
   >();
+  const [checkResult, setCheckResult] = useState<
+    { status: string; error?: string } | undefined
+  >();
   const notify = useNotify();
   const router = useRouter();
   const { t } = useTranslation();
@@ -153,6 +156,14 @@ export default function OwnershipEditor({
           snail.success
             ? { status: "success" }
             : { status: "error", error: snail.error },
+        );
+      }
+      const chk = data.results?.check;
+      if (chk) {
+        setCheckResult(
+          chk.success
+            ? { status: "success" }
+            : { status: "error", error: chk.error },
         );
       }
       const newEmail = data.case.sentEmails?.at(-1);
@@ -331,6 +342,14 @@ export default function OwnershipEditor({
       </button>
       {snailMailResult?.status === "error" && (
         <span className="text-red-600 text-sm">{snailMailResult.error}</span>
+      )}
+      {checkResult?.status === "success" && (
+        <span className="text-green-700 text-sm">{t("checkGenerated")}</span>
+      )}
+      {checkResult?.status === "error" && (
+        <span className="text-red-600 text-sm">
+          {t("checkGenerationFailed", { reason: checkResult.error })}
+        </span>
       )}
     </div>
   );

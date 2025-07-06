@@ -250,6 +250,17 @@ Snail mail provider health is stored in `data/snailMailProviders.json` (overrida
 via `SNAIL_MAIL_PROVIDER_FILE`). The active provider and failure counts can be
 viewed on the Settings page.
 
+## Check Writer
+
+Checks mailed with ownership requests use these settings:
+
+```bash
+CHECK_ACCOUNT_NUMBER=123456789
+CHECK_ROUTING_NUMBER=987654321
+```
+
+If these variables are not set, check generation fails.
+
 ## Twilio Integration
 
 Configure Twilio credentials to enable SMS, WhatsApp, and robocall

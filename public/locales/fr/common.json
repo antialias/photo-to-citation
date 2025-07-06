@@ -232,6 +232,8 @@
   "snailMailSaved": "Courrier postal sauvegardé",
   "snailMailShortfall": "Paiement requis pour le courrier postal",
   "snailMailError": "Erreur de courrier postal",
+  "checkGenerated": "Ch\u00e8que joint",
+  "checkGenerationFailed": "Ch\u00e8que non g\u00e9n\u00e9r\u00e9 : {{reason}}",
   "hideDelivered": "Masquer les livrés",
   "noSnailMail": "Aucun courrier postal trouvé.",
   "markRequested": "Marquer comme demandé",
