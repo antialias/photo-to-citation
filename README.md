@@ -303,9 +303,12 @@ INBOX_STATE_FILE=data/inbox.json
 ```
 
 Run `pnpm run scan:inbox` to start listening for new messages. Each email with
-one or more photo attachments becomes a new case. Multiple photos in the same
-email are added to that case before analysis and geocoding run in the
-background.
+one or more photo attachments becomes a new case. The sender's address is
+matched against existing user accounts and, when found, ownership is assigned to
+that user. A receipt is emailed back with a link to the case and a token in the
+subject like `[cid:123]`. If the user replies with additional photos and the
+token remains in the subject, those images are added to the same case before
+analysis and geocoding run in the background.
 
 ## Automated Cleanup
 
