@@ -67,6 +67,7 @@ export interface OwnershipModule {
   address: string;
   fee: number;
   requiresCheck: boolean;
+  payee: string;
   requestVin?: (info: OwnershipRequestInfo) => Promise<void>;
   requestContactInfo?: (info: OwnershipRequestInfo) => Promise<void>;
   /**
@@ -202,6 +203,7 @@ export const ownershipModules: Record<string, OwnershipModule> = {
       "Driver Records Unit\n2701 S. Dirksen Pkwy.\nSpringfield, IL 62723",
     fee: 12,
     requiresCheck: true,
+    payee: "Secretary of State",
     async generateForms(info) {
       const pdfPath = await fillIlForm(info);
       return pdfPath;
@@ -222,6 +224,7 @@ export const ownershipModules: Record<string, OwnershipModule> = {
       "DMV Vehicle History Section\nP.O. Box 944247\nSacramento, CA 94244-2470",
     fee: 5,
     requiresCheck: true,
+    payee: "DMV",
   },
 };
 

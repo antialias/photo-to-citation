@@ -71,6 +71,19 @@ export const POST = withCaseAuthorization(
         );
       }
     }
+    if (mod?.requiresCheck) {
+      const { createCheckPdf } = await import("@/lib/check");
+      try {
+        const checkPath = await createCheckPdf({
+          payee: mod.payee,
+          amount: mod.fee,
+          checkNumber: checkNumber ?? null,
+        });
+        attachments.push(checkPath);
+      } catch (err) {
+        console.error("Failed to create check", err);
+      }
+    }
     const results: Record<string, { success: boolean; error?: string }> = {};
     let snailMailStatus: SentEmail["snailMailStatus"];
     if (snailMail && mod?.address) {
