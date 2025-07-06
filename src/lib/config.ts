@@ -43,6 +43,8 @@ const envSchema = z
     RETURN_ADDRESS: z.string().optional(),
     SNAIL_MAIL_PROVIDER: z.string().default("mock"),
     SNAIL_MAIL_OUT_DIR: z.string().optional(),
+    CHECK_ROUTING_NUMBER: z.string().optional(),
+    CHECK_ACCOUNT_NUMBER: z.string().optional(),
     TWILIO_ACCOUNT_SID: z.string().optional(),
     TWILIO_AUTH_TOKEN: z.string().optional(),
     TWILIO_FROM_NUMBER: z.string().optional(),

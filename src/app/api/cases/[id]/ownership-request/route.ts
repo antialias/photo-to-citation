@@ -7,6 +7,7 @@ import { withCaseAuthorization } from "@/lib/authz";
 import { addCaseEmail, addOwnershipRequest, getCase } from "@/lib/caseStore";
 import type { SentEmail } from "@/lib/caseStore";
 import { getCaseVehicleMake, getCaseVehicleYear } from "@/lib/caseUtils";
+import { createCheckPdf } from "@/lib/checkPdf";
 import { config } from "@/lib/config";
 import { sendSnailMail } from "@/lib/contactMethods";
 import { ownershipModules } from "@/lib/ownershipModules";
@@ -75,6 +76,14 @@ export const POST = withCaseAuthorization(
     let snailMailStatus: SentEmail["snailMailStatus"];
     if (snailMail && mod?.address) {
       try {
+        if (mod.requiresCheck && checkNumber) {
+          const checkPdf = await createCheckPdf({
+            payee: mod.address.split("\n")[0] ?? mod.state,
+            amount: mod.fee.toFixed(2),
+            checkNumber,
+          });
+          attachments.push(checkPdf);
+        }
         const res = await sendSnailMail({
           address: mod.address,
           subject: "Ownership information request",

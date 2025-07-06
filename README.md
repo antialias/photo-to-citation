@@ -243,6 +243,13 @@ SNAIL_MAIL_PROVIDER=docsmit
 SNAIL_MAIL_OUT_DIR=data/snailmail_out
 ```
 
+Set these variables to enable check generation used for VSD forms:
+
+```bash
+CHECK_ROUTING_NUMBER=000000000
+CHECK_ACCOUNT_NUMBER=0000000000
+```
+
 All sent mail is logged to `data/snailMail.json` or the file specified by
 `SNAIL_MAIL_FILE`. Run `pnpm run poll:snailmail` to invoke provider polling.
 
