@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "pnpm run build:jobs && next build",
     "start": "next start",
@@ -131,7 +132,8 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.3",
+    "@stylexjs/babel-plugin": "^0.14.1"
   },
   "optionalDependencies": {
     "@biomejs/cli-linux-x64": "^1.9.4",
