@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "pnpm run build:jobs && next build",
     "start": "next start",
@@ -131,7 +131,8 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^3.2.3"
+    "vitest": "^3.2.3",
+    "@stylexswc/nextjs-plugin": "^0.9.0"
   },
   "optionalDependencies": {
     "@biomejs/cli-linux-x64": "^1.9.4",
