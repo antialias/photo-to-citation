@@ -32,6 +32,17 @@ export function getUser(id: string): UserRecord | null {
   return { ...row, image };
 }
 
+export function getUserByEmail(email: string): UserRecord | null {
+  const row = orm.select().from(users).where(eq(users.email, email)).get();
+  if (!row) return null;
+  const image = row.image?.trim()
+    ? row.image
+    : row.email
+      ? gravatarUrl(row.email)
+      : null;
+  return { ...row, image };
+}
+
 export function updateUser(
   id: string,
   updates: Partial<

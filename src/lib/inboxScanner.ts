@@ -5,11 +5,13 @@ import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { analyzeCaseInBackground } from "./caseAnalysis";
 import { fetchCaseLocationInBackground } from "./caseLocation";
-import { addCasePhoto, createCase } from "./caseStore";
+import { addCaseEmail, addCasePhoto, createCase, getCase } from "./caseStore";
 import { config } from "./config";
+import { sendEmail } from "./email";
 import { extractGps, extractTimestamp } from "./exif";
 import { readJsonFile, writeJsonFile } from "./fileUtils";
 import { generateThumbnailsInBackground } from "./thumbnails";
+import { getUserByEmail } from "./userStore";
 
 const stateFile = config.INBOX_STATE_FILE
   ? path.resolve(config.INBOX_STATE_FILE)
@@ -49,6 +51,10 @@ export async function scanInbox(): Promise<void> {
         a.contentType.startsWith("image/"),
       );
       if (images.length > 0) {
+        const from = parsed.from?.value?.[0]?.address || null;
+        const subject = parsed.subject || "";
+        const tokenMatch = subject.match(/\[cid:([a-f0-9-]+)\]/i);
+        let c = tokenMatch ? getCase(tokenMatch[1]) : undefined;
         const uploadDir = config.UPLOAD_DIR;
         fs.mkdirSync(uploadDir, { recursive: true });
         const casePhotos: string[] = [];
@@ -66,17 +72,41 @@ export async function scanInbox(): Promise<void> {
           casePhotos.push(filename);
           photoTimes[filename] = takenAt;
         }
-        const firstGps = gpsList.find((g) => g) || null;
-        const firstPhoto = casePhotos.shift();
-        if (!firstPhoto) return;
-        const takenAt = photoTimes[firstPhoto];
-        const newCase = createCase(firstPhoto, firstGps, undefined, takenAt);
-        for (let i = 0; i < casePhotos.length; i++) {
-          const p = casePhotos[i];
-          addCasePhoto(newCase.id, p, photoTimes[p], gpsList[i + 1] || null);
+        if (c) {
+          for (let i = 0; i < casePhotos.length; i++) {
+            const p = casePhotos[i];
+            addCasePhoto(c.id, p, photoTimes[p], gpsList[i] || null);
+          }
+        } else {
+          const firstGps = gpsList.find((g) => g) || null;
+          const firstPhoto = casePhotos.shift();
+          if (!firstPhoto) return;
+          const takenAt = photoTimes[firstPhoto];
+          const ownerId = from ? (getUserByEmail(from)?.id ?? null) : null;
+          c = createCase(firstPhoto, firstGps, undefined, takenAt, ownerId);
+          for (let i = 0; i < casePhotos.length; i++) {
+            const p = casePhotos[i];
+            addCasePhoto(c.id, p, photoTimes[p], gpsList[i + 1] || null);
+          }
+          analyzeCaseInBackground(c, "en");
+          fetchCaseLocationInBackground(c);
+          if (from) {
+            const baseUrl = config.NEXTAUTH_URL || "";
+            const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+            const link = `${baseUrl}${basePath}/cases/${c.id}`;
+            const receiptSubject = `Case receipt [cid:${c.id}]`;
+            const body = `View your case at ${link}`;
+            await sendEmail({ to: from, subject: receiptSubject, body });
+            addCaseEmail(c.id, {
+              to: from,
+              subject: receiptSubject,
+              body,
+              attachments: [],
+              sentAt: new Date().toISOString(),
+              replyTo: null,
+            });
+          }
         }
-        analyzeCaseInBackground(newCase, "en");
-        fetchCaseLocationInBackground(newCase);
       }
       if (msg.uid > lastUid) {
         lastUid = msg.uid;
