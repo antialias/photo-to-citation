@@ -10,6 +10,8 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useNotify } from "../components/NotificationProvider";
 import { caseQueryKey } from "../hooks/useCase";
 import useEventSource from "../hooks/useEventSource";
@@ -123,6 +125,54 @@ export default function ClientCasesPage({
     setDropCase(null);
   });
 
+  const styles = {
+    container: css({ p: "8", position: "relative", h: "full" }),
+    heading: css({ fontSize: "xl", fontWeight: "bold", mb: "4" }),
+    controls: css({ mb: "4", display: "flex", alignItems: "center", gap: "4" }),
+    label: css({ mr: "2" }),
+    select: css({
+      borderWidth: "1px",
+      borderRadius: token("radii.md"),
+      p: "1",
+      backgroundColor: {
+        base: token("colors.white"),
+        _dark: token("colors.gray.900"),
+      },
+    }),
+    filterLabel: css({ display: "flex", alignItems: "center", gap: "1" }),
+    grid: css({ display: "grid", gap: "4" }),
+    link: css({ display: "block", textAlign: "left" }),
+    dropOverlay: css({
+      position: "absolute",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      color: "white",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+      fontSize: "xl",
+      zIndex: "var(--z-nav)",
+    }),
+    listItem: (selected: boolean, dropping: boolean) =>
+      css({
+        borderWidth: "1px",
+        borderRadius: token("radii.md"),
+        p: "2",
+        mb: "4",
+        _last: { mb: 0 },
+        ringWidth: selected || dropping ? "2px" : "1px",
+        ringColor: selected
+          ? token("colors.blue.500")
+          : dropping
+            ? token("colors.green.500")
+            : "transparent",
+        backgroundColor: selected
+          ? { base: token("colors.gray.100"), _dark: token("colors.gray.800") }
+          : undefined,
+      }),
+  };
+
   async function uploadFilesToCase(id: string, files: FileList) {
     const results = await Promise.all(
       Array.from(files).map((file) => {
@@ -144,7 +194,7 @@ export default function ClientCasesPage({
   return (
     <div
       ref={scrollElement ? undefined : localScrollRef}
-      className="p-8 relative h-full"
+      className={styles.container}
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={(e) => {
         e.preventDefault();
@@ -168,22 +218,22 @@ export default function ClientCasesPage({
         setDropCase(null);
       }}
     >
-      <h1 className="text-xl font-bold mb-4">{t("nav.cases")}</h1>
-      <div className="mb-4 flex items-center gap-4">
-        <label className="mr-2" htmlFor="order">
+      <h1 className={styles.heading}>{t("nav.cases")}</h1>
+      <div className={styles.controls}>
+        <label className={styles.label} htmlFor="order">
           {t("orderBy")}
         </label>
         <select
           id="order"
           value={orderBy}
           onChange={(e) => setOrderBy(e.target.value as Order)}
-          className="border rounded p-1 bg-white dark:bg-gray-900"
+          className={styles.select}
         >
           <option value="createdAt">{t("creationDate")}</option>
           <option value="updatedAt">{t("lastUpdated")}</option>
           <option value="distance">{t("distanceFromMe")}</option>
         </select>
-        <label className="flex items-center gap-1" htmlFor="case-states">
+        <label className={styles.filterLabel} htmlFor="case-states">
           <span>{t("show")}</span>
           <select
             id="case-states"
@@ -194,7 +244,7 @@ export default function ClientCasesPage({
                 Array.from(e.target.selectedOptions).map((o) => o.value),
               )
             }
-            className="border rounded p-1 bg-white dark:bg-gray-900"
+            className={styles.select}
           >
             <option value="open">{t("open")}</option>
             <option value="archived">{t("archived")}</option>
@@ -224,13 +274,10 @@ export default function ClientCasesPage({
                     setDropCase(null);
                   }
                 }}
-                className={`border rounded p-2 mb-4 last:mb-0${
-                  selectedIds.includes(c.id)
-                    ? " bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
-                    : dropCase === c.id
-                      ? " ring-2 ring-green-500"
-                      : " ring-1 ring-transparent"
-                }`}
+                className={styles.listItem(
+                  selectedIds.includes(c.id),
+                  dropCase === c.id,
+                )}
                 style={{
                   position: "absolute",
                   top: 0,
@@ -248,7 +295,7 @@ export default function ClientCasesPage({
                       router.push(`/cases?ids=${ids.join(",")}`);
                     }
                   }}
-                  className="block text-left"
+                  className={styles.link}
                 >
                   <CaseCard caseData={c} />
                 </Link>
@@ -257,7 +304,7 @@ export default function ClientCasesPage({
           })}
         </div>
       ) : (
-        <ul className="grid gap-4">
+        <ul className={styles.grid}>
           {filteredCases.map((c) => (
             <li
               key={c.id}
@@ -270,13 +317,10 @@ export default function ClientCasesPage({
                   setDropCase(null);
                 }
               }}
-              className={`border rounded p-2${
-                selectedIds.includes(c.id)
-                  ? " bg-gray-100 dark:bg-gray-800 ring-2 ring-blue-500"
-                  : dropCase === c.id
-                    ? " ring-2 ring-green-500"
-                    : " ring-1 ring-transparent"
-              }`}
+              className={styles.listItem(
+                selectedIds.includes(c.id),
+                dropCase === c.id,
+              )}
             >
               <Link
                 href={session ? `/cases/${c.id}` : `/public/cases/${c.id}`}
@@ -287,7 +331,7 @@ export default function ClientCasesPage({
                     router.push(`/cases?ids=${ids.join(",")}`);
                   }
                 }}
-                className="block text-left"
+                className={styles.link}
               >
                 <CaseCard caseData={c} />
               </Link>
@@ -296,7 +340,7 @@ export default function ClientCasesPage({
         </ul>
       )}
       {dragging ? (
-        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-nav">
+        <div className={styles.dropOverlay} data-testid="drag-overlay">
           {dropCase
             ? t("addPhotosToCase", { id: dropCase })
             : t("dropPhotosToCreateCase")}

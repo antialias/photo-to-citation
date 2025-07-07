@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function CaseLayout({
   header,
@@ -11,14 +13,35 @@ export default function CaseLayout({
   right: ReactNode;
   children?: ReactNode;
 }) {
+  const styles = {
+    wrapper: css({
+      p: "8",
+      display: "flex",
+      flexDirection: "column",
+      gap: "4",
+    }),
+    header: css({
+      position: "sticky",
+      top: 0,
+      backgroundColor: {
+        base: token("colors.white"),
+        _dark: token("colors.gray.900"),
+      },
+      zIndex: "var(--z-sticky)",
+    }),
+    grid: css({
+      display: "grid",
+      gridTemplateColumns: { base: "1fr", md: "35% 65%", lg: "30% 70%" },
+      gap: { base: "4", md: "6" },
+    }),
+    right: css({ display: "flex", flexDirection: "column", gap: "4" }),
+  };
   return (
-    <div className="p-8 flex flex-col gap-4">
-      <div className="sticky top-0 bg-white dark:bg-gray-900 z-sticky">
-        {header}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-[35%_65%] lg:grid-cols-[30%_70%] gap-4 md:gap-6">
+    <div className={styles.wrapper}>
+      <div className={styles.header}>{header}</div>
+      <div className={styles.grid}>
         <div>{left}</div>
-        <div className="flex flex-col gap-4">{right}</div>
+        <div className={styles.right}>{right}</div>
       </div>
       {children}
     </div>
