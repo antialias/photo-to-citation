@@ -3,6 +3,7 @@ import { getPublicEnv } from "@/publicEnv";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaCopy } from "react-icons/fa";
+import { css } from "styled-system/css";
 
 export default function AdminDeploymentInfo() {
   const {
@@ -23,17 +24,35 @@ export default function AdminDeploymentInfo() {
         timeZoneName: "short",
       })
     : t("unknown");
+  const styles = {
+    root: css({
+      mt: "4",
+      fontSize: "sm",
+      color: { base: "gray.600", _dark: "gray.400" },
+      display: "grid",
+      gap: "1",
+    }),
+    row: css({ display: "flex", alignItems: "center", gap: "1" }),
+    link: css({
+      textDecoration: "underline",
+      color: "blue.500",
+      _hover: { color: "blue.700" },
+    }),
+    button: css({ color: "blue.500", _hover: { color: "blue.700" } }),
+    copied: css({ color: "green.600" }),
+  };
+
   return (
-    <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+    <div className={styles.root}>
       <p>{t("admin.deployedAt", { date: deployedAt })}</p>
-      <p className="flex items-center gap-1">
+      <p className={styles.row}>
         <span>{t("admin.deployCommit")}</span>
         {NEXT_PUBLIC_APP_COMMIT ? (
           <a
             href={`https://github.com/antialias/photo-to-citation/commit/${NEXT_PUBLIC_APP_COMMIT}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline text-blue-500 hover:text-blue-700"
+            className={styles.link}
           >
             {NEXT_PUBLIC_APP_COMMIT}
           </a>
@@ -45,12 +64,12 @@ export default function AdminDeploymentInfo() {
             type="button"
             onClick={copyCommit}
             aria-label={t("admin.copyCommitHash")}
-            className="text-blue-500 hover:text-blue-700"
+            className={styles.button}
           >
             <FaCopy />
           </button>
         )}
-        {copied && <span className="text-green-600">{t("copied")}</span>}
+        {copied && <span className={styles.copied}>{t("copied")}</span>}
       </p>
       <p>
         {t("admin.deployVersion", {

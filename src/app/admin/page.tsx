@@ -4,6 +4,7 @@ import { withAuthorization } from "@/lib/authz";
 import { log } from "@/lib/logger";
 import { getServerSession } from "next-auth/next";
 import type { ReactElement } from "react";
+import { css } from "styled-system/css";
 import AdminDeploymentInfo from "./AdminDeploymentInfo";
 import AdminPageClient from "./AdminPageClient";
 
@@ -41,8 +42,9 @@ const handler = withAuthorization<
       tab === "config" || (tab === "status" && isSuperadmin)
         ? (tab as "config" | "status")
         : "users";
+    const styles = { wrapper: css({ p: "8" }) };
     return (
-      <div className="p-8">
+      <div className={styles.wrapper}>
         <AdminPageClient
           initialUsers={users}
           initialRules={rules}
