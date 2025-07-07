@@ -10,6 +10,8 @@ import {
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft, FaShare } from "react-icons/fa";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
 import useCaseProgress from "../useCaseProgress";
@@ -37,17 +39,35 @@ export default function CaseHeader({
   const ownershipRequestLink = ownershipRequested
     ? getLatestOwnershipRequestLink(caseData)
     : null;
+  const styles = {
+    wrapper: css({
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+    }),
+    left: css({ display: "flex", alignItems: "center", gap: "2" }),
+    backLink: css({
+      display: { md: "none" },
+      fontSize: "xl",
+      p: "2",
+      color: "blue.500",
+      _hover: { color: "blue.700" },
+    }),
+    heading: css({ fontSize: "xl", fontWeight: "semibold" }),
+    shareButton: css({ color: "blue.500", _hover: { color: "blue.700" } }),
+    copied: css({ fontSize: "sm", color: "green.600" }),
+  };
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
+    <div className={styles.wrapper}>
+      <div className={styles.left}>
         <Link
           href="/cases"
           aria-label={t("backToCases")}
-          className="md:hidden text-xl p-2 text-blue-500 hover:text-blue-700"
+          className={styles.backLink}
         >
           <FaArrowLeft />
         </Link>
-        <h1 className="text-xl font-semibold">
+        <h1 className={styles.heading}>
           {t("caseLabel", { id: caseData.id })}
         </h1>
         {caseData.public ? (
@@ -55,14 +75,12 @@ export default function CaseHeader({
             type="button"
             onClick={copyPublicUrl}
             aria-label={t("copyPublicLink")}
-            className="text-blue-500 hover:text-blue-700"
+            className={styles.shareButton}
           >
             <FaShare />
           </button>
         ) : null}
-        {copied ? (
-          <span className="text-sm text-green-600">{t("copied")}</span>
-        ) : null}
+        {copied ? <span className={styles.copied}>{t("copied")}</span> : null}
       </div>
       <CaseToolbar
         caseId={caseId}

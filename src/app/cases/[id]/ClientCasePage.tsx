@@ -9,6 +9,8 @@ import { useSession } from "@/app/useSession";
 import type { Case } from "@/lib/caseStore";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { CaseProvider, useCaseContext } from "./CaseContext";
 import CaseDetails from "./components/CaseDetails";
 import CaseExtraInfo from "./components/CaseExtraInfo";
@@ -36,32 +38,69 @@ function ClientCasePage({
     if (stored) setPreview(stored);
   }, [caseId]);
 
+  const styles = {
+    loadingWrapper: css({
+      p: "8",
+      display: "flex",
+      flexDirection: "column",
+      gap: "4",
+    }),
+    loadingHeading: css({ fontSize: "xl", fontWeight: "semibold" }),
+    loadingText: css({
+      fontSize: "sm",
+      color: {
+        base: token("colors.gray.500"),
+        _dark: token("colors.gray.400"),
+      },
+    }),
+    container: (expanded: boolean) =>
+      css({
+        position: "relative",
+        h: "full",
+        display: expanded ? { md: "grid" } : undefined,
+        gridTemplateColumns: expanded ? { md: "1fr 1fr" } : undefined,
+        gap: expanded ? "4" : undefined,
+        overflow: expanded ? "hidden" : undefined,
+      }),
+    col: css({ h: "full", overflowY: "auto" }),
+    overlay: css({
+      position: "absolute",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      color: "white",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+      fontSize: "xl",
+      zIndex: "var(--z-nav)",
+    }),
+  };
+
   const showClaimBanner = Boolean(
     caseData?.sessionId && !session?.user && !hideClaimBanner,
   );
 
   if (!caseData) {
     return (
-      <div className="p-8 flex flex-col gap-4">
-        <h1 className="text-xl font-semibold">{t("uploading")}</h1>
+      <div className={styles.loadingWrapper}>
+        <h1 className={styles.loadingHeading}>{t("uploading")}</h1>
         {preview ? (
           <img
             src={preview}
             alt="preview"
-            className="max-w-full"
+            className={css({ maxW: "full" })}
             loading="lazy"
           />
         ) : null}
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {t("uploadingPhoto")}
-        </p>
+        <p className={styles.loadingText}>{t("uploadingPhoto")}</p>
       </div>
     );
   }
 
   return (
     <div
-      className={`relative h-full ${chatExpanded ? "md:grid md:grid-cols-2 gap-4 overflow-hidden" : ""}`}
+      className={styles.container(chatExpanded)}
       onDragOver={readOnly ? undefined : (e) => e.preventDefault()}
       onDragEnter={
         readOnly
@@ -93,18 +132,18 @@ function ClientCasePage({
       <ClaimBanner
         show={showClaimBanner}
         onDismiss={() => setHideClaimBanner(true)}
-        className={chatExpanded ? "md:col-span-2" : undefined}
+        className={
+          chatExpanded ? css({ md: { gridColumn: "span 2" } }) : undefined
+        }
       />
       <PublicViewBanner
         caseId={caseId}
         show={readOnly}
-        className={chatExpanded ? "md:col-span-2" : undefined}
-      />
-      <div
         className={
-          chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
+          chatExpanded ? css({ md: { gridColumn: "span 2" } }) : undefined
         }
-      >
+      />
+      <div className={chatExpanded ? styles.col : undefined}>
         <CaseLayout
           header={<CaseHeader caseId={caseId} readOnly={readOnly} />}
           left={<CaseProgressGraph caseData={caseData} />}
@@ -121,16 +160,12 @@ function ClientCasePage({
         </CaseLayout>
       </div>
       {readOnly || !dragging ? null : (
-        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-nav">
+        <div className={styles.overlay} data-testid="drag-overlay">
           {t("dropToAddPhotos")}
         </div>
       )}
       {readOnly ? null : (
-        <div
-          className={
-            chatExpanded ? "md:col-span-1 h-full overflow-y-auto" : undefined
-          }
-        >
+        <div className={chatExpanded ? styles.col : undefined}>
           <CaseChat
             caseId={caseId}
             expanded={chatExpanded}

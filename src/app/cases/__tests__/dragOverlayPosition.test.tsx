@@ -53,7 +53,7 @@ describe("drag overlays", () => {
     );
     const target = container.firstElementChild as HTMLElement;
     fireEvent.dragEnter(target);
-    const overlay = container.querySelector("div.absolute.inset-0");
+    const overlay = container.querySelector('[data-testid="drag-overlay"]');
     expect(overlay).toBeInTheDocument();
   });
 
@@ -65,7 +65,7 @@ describe("drag overlays", () => {
     );
     const target = container.firstElementChild as HTMLElement;
     fireEvent.dragEnter(target);
-    const overlay = container.querySelector("div.absolute.inset-0");
+    const overlay = container.querySelector('[data-testid="drag-overlay"]');
     expect(overlay).toBeInTheDocument();
   });
 });
