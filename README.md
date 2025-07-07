@@ -20,6 +20,12 @@ that involves manual steps like mailing forms or payments.
 
 This stack is designed for performance, type safety, and complete control over hosting and infrastructure.
 
+## Styling with Panda CSS
+
+Panda generates static styles based on the tokens and `css` utilities used in the
+codebase. Run `pnpm run panda` whenever you modify tokens or add new components
+to keep the `styled-system` directory up to date.
+
 ## Getting Started
 
 Install dependencies and generate Panda styles before starting the development server:
