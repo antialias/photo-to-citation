@@ -145,7 +145,7 @@ export default function ClientCasesPage({
     dropOverlay: css({
       position: "absolute",
       inset: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
+      backgroundColor: token("colors.overlay"),
       color: "white",
       display: "flex",
       alignItems: "center",

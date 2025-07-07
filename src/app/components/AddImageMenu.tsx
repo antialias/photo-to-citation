@@ -40,7 +40,7 @@ export default function AddImageMenu({
       bg: { base: "white", _dark: "gray.900" },
       borderWidth: "1px",
       borderRadius: "sm",
-      boxShadow: "md",
+      boxShadow: token("shadows.default"),
       color: { base: "black", _dark: "white" },
     }),
   };

@@ -20,7 +20,7 @@ export default function ConfirmDialog({
     overlay: css({
       position: "fixed",
       inset: 0,
-      bg: "rgba(0,0,0,0.5)",
+      bg: token("colors.overlay"),
     }),
     content: css({
       position: "fixed",
@@ -33,7 +33,7 @@ export default function ConfirmDialog({
     dialog: css({
       bg: { base: "white", _dark: "gray.900" },
       borderRadius: "sm",
-      boxShadow: "md",
+      boxShadow: token("shadows.default"),
       maxW: "sm",
       w: "full",
     }),
