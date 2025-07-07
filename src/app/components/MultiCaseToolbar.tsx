@@ -11,6 +11,7 @@ import { radii } from "@/styleTokens";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { css, cva } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function MultiCaseToolbar({
   caseIds,
@@ -26,7 +27,7 @@ export default function MultiCaseToolbar({
   const { t } = useTranslation();
   const styles = {
     container: css({
-      bg: { base: "gray.100", _dark: "gray.800" },
+      bg: token("colors.surface-subtle"),
       px: "8",
       py: "2",
       display: "flex",
@@ -49,7 +50,7 @@ export default function MultiCaseToolbar({
       textAlign: "left",
       px: "4",
       py: "2",
-      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+      _hover: { bg: token("colors.surface-subtle") },
     },
   });
   return (

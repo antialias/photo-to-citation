@@ -30,15 +30,12 @@ export default function AddImageMenu({
       width: token("sizes.20"),
       aspectRatio: token("aspectRatios.landscape"),
       fontSize: "sm",
-      color: {
-        base: token("colors.gray.500"),
-        _dark: token("colors.gray.400"),
-      },
+      color: token("colors.text-muted"),
       cursor: "pointer",
       userSelect: "none",
     }),
     content: css({
-      bg: { base: "white", _dark: "gray.900" },
+      bg: token("colors.surface"),
       borderWidth: "1px",
       borderRadius: radii.default,
       boxShadow: token("shadows.default"),
@@ -53,7 +50,7 @@ export default function AddImageMenu({
       py: "2",
       w: "full",
       textAlign: "left",
-      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+      _hover: { bg: token("colors.surface-subtle") },
     },
   });
   return (

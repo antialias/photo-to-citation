@@ -1,6 +1,8 @@
 "use client";
 import { useTextField } from "@react-aria/textfield";
 import { useEffect, useId, useRef, useState } from "react";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function EditableText({
   value,
@@ -80,7 +82,7 @@ export default function EditableText({
       <button
         type="button"
         onClick={start}
-        className="text-gray-500 dark:text-gray-400"
+        className={cx(css({ color: token("colors.text-muted") }))}
       >
         ✎
       </button>
@@ -88,7 +90,7 @@ export default function EditableText({
         <button
           type="button"
           onClick={onClear}
-          className="text-gray-500 dark:text-gray-400"
+          className={cx(css({ color: token("colors.text-muted") }))}
         >
           ×
         </button>

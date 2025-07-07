@@ -5,6 +5,8 @@ import type { ReportModule } from "@/lib/reportModules";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useNotify } from "../../../components/NotificationProvider";
 import DraftEditor from "./DraftEditor";
 
@@ -61,7 +63,10 @@ export default function DraftModal({
           className={`fixed inset-0 flex p-4 z-modal ${fullScreen ? "items-stretch justify-stretch" : "items-center justify-center"}`}
         >
           <div
-            className={`bg-white dark:bg-gray-900 rounded shadow w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`}
+            className={cx(
+              css({ bg: token("colors.surface"), rounded: "md", shadow: "md" }),
+              `w-full ${fullScreen ? "h-full max-w-none" : "max-w-xl"}`,
+            )}
           >
             {data ? (
               <DraftEditor
@@ -78,14 +83,28 @@ export default function DraftModal({
               <button
                 type="button"
                 onClick={() => setFullScreen(!fullScreen)}
-                className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                className={cx(
+                  css({
+                    bg: token("colors.surface-subtle"),
+                    rounded: "md",
+                    px: "2",
+                    py: "1",
+                  }),
+                )}
               >
                 {fullScreen ? t("exitFullScreen") : t("fullScreen")}
               </button>
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                  className={cx(
+                    css({
+                      bg: token("colors.surface-subtle"),
+                      rounded: "md",
+                      px: "2",
+                      py: "1",
+                    }),
+                  )}
                 >
                   {t("close")}
                 </button>

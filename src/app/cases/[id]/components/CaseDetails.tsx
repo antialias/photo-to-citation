@@ -8,6 +8,8 @@ import {
   getOfficialCaseGps,
 } from "@/lib/caseUtils";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
 import useCaseProgress from "../useCaseProgress";
@@ -44,7 +46,12 @@ export default function CaseDetails({
   const note = caseData.note || "";
   const gps = getOfficialCaseGps(caseData);
   return (
-    <div className="order-first bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
+    <div
+      className={cx(
+        "order-first p-4 rounded flex flex-col gap-2 text-sm",
+        css({ bg: token("colors.surface-subtle") }),
+      )}
+    >
       <AnalysisStatus readOnly={readOnly} />
       {ownerContact ? (
         <p>

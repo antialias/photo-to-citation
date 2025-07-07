@@ -5,6 +5,8 @@ import { getThumbnailUrl } from "@/lib/clientThumbnails";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { FaFileAlt, FaFilePdf } from "react-icons/fa";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useCaseContext } from "../CaseContext";
 import { baseName, buildThreads } from "../utils";
 
@@ -28,7 +30,12 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
-        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
+        <div
+          className={cx(
+            "p-4 rounded flex flex-col gap-2",
+            css({ bg: token("colors.surface-subtle") }),
+          )}
+        >
           <h2 className="font-semibold flex items-center gap-2">
             {t("emailLog")}
             {hasSnail && (
@@ -50,10 +57,17 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
                 <span>
                   {new Date(mail.sentAt).toLocaleString()} - {mail.subject}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400">
+                <span
+                  className={cx(css({ color: token("colors.text-muted") }))}
+                >
                   {t("to")} {mail.to}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400 whitespace-pre-wrap">
+                <span
+                  className={cx(
+                    css({ color: token("colors.text-muted") }),
+                    "whitespace-pre-wrap",
+                  )}
+                >
                   {mail.body}
                 </span>
                 {mail.attachments && mail.attachments.length > 0 ? (
@@ -110,7 +124,12 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
         </div>
       ) : null}
       {allPaperwork.length > 0 ? (
-        <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2">
+        <div
+          className={cx(
+            "p-4 rounded flex flex-col gap-2",
+            css({ bg: token("colors.surface-subtle") }),
+          )}
+        >
           <h2 className="font-semibold">{t("paperwork")}</h2>
           <div className="flex gap-2 flex-wrap">
             {allPaperwork.map(({ url, time }) => {

@@ -1,5 +1,7 @@
 "use client";
 import type { CaseChatReply } from "@/lib/caseChat";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import useVisualViewportHeight from "../../hooks/useVisualViewportHeight";
 import {
   CaseChatProvider,
@@ -44,9 +46,10 @@ function CaseChatInner({ caseId }: { caseId: string }) {
     >
       {open ? (
         <div
-          className={`bg-white dark:bg-gray-900 shadow-lg rounded flex flex-col ${
-            expanded ? "w-full h-full" : "w-screen sm:w-80 sm:max-h-[400px]"
-          }`}
+          className={cx(
+            css({ bg: token("colors.surface"), shadow: "md", rounded: "md" }),
+            `flex flex-col${expanded ? " w-full h-full" : " w-screen sm:w-80 sm:max-h-[400px]"}`,
+          )}
           style={
             expanded
               ? undefined

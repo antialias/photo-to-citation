@@ -1,5 +1,7 @@
 "use client";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useCaseChat } from "./CaseChatProvider";
 
 export default function ChatInput() {
@@ -32,7 +34,10 @@ export default function ChatInput() {
               void send();
             }
           }}
-          className="flex-1 border rounded px-1 dark:bg-gray-800 text-base"
+          className={cx(
+            "flex-1 border rounded px-1 text-base",
+            css({ bg: token("colors.surface-subtle") }),
+          )}
           placeholder={t("askQuestion")}
         />
         <button

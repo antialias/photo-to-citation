@@ -9,6 +9,8 @@ import {
   hasCaseViolation,
 } from "@/lib/caseUtils";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import MultiCaseToolbar from "./MultiCaseToolbar";
 
 export default function CaseSummary({ cases }: { cases: Case[] }) {
@@ -42,7 +44,9 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
       />
       <div className="p-8 flex flex-col gap-2">
         <h1 className="text-xl font-semibold">{t("caseSummary")}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p
+          className={cx("text-sm", css({ color: token("colors.text-muted") }))}
+        >
           {t("casesSelected", { count: cases.length })}
         </p>
         {violation ? (

@@ -24,10 +24,7 @@ export default function CaseLayout({
     header: css({
       position: "sticky",
       top: 0,
-      backgroundColor: {
-        base: token("colors.white"),
-        _dark: token("colors.gray.900"),
-      },
+      backgroundColor: token("colors.surface"),
       zIndex: "var(--z-sticky)",
     }),
     grid: css({

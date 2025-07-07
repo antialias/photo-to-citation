@@ -1,4 +1,6 @@
 "use client";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import i18n from "../../i18n";
 
 export const FLAGS: Record<string, string> = {
@@ -26,7 +28,10 @@ export default function LanguageSwitcher({
   return (
     <select
       id={id}
-      className="border rounded p-1 text-sm bg-white dark:bg-gray-800"
+      className={cx(
+        "border rounded p-1 text-sm",
+        css({ bg: token("colors.surface") }),
+      )}
       value={value}
       onChange={(e) => {
         const lang = e.target.value;

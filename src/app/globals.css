@@ -1,6 +1,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --surface: #ffffff;
+  --surface-subtle: #f3f4f6;
+  --text-muted: #6b7280;
   --visual-viewport-height: 100dvh;
   --z-nav: 10;
   --z-sticky: 20;
@@ -12,12 +15,18 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-text-muted: var(--text-muted);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --surface: #0a0a0a;
+    --surface-subtle: #1f2937;
+    --text-muted: #9ca3af;
   }
 }
 

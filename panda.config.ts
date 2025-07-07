@@ -17,6 +17,9 @@ export default defineConfig({
       tokens: {
         colors: {
           overlay: { value: "rgba(0,0,0,0.5)" },
+          surface: { value: "var(--color-surface)" },
+          "surface-subtle": { value: "var(--color-surface-subtle)" },
+          "text-muted": { value: "var(--color-text-muted)" },
         },
         shadows: {
           default: { value: "{shadows.md}" },
