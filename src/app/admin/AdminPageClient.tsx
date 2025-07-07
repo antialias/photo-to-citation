@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import SystemStatusClient from "../system-status/SystemStatusClient";
 import AppConfigurationTab from "./AppConfigurationTab";
 import InviteUserForm from "./components/InviteUserForm";
@@ -53,6 +55,19 @@ export default function AdminPageClient({
   );
   const { t } = useTranslation();
 
+  const styles = {
+    heading: css({
+      fontSize: token("fontSizes.xl"),
+      fontWeight: "700",
+      mb: "4",
+    }),
+    subHeading: css({
+      fontSize: token("fontSizes.xl"),
+      fontWeight: "700",
+      my: "4",
+    }),
+  };
+
   return (
     <Tabs
       value={tab}
@@ -70,10 +85,10 @@ export default function AdminPageClient({
       </TabsList>
       <TabsContent value="users">
         <>
-          <h1 className="text-xl font-bold mb-4">{t("admin.users")}</h1>
+          <h1 className={styles.heading}>{t("admin.users")}</h1>
           <InviteUserForm hooks={userHooks} />
           <UsersTable hooks={userHooks} />
-          <h1 className="text-xl font-bold my-4">{t("admin.casbinRules")}</h1>
+          <h1 className={styles.subHeading}>{t("admin.casbinRules")}</h1>
           <RulesTable hooks={ruleHooks} />
         </>
       </TabsContent>
