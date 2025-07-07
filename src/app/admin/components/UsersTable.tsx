@@ -1,5 +1,7 @@
 "use client";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import type { UserRecord } from "../AdminPageClient";
 import type { useUsers } from "../hooks/useUsers";
 
@@ -9,17 +11,43 @@ export default function UsersTable({
   const { usersQuery, disable, changeRole, remove } = hooks;
   const users = usersQuery.data ?? [];
   const { t } = useTranslation();
+  const styles = {
+    list: css({ display: "grid", gap: "2" }),
+    item: css({ display: "flex", alignItems: "center", gap: "2" }),
+    email: css({ flex: "1" }),
+    select: css({
+      borderWidth: "1px",
+      borderRadius: token("radii.md"),
+      p: "1",
+      backgroundColor: { base: "white", _dark: token("colors.gray.900") },
+    }),
+    disableBtn: css({
+      bg: "yellow.500",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+    deleteBtn: css({
+      bg: "red.500",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+  };
+
   return (
-    <ul className="grid gap-2">
+    <ul className={styles.list}>
       {users.map((u: UserRecord) => (
-        <li key={u.id} className="flex items-center gap-2">
-          <span className="flex-1">{u.email ?? u.id}</span>
+        <li key={u.id} className={styles.item}>
+          <span className={styles.email}>{u.email ?? u.id}</span>
           <select
             value={u.role}
             onChange={(e) =>
               changeRole.mutate({ id: u.id, role: e.target.value })
             }
-            className="border rounded p-1 bg-white dark:bg-gray-900"
+            className={styles.select}
           >
             <option value="user">user</option>
             <option value="admin">admin</option>
@@ -30,7 +58,7 @@ export default function UsersTable({
             <button
               type="button"
               onClick={() => disable.mutate(u.id)}
-              className="bg-yellow-500 text-white px-2 py-1 rounded"
+              className={styles.disableBtn}
             >
               {t("admin.disable")}
             </button>
@@ -38,7 +66,7 @@ export default function UsersTable({
           <button
             type="button"
             onClick={() => remove.mutate(u.id)}
-            className="bg-red-500 text-white px-2 py-1 rounded"
+            className={styles.deleteBtn}
           >
             {t("admin.delete")}
           </button>

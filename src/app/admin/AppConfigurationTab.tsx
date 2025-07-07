@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useNotify } from "../components/NotificationProvider";
 
 interface VinSourceStatus {
@@ -153,32 +155,105 @@ export default function AppConfigurationTab() {
     },
   });
 
+  const styles = {
+    tabs: css({ display: "flex", gap: "4" }),
+    tabsList: css({
+      display: "flex",
+      flexDirection: "column",
+      width: "48",
+      flexShrink: 0,
+      borderRightWidth: "1px",
+      borderBottomWidth: 0,
+      mr: "4",
+    }),
+    tabTrigger: css({ justifyContent: "flex-start" }),
+    content: css({ flex: "1" }),
+    heading: css({
+      fontSize: token("fontSizes.xl"),
+      fontWeight: "700",
+      mb: "4",
+    }),
+    list: css({ display: "grid", gap: "2" }),
+    item: css({ display: "flex", alignItems: "center", gap: "4" }),
+    flex1: css({ flex: "1" }),
+    toggleOn: css({
+      bg: "green.500",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+    toggleOff: css({
+      bg: "gray.300",
+      _dark: { bg: "gray.700" },
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+    statusWrap: css({ display: "flex", alignItems: "center", gap: "1" }),
+    readyDot: css({ color: "green.600" }),
+    notReadyDot: css({ color: "yellow.600" }),
+    activeBadge: css({
+      px: "2",
+      py: "1",
+      bg: "green.500",
+      color: "white",
+      borderRadius: token("radii.md"),
+    }),
+    testBtn: css({
+      bg: "blue.600",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+    message: css({ fontSize: "sm", color: "yellow.600" }),
+    state: css({ mb: "2" }),
+    stateHeading: css({ fontWeight: "600" }),
+    input: css({
+      flex: "1",
+      borderWidth: "1px",
+      borderRadius: token("radii.md"),
+      p: "1",
+      backgroundColor: { base: "white", _dark: token("colors.gray.900") },
+    }),
+    saveBtn: css({
+      bg: "blue.600",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+    envVar: css({ fontSize: "sm", color: "red.600" }),
+    inputRow: css({ display: "flex", alignItems: "center", gap: "2", mb: "2" }),
+  };
+
   return (
-    <Tabs orientation="vertical" className="flex gap-4" defaultValue="vin">
-      <TabsList className="flex flex-col w-48 shrink-0 border-r border-b-0 mr-4">
-        <TabsTrigger className="justify-start" value="vin">
+    <Tabs orientation="vertical" className={styles.tabs} defaultValue="vin">
+      <TabsList className={styles.tabsList}>
+        <TabsTrigger className={styles.tabTrigger} value="vin">
           {t("vinLookupModules")}
         </TabsTrigger>
-        <TabsTrigger className="justify-start" value="mail">
+        <TabsTrigger className={styles.tabTrigger} value="mail">
           {t("snailMailProviders")}
         </TabsTrigger>
-        <TabsTrigger className="justify-start" value="ownership">
+        <TabsTrigger className={styles.tabTrigger} value="ownership">
           {t("ownershipModules")}
         </TabsTrigger>
-        <TabsTrigger className="justify-start" value="oauth">
+        <TabsTrigger className={styles.tabTrigger} value="oauth">
           {t("oauthProviders")}
         </TabsTrigger>
-        <TabsTrigger className="justify-start" value="mock">
+        <TabsTrigger className={styles.tabTrigger} value="mock">
           {t("mockEmailRecipient")}
         </TabsTrigger>
       </TabsList>
-      <div className="flex-1">
+      <div className={styles.content}>
         <TabsContent value="vin">
-          <h1 className="text-xl font-bold mb-4">{t("vinLookupModules")}</h1>
-          <ul className="grid gap-2">
+          <h1 className={styles.heading}>{t("vinLookupModules")}</h1>
+          <ul className={styles.list}>
             {sources.map((s) => (
-              <li key={s.id} className="flex items-center gap-4">
-                <span className="flex-1">
+              <li key={s.id} className={styles.item}>
+                <span className={styles.flex1}>
                   {s.id} (failures: {s.failureCount})
                 </span>
                 <button
@@ -187,11 +262,7 @@ export default function AppConfigurationTab() {
                     toggleMutation.mutate({ id: s.id, enabled: !s.enabled })
                   }
                   disabled={!isAdmin}
-                  className={
-                    s.enabled
-                      ? "bg-green-500 text-white px-2 py-1 rounded"
-                      : "bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-                  }
+                  className={s.enabled ? styles.toggleOn : styles.toggleOff}
                 >
                   {s.enabled ? t("admin.disable") : t("enable")}
                 </button>
@@ -200,31 +271,29 @@ export default function AppConfigurationTab() {
           </ul>
         </TabsContent>
         <TabsContent value="mail">
-          <h1 className="text-xl font-bold mb-4">{t("snailMailProviders")}</h1>
-          <ul className="grid gap-2">
+          <h1 className={styles.heading}>{t("snailMailProviders")}</h1>
+          <ul className={styles.list}>
             {mailProviders.map((p) => (
-              <li key={p.id} className="flex items-center gap-4">
-                <span className="flex-1">
+              <li key={p.id} className={styles.item}>
+                <span className={styles.flex1}>
                   {p.id} (failures: {p.failureCount})
                 </span>
-                <span className="flex items-center gap-1">
+                <span className={styles.statusWrap}>
                   <span
-                    className={p.ready ? "text-green-600" : "text-yellow-600"}
+                    className={p.ready ? styles.readyDot : styles.notReadyDot}
                   >
                     ●
                   </span>
                   {p.ready ? t("ready") : t("notReady")}
                 </span>
                 {p.active ? (
-                  <span className="px-2 py-1 bg-green-500 text-white rounded">
-                    {t("active")}
-                  </span>
+                  <span className={styles.activeBadge}>{t("active")}</span>
                 ) : (
                   <button
                     type="button"
                     onClick={() => activateMutation.mutate(p.id)}
                     disabled={!isAdmin}
-                    className="bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+                    className={styles.toggleOff}
                   >
                     {t("activate")}
                   </button>
@@ -234,20 +303,20 @@ export default function AppConfigurationTab() {
                     type="button"
                     onClick={() => testMutation.mutate(p.id)}
                     disabled={!isAdmin}
-                    className="bg-blue-600 text-white px-2 py-1 rounded"
+                    className={styles.testBtn}
                   >
                     {t("test")}
                   </button>
                 )}
                 {!p.ready && p.message && (
-                  <span className="text-sm text-yellow-600">{p.message}</span>
+                  <span className={styles.message}>{p.message}</span>
                 )}
               </li>
             ))}
           </ul>
         </TabsContent>
         <TabsContent value="ownership">
-          <h1 className="text-xl font-bold mb-4">{t("ownershipModules")}</h1>
+          <h1 className={styles.heading}>{t("ownershipModules")}</h1>
           {(() => {
             const grouped = ownershipModules.reduce<
               Record<string, OwnershipModuleStatus[]>
@@ -258,12 +327,12 @@ export default function AppConfigurationTab() {
               return acc;
             }, {});
             return Object.entries(grouped).map(([state, mods]) => (
-              <div key={state} className="mb-2">
-                <h2 className="font-semibold">{state}</h2>
-                <ul className="grid gap-2">
+              <div key={state} className={styles.state}>
+                <h2 className={styles.stateHeading}>{state}</h2>
+                <ul className={styles.list}>
                   {mods.map((m) => (
-                    <li key={m.id} className="flex items-center gap-4">
-                      <span className="flex-1">
+                    <li key={m.id} className={styles.item}>
+                      <span className={styles.flex1}>
                         {m.id} (failures: {m.failureCount})
                       </span>
                       <button
@@ -276,9 +345,7 @@ export default function AppConfigurationTab() {
                         }
                         disabled={!isAdmin}
                         className={
-                          m.enabled
-                            ? "bg-green-500 text-white px-2 py-1 rounded"
-                            : "bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+                          m.enabled ? styles.toggleOn : styles.toggleOff
                         }
                       >
                         {m.enabled ? t("admin.disable") : t("enable")}
@@ -291,11 +358,11 @@ export default function AppConfigurationTab() {
           })()}
         </TabsContent>
         <TabsContent value="oauth">
-          <h1 className="text-xl font-bold mb-4">{t("oauthProviders")}</h1>
-          <ul className="grid gap-2">
+          <h1 className={styles.heading}>{t("oauthProviders")}</h1>
+          <ul className={styles.list}>
             {oauthProviders.map((p) => (
-              <li key={p.id} className="flex items-center gap-4">
-                <span className="flex-1">{p.id}</span>
+              <li key={p.id} className={styles.item}>
+                <span className={styles.flex1}>{p.id}</span>
                 <button
                   type="button"
                   onClick={() =>
@@ -305,11 +372,7 @@ export default function AppConfigurationTab() {
                     })
                   }
                   disabled={!isAdmin}
-                  className={
-                    p.enabled
-                      ? "bg-green-500 text-white px-2 py-1 rounded"
-                      : "bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
-                  }
+                  className={p.enabled ? styles.toggleOn : styles.toggleOff}
                 >
                   {p.enabled ? t("admin.disable") : t("enable")}
                 </button>
@@ -318,27 +381,27 @@ export default function AppConfigurationTab() {
           </ul>
         </TabsContent>
         <TabsContent value="mock">
-          <h1 className="text-xl font-bold mb-4">{t("mockEmailRecipient")}</h1>
-          <div className="flex items-center gap-2 mb-2">
+          <h1 className={styles.heading}>{t("mockEmailRecipient")}</h1>
+          <div className={styles.inputRow}>
             <input
               type="email"
               value={mockTo}
               onChange={(e) => setMockTo(e.target.value)}
               placeholder={t("mockEmailRecipientPlaceholder")}
-              className="flex-1 border rounded p-1 bg-white dark:bg-gray-900"
+              className={styles.input}
               disabled={!isAdmin}
             />
             <button
               type="button"
               onClick={() => mockEmailMutation.mutate(mockTo)}
               disabled={!isAdmin}
-              className="bg-blue-600 text-white px-2 py-1 rounded"
+              className={styles.saveBtn}
             >
               {t("save")}
             </button>
           </div>
           {mockEmail?.envOverride && (
-            <p className="text-sm text-red-600">{t("envVarOverrides")}</p>
+            <p className={styles.envVar}>{t("envVarOverrides")}</p>
           )}
         </TabsContent>
       </div>

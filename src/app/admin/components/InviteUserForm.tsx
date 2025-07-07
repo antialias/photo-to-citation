@@ -1,6 +1,8 @@
 "use client";
 import { type FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import type { useUsers } from "../hooks/useUsers";
 
 export default function InviteUserForm({
@@ -16,18 +18,32 @@ export default function InviteUserForm({
     setInviteEmail("");
   }
 
+  const styles = {
+    form: css({ mb: "4", display: "flex", gap: "2" }),
+    input: css({
+      borderWidth: "1px",
+      borderRadius: token("radii.md"),
+      p: "1",
+      backgroundColor: { base: "white", _dark: token("colors.gray.900") },
+    }),
+    button: css({
+      bg: "blue.600",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+  };
+
   return (
-    <form onSubmit={onSubmit} className="mb-4 flex gap-2">
+    <form onSubmit={onSubmit} className={styles.form}>
       <input
         type="email"
         value={inviteEmail}
         onChange={(e) => setInviteEmail(e.target.value)}
-        className="border rounded p-1 bg-white dark:bg-gray-900"
+        className={styles.input}
       />
-      <button
-        type="submit"
-        className="bg-blue-600 text-white px-2 py-1 rounded"
-      >
+      <button type="submit" className={styles.button}>
         {t("admin.invite")}
       </button>
     </form>

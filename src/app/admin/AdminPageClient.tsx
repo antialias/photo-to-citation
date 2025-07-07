@@ -66,6 +66,12 @@ export default function AdminPageClient({
       fontWeight: "700",
       my: "4",
     }),
+    tabsList: css({
+      mb: "4",
+      display: "flex",
+      gap: "4",
+      borderBottomWidth: "1px",
+    }),
   };
 
   return (
@@ -76,7 +82,7 @@ export default function AdminPageClient({
         router.replace(`?tab=${v}`);
       }}
     >
-      <TabsList className="mb-4 flex gap-4 border-b">
+      <TabsList className={styles.tabsList}>
         <TabsTrigger value="users">{t("admin.userManagement")}</TabsTrigger>
         <TabsTrigger value="config">{t("admin.appConfiguration")}</TabsTrigger>
         {isSuperadmin && (
