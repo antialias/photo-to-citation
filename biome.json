@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".next", "coverage", "dist", "data"]
+    "ignore": [".next", "coverage", "dist", "data", "styled-system"]
   },
   "formatter": {
     "enabled": true,
