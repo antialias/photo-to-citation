@@ -26,6 +26,7 @@ Install dependencies and start the development server:
 
 ```bash
 pnpm install
+pnpm run panda # generate Panda CSS artifacts
 pnpm run dev
 ```
 
