@@ -1,6 +1,7 @@
 "use client";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
+import { button } from "styled-system/recipes";
 import { token } from "styled-system/tokens";
 import type { UserRecord } from "../AdminPageClient";
 import type { useUsers } from "../hooks/useUsers";
@@ -21,20 +22,8 @@ export default function UsersTable({
       p: "1",
       backgroundColor: { base: "white", _dark: token("colors.gray.900") },
     }),
-    disableBtn: css({
-      bg: "yellow.500",
-      color: "white",
-      px: "2",
-      py: "1",
-      borderRadius: token("radii.md"),
-    }),
-    deleteBtn: css({
-      bg: "red.500",
-      color: "white",
-      px: "2",
-      py: "1",
-      borderRadius: token("radii.md"),
-    }),
+    disableBtn: button({ variant: "warning" }),
+    deleteBtn: button({ variant: "danger" }),
   };
 
   return (

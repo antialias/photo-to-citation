@@ -2,6 +2,7 @@
 import { type FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
+import { button } from "styled-system/recipes";
 import { token } from "styled-system/tokens";
 import type { useUsers } from "../hooks/useUsers";
 
@@ -26,13 +27,7 @@ export default function InviteUserForm({
       p: "1",
       backgroundColor: { base: "white", _dark: token("colors.gray.900") },
     }),
-    button: css({
-      bg: "blue.600",
-      color: "white",
-      px: "2",
-      py: "1",
-      borderRadius: token("radii.md"),
-    }),
+    button: button({ variant: "primary" }),
   };
 
   return (

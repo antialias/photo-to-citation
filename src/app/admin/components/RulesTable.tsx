@@ -1,6 +1,7 @@
 "use client";
 import { useTranslation } from "react-i18next";
-import { css } from "styled-system/css";
+import { css, cx } from "styled-system/css";
+import { button } from "styled-system/recipes";
 import { token } from "styled-system/tokens";
 import type { useCasbinRules } from "../hooks/useCasbinRules";
 import RuleRow from "./RuleRow";
@@ -23,21 +24,11 @@ export default function RulesTable({
   const styles = {
     table: css({ mb: "2", borderCollapse: "collapse", width: "100%" }),
     addWrapper: css({ display: "flex", gap: "2", mb: "2" }),
-    addBtn: css({
-      bg: "green.600",
-      color: "white",
-      px: "2",
-      py: "1",
-      borderRadius: token("radii.md"),
-    }),
-    saveBtn: css({
-      bg: "blue.600",
-      color: "white",
-      px: "2",
-      py: "1",
-      borderRadius: token("radii.md"),
-      _disabled: { opacity: 0.5 },
-    }),
+    addBtn: button({ variant: "primary" }),
+    saveBtn: cx(
+      button({ variant: "primary" }),
+      css({ _disabled: { opacity: 0.5 } }),
+    ),
     headerCell: css({ borderWidth: "1px", px: "1" }),
   };
   return (
