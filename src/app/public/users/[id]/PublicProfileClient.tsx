@@ -40,7 +40,7 @@ export default function PublicProfileClient({
         _dark: token("colors.gray.800"),
       },
       borderRadius: token("radii.lg"),
-      boxShadow: token("shadows.md"),
+      boxShadow: token("shadows.default"),
     }),
     avatarImg: css({
       width: "6rem",

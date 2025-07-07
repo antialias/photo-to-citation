@@ -33,7 +33,7 @@ export default function ConfirmDialog({
     dialog: css({
       bg: { base: "white", _dark: "gray.900" },
       borderRadius: "sm",
-      boxShadow: "md",
+      boxShadow: token("shadows.default"),
       maxW: "sm",
       w: "full",
     }),

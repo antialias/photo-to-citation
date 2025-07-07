@@ -66,7 +66,7 @@ function ClientCasePage({
     overlay: css({
       position: "absolute",
       inset: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
+      backgroundColor: token("colors.overlay"),
       color: "white",
       display: "flex",
       alignItems: "center",

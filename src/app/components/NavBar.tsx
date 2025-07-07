@@ -148,7 +148,7 @@ export default function NavBar() {
       bg: { base: "white", _dark: "gray.900" },
       borderWidth: "1px",
       borderRadius: token("radii.md"),
-      boxShadow: token("shadows.md"),
+      boxShadow: token("shadows.default"),
       fontSize: "sm",
     }),
     menuItem: css({
@@ -303,7 +303,7 @@ export default function NavBar() {
                   bg: { base: "gray.100", _dark: "gray.900" },
                   borderWidth: "1px",
                   borderRadius: token("radii.md"),
-                  boxShadow: token("shadows.md"),
+                  boxShadow: token("shadows.default"),
                   p: "4",
                 })}
               >

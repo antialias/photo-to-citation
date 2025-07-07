@@ -17,6 +17,9 @@ export default defineConfig({
         colors: {
           overlay: { value: "rgba(0,0,0,0.5)" },
         },
+        shadows: {
+          default: { value: "{shadows.md}" },
+        },
       },
     },
   },
