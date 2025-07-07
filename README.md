@@ -246,6 +246,8 @@ RETURN_ADDRESS="Your Name\n1 Main St\nCity, ST 12345"
 SNAIL_MAIL_PROVIDER=docsmit
 # for the file provider
 SNAIL_MAIL_OUT_DIR=data/snailmail_out
+CHECK_ACCOUNT_NUMBER=123456789
+CHECK_ROUTING_NUMBER=987654321
 ```
 
 All sent mail is logged to `data/snailMail.json` or the file specified by
