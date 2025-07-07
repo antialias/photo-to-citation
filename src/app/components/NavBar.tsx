@@ -2,6 +2,7 @@
 
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
 import { signIn, signOut, useSession } from "@/app/useSession";
+import { menuItem } from "@/components/ui/menuItem";
 import * as Popover from "@radix-ui/react-popover";
 import Image from "next/image";
 import Link from "next/link";
@@ -151,13 +152,7 @@ export default function NavBar() {
       boxShadow: token("shadows.default"),
       fontSize: "sm",
     }),
-    menuItem: css({
-      display: "block",
-      px: "4",
-      py: "2",
-      textAlign: "left",
-      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
-    }),
+    menuItem: menuItem(),
   };
   const userMenu = (
     <details className={userStyles.details} onToggle={() => setMenuOpen(false)}>

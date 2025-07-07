@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { menuItem } from "@/components/ui/menuItem";
 import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
@@ -105,15 +106,6 @@ export default function CaseToolbar({
       borderRadius: token("radii.md"),
     }),
     dropdownContent: css({ mt: "1" }),
-    menuItemButton: css({ w: "full", textAlign: "left" }),
-    menuItemLink: css({
-      w: "full",
-      textAlign: "left",
-      px: "4",
-      py: "2",
-      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
-      _focus: { bg: { base: "gray.100", _dark: "gray.700" } },
-    }),
   };
   return (
     <div className={styles.wrapper}>
@@ -152,7 +144,7 @@ export default function CaseToolbar({
                     });
                     window.location.reload();
                   }}
-                  className={styles.menuItemButton}
+                  className={menuItem()}
                 >
                   {t("rerunAnalysis")}
                 </button>
@@ -169,7 +161,7 @@ export default function CaseToolbar({
                     window.location.reload();
                   }}
                   data-testid="archive-case-button"
-                  className={styles.menuItemButton}
+                  className={menuItem()}
                 >
                   {archived ? t("unarchiveCase") : t("archiveCase")}
                 </button>
@@ -201,7 +193,7 @@ export default function CaseToolbar({
                       window.location.reload();
                     }
                   }}
-                  className={styles.menuItemButton}
+                  className={menuItem()}
                 >
                   {violationOverride
                     ? t("clearViolationOverride")
@@ -223,7 +215,7 @@ export default function CaseToolbar({
                           );
                           window.location.reload();
                         }}
-                        className={styles.menuItemButton}
+                        className={menuItem()}
                       >
                         {t("cancelAnalysis")}
                       </button>
@@ -232,7 +224,7 @@ export default function CaseToolbar({
                   <DropdownMenuItem asChild>
                     <Link
                       href={`/cases/${caseId}/compose`}
-                      className={styles.menuItemLink}
+                      className={menuItem()}
                     >
                       {t("draftEmail")}
                     </Link>
@@ -244,7 +236,7 @@ export default function CaseToolbar({
                           ownershipRequestLink ??
                           `/cases/${caseId}/ownership-request`
                         }
-                        className={styles.menuItemLink}
+                        className={menuItem()}
                       >
                         {t("viewOwnershipRequest")}
                       </Link>
@@ -253,7 +245,7 @@ export default function CaseToolbar({
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/ownership`}
-                        className={styles.menuItemLink}
+                        className={menuItem()}
                       >
                         {t("requestOwnershipInfo")}
                       </Link>
@@ -263,7 +255,7 @@ export default function CaseToolbar({
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/notify-owner`}
-                        className={styles.menuItemLink}
+                        className={menuItem()}
                       >
                         {t("notifyRegisteredOwner")}
                       </Link>
@@ -281,7 +273,7 @@ export default function CaseToolbar({
                         window.location.reload();
                       }}
                       data-testid="close-case-button"
-                      className={styles.menuItemButton}
+                      className={menuItem()}
                     >
                       {closed ? t("reopenCase") : t("closeCase")}
                     </button>
@@ -303,7 +295,7 @@ export default function CaseToolbar({
                       }
                     }}
                     data-testid="delete-case-button"
-                    className={styles.menuItemButton}
+                    className={menuItem()}
                   >
                     {t("deleteCase")}
                   </button>

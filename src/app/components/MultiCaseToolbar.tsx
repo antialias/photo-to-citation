@@ -8,9 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { radii } from "@/styleTokens";
+import { menuItem } from "@/components/ui/menuItem";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { css, cva } from "styled-system/css";
+import { css } from "styled-system/css";
 
 export default function MultiCaseToolbar({
   caseIds,
@@ -43,15 +44,6 @@ export default function MultiCaseToolbar({
     menu: css({ mt: "1" }),
   };
 
-  const menuLink = cva({
-    base: {
-      w: "full",
-      textAlign: "left",
-      px: "4",
-      py: "2",
-      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
-    },
-  });
   return (
     <div className={styles.container}>
       <DropdownMenu>
@@ -78,7 +70,7 @@ export default function MultiCaseToolbar({
                 );
                 window.location.reload();
               }}
-              className={menuLink()}
+              className={menuItem()}
             >
               {t("rerunAnalysis")}
             </button>
@@ -98,7 +90,7 @@ export default function MultiCaseToolbar({
                 );
                 window.location.reload();
               }}
-              className={menuLink()}
+              className={menuItem()}
             >
               {t("archiveCase")}
             </button>
@@ -108,7 +100,7 @@ export default function MultiCaseToolbar({
               <DropdownMenuItem asChild>
                 <Link
                   href={`/cases/${first}/compose?ids=${idsParam}`}
-                  className={menuLink()}
+                  className={menuItem()}
                 >
                   {t("draftEmail")}
                 </Link>
@@ -117,7 +109,7 @@ export default function MultiCaseToolbar({
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/cases/${first}/ownership?ids=${idsParam}`}
-                    className={menuLink()}
+                    className={menuItem()}
                   >
                     {t("requestOwnershipInfo")}
                   </Link>
@@ -127,7 +119,7 @@ export default function MultiCaseToolbar({
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/cases/${first}/notify-owner?ids=${idsParam}`}
-                    className={menuLink()}
+                    className={menuItem()}
                   >
                     {t("notifyRegisteredOwner")}
                   </Link>
@@ -153,7 +145,7 @@ export default function MultiCaseToolbar({
                 }
               }}
               data-testid="delete-cases-button"
-              className={menuLink()}
+              className={menuItem()}
             >
               {t("deleteCase")}
             </button>
