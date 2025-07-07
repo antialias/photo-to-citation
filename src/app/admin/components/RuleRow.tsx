@@ -1,4 +1,6 @@
 "use client";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import type { CasbinRule } from "../AdminPageClient";
 import type { GroupOptions, PolicyOptions } from "../hooks/useCasbinRules";
 
@@ -31,13 +33,34 @@ export default function RuleRow({
       ? (policyOptions[rule.v0][rule.v1] ?? [])
       : [];
 
+  const styles = {
+    cell: css({ borderWidth: "1px" }),
+    select: css({
+      width: "100%",
+      p: "1",
+      backgroundColor: { base: "white", _dark: token("colors.gray.900") },
+    }),
+    input: css({
+      width: "100%",
+      p: "1",
+      backgroundColor: { base: "white", _dark: token("colors.gray.900") },
+    }),
+    deleteBtn: css({
+      bg: "red.500",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+  };
+
   return (
     <tr>
-      <td className="border">
+      <td className={styles.cell}>
         <select
           value={rule.ptype}
           onChange={(e) => onChange("ptype", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.select}
         >
           {ptypeOptions.map((o) => (
             <option key={o} value={o}>
@@ -46,11 +69,11 @@ export default function RuleRow({
           ))}
         </select>
       </td>
-      <td className="border">
+      <td className={styles.cell}>
         <select
           value={rule.v0 ?? ""}
           onChange={(e) => onChange("v0", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.select}
         >
           {v0Options.map((o) => (
             <option key={o} value={o}>
@@ -59,11 +82,11 @@ export default function RuleRow({
           ))}
         </select>
       </td>
-      <td className="border">
+      <td className={styles.cell}>
         <select
           value={rule.v1 ?? ""}
           onChange={(e) => onChange("v1", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.select}
         >
           {v1Options.map((o) => (
             <option key={o} value={o}>
@@ -72,11 +95,11 @@ export default function RuleRow({
           ))}
         </select>
       </td>
-      <td className="border">
+      <td className={styles.cell}>
         <select
           value={rule.v2 ?? ""}
           onChange={(e) => onChange("v2", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.select}
         >
           {v2Options.map((o) => (
             <option key={o} value={o}>
@@ -85,33 +108,29 @@ export default function RuleRow({
           ))}
         </select>
       </td>
-      <td className="border">
+      <td className={styles.cell}>
         <input
           value={rule.v3 ?? ""}
           onChange={(e) => onChange("v3", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.input}
         />
       </td>
-      <td className="border">
+      <td className={styles.cell}>
         <input
           value={rule.v4 ?? ""}
           onChange={(e) => onChange("v4", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.input}
         />
       </td>
-      <td className="border">
+      <td className={styles.cell}>
         <input
           value={rule.v5 ?? ""}
           onChange={(e) => onChange("v5", e.target.value)}
-          className="w-full p-1 bg-white dark:bg-gray-900"
+          className={styles.input}
         />
       </td>
-      <td className="border">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="bg-red-500 text-white px-2 py-1 rounded"
-        >
+      <td className={styles.cell}>
+        <button type="button" onClick={onRemove} className={styles.deleteBtn}>
           Delete
         </button>
       </td>
