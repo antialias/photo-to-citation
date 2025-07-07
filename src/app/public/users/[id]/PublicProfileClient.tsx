@@ -24,12 +24,18 @@ export default function PublicProfileClient({
   const { t } = useTranslation();
   const styles = {
     container: css({
+      maxWidth: "32rem",
+      margin: "2rem auto",
       padding: "2rem",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       gap: "1rem",
       textAlign: "center",
+      background: "var(--color-background)",
+      border: "1px solid #e5e7eb",
+      borderRadius: "0.5rem",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
     }),
     avatarImg: css({
       width: "6rem",
