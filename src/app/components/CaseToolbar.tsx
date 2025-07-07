@@ -11,6 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import type { LlmProgress } from "@/lib/openai";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function CaseToolbar({
   caseId,
@@ -74,10 +76,49 @@ export default function CaseToolbar({
     progress?.steps !== undefined && progress.step !== undefined
       ? ((progress.step - 1 + (requestValue ?? 0) / 100) / progress.steps) * 100
       : undefined;
+  const styles = {
+    wrapper: css({
+      bg: { base: "gray.100", _dark: "gray.800" },
+      px: "8",
+      py: "2",
+      display: "flex",
+      flexDirection: "column",
+      gap: "2",
+      flex: 1,
+    }),
+    progressWrapper: css({
+      display: "flex",
+      flexDirection: "column",
+      gap: "1",
+    }),
+    progressText: css({
+      fontSize: "sm",
+      color: { base: "gray.500", _dark: "gray.400" },
+    }),
+    actionsRow: css({ display: "flex", justifyContent: "flex-end" }),
+    actionButton: css({
+      cursor: "pointer",
+      userSelect: "none",
+      bg: { base: "gray.300", _dark: "gray.700" },
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+    dropdownContent: css({ mt: "1" }),
+    menuItemButton: css({ w: "full", textAlign: "left" }),
+    menuItemLink: css({
+      w: "full",
+      textAlign: "left",
+      px: "4",
+      py: "2",
+      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+      _focus: { bg: { base: "gray.100", _dark: "gray.700" } },
+    }),
+  };
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex flex-col gap-2 flex-1">
+    <div className={styles.wrapper}>
       {progress ? (
-        <div className="flex flex-col gap-1">
+        <div className={styles.progressWrapper}>
           <Progress
             value={overallValue}
             indeterminate={overallValue === undefined}
@@ -86,24 +127,22 @@ export default function CaseToolbar({
             value={requestValue}
             indeterminate={requestValue === undefined}
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {progressText}
-          </p>
+          <p className={styles.progressText}>{progressText}</p>
         </div>
       ) : null}
       {readOnly ? null : (
-        <div className="flex justify-end">
+        <div className={styles.actionsRow}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+                className={styles.actionButton}
                 aria-label={t("caseActionsMenu")}
               >
                 {t("actions")}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="mt-1">
+            <DropdownMenuContent align="end" className={styles.dropdownContent}>
               <DropdownMenuItem asChild>
                 <button
                   type="button"
@@ -113,7 +152,7 @@ export default function CaseToolbar({
                     });
                     window.location.reload();
                   }}
-                  className="w-full text-left"
+                  className={styles.menuItemButton}
                 >
                   {t("rerunAnalysis")}
                 </button>
@@ -130,7 +169,7 @@ export default function CaseToolbar({
                     window.location.reload();
                   }}
                   data-testid="archive-case-button"
-                  className="w-full text-left"
+                  className={styles.menuItemButton}
                 >
                   {archived ? t("unarchiveCase") : t("archiveCase")}
                 </button>
@@ -162,7 +201,7 @@ export default function CaseToolbar({
                       window.location.reload();
                     }
                   }}
-                  className="w-full text-left"
+                  className={styles.menuItemButton}
                 >
                   {violationOverride
                     ? t("clearViolationOverride")
@@ -184,7 +223,7 @@ export default function CaseToolbar({
                           );
                           window.location.reload();
                         }}
-                        className="w-full text-left"
+                        className={styles.menuItemButton}
                       >
                         {t("cancelAnalysis")}
                       </button>
@@ -193,7 +232,7 @@ export default function CaseToolbar({
                   <DropdownMenuItem asChild>
                     <Link
                       href={`/cases/${caseId}/compose`}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className={styles.menuItemLink}
                     >
                       {t("draftEmail")}
                     </Link>
@@ -205,7 +244,7 @@ export default function CaseToolbar({
                           ownershipRequestLink ??
                           `/cases/${caseId}/ownership-request`
                         }
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className={styles.menuItemLink}
                       >
                         {t("viewOwnershipRequest")}
                       </Link>
@@ -214,7 +253,7 @@ export default function CaseToolbar({
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/ownership`}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className={styles.menuItemLink}
                       >
                         {t("requestOwnershipInfo")}
                       </Link>
@@ -224,7 +263,7 @@ export default function CaseToolbar({
                     <DropdownMenuItem asChild>
                       <Link
                         href={`/cases/${caseId}/notify-owner`}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className={styles.menuItemLink}
                       >
                         {t("notifyRegisteredOwner")}
                       </Link>
@@ -242,7 +281,7 @@ export default function CaseToolbar({
                         window.location.reload();
                       }}
                       data-testid="close-case-button"
-                      className="w-full text-left"
+                      className={styles.menuItemButton}
                     >
                       {closed ? t("reopenCase") : t("closeCase")}
                     </button>
@@ -264,7 +303,7 @@ export default function CaseToolbar({
                       }
                     }}
                     data-testid="delete-case-button"
-                    className="w-full text-left"
+                    className={styles.menuItemButton}
                   >
                     {t("deleteCase")}
                   </button>
