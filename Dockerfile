@@ -1,7 +1,7 @@
 # Multi-stage build for Photo To Citation Next.js app
 
 # Install dependencies only, no dev dependencies after build
-FROM node:20-bookworm AS deps
+FROM node:22-bookworm AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable \
@@ -9,7 +9,7 @@ RUN corepack enable \
     && pnpm install --frozen-lockfile
 
 # Build the application
-FROM node:20-bookworm AS builder
+FROM node:22-bookworm AS builder
 WORKDIR /app
 RUN corepack enable \
     && corepack prepare pnpm@9.15.4 --activate
@@ -26,7 +26,7 @@ ENV NEXT_PUBLIC_DEPLOY_TIME=$NEXT_PUBLIC_DEPLOY_TIME
 RUN pnpm run build && pnpm prune --prod
 
 # Runtime image
-FROM node:20-bookworm AS runner
+FROM node:22-bookworm AS runner
 WORKDIR /app
 RUN corepack enable \
     && corepack prepare pnpm@9.15.4 --activate
