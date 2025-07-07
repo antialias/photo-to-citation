@@ -20,7 +20,7 @@ export default function ConfirmDialog({
     overlay: css({
       position: "fixed",
       inset: 0,
-      bg: "rgba(0,0,0,0.5)",
+      bg: token("colors.overlay"),
     }),
     content: css({
       position: "fixed",

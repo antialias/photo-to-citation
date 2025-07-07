@@ -12,7 +12,13 @@ export default defineConfig({
 
   // Useful for theme customization
   theme: {
-    extend: {},
+    extend: {
+      tokens: {
+        colors: {
+          overlay: { value: "rgba(0,0,0,0.5)" },
+        },
+      },
+    },
   },
 
   // The output directory for your css system
