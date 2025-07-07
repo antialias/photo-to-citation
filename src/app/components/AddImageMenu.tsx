@@ -1,9 +1,10 @@
 "use client";
+import { menuItem } from "@/components/ui/menuItem";
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { type RefObject, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { css, cva } from "styled-system/css";
+import { css } from "styled-system/css";
 import { token } from "styled-system/tokens";
 
 export default function AddImageMenu({
@@ -45,16 +46,6 @@ export default function AddImageMenu({
     }),
   };
 
-  const menuItem = cva({
-    base: {
-      display: "block",
-      px: "4",
-      py: "2",
-      w: "full",
-      textAlign: "left",
-      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
-    },
-  });
   return (
     <>
       <Popover.Root open={open} onOpenChange={setOpen}>
