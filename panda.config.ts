@@ -1,8 +1,8 @@
 import { defineConfig } from "@pandacss/dev";
 
 export default defineConfig({
-  // Disable the built-in reset to avoid conflicts with Tailwind
-  preflight: false,
+  // Enable Panda's reset now that Tailwind is removed
+  preflight: true,
 
   // Where to look for your css declarations
   include: ["./src/**/*.{js,jsx,ts,tsx}", "./pages/**/*.{js,jsx,ts,tsx}"],
