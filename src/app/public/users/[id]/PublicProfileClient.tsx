@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { FaUserCircle } from "react-icons/fa";
 import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export interface PublicUser {
   id: string;
@@ -24,25 +25,41 @@ export default function PublicProfileClient({
   const { t } = useTranslation();
   const styles = {
     container: css({
-      padding: "2rem",
+      mt: "4",
+      mx: "auto",
+      px: "6",
+      py: "8",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: "1rem",
+      gap: "4",
       textAlign: "center",
+      maxWidth: "32rem",
+      backgroundColor: {
+        base: token("colors.gray.50"),
+        _dark: token("colors.gray.800"),
+      },
+      borderRadius: token("radii.lg"),
+      boxShadow: token("shadows.md"),
     }),
     avatarImg: css({
       width: "6rem",
       height: "6rem",
       borderRadius: "9999px",
       objectFit: "cover",
+      borderWidth: "2px",
+      borderColor: {
+        base: token("colors.gray.300"),
+        _dark: token("colors.gray.600"),
+      },
     }),
     icon: css({
       width: "6rem",
       height: "6rem",
+      color: token("colors.gray.400"),
     }),
     heading: css({
-      fontSize: "1.5rem",
+      fontSize: token("fontSizes.2xl"),
       fontWeight: 700,
     }),
     bio: css({
@@ -50,22 +67,28 @@ export default function PublicProfileClient({
       whiteSpace: "pre-line",
     }),
     reviewText: css({
-      fontSize: "0.875rem",
-      color: "#4b5563",
+      fontSize: token("fontSizes.sm"),
+      color: token("colors.gray.600"),
     }),
     linksWrapper: css({
       display: "flex",
       flexDirection: "column",
-      gap: "0.25rem",
+      gap: "1",
     }),
     link: css({
-      color: "#2563eb",
+      color: token("colors.blue.600"),
       textDecorationLine: "underline",
+      _hover: { color: token("colors.blue.700") },
+    }),
+    title: css({
+      fontSize: token("fontSizes.3xl"),
+      fontWeight: 700,
     }),
   };
   const links = user.socialLinks?.split(/\n+/).filter(Boolean) ?? [];
   return (
     <div className={styles.container}>
+      <h1 className={styles.title}>{t("userProfile")}</h1>
       {user.image ? (
         <Image
           src={user.image}
@@ -77,7 +100,7 @@ export default function PublicProfileClient({
       ) : (
         <FaUserCircle className={styles.icon} />
       )}
-      <h1 className={styles.heading}>{user.name ?? t("unknown")}</h1>
+      <h2 className={styles.heading}>{user.name ?? t("unknown")}</h2>
       {user.profileStatus === "published" ? (
         user.bio ? (
           <p className={styles.bio}>{user.bio}</p>
