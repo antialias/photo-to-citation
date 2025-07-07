@@ -69,21 +69,15 @@ export default function CaseCard({ caseData, className }: CaseCardProps) {
       whiteSpace: "nowrap",
     }),
     meta: css({
-      color: {
-        base: token("colors.gray.500"),
-        _dark: token("colors.gray.400"),
-      },
+      color: token("colors.text-muted"),
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
     }),
     status: css({
-      color: {
-        base: token("colors.gray.500"),
-        _dark: token("colors.gray.400"),
-      },
+      color: token("colors.text-muted"),
     }),
-    updating: css({ color: token("colors.gray.400") }),
+    updating: css({ color: token("colors.text-muted") }),
   };
 
   return (

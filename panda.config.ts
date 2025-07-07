@@ -12,7 +12,21 @@ export default defineConfig({
 
   // Useful for theme customization
   theme: {
-    extend: {},
+    extend: {
+      semanticTokens: {
+        colors: {
+          "surface-default": {
+            value: { base: "{colors.white}", _dark: "{colors.gray.900}" },
+          },
+          "surface-subtle": {
+            value: { base: "{colors.gray.100}", _dark: "{colors.gray.800}" },
+          },
+          "text-muted": {
+            value: { base: "{colors.gray.500}", _dark: "{colors.gray.400}" },
+          },
+        },
+      },
+    },
   },
 
   // The output directory for your css system
