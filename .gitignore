@@ -13,3 +13,7 @@ coverage
 .terraform/
 terraform.tfstate*
 dist/
+
+## Panda
+styled-system
+styled-system-studio

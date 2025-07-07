@@ -10,6 +10,7 @@ import I18nProvider from "./i18n-provider";
 import QueryProvider from "./query-provider";
 import { UnleashProvider } from "./unleash-provider";
 import "./globals.css";
+import "./panda.css";
 
 export const runtime = "nodejs";
 
