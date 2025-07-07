@@ -272,7 +272,7 @@ export default function NavBar() {
         </div>
         <div
           className={css({
-            display: { sm: "none" },
+            display: { base: "flex", sm: "none" },
             alignItems: "center",
             gap: "2",
           })}
@@ -296,7 +296,7 @@ export default function NavBar() {
               <Popover.Content
                 sideOffset={4}
                 className={css({
-                  display: { sm: "none" },
+                  display: { base: "flex", sm: "none" },
                   flexDirection: "column",
                   gap: "2",
                   fontSize: "sm",
