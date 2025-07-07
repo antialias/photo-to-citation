@@ -10,4 +10,7 @@ This project uses **Panda CSS** with shadcn/ui components. Follow these principl
 - Keep new components inside `src/components` and expose variant props so styles can be adjusted without editing CSS.
 - Avoid direct `z-index` values; use the utility classes provided in `globals.css` (`z-nav`, `z-sticky`, etc.).
 
+Run `pnpm run panda` after modifying tokens or creating new components so
+Panda can regenerate the static styles.
+
 Following these rules keeps the design consistent and eliminates the need to touch raw CSS files.

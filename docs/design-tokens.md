@@ -14,6 +14,9 @@ const styles = {
 };
 ```
 
+Run `pnpm run panda` whenever you change tokens so the `styled-system` directory
+contains the latest CSS variables.
+
 When Panda runs it converts the tokens to CSS variables inside `styled-system/styles.css`.
 Many values map back to variables declared in `src/app/globals.css` such as
 `--color-background`, `--color-foreground` and the z-index utilities (`--z-nav`, `--z-sticky`, etc.).
