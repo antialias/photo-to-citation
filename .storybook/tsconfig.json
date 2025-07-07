@@ -2,7 +2,8 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@/lib/stats": ["./StatsStub.ts"]
+      "@/lib/stats": ["./StatsStub.ts"],
+      "styled-system/*": ["../styled-system/*"]
     }
   },
   "include": ["../src/**/*.ts", "../src/**/*.tsx", "./**/*.ts"],
