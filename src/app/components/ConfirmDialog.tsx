@@ -1,4 +1,5 @@
 "use client";
+import { radii } from "@/styleTokens";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useTranslation } from "react-i18next";
 import { css, cva } from "styled-system/css";
@@ -32,7 +33,7 @@ export default function ConfirmDialog({
     }),
     dialog: css({
       bg: { base: "white", _dark: "gray.900" },
-      borderRadius: "sm",
+      borderRadius: radii.default,
       boxShadow: token("shadows.default"),
       maxW: "sm",
       w: "full",
@@ -50,7 +51,7 @@ export default function ConfirmDialog({
     base: {
       px: "2",
       py: "1",
-      borderRadius: "sm",
+      borderRadius: radii.default,
     },
     variants: {
       variant: {

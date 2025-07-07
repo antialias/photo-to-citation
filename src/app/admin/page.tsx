@@ -2,6 +2,7 @@ import { getCasbinRules, listUsers } from "@/lib/adminStore";
 import { authOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
 import { log } from "@/lib/logger";
+import { space } from "@/styleTokens";
 import { getServerSession } from "next-auth/next";
 import type { ReactElement } from "react";
 import { css } from "styled-system/css";
@@ -42,7 +43,7 @@ const handler = withAuthorization<
       tab === "config" || (tab === "status" && isSuperadmin)
         ? (tab as "config" | "status")
         : "users";
-    const styles = { wrapper: css({ p: "8" }) };
+    const styles = { wrapper: css({ p: space.container }) };
     return (
       <div className={styles.wrapper}>
         <AdminPageClient

@@ -1,4 +1,5 @@
 "use client";
+import { space } from "@/styleTokens";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
 import { token } from "styled-system/tokens";
@@ -25,7 +26,7 @@ export default function LoggedOutLandingClient({
   const { t } = useTranslation();
   const styles = {
     main: css({
-      p: "8",
+      p: space.container,
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -40,7 +41,7 @@ export default function LoggedOutLandingClient({
     grid: css({
       display: "grid",
       gridTemplateColumns: { base: "1fr", sm: "repeat(2, 1fr)" },
-      gap: "4",
+      gap: space.gap,
       mt: "4",
     }),
     card: css({

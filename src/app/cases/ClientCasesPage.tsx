@@ -5,6 +5,7 @@ import CaseCard from "@/components/CaseCard";
 import type { Case } from "@/lib/caseStore";
 import { getOfficialCaseGps } from "@/lib/caseUtils";
 import { distanceBetween } from "@/lib/distance";
+import { space } from "@/styleTokens";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -126,9 +127,14 @@ export default function ClientCasesPage({
   });
 
   const styles = {
-    container: css({ p: "8", position: "relative", h: "full" }),
+    container: css({ p: space.container, position: "relative", h: "full" }),
     heading: css({ fontSize: "xl", fontWeight: "bold", mb: "4" }),
-    controls: css({ mb: "4", display: "flex", alignItems: "center", gap: "4" }),
+    controls: css({
+      mb: "4",
+      display: "flex",
+      alignItems: "center",
+      gap: space.gap,
+    }),
     label: css({ mr: "2" }),
     select: css({
       borderWidth: "1px",
@@ -140,7 +146,7 @@ export default function ClientCasesPage({
       },
     }),
     filterLabel: css({ display: "flex", alignItems: "center", gap: "1" }),
-    grid: css({ display: "grid", gap: "4" }),
+    grid: css({ display: "grid", gap: space.gap }),
     link: css({ display: "block", textAlign: "left" }),
     dropOverlay: css({
       position: "absolute",

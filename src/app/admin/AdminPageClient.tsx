@@ -1,6 +1,7 @@
 "use client";
 import { useSession } from "@/app/useSession";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { space } from "@/styleTokens";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -69,7 +70,7 @@ export default function AdminPageClient({
     tabsList: css({
       mb: "4",
       display: "flex",
-      gap: "4",
+      gap: space.gap,
       borderBottomWidth: "1px",
     }),
   };

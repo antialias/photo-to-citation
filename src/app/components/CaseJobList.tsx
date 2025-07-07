@@ -1,4 +1,5 @@
 "use client";
+import { radii } from "@/styleTokens";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
@@ -33,7 +34,7 @@ export default function CaseJobList({
     container: css({
       bg: { base: "gray.100", _dark: "gray.800" },
       p: "4",
-      borderRadius: "sm",
+      borderRadius: radii.default,
       display: "flex",
       flexDirection: "column",
       gap: "2",
