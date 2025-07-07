@@ -1,4 +1,5 @@
 "use client";
+import { radii } from "@/styleTokens";
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { type RefObject, useState } from "react";
@@ -25,7 +26,7 @@ export default function AddImageMenu({
       alignItems: "center",
       justifyContent: "center",
       borderWidth: "1px",
-      borderRadius: "sm",
+      borderRadius: radii.default,
       width: token("sizes.20"),
       aspectRatio: token("aspectRatios.landscape"),
       fontSize: "sm",
@@ -39,7 +40,7 @@ export default function AddImageMenu({
     content: css({
       bg: { base: "white", _dark: "gray.900" },
       borderWidth: "1px",
-      borderRadius: "sm",
+      borderRadius: radii.default,
       boxShadow: token("shadows.default"),
       color: { base: "black", _dark: "white" },
     }),

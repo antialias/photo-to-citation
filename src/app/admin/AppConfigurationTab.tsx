@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { space } from "@/styleTokens";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -156,7 +157,7 @@ export default function AppConfigurationTab() {
   });
 
   const styles = {
-    tabs: css({ display: "flex", gap: "4" }),
+    tabs: css({ display: "flex", gap: space.gap }),
     tabsList: css({
       display: "flex",
       flexDirection: "column",
@@ -174,7 +175,7 @@ export default function AppConfigurationTab() {
       mb: "4",
     }),
     list: css({ display: "grid", gap: "2" }),
-    item: css({ display: "flex", alignItems: "center", gap: "4" }),
+    item: css({ display: "flex", alignItems: "center", gap: space.gap }),
     flex1: css({ flex: "1" }),
     toggleOn: css({
       bg: "green.500",

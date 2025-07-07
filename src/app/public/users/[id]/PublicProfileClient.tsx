@@ -1,4 +1,5 @@
 "use client";
+import { space } from "@/styleTokens";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { FaUserCircle } from "react-icons/fa";
@@ -32,7 +33,7 @@ export default function PublicProfileClient({
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: "4",
+      gap: space.gap,
       textAlign: "center",
       maxWidth: "32rem",
       backgroundColor: {

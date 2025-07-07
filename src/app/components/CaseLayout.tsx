@@ -1,3 +1,4 @@
+import { space } from "@/styleTokens";
 import type { ReactNode } from "react";
 import { css } from "styled-system/css";
 import { token } from "styled-system/tokens";
@@ -15,10 +16,10 @@ export default function CaseLayout({
 }) {
   const styles = {
     wrapper: css({
-      p: "8",
+      p: space.container,
       display: "flex",
       flexDirection: "column",
-      gap: "4",
+      gap: space.gap,
     }),
     header: css({
       position: "sticky",
@@ -32,9 +33,9 @@ export default function CaseLayout({
     grid: css({
       display: "grid",
       gridTemplateColumns: { base: "1fr", md: "35% 65%", lg: "30% 70%" },
-      gap: { base: "4", md: "6" },
+      gap: { base: space.gap, md: "6" },
     }),
-    right: css({ display: "flex", flexDirection: "column", gap: "4" }),
+    right: css({ display: "flex", flexDirection: "column", gap: space.gap }),
   };
   return (
     <div className={styles.wrapper}>

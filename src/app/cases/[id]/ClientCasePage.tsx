@@ -7,6 +7,7 @@ import CaseProgressGraph from "@/app/components/CaseProgressGraph";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import { useSession } from "@/app/useSession";
 import type { Case } from "@/lib/caseStore";
+import { space } from "@/styleTokens";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { css } from "styled-system/css";
@@ -40,10 +41,10 @@ function ClientCasePage({
 
   const styles = {
     loadingWrapper: css({
-      p: "8",
+      p: space.container,
       display: "flex",
       flexDirection: "column",
-      gap: "4",
+      gap: space.gap,
     }),
     loadingHeading: css({ fontSize: "xl", fontWeight: "semibold" }),
     loadingText: css({

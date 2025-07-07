@@ -3,6 +3,7 @@ import { apiFetch } from "@/apiClient";
 import { useSession } from "@/app/useSession";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { US_STATES } from "@/lib/usStates";
+import { space } from "@/styleTokens";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -73,13 +74,13 @@ export default function UserSettingsPage() {
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string | null | undefined>(undefined);
   const styles = {
-    container: css({ p: "8" }),
+    container: css({ p: space.container }),
     heading: css({
       fontSize: token("fontSizes.xl"),
       fontWeight: "700",
       mb: "4",
     }),
-    tabsList: css({ mb: "4", display: "flex", gap: "4" }),
+    tabsList: css({ mb: "4", display: "flex", gap: space.gap }),
     form: css({ display: "grid", gap: "2", maxWidth: token("sizes.md") }),
     label: css({ display: "flex", flexDirection: "column" }),
     input: css({ borderWidth: "1px", p: "1" }),

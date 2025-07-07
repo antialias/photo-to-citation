@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { radii } from "@/styleTokens";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { css, cva } from "styled-system/css";
@@ -37,7 +38,7 @@ export default function MultiCaseToolbar({
       bg: { base: "gray.300", _dark: "gray.700" },
       px: "2",
       py: "1",
-      borderRadius: "sm",
+      borderRadius: radii.default,
     }),
     menu: css({ mt: "1" }),
   };
