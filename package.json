@@ -7,9 +7,9 @@
   },
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "pnpm panda --watch & next dev --turbopack",
     "build:jobs": "node scripts/compileJobs.mjs",
-    "build": "pnpm run build:jobs && next build",
+    "build": "pnpm run build:jobs && pnpm panda && next build",
     "start": "next start",
     "lint": "pnpm run lint:env && pnpm run lint:md && biome check .",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",
@@ -36,7 +36,7 @@
     "squash:migrations": "ts-node --transpile-only scripts/squashMigrations.ts",
     "website": "ts-node --transpile-only scripts/generateWebsiteImages.ts && eleventy",
     "panda": "panda",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "pnpm panda && tsc --noEmit"
   },
   "dependencies": {
     "@anatine/zod-openapi": "^2.2.8",
