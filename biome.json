@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".next", "coverage", "dist", "data", "styled-system"]
+    "ignore": [
+      ".next",
+      "coverage",
+      "dist",
+      "data",
+      "styled-system",
+      "storybook-static"
+    ]
   },
   "formatter": {
     "enabled": true,

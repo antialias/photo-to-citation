@@ -24,6 +24,7 @@ const config: StorybookConfig = {
         ".storybook",
         "NextAuthStub.tsx",
       ),
+      "styled-system": path.resolve(process.cwd(), "styled-system"),
       "@": path.resolve(process.cwd(), "src"),
     };
     config.resolve.fallback = {
