@@ -22,12 +22,16 @@ This stack is designed for performance, type safety, and complete control over h
 
 ## Getting Started
 
-Install dependencies and start the development server:
+Install dependencies and generate Panda styles before starting the development server:
 
 ```bash
 pnpm install
+pnpm run panda -- --watch # omit --watch in production
 pnpm run dev
 ```
+
+Run `pnpm run panda` at least once before type-checking or starting the server.
+The generated `styled-system` directory is excluded from version control.
 
 Use [`Biome`](https://biomejs.dev/) for consistent formatting and linting:
 
