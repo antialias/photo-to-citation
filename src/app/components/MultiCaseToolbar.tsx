@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { css, cva } from "styled-system/css";
 
 export default function MultiCaseToolbar({
   caseIds,
@@ -22,19 +23,47 @@ export default function MultiCaseToolbar({
   const idsParam = caseIds.join(",");
   const first = caseIds[0];
   const { t } = useTranslation();
+  const styles = {
+    container: css({
+      bg: { base: "gray.100", _dark: "gray.800" },
+      px: "8",
+      py: "2",
+      display: "flex",
+      justifyContent: "flex-end",
+    }),
+    trigger: css({
+      cursor: "pointer",
+      userSelect: "none",
+      bg: { base: "gray.300", _dark: "gray.700" },
+      px: "2",
+      py: "1",
+      borderRadius: "sm",
+    }),
+    menu: css({ mt: "1" }),
+  };
+
+  const menuLink = cva({
+    base: {
+      w: "full",
+      textAlign: "left",
+      px: "4",
+      py: "2",
+      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+    },
+  });
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 px-8 py-2 flex justify-end">
+    <div className={styles.container}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="cursor-pointer select-none bg-gray-300 dark:bg-gray-700 px-2 py-1 rounded"
+            className={styles.trigger}
             aria-label={t("caseActionsMenu")}
           >
             {t("actions")}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="mt-1">
+        <DropdownMenuContent align="end" className={styles.menu}>
           <DropdownMenuItem asChild>
             <button
               type="button"
@@ -48,7 +77,7 @@ export default function MultiCaseToolbar({
                 );
                 window.location.reload();
               }}
-              className="w-full text-left"
+              className={menuLink()}
             >
               {t("rerunAnalysis")}
             </button>
@@ -68,7 +97,7 @@ export default function MultiCaseToolbar({
                 );
                 window.location.reload();
               }}
-              className="w-full text-left"
+              className={menuLink()}
             >
               {t("archiveCase")}
             </button>
@@ -78,7 +107,7 @@ export default function MultiCaseToolbar({
               <DropdownMenuItem asChild>
                 <Link
                   href={`/cases/${first}/compose?ids=${idsParam}`}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className={menuLink()}
                 >
                   {t("draftEmail")}
                 </Link>
@@ -87,7 +116,7 @@ export default function MultiCaseToolbar({
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/cases/${first}/ownership?ids=${idsParam}`}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className={menuLink()}
                   >
                     {t("requestOwnershipInfo")}
                   </Link>
@@ -97,7 +126,7 @@ export default function MultiCaseToolbar({
                 <DropdownMenuItem asChild>
                   <Link
                     href={`/cases/${first}/notify-owner?ids=${idsParam}`}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className={menuLink()}
                   >
                     {t("notifyRegisteredOwner")}
                   </Link>
@@ -123,7 +152,7 @@ export default function MultiCaseToolbar({
                 }
               }}
               data-testid="delete-cases-button"
-              className="w-full text-left"
+              className={menuLink()}
             >
               {t("deleteCase")}
             </button>

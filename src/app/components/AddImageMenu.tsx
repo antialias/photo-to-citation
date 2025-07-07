@@ -3,6 +3,8 @@ import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { type RefObject, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css, cva } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function AddImageMenu({
   caseId,
@@ -17,36 +19,66 @@ export default function AddImageMenu({
 }) {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
+  const styles = {
+    trigger: css({
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: "1px",
+      borderRadius: "sm",
+      width: token("sizes.20"),
+      aspectRatio: token("aspectRatios.landscape"),
+      fontSize: "sm",
+      color: {
+        base: token("colors.gray.500"),
+        _dark: token("colors.gray.400"),
+      },
+      cursor: "pointer",
+      userSelect: "none",
+    }),
+    content: css({
+      bg: { base: "white", _dark: "gray.900" },
+      borderWidth: "1px",
+      borderRadius: "sm",
+      boxShadow: "md",
+      color: { base: "black", _dark: "white" },
+    }),
+  };
+
+  const menuItem = cva({
+    base: {
+      display: "block",
+      px: "4",
+      py: "2",
+      w: "full",
+      textAlign: "left",
+      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+    },
+  });
   return (
     <>
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <button
-            type="button"
-            className="flex items-center justify-center border rounded w-20 aspect-[4/3] text-sm text-gray-500 dark:text-gray-400 cursor-pointer select-none"
-          >
+          <button type="button" className={styles.trigger}>
             {t("addImage")}
           </button>
         </Popover.Trigger>
         <Popover.Portal>
-          <Popover.Content
-            sideOffset={4}
-            className="bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white"
-          >
+          <Popover.Content sideOffset={4} className={styles.content}>
             <button
               type="button"
               onClick={() => {
                 setOpen(false);
                 fileInputRef.current?.click();
               }}
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              className={menuItem()}
             >
               {t("uploadImage")}
             </button>
             {hasCamera ? (
               <Link
                 href={`/point?case=${caseId}`}
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                className={menuItem()}
                 onClick={() => setOpen(false)}
               >
                 {t("takePhoto")}
@@ -61,7 +93,7 @@ export default function AddImageMenu({
         accept="image/*"
         multiple
         onChange={onChange}
-        className="hidden"
+        className={css({ display: "none" })}
       />
     </>
   );
