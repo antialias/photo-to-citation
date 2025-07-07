@@ -10,7 +10,7 @@ that involves manual steps like mailing forms or payments.
 ## Tech Stack
 
 - ✅ **Next.js 14** (App Router with React Server Components)
-- 🎨 **Tailwind CSS + shadcn/ui + Radix UI**
+- 🎨 **Panda CSS + shadcn/ui + Radix UI**
 - 🧠 **Drizzle ORM with SQLite**
 - 🔄 **React Query (TanStack Query)** for client interactivity
 - 🔐 **Lucia or NextAuth.js** for authentication
