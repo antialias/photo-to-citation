@@ -7,7 +7,7 @@
   },
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "concurrently \"pnpm run panda -- --watch\" \"next dev --turbopack\"",
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "pnpm run build:jobs && next build",
     "start": "next start",
@@ -118,6 +118,7 @@
     "@vitejs/plugin-react": "^4.5.1",
     "@vitest/coverage-v8": "^3.2.3",
     "commander": "^11.1.0",
+    "concurrently": "^9.2.0",
     "dotenv-linter": "^0.2.0",
     "drizzle-kit": "^0.31.1",
     "esbuild": "^0.25.5",
