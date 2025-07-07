@@ -7,6 +7,8 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - Follow the guidelines in
   [docs/design-system-guidelines.md](docs/design-system-guidelines.md) when
   creating or updating UI components.
+- The project is migrating from Tailwind CSS to Panda CSS. Prefer Panda's
+  `css` utilities for new styles.
 
 ## Formatting and Linting
 

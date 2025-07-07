@@ -9,6 +9,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaBars, FaUserCircle } from "react-icons/fa";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import SystemLanguageBanner from "./SystemLanguageBanner";
 
 export default function NavBar() {
@@ -39,19 +41,34 @@ export default function NavBar() {
     }
   }, [systemLang, i18n.language]);
   if (pathname.startsWith("/point")) {
+    const styles = {
+      wrapper: css({
+        p: "2",
+        display: "flex",
+        justifyContent: "flex-end",
+        bg: { base: "gray.100", _dark: "gray.900" },
+        color: { base: "gray.900", _dark: "gray.100" },
+      }),
+      link: css({ fontSize: "sm", textDecorationLine: "underline" }),
+    };
     return (
-      <nav className="p-2 flex justify-end bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <Link href="/cases" className="text-sm underline">
+      <nav className={styles.wrapper}>
+        <Link href="/cases" className={styles.link}>
           {t("nav.cases")}
         </Link>
       </nav>
     );
   }
+  const navStyles = {
+    link: css({
+      _hover: { color: { base: "gray.600", _dark: "gray.300" } },
+    }),
+  };
   const navLinks = (
     <>
       <button
         type="button"
-        className="hover:text-gray-600 dark:hover:text-gray-300"
+        className={navStyles.link}
         onClick={() => {
           setMenuOpen(false);
           inputRef.current?.click();
@@ -61,28 +78,28 @@ export default function NavBar() {
       </button>
       <Link
         href="/point"
-        className="hover:text-gray-600 dark:hover:text-gray-300"
+        className={navStyles.link}
         onClick={() => setMenuOpen(false)}
       >
         {t("nav.pointShoot")}
       </Link>
       <Link
         href="/cases"
-        className="hover:text-gray-600 dark:hover:text-gray-300"
+        className={navStyles.link}
         onClick={() => setMenuOpen(false)}
       >
         {t("nav.cases")}
       </Link>
       <Link
         href="/map"
-        className="hover:text-gray-600 dark:hover:text-gray-300"
+        className={navStyles.link}
         onClick={() => setMenuOpen(false)}
       >
         {t("nav.mapView")}
       </Link>
       <Link
         href="/snail-mail"
-        className="hover:text-gray-600 dark:hover:text-gray-300"
+        className={navStyles.link}
         onClick={() => setMenuOpen(false)}
       >
         {t("nav.snailMail")}
@@ -90,7 +107,7 @@ export default function NavBar() {
       {session ? (
         <Link
           href="/triage"
-          className="hover:text-gray-600 dark:hover:text-gray-300"
+          className={navStyles.link}
           onClick={() => setMenuOpen(false)}
         >
           {t("nav.triage")}
@@ -100,7 +117,7 @@ export default function NavBar() {
       session?.user?.role === "superadmin" ? (
         <Link
           href="/admin"
-          className="hover:text-gray-600 dark:hover:text-gray-300"
+          className={navStyles.link}
           onClick={() => setMenuOpen(false)}
         >
           {t("nav.admin")}
@@ -110,40 +127,69 @@ export default function NavBar() {
     </>
   );
 
+  const userStyles = {
+    details: css({ position: "relative" }),
+    summary: css({
+      cursor: "pointer",
+      listStyle: "none",
+      display: "flex",
+      alignItems: "center",
+    }),
+    avatar: css({
+      width: "1.5rem",
+      height: "1.5rem",
+      borderRadius: "9999px",
+      objectFit: "cover",
+    }),
+    menu: css({
+      position: "absolute",
+      right: 0,
+      mt: "1",
+      bg: { base: "white", _dark: "gray.900" },
+      borderWidth: "1px",
+      borderRadius: token("radii.md"),
+      boxShadow: token("shadows.md"),
+      fontSize: "sm",
+    }),
+    menuItem: css({
+      display: "block",
+      px: "4",
+      py: "2",
+      textAlign: "left",
+      _hover: { bg: { base: "gray.100", _dark: "gray.700" } },
+    }),
+  };
   const userMenu = (
-    <details className="relative" onToggle={() => setMenuOpen(false)}>
-      <summary className="cursor-pointer list-none flex items-center">
+    <details className={userStyles.details} onToggle={() => setMenuOpen(false)}>
+      <summary className={userStyles.summary}>
         {session?.user?.image ? (
           <Image
             src={session.user.image}
             alt="avatar"
             width={24}
             height={24}
-            className="w-6 h-6 rounded-full object-cover"
+            className={userStyles.avatar}
           />
         ) : (
-          <FaUserCircle className="w-6 h-6" />
+          <FaUserCircle className={userStyles.avatar} />
         )}
       </summary>
-      <div className="absolute right-0 mt-1 bg-white dark:bg-gray-900 border rounded shadow text-sm">
+      <div className={userStyles.menu}>
         {session ? (
           <>
-            <Link
-              href="/settings"
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
+            <Link href="/settings" className={userStyles.menuItem}>
               {t("nav.userSettings")}
             </Link>
             <Link
               href={`/public/users/${session.user?.id}`}
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className={userStyles.menuItem}
             >
               {t("nav.publicProfile")}
             </Link>
             <button
               type="button"
               onClick={() => signOut()}
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              className={userStyles.menuItem}
             >
               {t("nav.signOut")}
             </button>
@@ -152,7 +198,7 @@ export default function NavBar() {
           <button
             type="button"
             onClick={() => signIn()}
-            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+            className={userStyles.menuItem}
           >
             {t("nav.signIn")}
           </button>
@@ -181,10 +227,27 @@ export default function NavBar() {
           onDismiss={() => setShowLangPrompt(false)}
         />
       ) : null}
-      <nav className="py-4 px-8 flex items-center justify-between bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative sticky top-0 z-nav">
+      <nav
+        className={css({
+          py: "4",
+          px: "8",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          bg: { base: "gray.100", _dark: "gray.900" },
+          color: { base: "gray.900", _dark: "gray.100" },
+          position: "sticky",
+          top: 0,
+          zIndex: "var(--z-nav)",
+        })}
+      >
         <Link
           href="/"
-          className="text-lg font-semibold hover:text-gray-600 dark:hover:text-gray-300"
+          className={css({
+            fontSize: "lg",
+            fontWeight: "semibold",
+            _hover: { color: { base: "gray.600", _dark: "gray.300" } },
+          })}
         >
           {t("title")}
         </Link>
@@ -196,16 +259,34 @@ export default function NavBar() {
           ref={inputRef}
           onChange={(e) => uploadCase(e.target.files)}
         />
-        <div className="hidden sm:flex gap-4 sm:gap-6 md:gap-8 text-sm items-center">
+        <div
+          className={css({
+            display: { base: "none", sm: "flex" },
+            gap: { base: "4", sm: "6", md: "8" },
+            fontSize: "sm",
+            alignItems: "center",
+          })}
+        >
           {navLinks}
           {userMenu}
         </div>
-        <div className="sm:hidden flex items-center gap-2">
+        <div
+          className={css({
+            display: { sm: "none" },
+            alignItems: "center",
+            gap: "2",
+          })}
+        >
           <Popover.Root open={menuOpen} onOpenChange={setMenuOpen}>
             <Popover.Trigger asChild>
               <button
                 type="button"
-                className="sm:hidden text-xl p-2 hover:text-gray-600 dark:hover:text-gray-300"
+                className={css({
+                  display: { sm: "none" },
+                  fontSize: "xl",
+                  p: "2",
+                  _hover: { color: { base: "gray.600", _dark: "gray.300" } },
+                })}
                 aria-label={t("menu")}
               >
                 <FaBars />
@@ -214,7 +295,17 @@ export default function NavBar() {
             <Popover.Portal>
               <Popover.Content
                 sideOffset={4}
-                className="sm:hidden flex flex-col gap-2 text-sm bg-gray-100 dark:bg-gray-900 border rounded shadow p-4"
+                className={css({
+                  display: { sm: "none" },
+                  flexDirection: "column",
+                  gap: "2",
+                  fontSize: "sm",
+                  bg: { base: "gray.100", _dark: "gray.900" },
+                  borderWidth: "1px",
+                  borderRadius: token("radii.md"),
+                  boxShadow: token("shadows.md"),
+                  p: "4",
+                })}
               >
                 {navLinks}
               </Popover.Content>
