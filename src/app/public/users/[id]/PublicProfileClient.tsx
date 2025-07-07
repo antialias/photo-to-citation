@@ -30,6 +30,10 @@ export default function PublicProfileClient({
       alignItems: "center",
       gap: "1rem",
       textAlign: "center",
+      borderWidth: "1px",
+      borderRadius: "0.5rem",
+      background: "var(--background)",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
     }),
     avatarImg: css({
       width: "6rem",
