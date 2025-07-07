@@ -1,5 +1,9 @@
 "use client";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+
+const Mermaid = dynamic(() => import("react-mermaid2"), { ssr: false });
 
 export interface LandingStats {
   casesLastWeek: number;
@@ -21,6 +25,15 @@ export default function LoggedOutLandingClient({
   stats: LandingStats;
 }) {
   const { t } = useTranslation();
+  const [chart, setChart] = useState<string | null>(null);
+
+  async function handleGenerate() {
+    const res = await fetch("/api/example-graph");
+    if (res.ok) {
+      const data = (await res.json()) as { chart: string };
+      setChart(data.chart);
+    }
+  }
   return (
     <main className="p-8 flex flex-col items-center text-center gap-6">
       <h1 className="text-3xl font-bold">{t("title")}</h1>
@@ -56,6 +69,20 @@ export default function LoggedOutLandingClient({
           {t("signIn")}
         </a>
       </p>
+      <div className="mt-8 flex flex-col items-center gap-4">
+        <button
+          type="button"
+          onClick={handleGenerate}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Generate Graph
+        </button>
+        {chart ? (
+          <div className="max-w-full overflow-x-auto">
+            <Mermaid chart={chart} key={chart} />
+          </div>
+        ) : null}
+      </div>
     </main>
   );
 }
