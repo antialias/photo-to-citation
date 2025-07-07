@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 // Worker for lightweight browser analysis
 const AnalyzerWorker = () =>
@@ -30,6 +32,100 @@ export default function PointAndShootPage() {
   const addFiles = useAddFilesToCase(caseId ?? "");
   const newCase = useNewCaseFromFiles();
   const uploadCase = caseId ? addFiles : newCase;
+
+  const styles = {
+    root: css({
+      position: "relative",
+      height: "100dvh",
+      overflow: "hidden",
+      backgroundColor: "black",
+    }),
+    cameraError: css({
+      position: "absolute",
+      insetInlineStart: 0,
+      insetInlineEnd: 0,
+      top: 0,
+      zIndex: "var(--z-nav)",
+      backgroundColor: token("colors.red.600"),
+      color: "white",
+      textAlign: "center",
+      py: "2",
+    }),
+    video: css({
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      zIndex: 0,
+    }),
+    uploading: css({
+      position: "absolute",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      color: "white",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+      fontSize: "xl",
+      zIndex: "var(--z-nav)",
+    }),
+    hintWrapper: css({
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+      zIndex: "var(--z-nav)",
+    }),
+    hint: css({
+      backgroundColor: "rgba(0,0,0,0.4)",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+      fontSize: "xl",
+    }),
+    controls: css({
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      gap: "2",
+      p: "4",
+      pointerEvents: "none",
+    }),
+    uploadButton: css({
+      pointerEvents: "auto",
+      backgroundColor: "rgba(255,255,255,0.8)",
+      color: "black",
+      px: "4",
+      py: "2",
+      borderRadius: token("radii.md"),
+      _disabled: { opacity: 0.5 },
+    }),
+    takePictureButton: css({
+      pointerEvents: "auto",
+      backgroundColor: token("colors.blue.600"),
+      color: "white",
+      px: "4",
+      py: "2",
+      borderRadius: token("radii.md"),
+      width: "100%",
+      _disabled: { opacity: 0.5 },
+    }),
+    backLink: css({
+      pointerEvents: "auto",
+      fontSize: "xs",
+      color: "white",
+      textDecorationLine: "underline",
+      mt: "2",
+    }),
+  } as const;
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -146,36 +242,21 @@ export default function PointAndShootPage() {
   }
 
   return (
-    <div className="relative h-[100dvh] overflow-hidden bg-black">
-      {cameraError && (
-        <div className="absolute inset-x-0 top-0 z-nav bg-red-600 text-white text-center py-2">
-          {cameraError}
-        </div>
-      )}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      >
+    <div className={styles.root}>
+      {cameraError && <div className={styles.cameraError}>{cameraError}</div>}
+      <video ref={videoRef} autoPlay muted playsInline className={styles.video}>
         <track kind="captions" label="" />
       </video>
       <canvas ref={canvasRef} className="hidden" />
       {uploading ? (
-        <div className="absolute inset-0 bg-black/50 text-white flex items-center justify-center pointer-events-none text-xl z-nav">
-          {t("uploadingPhoto")}
-        </div>
+        <div className={styles.uploading}>{t("uploadingPhoto")}</div>
       ) : null}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-nav">
-        <div
-          className="bg-black/40 text-white px-2 py-1 rounded text-xl"
-          data-testid="hint"
-        >
+      <div className={styles.hintWrapper}>
+        <div className={styles.hint} data-testid="hint">
           {analysisHint ?? t("nothingDetected")}
         </div>
       </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 pointer-events-none">
+      <div className={styles.controls}>
         <input
           ref={inputRef}
           type="file"
@@ -188,7 +269,7 @@ export default function PointAndShootPage() {
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="pointer-events-auto bg-white/80 text-black px-4 py-2 rounded disabled:opacity-50"
+          className={styles.uploadButton}
         >
           {t("uploadPicture")}
         </button>
@@ -196,13 +277,13 @@ export default function PointAndShootPage() {
           type="button"
           onClick={takePicture}
           disabled={uploading}
-          className="pointer-events-auto bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
+          className={styles.takePictureButton}
         >
           {t("takePicture")}
         </button>
         <Link
           href={caseId ? `/cases/${caseId}` : "/cases"}
-          className="pointer-events-auto text-xs text-white underline mt-2"
+          className={styles.backLink}
         >
           {caseId ? t("backToCase") : t("nav.cases")}
         </Link>
