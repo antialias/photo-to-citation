@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "concurrently \"pnpm run panda -- --watch\" \"next dev --turbopack\"",
     "build:jobs": "node scripts/compileJobs.mjs",
-    "build": "pnpm run build:jobs && next build",
+    "build": "pnpm run build:jobs && pnpm run panda && next build",
     "start": "next start",
     "lint": "pnpm run lint:env && pnpm run lint:md && biome check .",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",

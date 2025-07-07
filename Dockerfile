@@ -23,7 +23,7 @@ ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 ENV NEXT_PUBLIC_APP_VERSION=$NEXT_PUBLIC_APP_VERSION
 ENV NEXT_PUBLIC_APP_COMMIT=$NEXT_PUBLIC_APP_COMMIT
 ENV NEXT_PUBLIC_DEPLOY_TIME=$NEXT_PUBLIC_DEPLOY_TIME
-RUN pnpm run build && pnpm prune --prod
+RUN pnpm run panda && pnpm run build && pnpm prune --prod
 
 # Runtime image
 FROM node:22-bookworm AS runner
