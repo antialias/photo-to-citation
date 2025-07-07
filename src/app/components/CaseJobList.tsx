@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import useEventSource from "../hooks/useEventSource";
 
 interface JobInfo {
@@ -27,6 +29,29 @@ export default function CaseJobList({
   const [updatedAt, setUpdatedAt] = useState<number>(0);
   const { t } = useTranslation();
 
+  const styles = {
+    container: css({
+      bg: { base: "gray.100", _dark: "gray.800" },
+      p: "4",
+      borderRadius: "sm",
+      display: "flex",
+      flexDirection: "column",
+      gap: "2",
+      fontSize: "sm",
+    }),
+    heading: css({ fontWeight: "semibold" }),
+    list: css({ display: "grid", gap: "1" }),
+    item: css({ display: "flex", justifyContent: "space-between" }),
+    type: css({ fontFamily: "mono", mr: "2" }),
+    footer: css({
+      fontSize: "xs",
+      color: {
+        base: token("colors.gray.600"),
+        _dark: token("colors.gray.400"),
+      },
+    }),
+  };
+
   useEventSource<JobResponse>(
     `${isPublic ? "/api/public/cases" : "/api/cases"}/${encodeURIComponent(caseId)}/jobs/stream`,
     (data) => {
@@ -41,17 +66,17 @@ export default function CaseJobList({
   }
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded flex flex-col gap-2 text-sm">
-      <h2 className="font-semibold">{t("activeJobs")}</h2>
-      <ul className="grid gap-1">
+    <div className={styles.container}>
+      <h2 className={styles.heading}>{t("activeJobs")}</h2>
+      <ul className={styles.list}>
         {jobs.map((j) => (
-          <li key={j.id} className="flex justify-between">
-            <span className="font-mono mr-2">{j.type}</span>
+          <li key={j.id} className={styles.item}>
+            <span className={styles.type}>{j.type}</span>
             {new Date(j.startedAt).toLocaleString()}
           </li>
         ))}
       </ul>
-      <p className="text-xs text-gray-600 dark:text-gray-400">
+      <p className={styles.footer}>
         {t("lastAudit")}{" "}
         {auditedAt ? new Date(auditedAt).toLocaleString() : "n/a"}
         {" | "}

@@ -1,6 +1,8 @@
 "use client";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useTranslation } from "react-i18next";
+import { css, cva } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function ConfirmDialog({
   open,
@@ -14,19 +16,62 @@ export default function ConfirmDialog({
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
+  const styles = {
+    overlay: css({
+      position: "fixed",
+      inset: 0,
+      bg: "rgba(0,0,0,0.5)",
+    }),
+    content: css({
+      position: "fixed",
+      inset: 0,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      p: "4",
+    }),
+    dialog: css({
+      bg: { base: "white", _dark: "gray.900" },
+      borderRadius: "sm",
+      boxShadow: "md",
+      maxW: "sm",
+      w: "full",
+    }),
+    footer: css({
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "2",
+      p: "4",
+    }),
+    message: css({ p: "4" }),
+  };
+
+  const actionButton = cva({
+    base: {
+      px: "2",
+      py: "1",
+      borderRadius: "sm",
+    },
+    variants: {
+      variant: {
+        cancel: { bg: { base: "gray.200", _dark: "gray.700" } },
+        confirm: { bg: "blue.600", color: "white" },
+      },
+    },
+  });
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onCancel()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-modal" />
-        <Dialog.Content className="fixed inset-0 flex items-center justify-center p-4 z-modal">
-          <div className="bg-white dark:bg-gray-900 rounded shadow max-w-sm w-full">
-            <p className="p-4">{message}</p>
-            <div className="flex justify-end gap-2 p-4">
+        <Dialog.Overlay className={`z-modal ${styles.overlay}`} />
+        <Dialog.Content className={`z-modal ${styles.content}`}>
+          <div className={styles.dialog}>
+            <p className={styles.message}>{message}</p>
+            <div className={styles.footer}>
               <Dialog.Close asChild>
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                  className={actionButton({ variant: "cancel" })}
                 >
                   {t("close")}
                 </button>
@@ -35,7 +80,7 @@ export default function ConfirmDialog({
                 <button
                   type="button"
                   onClick={onConfirm}
-                  className="bg-blue-600 text-white px-2 py-1 rounded"
+                  className={actionButton({ variant: "confirm" })}
                 >
                   {t("save")}
                 </button>
