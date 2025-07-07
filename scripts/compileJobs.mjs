@@ -17,7 +17,7 @@ await build({
   outdir: path.join("dist", "jobs"),
   platform: "node",
   format: "cjs",
-  target: "node20",
+  target: "node22",
   sourcemap: false,
   bundle: true,
   external: externals,
