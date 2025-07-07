@@ -30,7 +30,8 @@ pnpm run panda -- --watch # omit --watch in production
 pnpm run dev
 ```
 
-Run `pnpm run panda` at least once before type-checking or starting the server.
+Run `pnpm run panda` at least once before type-checking, starting the server,
+or building Storybook.
 The generated `styled-system` directory is excluded from version control.
 
 Use [`Biome`](https://biomejs.dev/) for consistent formatting and linting:
