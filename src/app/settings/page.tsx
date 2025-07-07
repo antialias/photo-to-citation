@@ -6,6 +6,8 @@ import { US_STATES } from "@/lib/usStates";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import ConfirmDialog from "../components/ConfirmDialog";
 import LanguageSwitcher, {
   LANGUAGE_NAMES,
@@ -70,6 +72,46 @@ export default function UserSettingsPage() {
   const [confirmLang, setConfirmLang] = useState(false);
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string | null | undefined>(undefined);
+  const styles = {
+    container: css({ p: "8" }),
+    heading: css({
+      fontSize: token("fontSizes.xl"),
+      fontWeight: "700",
+      mb: "4",
+    }),
+    tabsList: css({ mb: "4", display: "flex", gap: "4" }),
+    form: css({ display: "grid", gap: "2", maxWidth: token("sizes.md") }),
+    label: css({ display: "flex", flexDirection: "column" }),
+    input: css({ borderWidth: "1px", p: "1" }),
+    textarea: css({ borderWidth: "1px", p: "1", resize: "vertical" }),
+    statusUnderReview: css({
+      fontSize: token("fontSizes.sm"),
+      color: token("colors.gray.600"),
+    }),
+    statusPublished: css({
+      fontSize: token("fontSizes.sm"),
+      color: token("colors.green.700"),
+    }),
+    statusHidden: css({
+      fontSize: token("fontSizes.sm"),
+      color: token("colors.red.600"),
+    }),
+    submitButton: css({ bg: "blue.500", color: "white", px: "4", py: "2" }),
+    creditsContainer: css({
+      display: "grid",
+      gap: "2",
+      maxWidth: token("sizes.sm"),
+    }),
+    creditsFlex: css({ display: "flex", gap: "2" }),
+    creditsInput: css({ borderWidth: "1px", p: "1", flex: "1" }),
+    addButton: css({
+      bg: "blue.600",
+      color: "white",
+      px: "2",
+      py: "1",
+      borderRadius: token("radii.md"),
+    }),
+  };
 
   useEffect(() => {
     if (data) {
@@ -113,23 +155,23 @@ export default function UserSettingsPage() {
   });
 
   if (!session) {
-    return <div className="p-8">{t("notLoggedIn")}</div>;
+    return <div className={styles.container}>{t("notLoggedIn")}</div>;
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-xl font-bold mb-4">{t("nav.userSettings")}</h1>
+    <div className={styles.container}>
+      <h1 className={styles.heading}>{t("nav.userSettings")}</h1>
       <Tabs
         value={tab}
         onValueChange={(v) => setTab(v as "profile" | "credits")}
       >
-        <TabsList className="mb-4 flex gap-4">
+        <TabsList className={styles.tabsList}>
           <TabsTrigger value="profile">{t("profileTab")}</TabsTrigger>
           <TabsTrigger value="credits">{t("creditsTab")}</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
           <form
-            className="grid gap-2 max-w-md"
+            className={styles.form}
             onSubmit={(e) => {
               e.preventDefault();
               if (language !== data?.language) {
@@ -146,60 +188,60 @@ export default function UserSettingsPage() {
             <p>
               {t("roleLabel")} {session.user?.role}
             </p>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               {t("nameLabel")}
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               {t("imageUrlLabel")}
               <input
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               Address
               <input
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               City/State/Zip
               <input
                 value={cityStateZip}
                 onChange={(e) => setCityStateZip(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               Daytime Phone
               <input
                 value={daytimePhone}
                 onChange={(e) => setDaytimePhone(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               {t("driverLicenseNumberLabel")}
               <input
                 value={driverLicenseNumber}
                 onChange={(e) => setDriverLicenseNumber(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               {t("driverLicenseStateLabel")}
               <select
                 value={driverLicenseState}
                 onChange={(e) => setDriverLicenseState(e.target.value)}
-                className="border p-1"
+                className={styles.input}
               >
                 {US_STATES.map((s) => (
                   <option key={s} value={s}>
@@ -208,7 +250,7 @@ export default function UserSettingsPage() {
                 ))}
               </select>
             </label>
-            <label htmlFor="language" className="flex flex-col">
+            <label htmlFor="language" className={styles.label}>
               {t("languageLabel")}
             </label>
             <LanguageSwitcher
@@ -217,40 +259,40 @@ export default function UserSettingsPage() {
               onChange={(v) => setLanguage(v)}
               immediate={false}
             />
-            <label className="flex flex-col">
+            <label className={styles.label}>
               {t("socialLinksLabel")}
               <textarea
                 value={links}
                 onChange={(e) => setLinks(e.target.value)}
                 rows={3}
-                className="border p-1 resize-y"
+                className={styles.textarea}
               />
             </label>
-            <label className="flex flex-col">
+            <label className={styles.label}>
               {t("bioLabel")}
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={5}
-                className="border p-1 resize-y"
+                className={styles.textarea}
               />
             </label>
             {status === "under_review" && (
-              <p className="text-sm text-gray-600">
+              <p className={styles.statusUnderReview}>
                 {t("profileStatusUnderReview")}
               </p>
             )}
             {status === "published" && (
-              <p className="text-sm text-green-700">
+              <p className={styles.statusPublished}>
                 {t("profileStatusPublished")}
               </p>
             )}
             {status === "hidden" && (
-              <p className="text-sm text-red-600">
+              <p className={styles.statusHidden}>
                 {t("profileStatusHidden")} {notes ?? ""}
               </p>
             )}
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2">
+            <button type="submit" className={styles.submitButton}>
               {t("save")}
             </button>
             <ConfirmDialog
@@ -271,14 +313,14 @@ export default function UserSettingsPage() {
           </form>
         </TabsContent>
         <TabsContent value="credits">
-          <div className="grid gap-2 max-w-sm">
+          <div className={styles.creditsContainer}>
             <p>{t("balanceCredits", { balance })}</p>
-            <div className="flex gap-2">
+            <div className={styles.creditsFlex}>
               <input
                 type="number"
                 value={usd}
                 onChange={(e) => setUsd(e.target.value)}
-                className="border p-1 flex-1"
+                className={styles.creditsInput}
               />
               <button
                 type="button"
@@ -289,7 +331,7 @@ export default function UserSettingsPage() {
                     },
                   })
                 }
-                className="bg-blue-600 text-white px-2 py-1 rounded"
+                className={styles.addButton}
               >
                 {t("add")}
               </button>
