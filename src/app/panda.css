@@ -1,1 +1,2 @@
+@import "../../styled-system/styles.css";
 @layer base, tokens, recipes, utilities;
