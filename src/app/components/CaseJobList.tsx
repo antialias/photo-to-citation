@@ -32,7 +32,7 @@ export default function CaseJobList({
 
   const styles = {
     container: css({
-      bg: { base: "gray.100", _dark: "gray.800" },
+      bg: token("colors.surface-subtle"),
       p: "4",
       borderRadius: radii.default,
       display: "flex",
@@ -44,13 +44,7 @@ export default function CaseJobList({
     list: css({ display: "grid", gap: "1" }),
     item: css({ display: "flex", justifyContent: "space-between" }),
     type: css({ fontFamily: "mono", mr: "2" }),
-    footer: css({
-      fontSize: "xs",
-      color: {
-        base: token("colors.gray.600"),
-        _dark: token("colors.gray.400"),
-      },
-    }),
+    footer: css({ fontSize: "xs", color: token("colors.text-muted") }),
   };
 
   useEventSource<JobResponse>(

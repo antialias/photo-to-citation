@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import useEventSource from "../hooks/useEventSource";
 
 interface JobInfo {
@@ -39,7 +41,12 @@ export default function SystemStatusClient() {
   return (
     <div className="p-8">
       <h1 className="text-xl font-bold mb-4">{t("nav.systemStatus")}</h1>
-      <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+      <p
+        className={cx(
+          "mb-2 text-sm",
+          css({ color: token("colors.text-muted") }),
+        )}
+      >
         {t("lastAudit")}{" "}
         {auditedAt ? new Date(auditedAt).toLocaleString() : "n/a"}
         {" | "}
@@ -69,7 +76,12 @@ export default function SystemStatusClient() {
             <li key={j.id} className="border p-2">
               <span className="font-mono mr-2">{j.type}</span>
               {j.caseId ? (
-                <span className="mr-2 text-gray-500">
+                <span
+                  className={cx(
+                    "mr-2",
+                    css({ color: token("colors.text-muted") }),
+                  )}
+                >
                   {t("caseLabel", { id: j.caseId })}
                 </span>
               ) : null}

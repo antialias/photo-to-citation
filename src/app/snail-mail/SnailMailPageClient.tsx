@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import useCase from "../hooks/useCase";
 import useSnailMail from "../hooks/useSnailMail";
 
@@ -47,7 +49,12 @@ export default function SnailMailPageClient() {
       {caseId ? (
         <div className="mb-4">
           <h2 className="font-semibold">{t("caseLabel", { id: caseId })}</h2>
-          <p className="text-sm text-gray-500">
+          <p
+            className={cx(
+              "text-sm",
+              css({ color: token("colors.text-muted") }),
+            )}
+          >
             {t("violationLabel", { type: violation || t("unknown") })}
           </p>
         </div>

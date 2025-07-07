@@ -1,6 +1,8 @@
 "use client";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import * as React from "react";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -13,7 +15,16 @@ const DropdownMenuContent = React.forwardRef<
   <DropdownMenuPrimitive.Portal>
     <DropdownMenuPrimitive.Content
       ref={ref}
-      className={`bg-white dark:bg-gray-900 border rounded shadow text-black dark:text-white ${className ?? ""}`}
+      className={cx(
+        css({
+          bg: token("colors.surface"),
+          color: { base: "black", _dark: "white" },
+          borderWidth: "1px",
+          rounded: "md",
+          shadow: "md",
+        }),
+        className ?? "",
+      )}
       sideOffset={4}
       {...props}
     />
@@ -27,7 +38,14 @@ const DropdownMenuItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
-    className={`block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 outline-none ${className ?? ""}`}
+    className={cx(
+      "block px-4 py-2 outline-none",
+      css({
+        _hover: { bg: token("colors.surface-subtle") },
+        _focus: { bg: token("colors.surface-subtle") },
+      }),
+      className ?? "",
+    )}
     {...props}
   />
 ));
@@ -39,7 +57,10 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={`h-px bg-gray-300 dark:bg-gray-700 my-1 ${className ?? ""}`}
+    className={cx(
+      css({ h: "1px", bg: token("colors.surface-subtle"), my: "1" }),
+      className ?? "",
+    )}
     {...props}
   />
 ));

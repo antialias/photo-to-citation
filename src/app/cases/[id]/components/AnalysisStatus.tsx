@@ -1,6 +1,8 @@
 "use client";
 import AnalysisInfo from "@/app/components/AnalysisInfo";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import useCaseTranslate from "../../../useCaseTranslate";
 import { useCaseContext } from "../CaseContext";
 import useCaseActions from "../useCaseActions";
@@ -220,7 +222,7 @@ export default function AnalysisStatus({
 
   if (caseData.analysisStatus === "pending" && progress) {
     return (
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className={cx("text-sm", css({ color: token("colors.text-muted") }))}>
         {progressDescription}
       </p>
     );

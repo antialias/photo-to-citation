@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft, FaFileAlt, FaFilePdf } from "react-icons/fa";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useNotify } from "../../../components/NotificationProvider";
 import useCase, { caseQueryKey } from "../../../hooks/useCase";
 import useEventSource from "../../../hooks/useEventSource";
@@ -94,7 +96,12 @@ export default function ClientThreadPage({
 
   return (
     <div className="p-8 flex flex-col gap-4">
-      <div className="sticky top-14 bg-white dark:bg-gray-900 flex justify-between items-center border-b pb-2">
+      <div
+        className={cx(
+          "sticky top-14 flex justify-between items-center border-b pb-2",
+          css({ bg: token("colors.surface") }),
+        )}
+      >
         <div className="flex items-center gap-2">
           <Link
             href={`/cases/${caseId}`}
@@ -127,7 +134,12 @@ export default function ClientThreadPage({
       <ul className="flex flex-col gap-4">
         {thread.map((mail) => (
           <li key={mail.sentAt} className="border p-2 rounded">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div
+              className={cx(
+                "text-sm",
+                css({ color: token("colors.text-muted") }),
+              )}
+            >
               {new Date(mail.sentAt).toLocaleString()} - To: {mail.to}
             </div>
             <div className="font-semibold">{mail.subject}</div>
@@ -195,12 +207,24 @@ export default function ClientThreadPage({
               <button
                 type="button"
                 onClick={() => attachEvidence(img.url)}
-                className="self-start bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                className={cx(
+                  css({
+                    bg: token("colors.surface-subtle"),
+                    rounded: "md",
+                    px: "2",
+                    py: "1",
+                  }),
+                )}
               >
                 {t("addAsEvidence")}
               </button>
               {img.ocrText ? (
-                <pre className="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                <pre
+                  className={cx(
+                    "whitespace-pre-wrap text-sm rounded",
+                    css({ bg: token("colors.surface-subtle"), p: "2" }),
+                  )}
+                >
                   {img.ocrText}
                 </pre>
               ) : null}
@@ -210,7 +234,12 @@ export default function ClientThreadPage({
       </ul>
       {viewImage ? (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-modal">
-          <div className="bg-white dark:bg-gray-900 rounded shadow max-w-3xl w-full">
+          <div
+            className={cx(
+              css({ bg: token("colors.surface"), rounded: "md", shadow: "md" }),
+              "max-w-3xl w-full",
+            )}
+          >
             <div className="relative w-full h-[80vh]">
               <img
                 src={viewImage}
@@ -223,7 +252,14 @@ export default function ClientThreadPage({
               <button
                 type="button"
                 onClick={() => setViewImage(null)}
-                className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                className={cx(
+                  css({
+                    bg: token("colors.surface-subtle"),
+                    rounded: "md",
+                    px: "2",
+                    py: "1",
+                  }),
+                )}
               >
                 {t("close")}
               </button>

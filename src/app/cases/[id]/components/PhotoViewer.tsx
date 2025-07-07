@@ -13,6 +13,8 @@ import type { Case } from "@/lib/caseStore";
 import type { LlmProgress } from "@/lib/openai";
 
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 
 export default function PhotoViewer({
   caseData,
@@ -116,11 +118,13 @@ export default function PhotoViewer({
         )}
       </div>
       {time ? (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p
+          className={cx("text-sm", css({ color: token("colors.text-muted") }))}
+        >
           {t("taken", { time: new Date(time).toLocaleString() })}
         </p>
       ) : null}
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className={cx("text-sm", css({ color: token("colors.text-muted") }))}>
         <span className="font-semibold">{t("note")}</span>{" "}
         {readOnly ? (
           <span>{photoNote || ""}</span>

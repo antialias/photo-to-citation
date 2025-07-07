@@ -4,6 +4,8 @@ import type { EmailDraft } from "@/lib/caseReport";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useNotify } from "../../../components/NotificationProvider";
 import NotifyOwnerEditor from "./NotifyOwnerEditor";
 
@@ -56,7 +58,12 @@ export default function NotifyOwnerModal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-modal" />
         <Dialog.Content className="fixed inset-0 flex items-center justify-center p-4 z-modal">
-          <div className="bg-white dark:bg-gray-900 rounded shadow max-w-xl w-full">
+          <div
+            className={cx(
+              css({ bg: token("colors.surface"), rounded: "md", shadow: "md" }),
+              "max-w-xl w-full",
+            )}
+          >
             {data ? (
               <NotifyOwnerEditor
                 caseId={caseId}
@@ -73,7 +80,14 @@ export default function NotifyOwnerModal({
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded"
+                  className={cx(
+                    css({
+                      bg: token("colors.surface-subtle"),
+                      rounded: "md",
+                      px: "2",
+                      py: "1",
+                    }),
+                  )}
                 >
                   {t("close")}
                 </button>

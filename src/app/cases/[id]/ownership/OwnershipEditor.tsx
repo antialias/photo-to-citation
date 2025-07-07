@@ -5,6 +5,8 @@ import { US_STATES } from "@/lib/usStates";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useNotify } from "../../../components/NotificationProvider";
 import { useSession } from "../../../useSession";
 
@@ -188,7 +190,12 @@ export default function OwnershipEditor({
         {t("stateLabel")} {module.state}
       </p>
       <p>{t("sendCheckTo", { fee: total })}</p>
-      <pre className="bg-gray-100 dark:bg-gray-800 p-2 whitespace-pre-wrap">
+      <pre
+        className={cx(
+          "p-2 whitespace-pre-wrap",
+          css({ bg: token("colors.surface-subtle") }),
+        )}
+      >
         {module.address}
       </pre>
       {showPdf ? (

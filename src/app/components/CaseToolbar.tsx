@@ -79,7 +79,7 @@ export default function CaseToolbar({
       : undefined;
   const styles = {
     wrapper: css({
-      bg: { base: "gray.100", _dark: "gray.800" },
+      bg: token("colors.surface-subtle"),
       px: "8",
       py: "2",
       display: "flex",
@@ -92,10 +92,7 @@ export default function CaseToolbar({
       flexDirection: "column",
       gap: "1",
     }),
-    progressText: css({
-      fontSize: "sm",
-      color: { base: "gray.500", _dark: "gray.400" },
-    }),
+    progressText: css({ fontSize: "sm", color: token("colors.text-muted") }),
     actionsRow: css({ display: "flex", justifyContent: "flex-end" }),
     actionButton: css({
       cursor: "pointer",

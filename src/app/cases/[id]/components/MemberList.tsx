@@ -1,6 +1,8 @@
 "use client";
 import { useSession } from "@/app/useSession";
 import { useState } from "react";
+import { css, cx } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import { useCaseContext } from "../CaseContext";
 
 export type Member = {
@@ -50,7 +52,10 @@ export default function MemberList({
             value={inviteUserId}
             onChange={(e) => setInviteUserId(e.target.value)}
             placeholder="User ID"
-            className="border rounded p-1 flex-1 bg-white dark:bg-gray-900"
+            className={cx(
+              "border rounded p-1 flex-1",
+              css({ bg: token("colors.surface") }),
+            )}
           />
           <button
             type="button"
