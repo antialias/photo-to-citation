@@ -1,5 +1,6 @@
 "use client";
 import { css } from "styled-system/css";
+import { button } from "styled-system/recipes";
 import { token } from "styled-system/tokens";
 import type { CasbinRule } from "../AdminPageClient";
 import type { GroupOptions, PolicyOptions } from "../hooks/useCasbinRules";
@@ -45,13 +46,7 @@ export default function RuleRow({
       p: "1",
       backgroundColor: { base: "white", _dark: token("colors.gray.900") },
     }),
-    deleteBtn: css({
-      bg: "red.500",
-      color: "white",
-      px: "2",
-      py: "1",
-      borderRadius: token("radii.md"),
-    }),
+    deleteBtn: button({ variant: "danger" }),
   };
 
   return (

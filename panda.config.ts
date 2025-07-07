@@ -1,4 +1,5 @@
 import { defineConfig } from "@pandacss/dev";
+import { buttonRecipe } from "./src/recipes/button";
 
 export default defineConfig({
   // Disable the built-in reset to avoid conflicts with Tailwind
@@ -20,6 +21,9 @@ export default defineConfig({
         shadows: {
           default: { value: "{shadows.md}" },
         },
+      },
+      recipes: {
+        button: buttonRecipe,
       },
     },
   },
