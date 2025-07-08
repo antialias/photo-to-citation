@@ -4,9 +4,11 @@ import ThumbnailImage from "@/components/thumbnail-image";
 import type { EmailDraft } from "@/lib/caseReport";
 import type { Case } from "@/lib/caseStore";
 import { getThumbnailUrl } from "@/lib/clientThumbnails";
+import { space } from "@/styleTokens";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 import { useNotify } from "../../../components/NotificationProvider";
 
 export default function NotifyOwnerEditor({
@@ -111,12 +113,46 @@ export default function NotifyOwnerEditor({
   }
 
   if (!initialDraft) {
-    return <div className="p-8">{t("draftingEmail")}</div>;
+    return (
+      <div className={css({ p: space.container })}>{t("draftingEmail")}</div>
+    );
   }
 
+  const styles = {
+    wrapper: css({
+      p: space.container,
+      display: "flex",
+      flexDirection: "column",
+      gap: space.gap,
+    }),
+    title: css({ fontSize: "xl", fontWeight: "semibold" }),
+    list: css({ display: "flex", flexDirection: "column", gap: "2" }),
+    sentRow: css({ display: "flex", alignItems: "center", gap: "2" }),
+    sentText: css({ color: "green.700" }),
+    errorText: css({ color: "red.600", fontSize: "sm" }),
+    checkboxLabel: css({ display: "flex", alignItems: "center", gap: "2" }),
+    inputLabel: css({ display: "flex", flexDirection: "column" }),
+    input: css({ borderWidth: "1px", p: "1" }),
+    attachments: css({ display: "flex", gap: "2", flexWrap: "wrap" }),
+    button: css({
+      bg: "blue.500",
+      color: "white",
+      px: "2",
+      py: "1",
+      rounded: "md",
+      _disabled: { opacity: 0.5 },
+    }),
+    link: css({
+      color: "blue.500",
+      textDecorationLine: "underline",
+      mt: "2",
+      fontSize: "sm",
+    }),
+  };
+
   return (
-    <div className="p-8 flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">{t("ownerNotification")}</h1>
+    <div className={styles.wrapper}>
+      <h1 className={styles.title}>{t("ownerNotification")}</h1>
       <p>{t("photosAttachedAuto")}</p>
       <div className="flex flex-col gap-2">
         {contactInfo.email &&

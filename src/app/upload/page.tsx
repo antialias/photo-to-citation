@@ -2,7 +2,9 @@
 
 import useAddFilesToCase from "@/app/useAddFilesToCase";
 import useNewCaseFromFiles from "@/app/useNewCaseFromFiles";
+import { space } from "@/styleTokens";
 import { useSearchParams } from "next/navigation";
+import { css } from "styled-system/css";
 
 export default function UploadPage() {
   const params = useSearchParams();
@@ -11,7 +13,7 @@ export default function UploadPage() {
   const newCase = useNewCaseFromFiles();
   const uploadCase = caseId ? addFiles : newCase;
   return (
-    <div className="p-8">
+    <div className={css({ p: space.container })}>
       <input
         type="file"
         accept="image/*"

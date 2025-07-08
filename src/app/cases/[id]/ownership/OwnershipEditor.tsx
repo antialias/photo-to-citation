@@ -2,6 +2,7 @@
 import { apiFetch } from "@/apiClient";
 import type { OwnershipModule } from "@/lib/ownershipModules";
 import { US_STATES } from "@/lib/usStates";
+import { space } from "@/styleTokens";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -183,29 +184,49 @@ export default function OwnershipEditor({
     }
   }
 
+  const styles = {
+    wrapper: css({
+      p: space.container,
+      display: "flex",
+      flexDirection: "column",
+      gap: space.gap,
+    }),
+    title: css({ fontSize: "xl", fontWeight: "semibold" }),
+    pre: cx(
+      "p-2 whitespace-pre-wrap",
+      css({ bg: token("colors.surface-subtle") }),
+    ),
+    iframe: css({ w: "full", h: "96", borderWidth: "1px" }),
+    labelCol: css({ display: "flex", flexDirection: "column" }),
+    input: css({ borderWidth: "1px", p: "1" }),
+    checkboxLabel: css({
+      display: "flex",
+      alignItems: "center",
+      gap: "2",
+      mt: "2",
+    }),
+    button: css({
+      bg: "blue.500",
+      color: "white",
+      px: "2",
+      py: "1",
+      rounded: "md",
+    }),
+    error: css({ color: "red.600", fontSize: "sm" }),
+    success: css({ color: "green.700", fontSize: "sm" }),
+  };
   return (
-    <div className="p-8 flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">{t("ownershipRequest")}</h1>
+    <div className={styles.wrapper}>
+      <h1 className={styles.title}>{t("ownershipRequest")}</h1>
       <p>
         {t("stateLabel")} {module.state}
       </p>
       <p>{t("sendCheckTo", { fee: total })}</p>
-      <pre
-        className={cx(
-          "p-2 whitespace-pre-wrap",
-          css({ bg: token("colors.surface-subtle") }),
-        )}
-      >
-        {module.address}
-      </pre>
+      <pre className={styles.pre}>{module.address}</pre>
       {showPdf ? (
-        <iframe
-          src={pdfUrl}
-          className="w-full h-96 border"
-          title="Ownership form"
-        />
+        <iframe src={pdfUrl} className={styles.iframe} title="Ownership form" />
       ) : null}
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         Name
         <input
           type="text"
@@ -213,10 +234,10 @@ export default function OwnershipEditor({
           onChange={(e) =>
             setForm((f) => ({ ...f, requesterName: e.target.value }))
           }
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         Email
         <input
           type="text"
@@ -224,10 +245,10 @@ export default function OwnershipEditor({
           onChange={(e) =>
             setForm((f) => ({ ...f, requesterEmailAddress: e.target.value }))
           }
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         Address
         <input
           type="text"
@@ -235,10 +256,10 @@ export default function OwnershipEditor({
           onChange={(e) =>
             setForm((f) => ({ ...f, requesterAddress: e.target.value }))
           }
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         City/State/Zip
         <input
           type="text"
@@ -246,10 +267,10 @@ export default function OwnershipEditor({
           onChange={(e) =>
             setForm((f) => ({ ...f, requesterCityStateZip: e.target.value }))
           }
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         Daytime Phone
         <input
           type="text"
@@ -260,10 +281,10 @@ export default function OwnershipEditor({
               requesterDaytimePhoneNumber: e.target.value,
             }))
           }
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         {t("driverLicenseNumberLabel")}
         <input
           type="text"
@@ -274,10 +295,10 @@ export default function OwnershipEditor({
               requesterDriverLicenseNumber: e.target.value,
             }))
           }
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         {t("driverLicenseStateLabel")}
         <select
           value={form.requesterDriverLicenseState ?? "IL"}
@@ -287,7 +308,7 @@ export default function OwnershipEditor({
               requesterDriverLicenseState: e.target.value,
             }))
           }
-          className="border p-1"
+          className={styles.input}
         >
           {US_STATES.map((s) => (
             <option key={s} value={s}>
@@ -296,12 +317,12 @@ export default function OwnershipEditor({
           ))}
         </select>
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         Section 2
         <select
           value={option}
           onChange={(e) => setOption(e.target.value)}
-          className="border p-1"
+          className={styles.input}
         >
           <option value="titleSearch">Title Search — $5 each</option>
           <option value="registrationSearch">
@@ -315,7 +336,7 @@ export default function OwnershipEditor({
           </option>
         </select>
       </label>
-      <label className="flex items-center gap-2 mt-2">
+      <label className={styles.checkboxLabel}>
         <input
           type="checkbox"
           checked={microfilmWithSearchOption}
@@ -323,7 +344,7 @@ export default function OwnershipEditor({
         />
         <span>Microfilm Requested with any Search Option, no charge</span>
       </label>
-      <label className="flex items-center gap-2">
+      <label className={styles.checkboxLabel}>
         <input
           type="checkbox"
           checked={microfilmOnly}
@@ -331,30 +352,26 @@ export default function OwnershipEditor({
         />
         <span>Microfilm Only — $5</span>
       </label>
-      <label className="flex flex-col">
+      <label className={styles.labelCol}>
         {t("checkNumberLabel")}
         <input
           type="text"
           value={checkNumber}
           onChange={(e) => setCheckNumber(e.target.value)}
-          className="border p-1"
+          className={styles.input}
         />
       </label>
-      <button
-        type="button"
-        onClick={() => record()}
-        className="bg-blue-500 text-white px-2 py-1 rounded"
-      >
+      <button type="button" onClick={() => record()} className={styles.button}>
         {t("sendSnailMailRequest")}
       </button>
       {snailMailResult?.status === "error" && (
-        <span className="text-red-600 text-sm">{snailMailResult.error}</span>
+        <span className={styles.error}>{snailMailResult.error}</span>
       )}
       {checkResult?.status === "success" && (
-        <span className="text-green-700 text-sm">{t("checkGenerated")}</span>
+        <span className={styles.success}>{t("checkGenerated")}</span>
       )}
       {checkResult?.status === "error" && (
-        <span className="text-red-600 text-sm">
+        <span className={styles.error}>
           {t("checkGenerationFailed", { reason: checkResult.error })}
         </span>
       )}

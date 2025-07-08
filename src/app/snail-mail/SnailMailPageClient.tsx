@@ -1,6 +1,7 @@
 "use client";
 
 import SnailMailStatusIcon from "@/components/SnailMailStatusIcon";
+import { space } from "@/styleTokens";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -25,11 +26,27 @@ export default function SnailMailPageClient() {
   const { data: caseData } = useCase(caseId ?? "");
   const violation = caseData?.analysis?.violationType ?? null;
 
+  const styles = {
+    wrapper: css({ p: space.container }),
+    title: css({ fontSize: "xl", fontWeight: "bold", mb: "4" }),
+    controls: css({ display: "flex", gap: space.gap, mb: "4" }),
+    checkboxLabel: css({ display: "flex", alignItems: "center", gap: "1" }),
+    caseInfo: css({ mb: "4" }),
+    caseTitle: css({ fontWeight: "semibold" }),
+    table: css({
+      width: "100%",
+      borderWidth: "1px",
+      borderCollapse: "collapse",
+    }),
+    th: css({ borderWidth: "1px", px: "2", py: "1", textAlign: "left" }),
+    td: css({ borderWidth: "1px", px: "2", py: "1" }),
+    link: css({ color: "blue.500", textDecorationLine: "underline" }),
+  };
   return (
-    <div className="p-8">
-      <h1 className="text-xl font-bold mb-4">{t("nav.snailMail")}</h1>
-      <div className="flex gap-4 mb-4">
-        <label className="flex items-center gap-1">
+    <div className={styles.wrapper}>
+      <h1 className={styles.title}>{t("nav.snailMail")}</h1>
+      <div className={styles.controls}>
+        <label className={styles.checkboxLabel}>
           <input
             type="checkbox"
             checked={openOnly}
@@ -37,7 +54,7 @@ export default function SnailMailPageClient() {
           />
           {t("open")}
         </label>
-        <label className="flex items-center gap-1">
+        <label className={styles.checkboxLabel}>
           <input
             type="checkbox"
             checked={hideDelivered}
@@ -47,8 +64,8 @@ export default function SnailMailPageClient() {
         </label>
       </div>
       {caseId ? (
-        <div className="mb-4">
-          <h2 className="font-semibold">{t("caseLabel", { id: caseId })}</h2>
+        <div className={styles.caseInfo}>
+          <h2 className={styles.caseTitle}>{t("caseLabel", { id: caseId })}</h2>
           <p
             className={cx(
               "text-sm",
@@ -62,38 +79,35 @@ export default function SnailMailPageClient() {
       {mails.length === 0 ? (
         <p>{t("noSnailMail")}</p>
       ) : (
-        <table className="min-w-full border border-collapse">
+        <table className={styles.table}>
           <thead>
-            <tr className="text-left">
-              <th className="border px-2 py-1">Case</th>
-              <th className="border px-2 py-1">{t("subjectLabel")}</th>
-              <th className="border px-2 py-1">{t("status")}</th>
-              <th className="border px-2 py-1">{t("sent")}</th>
-              <th className="border px-2 py-1">{t("thread")}</th>
+            <tr className={css({ textAlign: "left" })}>
+              <th className={styles.th}>Case</th>
+              <th className={styles.th}>{t("subjectLabel")}</th>
+              <th className={styles.th}>{t("status")}</th>
+              <th className={styles.th}>{t("sent")}</th>
+              <th className={styles.th}>{t("thread")}</th>
             </tr>
           </thead>
           <tbody>
             {mails.map((m) => (
               <tr key={`${m.caseId}-${m.sentAt}`}>
-                <td className="border px-2 py-1">
-                  <Link
-                    href={`/cases/${m.caseId}`}
-                    className="text-blue-500 underline"
-                  >
+                <td className={styles.td}>
+                  <Link href={`/cases/${m.caseId}`} className={styles.link}>
                     {t("caseLabel", { id: m.caseId })}
                   </Link>
                 </td>
-                <td className="border px-2 py-1">{m.subject}</td>
-                <td className="border px-2 py-1">
+                <td className={styles.td}>{m.subject}</td>
+                <td className={styles.td}>
                   <SnailMailStatusIcon status={m.status} />
                 </td>
-                <td className="border px-2 py-1">
+                <td className={styles.td}>
                   {new Date(m.sentAt).toLocaleString()}
                 </td>
-                <td className="border px-2 py-1">
+                <td className={styles.td}>
                   <Link
                     href={`/cases/${m.caseId}/thread/${encodeURIComponent(m.sentAt)}`}
-                    className="text-blue-500 underline"
+                    className={styles.link}
                   >
                     {t("viewThread")}
                   </Link>
