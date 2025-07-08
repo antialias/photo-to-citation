@@ -11,7 +11,7 @@
     "build:jobs": "node scripts/compileJobs.mjs",
     "build": "pnpm run build:jobs && pnpm run panda && next build",
     "start": "next start",
-    "lint": "pnpm run lint:env && pnpm run lint:md && biome check .",
+    "lint": "pnpm run lint:env && pnpm run lint:md && biome check . && pnpm exec eslint .",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "format": "biome format . --write",
     "pretest": "pnpm run panda",

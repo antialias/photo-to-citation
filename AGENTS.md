@@ -17,6 +17,9 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
   `pnpm install @biomejs/cli-linux-x64 @rollup/rollup-linux-x64-gnu`.
 - Run `pnpm run format` before committing to apply Biome's auto-formatting.
 - Ensure `pnpm run lint` completes with no errors or warnings.
+- `eslint-disable` comments are forbidden. Update the code to satisfy the rule
+  instead of suppressing it. When `no-explicit-any` triggers, use proper
+  generics or type definitions rather than `any`.
 - If you edited any Markdown files, run `pnpm run lint:md` to check them before completing the task.
 - Do not introduce any new TypeScript errors. If you can quickly fix an error
   without side effects, include that fix in the same task.
