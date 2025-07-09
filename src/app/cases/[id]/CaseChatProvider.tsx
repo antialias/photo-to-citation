@@ -20,6 +20,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 import InlineTranslateButton from "../../components/InlineTranslateButton";
 import { useNotify } from "../../components/NotificationProvider";
 import useChatTranslate from "../../useChatTranslate";
@@ -573,7 +574,14 @@ export function CaseChatProvider({
                   router.push(act.href(caseId));
                 }
               }}
-              className="bg-blue-600 text-white px-2 py-1 rounded mx-1"
+              className={css({
+                bg: "blue.600",
+                color: "white",
+                px: "2",
+                py: "1",
+                borderRadius: "md",
+                mx: "1",
+              })}
             >
               {act.label}
             </button>
@@ -592,7 +600,14 @@ export function CaseChatProvider({
             key={`edit-${a.field}-${a.value}`}
             type="button"
             onClick={() => void handleEdit(a.field, a.value)}
-            className="bg-green-700 text-white px-2 py-1 rounded mx-1"
+            className={css({
+              bg: "green.700",
+              color: "white",
+              px: "2",
+              py: "1",
+              borderRadius: "md",
+              mx: "1",
+            })}
           >
             {label}
           </button>
@@ -605,7 +620,17 @@ export function CaseChatProvider({
               key={`photo-${a.photo}-${a.note}`}
               type="button"
               onClick={() => void handlePhotoNote(a.photo, a.note)}
-              className="bg-green-700 text-white px-1 py-1 rounded mx-1 flex items-center gap-1"
+              className={css({
+                bg: "green.700",
+                color: "white",
+                px: "1",
+                py: "1",
+                borderRadius: "md",
+                mx: "1",
+                display: "flex",
+                alignItems: "center",
+                gap: "1",
+              })}
             >
               <ThumbnailImage
                 src={getThumbnailUrl(url, 64)}
@@ -620,7 +645,18 @@ export function CaseChatProvider({
       }
       return null;
     });
-    return <div className="mt-1 flex flex-wrap gap-1">{buttons}</div>;
+    return (
+      <div
+        className={css({
+          mt: "1",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1",
+        })}
+      >
+        {buttons}
+      </div>
+    );
   }
 
   function renderContent(m: Message) {

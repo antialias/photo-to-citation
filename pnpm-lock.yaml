@@ -5164,8 +5164,8 @@ packages:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
     engines: {node: '>=6.0'}
 
-  chromedriver@138.0.1:
-    resolution: {integrity: sha512-QS/Z1qB2OpKsPUlJjkfKmpf9lGw6ObB0dX5+dP3M0gdtbu80TUnS+EjXbtu6YkbMfr2/Qt8IfOONrawNW1GwhA==}
+  chromedriver@138.0.2:
+    resolution: {integrity: sha512-mmAtTCK0GHum+zbgcv3PYDX7tqNdTXDsd2t6WWI/Tm/Ts2xCGlc5XUcL3oxw1Dn/kmPJOurwrYJKO7vV4xkisA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -13154,7 +13154,7 @@ snapshots:
     dependencies:
       '@axe-core/webdriverjs': 4.10.2(selenium-webdriver@4.22.0)
       axe-core: 4.10.3
-      chromedriver: 138.0.1
+      chromedriver: 138.0.2
       colors: 1.4.0
       commander: 9.5.0
       dotenv: 16.6.1
@@ -15799,9 +15799,7 @@ snapshots:
       source-map: 0.6.1
       string-length: 2.0.0
     transitivePeerDependencies:
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@jest/source-map@24.9.0':
     dependencies:
@@ -20078,7 +20076,7 @@ snapshots:
 
   chrome-trace-event@1.0.4: {}
 
-  chromedriver@138.0.1:
+  chromedriver@138.0.2:
     dependencies:
       '@testim/chrome-version': 1.1.4
       axios: 1.10.0
@@ -23705,9 +23703,7 @@ snapshots:
       pretty-format: 24.9.0
       throat: 4.1.0
     transitivePeerDependencies:
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   jest-leak-detector@24.9.0:
     dependencies:
