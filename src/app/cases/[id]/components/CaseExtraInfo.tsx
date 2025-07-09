@@ -28,7 +28,13 @@ export default function CaseExtraInfo({ caseId }: { caseId: string }) {
     ...paperworkScans,
   ];
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div
+      className={css({
+        display: "grid",
+        gap: "4",
+        md: { gridTemplateColumns: "repeat(2, 1fr)" },
+      })}
+    >
       {caseData.sentEmails && caseData.sentEmails.length > 0 ? (
         <div
           className={cx(

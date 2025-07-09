@@ -6,6 +6,7 @@ import {
   FaFileAlt,
   FaMoneyBillAlt,
 } from "react-icons/fa";
+import { css, cx } from "styled-system/css";
 
 export default function SnailMailStatusIcon({
   status,
@@ -36,8 +37,13 @@ export default function SnailMailStatusIcon({
       Icon = FaClock;
   }
   return (
-    <span className={`inline-flex items-center gap-1 ${color}`}>
-      <Icon className="w-4 h-4" />
+    <span
+      className={cx(
+        css({ display: "inline-flex", alignItems: "center", gap: "1" }),
+        color,
+      )}
+    >
+      <Icon className={css({ w: "4", h: "4" })} />
       {t(
         status === "queued"
           ? "snailMailQueued"

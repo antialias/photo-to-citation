@@ -39,11 +39,13 @@ export default function SystemStatusClient() {
   const types = Array.from(new Set(jobs.map((j) => j.type)));
 
   return (
-    <div className="p-8">
-      <h1 className="text-xl font-bold mb-4">{t("nav.systemStatus")}</h1>
+    <div className={css({ p: "8" })}>
+      <h1 className={css({ fontSize: "xl", fontWeight: "bold", mb: "4" })}>
+        {t("nav.systemStatus")}
+      </h1>
       <p
         className={cx(
-          "mb-2 text-sm",
+          css({ mb: "2", fontSize: "sm" }),
           css({ color: token("colors.text-muted") }),
         )}
       >
@@ -53,12 +55,12 @@ export default function SystemStatusClient() {
         {t("lastUpdate")}{" "}
         {updatedAt ? new Date(updatedAt).toLocaleString() : "n/a"}
       </p>
-      <label className="block mb-4">
-        <span className="mr-2">{t("jobType")}</span>
+      <label className={css({ display: "block", mb: "4" })}>
+        <span className={css({ mr: "2" })}>{t("jobType")}</span>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="border p-1"
+          className={css({ borderWidth: "1px", p: "1" })}
         >
           <option value="">{t("all")}</option>
           {types.map((t) => (
@@ -71,14 +73,16 @@ export default function SystemStatusClient() {
       {jobs.length === 0 ? (
         <p>{t("noActiveJobs")}</p>
       ) : (
-        <ul className="grid gap-2">
+        <ul className={css({ display: "grid", gap: "2" })}>
           {jobs.map((j) => (
-            <li key={j.id} className="border p-2">
-              <span className="font-mono mr-2">{j.type}</span>
+            <li key={j.id} className={css({ borderWidth: "1px", p: "2" })}>
+              <span className={css({ fontFamily: "mono", mr: "2" })}>
+                {j.type}
+              </span>
               {j.caseId ? (
                 <span
                   className={cx(
-                    "mr-2",
+                    css({ mr: "2" }),
                     css({ color: token("colors.text-muted") }),
                   )}
                 >
