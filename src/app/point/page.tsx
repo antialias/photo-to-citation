@@ -59,6 +59,7 @@ export default function PointAndShootPage() {
       objectFit: "cover",
       zIndex: 0,
     }),
+    canvas: css({ display: "none" }),
     uploading: css({
       position: "absolute",
       inset: 0,
@@ -247,7 +248,7 @@ export default function PointAndShootPage() {
       <video ref={videoRef} autoPlay muted playsInline className={styles.video}>
         <track kind="captions" label="" />
       </video>
-      <canvas ref={canvasRef} className="hidden" />
+      <canvas ref={canvasRef} className={styles.canvas} />
       {uploading ? (
         <div className={styles.uploading}>{t("uploadingPhoto")}</div>
       ) : null}

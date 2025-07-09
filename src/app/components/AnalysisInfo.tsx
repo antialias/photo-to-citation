@@ -2,6 +2,7 @@ import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { US_STATES } from "@/lib/usStates";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 import EditableText from "./EditableText";
 import InlineTranslateButton from "./InlineTranslateButton";
 
@@ -26,10 +27,26 @@ export default function AnalysisInfo({
     details,
     i18n.language,
   );
+  const styles = {
+    wrapper: css({
+      display: "flex",
+      flexDirection: "column",
+      gap: "1",
+      fontSize: "sm",
+    }),
+    innerWrapper: css({
+      pl: "4",
+      display: "flex",
+      flexDirection: "column",
+      gap: "1",
+    }),
+    plateRow: css({ display: "inline-flex", alignItems: "center", gap: "1" }),
+    bold: css({ fontWeight: "semibold" }),
+  };
   return (
-    <div className="flex flex-col gap-1 text-sm">
+    <div className={styles.wrapper}>
       <p>
-        <span className="font-semibold">Violation:</span> {violationType}
+        <span className={styles.bold}>Violation:</span> {violationType}
       </p>
       <p>
         {detailText}
@@ -42,16 +59,16 @@ export default function AnalysisInfo({
       </p>
       {location ? (
         <p>
-          <span className="font-semibold">Location clues:</span> {location}
+          <span className={styles.bold}>Location clues:</span> {location}
         </p>
       ) : null}
-      <div className="pl-4 flex flex-col gap-1">
+      <div className={styles.innerWrapper}>
         {vehicle.make ? <span>Make: {vehicle.make}</span> : null}
         {vehicle.model ? <span>Model: {vehicle.model}</span> : null}
         {vehicle.type ? <span>Type: {vehicle.type}</span> : null}
         {vehicle.color ? <span>Color: {vehicle.color}</span> : null}
         {onPlateChange || onStateChange ? (
-          <span className="inline-flex items-center gap-1">
+          <span className={styles.plateRow}>
             Plate:
             {onStateChange ? (
               <EditableText

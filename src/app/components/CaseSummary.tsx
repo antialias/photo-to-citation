@@ -35,15 +35,20 @@ export default function CaseSummary({ cases }: { cases: Case[] }) {
   const ids = cases.map((c) => c.id);
   const { t } = useTranslation();
 
+  const styles = {
+    wrapper: css({ display: "flex", flexDirection: "column" }),
+    inner: css({ p: "8", display: "flex", flexDirection: "column", gap: "2" }),
+    heading: css({ fontSize: "xl", fontWeight: "semibold" }),
+  };
   return (
-    <div className="flex flex-col">
+    <div className={styles.wrapper}>
       <MultiCaseToolbar
         caseIds={ids}
         disabled={actionsDisabled}
         hasOwner={hasOwnerAll}
       />
-      <div className="p-8 flex flex-col gap-2">
-        <h1 className="text-xl font-semibold">{t("caseSummary")}</h1>
+      <div className={styles.inner}>
+        <h1 className={styles.heading}>{t("caseSummary")}</h1>
         <p
           className={cx("text-sm", css({ color: token("colors.text-muted") }))}
         >

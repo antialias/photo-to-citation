@@ -4,6 +4,7 @@ import Tooltip from "@/components/ui/tooltip";
 import { getPublicEnv } from "@/publicEnv";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { css } from "styled-system/css";
 
 function tokenize(json: string): ReactNode[] {
   const tokens: ReactNode[] = [];
@@ -60,18 +61,37 @@ export default function DebugWrapper({
   return (
     <Tooltip
       label={
-        <div className="text-xs bg-black/80 text-white p-2 rounded shadow max-w-sm max-h-60 overflow-auto relative space-y-1">
+        <div
+          className={css({
+            fontSize: "xs",
+            bg: "blackAlpha.800",
+            color: "white",
+            p: "2",
+            rounded: "md",
+            shadow: "md",
+            maxW: "sm",
+            maxH: "60",
+            overflow: "auto",
+            position: "relative",
+            display: "block",
+            "& > * + *": { mt: "1" },
+          })}
+        >
           {(availableActions?.length || unavailableActions?.length) && (
-            <div className="mb-1 space-y-1">
+            <div className={css({ mb: "1", "& > * + *": { mt: "1" } })}>
               {availableActions?.length ? (
                 <p>
-                  <span className="font-semibold">Available:</span>{" "}
+                  <span className={css({ fontWeight: "semibold" })}>
+                    Available:
+                  </span>{" "}
                   {availableActions.join(", ")}
                 </p>
               ) : null}
               {unavailableActions?.length ? (
                 <p>
-                  <span className="font-semibold">Unavailable:</span>{" "}
+                  <span className={css({ fontWeight: "semibold" })}>
+                    Unavailable:
+                  </span>{" "}
                   {unavailableActions.join(", ")}
                 </p>
               ) : null}
@@ -81,11 +101,24 @@ export default function DebugWrapper({
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(json)}
-            className="absolute top-1 right-1 underline"
+            className={css({
+              position: "absolute",
+              top: "1",
+              right: "1",
+              textDecorationLine: "underline",
+            })}
           >
             Copy
           </button>
-          <pre className="pt-4 whitespace-pre-wrap break-words">{tokens}</pre>
+          <pre
+            className={css({
+              pt: "4",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            })}
+          >
+            {tokens}
+          </pre>
         </div>
       }
       open={show}

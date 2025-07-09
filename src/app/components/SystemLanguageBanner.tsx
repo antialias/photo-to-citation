@@ -1,5 +1,6 @@
 "use client";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 import { LANGUAGE_NAMES } from "./LanguageSwitcher";
 
 export default function SystemLanguageBanner({
@@ -13,20 +14,39 @@ export default function SystemLanguageBanner({
 }) {
   const { i18n } = useTranslation();
   const t = i18n.getFixedT(lang);
+  const styles = {
+    wrapper: css({
+      bg: "blue.100",
+      borderWidth: "1px",
+      borderColor: "blue.300",
+      color: "blue.800",
+      p: "2",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+    }),
+    actions: css({ display: "flex", alignItems: "center", gap: "2" }),
+    switchButton: css({ textDecorationLine: "underline" }),
+    dismissButton: css({ fontSize: "xl", lineHeight: "none" }),
+  };
   return (
-    <div className="bg-blue-100 border border-blue-300 text-blue-800 p-2 flex items-center justify-between">
+    <div className={styles.wrapper}>
       <span>
         {t("systemLanguagePrompt", { language: LANGUAGE_NAMES[lang] })}
       </span>
-      <div className="flex items-center gap-2">
-        <button type="button" onClick={onSwitch} className="underline">
+      <div className={styles.actions}>
+        <button
+          type="button"
+          onClick={onSwitch}
+          className={styles.switchButton}
+        >
           {t("switch")}
         </button>
         <button
           type="button"
           onClick={onDismiss}
           aria-label={t("claimBanner.dismiss")}
-          className="text-xl leading-none"
+          className={styles.dismissButton}
         >
           ×
         </button>

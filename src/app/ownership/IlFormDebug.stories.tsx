@@ -2,6 +2,7 @@ import type { OwnershipRequestInfo } from "@/lib/ownershipModules";
 import type { Meta, StoryObj } from "@storybook/react";
 import { PDFDocument } from "pdf-lib";
 import { useEffect, useState } from "react";
+import { css } from "styled-system/css";
 
 const pdfUrl = new URL("../../../forms/il/vsd375.pdf", import.meta.url);
 
@@ -86,7 +87,13 @@ function IlFormViewer(props: OwnershipRequestInfo) {
     void build();
   }, [props]);
   if (!url) return <div>Loading...</div>;
-  return <iframe src={url} className="w-full h-96 border" title="IL Form" />;
+  return (
+    <iframe
+      src={url}
+      className={css({ w: "full", h: "96", borderWidth: "1px" })}
+      title="IL Form"
+    />
+  );
 }
 
 const meta: Meta<typeof IlFormViewer> = {
