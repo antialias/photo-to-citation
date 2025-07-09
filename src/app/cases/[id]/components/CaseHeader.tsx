@@ -13,16 +13,19 @@ import { FaArrowLeft, FaShare } from "react-icons/fa";
 import { css } from "styled-system/css";
 import { token } from "styled-system/tokens";
 import { useCaseContext } from "../CaseContext";
-import useCaseActions from "../useCaseActions";
-import useCaseProgress from "../useCaseProgress";
 
 export default function CaseHeader({
   caseId,
   readOnly = false,
 }: { caseId: string; readOnly?: boolean }) {
-  const { caseData } = useCaseContext();
-  const { copied, copyPublicUrl, reanalyzingPhoto } = useCaseActions();
-  const { progress, isPhotoReanalysis } = useCaseProgress(reanalyzingPhoto);
+  const {
+    caseData,
+    copied,
+    copyPublicUrl,
+    reanalyzingPhoto,
+    progress,
+    isPhotoReanalysis,
+  } = useCaseContext();
   const { data: session } = useSession();
   const { t } = useTranslation();
   if (!caseData) return null;

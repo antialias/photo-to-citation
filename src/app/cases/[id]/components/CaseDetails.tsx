@@ -11,16 +11,15 @@ import { useTranslation } from "react-i18next";
 import { css, cx } from "styled-system/css";
 import { token } from "styled-system/tokens";
 import { useCaseContext } from "../CaseContext";
-import useCaseActions from "../useCaseActions";
-import useCaseProgress from "../useCaseProgress";
 import AnalysisStatus from "./AnalysisStatus";
 import MemberList from "./MemberList";
 
 export default function CaseDetails({
   readOnly = false,
 }: { readOnly?: boolean }) {
-  const { caseData, members } = useCaseContext();
   const {
+    caseData,
+    members,
     updateVin,
     clearVin,
     updateNote,
@@ -28,8 +27,7 @@ export default function CaseDetails({
     toggleClosed,
     toggleArchived,
     reanalyzingPhoto,
-  } = useCaseActions();
-  useCaseProgress(reanalyzingPhoto);
+  } = useCaseContext();
   const { data: session } = useSession();
   const { t } = useTranslation();
   if (!caseData) return null;

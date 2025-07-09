@@ -3,26 +3,24 @@ import AnalysisInfo from "@/app/components/AnalysisInfo";
 import { useTranslation } from "react-i18next";
 import { css, cx } from "styled-system/css";
 import { token } from "styled-system/tokens";
-import useCaseTranslate from "../../../useCaseTranslate";
 import { useCaseContext } from "../CaseContext";
-import useCaseActions from "../useCaseActions";
-import useCaseProgress from "../useCaseProgress";
 
 export default function AnalysisStatus({
   readOnly = false,
 }: { readOnly?: boolean }) {
-  const { caseId, caseData } = useCaseContext();
-  const { i18n } = useTranslation();
-  const translate = useCaseTranslate(caseId);
   const {
+    caseData,
+    translate,
     updatePlateNumber,
     updatePlateState,
     clearPlateNumber,
     clearPlateState,
     retryAnalysis,
     reanalyzingPhoto,
-  } = useCaseActions();
-  const { progress, progressDescription } = useCaseProgress(reanalyzingPhoto);
+    progress,
+    progressDescription,
+  } = useCaseContext();
+  const { i18n } = useTranslation();
   if (!caseData) return null;
 
   const plateNumberOverridden =
