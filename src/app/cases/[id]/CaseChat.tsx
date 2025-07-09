@@ -36,20 +36,41 @@ function CaseChatInner({ caseId }: { caseId: string }) {
   useVisualViewportHeight(open);
   return (
     <div
-      className={`${
+      className={cx(
+        css({ fontSize: "sm" }),
         expanded
-          ? "relative h-full"
+          ? css({ position: "relative", h: "full" })
           : open
-            ? "fixed inset-0 sm:bottom-4 sm:right-4 sm:inset-auto z-chat sm:[--case-chat-offset:1rem]"
-            : "fixed bottom-4 right-4 z-chat"
-      } text-sm`}
+            ? cx(
+                "z-chat",
+                css({
+                  position: "fixed",
+                  inset: 0,
+                  sm: { bottom: "4", right: "4", inset: "auto" },
+                }),
+              )
+            : cx("z-chat", css({ position: "fixed", bottom: "4", right: "4" })),
+      )}
+      style={
+        open && !expanded
+          ? ({ "--case-chat-offset": "1rem" } as React.CSSProperties)
+          : undefined
+      }
     >
       {open ? (
         <div
-          className={cx(
-            css({ bg: token("colors.surface"), shadow: "md", rounded: "md" }),
-            `flex flex-col${expanded ? " w-full h-full" : " w-screen sm:w-80 sm:max-h-[400px]"}`,
-          )}
+          className={css({
+            bg: token("colors.surface"),
+            shadow: "md",
+            rounded: "md",
+            display: "flex",
+            flexDirection: "column",
+            w: expanded ? "full" : "100vw",
+            h: expanded ? "full" : undefined,
+            sm: expanded
+              ? { w: "full", h: "full" }
+              : { w: "80", maxH: "400px" },
+          })}
           style={
             expanded
               ? undefined
@@ -68,7 +89,14 @@ function CaseChatInner({ caseId }: { caseId: string }) {
         <button
           type="button"
           onClick={handleOpen}
-          className="bg-blue-600 text-white px-3 py-1 rounded shadow"
+          className={css({
+            bg: "blue.600",
+            color: "white",
+            px: "3",
+            py: "1",
+            borderRadius: "md",
+            shadow: "md",
+          })}
         >
           Chat
         </button>
