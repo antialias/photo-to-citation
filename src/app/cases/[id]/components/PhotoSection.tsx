@@ -2,10 +2,7 @@
 import CaseJobList from "@/app/components/CaseJobList";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import useCaseTranslate from "../../../useCaseTranslate";
 import { useCaseContext } from "../CaseContext";
-import useCaseActions from "../useCaseActions";
-import useCaseProgress from "../useCaseProgress";
 import PhotoGallery from "./PhotoGallery";
 import PhotoViewer from "./PhotoViewer";
 
@@ -13,24 +10,24 @@ export default function PhotoSection({
   caseId,
   readOnly = false,
 }: { caseId: string; readOnly?: boolean }) {
-  const { caseData, selectedPhoto, setSelectedPhoto, fileInputRef } =
-    useCaseContext();
   const {
+    caseData,
+    selectedPhoto,
+    setSelectedPhoto,
+    fileInputRef,
     handleUpload,
     removePhoto,
     reanalyzePhoto,
     reanalyzingPhoto,
     updatePhotoNote,
-  } = useCaseActions();
-  const {
     progress,
     progressDescription,
     requestValue,
     analysisActive,
     isPhotoReanalysis,
-  } = useCaseProgress(reanalyzingPhoto);
+    translate,
+  } = useCaseContext();
   const { i18n } = useTranslation();
-  const translate = useCaseTranslate(caseId);
   const [hasCamera, setHasCamera] = useState(false);
   useEffect(() => {
     if (
