@@ -63,7 +63,7 @@ export default function EditableText({
               e.currentTarget.blur();
             }
           }}
-          className="border p-1 text-sm"
+          className={css({ borderWidth: "1px", p: "1", fontSize: "sm" })}
         />
         {options ? (
           <datalist id={listId}>
@@ -77,7 +77,13 @@ export default function EditableText({
   }
 
   return (
-    <span className="inline-flex items-center gap-1">
+    <span
+      className={css({
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "1",
+      })}
+    >
       <span>{value || placeholder}</span>
       <button
         type="button"

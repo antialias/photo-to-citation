@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { css } from "styled-system/css";
 import TranslateIcon from "./TranslateIcon";
 
 export default function InlineTranslateButton({
@@ -27,7 +28,11 @@ export default function InlineTranslateButton({
       type="button"
       onClick={handleClick}
       aria-label="translate"
-      className="ml-2 text-blue-500 hover:text-blue-700"
+      className={css({
+        ml: "2",
+        color: "blue.500",
+        _hover: { color: "blue.700" },
+      })}
     >
       <TranslateIcon
         lang={lang}

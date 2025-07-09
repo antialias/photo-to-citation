@@ -2,6 +2,7 @@
 import { getLocalizedText } from "@/lib/localizedText";
 import type { ViolationReport } from "@/lib/openai";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 import InlineTranslateButton from "./InlineTranslateButton";
 
 export default function ImageHighlights({
@@ -23,10 +24,19 @@ export default function ImageHighlights({
     info.context,
     i18n.language,
   );
+  const styles = {
+    wrapper: css({
+      display: "flex",
+      flexDirection: "column",
+      gap: "1",
+      fontSize: "sm",
+    }),
+    bold: css({ fontWeight: "semibold" }),
+  };
   return (
-    <div className="flex flex-col gap-1 text-sm">
+    <div className={styles.wrapper}>
       <span>
-        <span className="font-semibold">Image score:</span>{" "}
+        <span className={styles.bold}>Image score:</span>{" "}
         {info.representationScore.toFixed(2)}
       </span>
       {highlights ? (

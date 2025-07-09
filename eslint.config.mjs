@@ -4,7 +4,7 @@ import eslintComments from "eslint-plugin-eslint-comments";
 export default [
   {
     files: ["**/*.{js,ts,tsx,jsx}"],
-    ignores: ["styled-system/**"],
+    ignores: ["styled-system/**/*"],
     languageOptions: {
       parser: tsParser,
     },

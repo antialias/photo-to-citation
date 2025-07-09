@@ -20,6 +20,7 @@ import {
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 
 const UPLOADED_PREVIEW_COUNT = 4;
 
@@ -528,8 +529,11 @@ export default function CaseProgressGraph({ caseData }: { caseData: Case }) {
     };
   }, [caseData]);
 
+  const styles = {
+    wrapper: css({ maxW: "full", overflowX: "auto" }),
+  };
   return (
-    <div className="max-w-full overflow-x-auto" ref={containerRef}>
+    <div className={styles.wrapper} ref={containerRef}>
       <Mermaid
         chart={chart}
         key={chart}

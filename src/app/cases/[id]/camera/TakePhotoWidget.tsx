@@ -2,6 +2,7 @@
 import useAddFilesToCase from "@/app/useAddFilesToCase";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { css } from "styled-system/css";
 import { ChatWidget, WidgetActions } from "../widgets";
 
 export default function TakePhotoWidget({
@@ -79,27 +80,37 @@ export default function TakePhotoWidget({
     }, "image/jpeg");
   }
 
+  const styles = {
+    wrapper: css({ w: "48" }),
+    video: css({ w: "full", h: "32", bg: "black", rounded: "md" }),
+    canvas: css({ display: "none" }),
+    error: css({ color: "red.200", textAlign: "center" }),
+    primary: css({
+      bg: "blue.800",
+      color: "white",
+      px: "1",
+      rounded: "md",
+      _disabled: { opacity: "50%" },
+    }),
+    secondary: css({ bg: "gray.200", color: "black", px: "1", rounded: "md" }),
+  };
   return (
-    <ChatWidget className="w-48">
-      <video ref={videoRef} className="w-full h-32 bg-black rounded">
+    <ChatWidget className={styles.wrapper}>
+      <video ref={videoRef} className={styles.video}>
         <track kind="captions" label="" />
       </video>
-      <canvas ref={canvasRef} className="hidden" />
-      {error && <div className="text-red-200 text-center">{error}</div>}
+      <canvas ref={canvasRef} className={styles.canvas} />
+      {error && <div className={styles.error}>{error}</div>}
       <WidgetActions centered>
         <button
           type="button"
           onClick={takePicture}
           disabled={uploading}
-          className="bg-blue-800 text-white px-1 rounded disabled:opacity-50"
+          className={styles.primary}
         >
           {uploading ? t("uploading") : t("takePicture")}
         </button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="bg-gray-200 text-black px-1 rounded"
-        >
+        <button type="button" onClick={onClose} className={styles.secondary}>
           {t("close")}
         </button>
       </WidgetActions>
