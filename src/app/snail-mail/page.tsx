@@ -1,6 +1,5 @@
-import { authOptions } from "@/lib/authOptions";
 import { withAuthorization } from "@/lib/authz";
-import { getServerSession } from "next-auth/next";
+import { SessionContext } from "../server-context";
 import SnailMailPageClient from "./SnailMailPageClient";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +9,7 @@ const handler = withAuthorization({ obj: "cases" }, async () => {
 });
 
 export default async function SnailMailPage() {
-  const session = await getServerSession(authOptions);
+  const session = SessionContext.read();
   return handler(new Request("http://localhost"), {
     params: Promise.resolve({}),
     session: session ?? undefined,

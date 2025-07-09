@@ -1,4 +1,3 @@
-import { authOptions } from "@/lib/authOptions";
 import type { Case } from "@/lib/caseStore";
 import { getCases } from "@/lib/caseStore";
 import {
@@ -9,12 +8,11 @@ import {
   hasCaseViolation,
 } from "@/lib/caseUtils";
 import { reportModules } from "@/lib/reportModules";
-import { getServerSession } from "next-auth/next";
-import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import { css } from "styled-system/css";
 import { token } from "styled-system/tokens";
 import i18n, { initI18n } from "../../i18n.server";
+import { LanguageContext, SessionContext } from "../server-context";
 
 export const dynamic = "force-dynamic";
 
@@ -52,21 +50,8 @@ function nextAction(c: Case): string {
 }
 
 export default async function TriagePage() {
-  const session = await getServerSession(authOptions);
-  const cookieStore = await cookies();
-  let lang = cookieStore.get("language")?.value;
-  if (!lang) {
-    const accept = (await headers()).get("accept-language") ?? "";
-    const supported = ["en", "es", "fr"];
-    for (const part of accept.split(",")) {
-      const code = part.split(";")[0].trim().toLowerCase().split("-")[0];
-      if (supported.includes(code)) {
-        lang = code;
-        break;
-      }
-    }
-    lang = lang ?? "en";
-  }
+  const session = SessionContext.read();
+  const lang = LanguageContext.read();
   await initI18n(lang);
   if (!session) {
     return <div className={css({ p: "8" })}>{i18n.t("notLoggedIn")}</div>;

@@ -8,6 +8,7 @@ import NavBar from "./components/NavBar";
 import NotificationProvider from "./components/NotificationProvider";
 import I18nProvider from "./i18n-provider";
 import QueryProvider from "./query-provider";
+import { LanguageContext, SessionContext } from "./server-context";
 import { UnleashProvider } from "./unleash-provider";
 import "./globals.css";
 import "./panda.css";
@@ -68,18 +69,22 @@ export default async function RootLayout({
             __html: `window.PUBLIC_ENV=${JSON.stringify(publicEnv)};`,
           }}
         />
-        <QueryProvider>
-          <UnleashProvider>
-            <I18nProvider lang={storedLang}>
-              <NotificationProvider>
-                <AuthProvider session={session}>
-                  <NavBar />
-                  {children}
-                </AuthProvider>
-              </NotificationProvider>
-            </I18nProvider>
-          </UnleashProvider>
-        </QueryProvider>
+        <SessionContext.Provider value={session}>
+          <LanguageContext.Provider value={storedLang}>
+            <QueryProvider>
+              <UnleashProvider>
+                <I18nProvider lang={storedLang}>
+                  <NotificationProvider>
+                    <AuthProvider session={session}>
+                      <NavBar />
+                      {children}
+                    </AuthProvider>
+                  </NotificationProvider>
+                </I18nProvider>
+              </UnleashProvider>
+            </QueryProvider>
+          </LanguageContext.Provider>
+        </SessionContext.Provider>
       </body>
     </html>
   );
