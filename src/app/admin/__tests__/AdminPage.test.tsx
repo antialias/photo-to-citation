@@ -1,10 +1,6 @@
 import AdminPage from "@/app/admin/page";
-import { getServerSession } from "next-auth/next";
 import { expect, it, vi } from "vitest";
-
-vi.mock("next-auth/next", () => ({
-  getServerSession: vi.fn(),
-}));
+import { SessionContext } from "../../server-context";
 
 vi.mock("@/lib/authOptions", () => ({
   authOptions: {},
@@ -15,11 +11,9 @@ vi.mock("@/lib/authz", () => ({
 }));
 
 it("returns 403 for non-admin", async () => {
-  (
-    getServerSession as unknown as { mockResolvedValue: (v: unknown) => void }
-  ).mockResolvedValue({
+  (SessionContext as unknown as { _currentValue: unknown })._currentValue = {
     user: { role: "user" },
-  });
+  };
   const res = (await AdminPage({
     searchParams: Promise.resolve({}),
   })) as Response;

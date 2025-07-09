@@ -1,7 +1,6 @@
-import { authOptions } from "@/lib/authOptions";
 import { getCases } from "@/lib/caseStore";
-import { getServerSession } from "next-auth/next";
 import type { ReactNode } from "react";
+import { SessionContext } from "../server-context";
 import CasesLayoutClient from "./CasesLayoutClient";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +13,7 @@ export default async function CasesLayout({
   params: Promise<{ id?: string }>;
 }) {
   await params;
-  const session = await getServerSession(authOptions);
+  const session = SessionContext.read();
   const list = getCases();
   const cases = session ? list : list.filter((c) => c.public);
   return <CasesLayoutClient initialCases={cases}>{children}</CasesLayoutClient>;
