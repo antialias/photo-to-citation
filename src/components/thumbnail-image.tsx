@@ -1,4 +1,5 @@
 import { type ImgHTMLAttributes, useEffect, useState } from "react";
+import { css, cx } from "styled-system/css";
 
 export interface ThumbnailImageProps
   extends Omit<
@@ -33,11 +34,33 @@ export default function ThumbnailImage({
   return (
     <div
       style={{ width, height }}
-      className={`relative overflow-hidden ${className ?? ""}`}
+      className={cx(
+        css({ position: "relative", overflow: "hidden" }),
+        className,
+      )}
     >
       {!ready && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
-          <div className="w-6 h-6 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+        <div
+          className={css({
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: { base: "gray.200", _dark: "gray.800" },
+          })}
+        >
+          <div
+            className={css({
+              width: "6",
+              height: "6",
+              borderWidth: "2px",
+              borderColor: "gray.500",
+              borderTopColor: "transparent",
+              borderRadius: "full",
+              animation: "spin",
+            })}
+          />
         </div>
       )}
       {/* biome-ignore lint/a11y/useAltText: alt text provided via props */}
@@ -48,7 +71,11 @@ export default function ThumbnailImage({
         height={height}
         onLoad={() => setReady(true)}
         onError={() => setReady(false)}
-        className={`object-cover max-w-full max-h-full ${imgClassName ?? ""} ${ready ? "" : "invisible"}`}
+        className={cx(
+          css({ objectFit: "cover", maxW: "full", maxH: "full" }),
+          imgClassName,
+          !ready ? css({ visibility: "hidden" }) : undefined,
+        )}
         loading="lazy"
         {...props}
       />

@@ -1,6 +1,7 @@
 "use client";
 import DebugWrapper from "@/app/components/DebugWrapper";
 import { useTranslation } from "react-i18next";
+import { css, cx } from "styled-system/css";
 import styles from "./CaseChat.module.css";
 import { useCaseChat } from "./CaseChatProvider";
 import TakePhotoWidget from "./camera/TakePhotoWidget";
@@ -35,17 +36,33 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
         available: availableActions,
         unavailable: unavailableActions,
       }}
-      className="flex flex-col flex-1 min-h-0"
+      className={css({
+        display: "flex",
+        flexDirection: "column",
+        flex: "1",
+        minH: 0,
+      })}
     >
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div
+        ref={scrollRef}
+        data-testid="chat-scroll"
+        className={css({
+          flex: "1",
+          overflowY: "auto",
+          p: "2",
+          display: "flex",
+          flexDirection: "column",
+          gap: "2",
+        })}
+      >
         {messages.map((m) => (
           <div
             key={m.id}
-            className={
-              m.role === "user"
-                ? "flex flex-col items-end"
-                : "flex flex-col items-start"
-            }
+            className={css({
+              display: "flex",
+              flexDirection: "column",
+              alignItems: m.role === "user" ? "flex-end" : "flex-start",
+            })}
           >
             <span
               className={`${styles.bubble} ${m.role === "user" ? styles.user : styles.assistant}`}
@@ -78,19 +95,21 @@ export default function ChatMessages({ caseId }: { caseId: string }) {
           </div>
         ))}
         {loading && (
-          <div className="text-left" key="typing">
+          <div className={css({ textAlign: "left" })} key="typing">
             <span
               className={`${styles.bubble} ${styles.assistant} ${styles.typing}`}
             />
           </div>
         )}
         {draftLoading && (
-          <div className="text-left" key="draft-loading">
-            <span className="text-sm">{t("draftingEmail")}</span>
+          <div className={css({ textAlign: "left" })} key="draft-loading">
+            <span className={css({ fontSize: "sm" })}>
+              {t("draftingEmail")}
+            </span>
           </div>
         )}
         {chatError && (
-          <div className="text-left" key="chat-error">
+          <div className={css({ textAlign: "left" })} key="chat-error">
             <span className={`${styles.bubble} ${styles.error}`}>
               {chatError}
             </span>

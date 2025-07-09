@@ -15,6 +15,7 @@ import {
 } from "@floating-ui/react";
 import { type ReactElement, cloneElement } from "react";
 import { useState } from "react";
+import { css } from "styled-system/css";
 
 export default function Tooltip({
   label,
@@ -70,7 +71,16 @@ export default function Tooltip({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-tooltip rounded bg-black/80 px-2 py-1 text-xs text-white shadow"
+            className={css({
+              zIndex: "var(--z-tooltip)",
+              borderRadius: "md",
+              backgroundColor: "rgba(0,0,0,0.8)",
+              px: "2",
+              py: "1",
+              fontSize: "xs",
+              color: "white",
+              shadow: "md",
+            })}
           >
             {label}
           </div>

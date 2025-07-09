@@ -12,6 +12,8 @@ import { reportModules } from "@/lib/reportModules";
 import { getServerSession } from "next-auth/next";
 import { cookies, headers } from "next/headers";
 import Link from "next/link";
+import { css } from "styled-system/css";
+import { token } from "styled-system/tokens";
 import i18n, { initI18n } from "../../i18n.server";
 
 export const dynamic = "force-dynamic";
@@ -67,13 +69,15 @@ export default async function TriagePage() {
   }
   await initI18n(lang);
   if (!session) {
-    return <div className="p-8">{i18n.t("notLoggedIn")}</div>;
+    return <div className={css({ p: "8" })}>{i18n.t("notLoggedIn")}</div>;
   }
   const cases = getCases();
   if (cases.length === 0) {
     return (
-      <div className="p-8">
-        <h1 className="text-xl font-bold mb-4">{i18n.t("caseTriage")}</h1>
+      <div className={css({ p: "8" })}>
+        <h1 className={css({ fontSize: "xl", fontWeight: "bold", mb: "4" })}>
+          {i18n.t("caseTriage")}
+        </h1>
         <p>{i18n.t("noCasesAvailable")}</p>
       </div>
     );
@@ -84,19 +88,31 @@ export default async function TriagePage() {
     .sort((a, b) => b.severity - a.severity)
     .slice(0, 5);
   return (
-    <div className="p-8">
-      <h1 className="text-xl font-bold mb-4">{i18n.t("caseTriage")}</h1>
+    <div className={css({ p: "8" })}>
+      <h1 className={css({ fontSize: "xl", fontWeight: "bold", mb: "4" })}>
+        {i18n.t("caseTriage")}
+      </h1>
       {triage.length === 0 ? (
         <p>{i18n.t("noOpenViolations")}</p>
       ) : (
-        <ul className="grid gap-4">
+        <ul className={css({ display: "grid", gap: "4" })}>
           {triage.map(({ case: c, severity }) => (
             <li key={c.id}>
               <Link
                 href={`/cases/${c.id}`}
-                className="block border p-4 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className={css({
+                  display: "block",
+                  borderWidth: "1px",
+                  p: "4",
+                  _hover: {
+                    backgroundColor: {
+                      base: token("colors.gray.50"),
+                      _dark: token("colors.gray.800"),
+                    },
+                  },
+                })}
               >
-                <p className="font-semibold">
+                <p className={css({ fontWeight: "semibold" })}>
                   {i18n.t("caseLabel", { id: c.id })}
                 </p>
                 {c.analysis?.violationType ? (
@@ -111,7 +127,7 @@ export default async function TriagePage() {
                     severity: (severity * 100).toFixed(0),
                   })}
                 </p>
-                <p className="mt-2">{nextAction(c)}</p>
+                <p className={css({ mt: "2" })}>{nextAction(c)}</p>
               </Link>
             </li>
           ))}

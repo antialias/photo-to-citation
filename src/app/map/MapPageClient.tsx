@@ -6,6 +6,7 @@ import { Map as PigeonMap, Marker as PigeonMarker } from "pigeon-maps";
 import { osm } from "pigeon-maps/providers";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { css, cx } from "styled-system/css";
 
 function MarkerIcon() {
   return (
@@ -94,12 +95,27 @@ export default function MapPageClient({ cases }: { cases: MapCase[] }) {
             width={25}
             onClick={() => router.push(`/cases/${c.id}`)}
           >
-            <div style={{ pointerEvents: "auto" }} className="group relative">
+            <div
+              style={{ pointerEvents: "auto" }}
+              className={cx(css({ position: "relative" }), "group")}
+            >
               <MarkerIcon />
-              <div className="absolute left-1/2 -translate-x-1/2 -translate-y-full hidden group-hover:block">
+              <div
+                className={css({
+                  position: "absolute",
+                  left: "50%",
+                  transform: "translateX(-50%) translateY(-100%)",
+                  display: "none",
+                  _groupHover: { display: "block" },
+                })}
+              >
                 <a
                   href={`/cases/${c.id}`}
-                  className="w-40 cursor-pointer block"
+                  className={css({
+                    width: "40",
+                    cursor: "pointer",
+                    display: "block",
+                  })}
                   onClick={(e) => {
                     e.preventDefault();
                     router.push(`/cases/${c.id}`);

@@ -20,7 +20,9 @@ describe("CaseChat scroll button", () => {
       <CaseChat caseId="1" />,
     );
     fireEvent.click(getByText("Chat"));
-    const scroll = container.querySelector(".overflow-y-auto") as HTMLElement;
+    const scroll = container.querySelector(
+      '[data-testid="chat-scroll"]',
+    ) as HTMLElement;
     Object.defineProperty(scroll, "scrollHeight", {
       value: 200,
       configurable: true,
@@ -42,7 +44,9 @@ describe("CaseChat scroll button", () => {
       <CaseChat caseId="1" />,
     );
     fireEvent.click(getByText("Chat"));
-    const scroll = container.querySelector(".overflow-y-auto") as HTMLElement;
+    const scroll = container.querySelector(
+      '[data-testid="chat-scroll"]',
+    ) as HTMLElement;
     Object.defineProperty(scroll, "scrollHeight", {
       value: 200,
       configurable: true,
