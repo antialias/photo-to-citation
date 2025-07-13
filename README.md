@@ -445,6 +445,9 @@ Run just the essential end-to-end smoke tests with:
 pnpm run e2e:smoke
 ```
 
+End-to-end tests run in a simulated browser environment powered by
+[Happy DOM](https://github.com/capricorn86/happy-dom).
+
 ## Docker
 
 To run the app in containers, install Docker and Docker Compose then build the stack:

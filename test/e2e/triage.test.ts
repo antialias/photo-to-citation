@@ -1,5 +1,5 @@
 import { getByRole } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { createAuthHelpers } from "./authHelpers";
@@ -36,10 +36,15 @@ describe("triage page @smoke", () => {
     const res = await api("/triage");
     expect(res.status).toBe(200);
     const html = await res.text();
-    const dom = new JSDOM(html);
-    const heading = getByRole(dom.window.document, "heading", {
-      name: /case triage/i,
-    });
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html });
+    const heading = getByRole(
+      dom.window.document.body as unknown as HTMLElement,
+      "heading",
+      {
+        name: /case triage/i,
+      },
+    );
     expect(heading).toBeTruthy();
   });
 });
