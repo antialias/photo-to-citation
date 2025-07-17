@@ -86,3 +86,9 @@ This repository is a Next.js TypeScript project using Vitest and Biome.
 - Stage the lock file with `git add pnpm-lock.yaml` so the full file is committed, never a partial patch.
 - Run `git diff --staged pnpm-lock.yaml` and confirm it starts with `lockfileVersion` and ends with a newline.
   If the diff only shows a handful of lines, discard the changes and regenerate the lock file.
+
+## Task List Workflow
+
+- The file `task-list.md` at the repository root contains prioritized tasks for agents.
+- If a prompt does not provide other instructions, open this file and work on the first remaining task.
+- When you finish a task, remove its line from `task-list.md` and commit the update with your code changes.
