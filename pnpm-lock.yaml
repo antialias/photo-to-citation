@@ -5164,8 +5164,8 @@ packages:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
     engines: {node: '>=6.0'}
 
-  chromedriver@138.0.2:
-    resolution: {integrity: sha512-mmAtTCK0GHum+zbgcv3PYDX7tqNdTXDsd2t6WWI/Tm/Ts2xCGlc5XUcL3oxw1Dn/kmPJOurwrYJKO7vV4xkisA==}
+  chromedriver@138.0.5:
+    resolution: {integrity: sha512-WE5O09if9TmFfIpvydt5dyhj+TNTUttvnujoRtAShQuDghulSh1HFirBnjNrAWjEoMkXn9VUw+cCYzZ597VPJQ==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -13154,7 +13154,7 @@ snapshots:
     dependencies:
       '@axe-core/webdriverjs': 4.10.2(selenium-webdriver@4.22.0)
       axe-core: 4.10.3
-      chromedriver: 138.0.2
+      chromedriver: 138.0.5
       colors: 1.4.0
       commander: 9.5.0
       dotenv: 16.6.1
@@ -20076,7 +20076,7 @@ snapshots:
 
   chrome-trace-event@1.0.4: {}
 
-  chromedriver@138.0.2:
+  chromedriver@138.0.5:
     dependencies:
       '@testim/chrome-version': 1.1.4
       axios: 1.10.0
