@@ -1,13 +1,10 @@
 import Home from "@/app/page";
-import { getServerSession } from "next-auth/next";
 import { headers } from "next/headers";
 import { type Mock, beforeAll, describe, expect, it, vi } from "vitest";
+import { SessionContext } from "../server-context";
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(),
-}));
-vi.mock("next-auth/next", () => ({
-  getServerSession: vi.fn(),
 }));
 vi.mock("@/lib/authOptions", () => ({ authOptions: {} }));
 
@@ -23,7 +20,9 @@ describe("Home page", () => {
   });
 
   it("redirects mobile users to /point when signed in", async () => {
-    (getServerSession as Mock).mockResolvedValueOnce({ user: {} });
+    (SessionContext as unknown as { _currentValue: unknown })._currentValue = {
+      user: {},
+    };
     (headers as Mock).mockReturnValueOnce(
       Promise.resolve(
         new Headers({
@@ -42,7 +41,8 @@ describe("Home page", () => {
   });
 
   it("renders landing page when logged out", async () => {
-    (getServerSession as Mock).mockResolvedValueOnce(null);
+    (SessionContext as unknown as { _currentValue: unknown })._currentValue =
+      null;
     (headers as Mock).mockReturnValueOnce(
       Promise.resolve(
         new Headers({ "user-agent": "Mozilla/5.0 (X11; Linux x86_64)" }),
