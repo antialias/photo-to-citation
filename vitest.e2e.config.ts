@@ -8,7 +8,7 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "node",
+    environment: "happy-dom",
     include: ["test/e2e/*.test.ts"],
     testTimeout: 30000,
     hookTimeout: 30000,

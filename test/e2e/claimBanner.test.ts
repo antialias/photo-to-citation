@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { getByText } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { createPhoto } from "./photo";
@@ -35,8 +35,12 @@ describe("claim banner", () => {
     const res = await api("/api/upload", { method: "POST", body: form });
     const { caseId } = (await res.json()) as { caseId: string };
     const page = await api(`/cases/${caseId}`).then((r) => r.text());
-    const dom = new JSDOM(page);
-    const banner = getByText(dom.window.document, /claim this case/i);
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html: page });
+    const banner = getByText(
+      dom.window.document.body as unknown as HTMLElement,
+      /claim this case/i,
+    );
     expect(banner).toBeTruthy();
   });
 });

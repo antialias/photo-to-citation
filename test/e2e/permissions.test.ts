@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { getByTestId } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
@@ -81,7 +81,8 @@ describe("permissions", () => {
 
     const id = await createCase();
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    const caseDom = new JSDOM(casePage);
+    // @ts-expect-error happy-dom html option
+    const caseDom = new Window({ html: casePage });
     const delButton = caseDom.window.document.querySelector(
       '[data-testid="delete-case-button"]',
     );
@@ -91,8 +92,12 @@ describe("permissions", () => {
     expect(delButton).toBeNull();
     expect(closeButton).toBeNull();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    const draftDom = new JSDOM(draft);
-    const sendButton = getByTestId(draftDom.window.document, "send-button");
+    // @ts-expect-error happy-dom html option
+    const draftDom = new Window({ html: draft });
+    const sendButton = getByTestId(
+      draftDom.window.document.body as unknown as HTMLElement,
+      "send-button",
+    );
     expect(sendButton.hasAttribute("disabled")).toBe(true);
   });
 
@@ -101,20 +106,25 @@ describe("permissions", () => {
     await signIn("admin@example.com");
     const id = await createCase();
     const casePage = await api(`/cases/${id}`).then((r) => r.text());
-    const caseDom = new JSDOM(casePage);
+    // @ts-expect-error happy-dom html option
+    const caseDom = new Window({ html: casePage });
     const delButton = getByTestId(
-      caseDom.window.document,
+      caseDom.window.document.body as unknown as HTMLElement,
       "delete-case-button",
     );
     const closeButton = getByTestId(
-      caseDom.window.document,
+      caseDom.window.document.body as unknown as HTMLElement,
       "close-case-button",
     );
     expect(delButton).toBeTruthy();
     expect(closeButton).toBeTruthy();
     const draft = await api(`/cases/${id}/draft`).then((r) => r.text());
-    const draftDom = new JSDOM(draft);
-    const sendButton = getByTestId(draftDom.window.document, "send-button");
+    // @ts-expect-error happy-dom html option
+    const draftDom = new Window({ html: draft });
+    const sendButton = getByTestId(
+      draftDom.window.document.body as unknown as HTMLElement,
+      "send-button",
+    );
     expect(sendButton.hasAttribute("disabled")).toBe(false);
   });
 });

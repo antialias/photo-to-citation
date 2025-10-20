@@ -1,5 +1,5 @@
 import { getByRole } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { smokeEnv, smokePort } from "./smokeServer";
 import { type TestServer, startServer } from "./startServer";
@@ -19,10 +19,15 @@ describe("end-to-end @smoke", () => {
     const res = await fetch(`${server.url}/`);
     expect(res.status).toBe(200);
     const html = await res.text();
-    const dom = new JSDOM(html);
-    const heading = getByRole(dom.window.document, "heading", {
-      name: /photo to citation/i,
-    });
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html });
+    const heading = getByRole(
+      dom.window.document.body as unknown as HTMLElement,
+      "heading",
+      {
+        name: /photo to citation/i,
+      },
+    );
     expect(heading).toBeTruthy();
   });
 });

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { getByRole } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
@@ -73,10 +73,15 @@ describe("thread page @smoke", () => {
     const res = await api(`/cases/${id}/thread/start`);
     expect(res.status).toBe(200);
     const html = await res.text();
-    const dom = new JSDOM(html);
-    const heading = getByRole(dom.window.document, "heading", {
-      name: /thread/i,
-    });
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html });
+    const heading = getByRole(
+      dom.window.document.body as unknown as HTMLElement,
+      "heading",
+      {
+        name: /thread/i,
+      },
+    );
     expect(heading).toBeTruthy();
   });
 });

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { getByTestId } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { type OpenAIStub, startOpenAIStub } from "./openaiStub";
@@ -62,8 +62,12 @@ describe("case visibility @smoke", () => {
     const { caseId } = (await upload.json()) as { caseId: string };
 
     const page = await api(`/cases/${caseId}`).then((r) => r.text());
-    const dom = new JSDOM(page);
-    const toggle = getByTestId(dom.window.document, "toggle-public-button");
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html: page });
+    const toggle = getByTestId(
+      dom.window.document.body as unknown as HTMLElement,
+      "toggle-public-button",
+    );
     expect(toggle).toBeTruthy();
   });
 
@@ -81,11 +85,12 @@ describe("case visibility @smoke", () => {
     });
 
     const page = await api(`/public/cases/${caseId}`).then((r) => r.text());
-    const dom = new JSDOM(page);
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html: page });
     const chatButton = Array.from(
       dom.window.document.querySelectorAll(
         "button",
-      ) as NodeListOf<HTMLButtonElement>,
+      ) as unknown as NodeListOf<HTMLButtonElement>,
     ).find((b) => b.textContent?.trim() === "Chat");
     expect(chatButton).toBeUndefined();
   });

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { getByRole } from "@testing-library/dom";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApi } from "./api";
 import { smokeEnv, smokePort } from "./smokeServer";
@@ -45,7 +45,8 @@ describe("profile page e2e @smoke", () => {
   it("blocks anonymous access", async () => {
     const res = await api("/settings");
     const html = await res.text();
-    const dom = new JSDOM(html);
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html });
     expect(dom.window.document.body.textContent).toMatch(/not logged in/i);
   });
 
@@ -101,10 +102,15 @@ describe("profile page e2e @smoke", () => {
     expect(data.driverLicenseState).toBe("IL");
 
     const page = await api("/settings").then((r) => r.text());
-    const dom = new JSDOM(page);
-    const heading = getByRole(dom.window.document, "heading", {
-      name: /user settings/i,
-    });
+    // @ts-expect-error happy-dom html option
+    const dom = new Window({ html: page });
+    const heading = getByRole(
+      dom.window.document.body as unknown as HTMLElement,
+      "heading",
+      {
+        name: /user settings/i,
+      },
+    );
     expect(heading).toBeTruthy();
   });
 });
