@@ -30,6 +30,14 @@ vi.mock("next/image", () => ({
     React.createElement("img", props),
 }));
 
+vi.mock("styled-system/css", () => ({
+  css: () => "",
+}));
+
+vi.mock("styled-system/tokens", () => ({
+  token: (path: string) => path,
+}));
+
 let originalGetUserMedia:
   | ((constraints: MediaStreamConstraints) => Promise<MediaStream>)
   | undefined;
