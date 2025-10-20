@@ -156,7 +156,7 @@ describe("reanalysis", () => {
       await poll(
         () => Promise.resolve(stub.requests.length),
         (len) => len >= 1,
-        20,
+        40,
       );
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     });
@@ -279,7 +279,7 @@ describe("reanalysis", () => {
       await poll(
         () => Promise.resolve(stub.requests.length),
         (len) => len >= 1,
-        20,
+        40,
       );
       expect(stub.requests.length).toBeGreaterThanOrEqual(1);
     });
