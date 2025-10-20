@@ -229,7 +229,10 @@ export default function NavBar() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          bg: token("colors.surface-subtle"),
+          bg: {
+            base: token("colors.gray.100"),
+            _dark: token("colors.gray.800"),
+          },
           color: { base: "gray.900", _dark: "gray.100" },
           position: "sticky",
           top: 0,
