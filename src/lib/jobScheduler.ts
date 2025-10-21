@@ -92,6 +92,10 @@ export function runJob(
   worker.on("message", (msg) => {
     if (msg && msg.event === "update") {
       caseEvents.emit("update", msg.data);
+    } else if (msg === "done") {
+      caseEvents.emit("taskComplete", { job: name, data: jobData });
+    } else if (msg === "error") {
+      caseEvents.emit("taskError", { job: name, data: jobData });
     }
   });
   worker.on("error", (err) => {
