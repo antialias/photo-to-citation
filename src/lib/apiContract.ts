@@ -5,6 +5,7 @@ import { snailMailProviderStatusSchema } from "@/generated/zod/snailMailProvider
 import { vinSourceStatusSchema } from "@/generated/zod/vinSources";
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
+import { emailDraftSchema } from "./caseReport";
 
 const c = initContract();
 
@@ -197,7 +198,7 @@ export const apiContract = c.router({
     pathParams: idParams,
     responses: c.responses({
       200: z.object({
-        email: emailOptionsSchema.pick({ subject: true, body: true }),
+        email: emailDraftSchema,
         attachments: z.array(z.string()),
         module: reportModuleSchema,
       }),
