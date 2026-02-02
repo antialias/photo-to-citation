@@ -41,9 +41,10 @@ main {
 }
 
 .hero img {
+  display: block;
   max-width: 100%;
   height: auto;
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
 }
 
 .hero h1 {
