@@ -94,6 +94,25 @@ describe("caseStore", () => {
     expect(cleared?.analysis?.vehicle?.model).toBeUndefined();
   });
 
+  it("merges override fields", () => {
+    const { createCase, setCaseAnalysisOverrides, getCase } = caseStore;
+    const c = createCase(
+      "/merge.jpg",
+      null,
+      undefined,
+      "2020-01-10T00:00:00.000Z",
+    );
+    setCaseAnalysisOverrides(c.id, {
+      vehicle: { licensePlateNumber: "ABC123" },
+    });
+    setCaseAnalysisOverrides(c.id, {
+      vehicle: { licensePlateState: "IL" },
+    });
+    const merged = getCase(c.id);
+    expect(merged?.analysis?.vehicle?.licensePlateNumber).toBe("ABC123");
+    expect(merged?.analysis?.vehicle?.licensePlateState).toBe("IL");
+  });
+
   it("computes the representative photo", () => {
     const { createCase, addCasePhoto, getCase } = caseStore;
     const c = createCase("/b.jpg", null, undefined, "2020-01-05T00:00:00.000Z");
