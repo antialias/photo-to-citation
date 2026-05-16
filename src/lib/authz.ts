@@ -1,5 +1,6 @@
 import { type Enforcer, newEnforcer, newModelFromString } from "casbin";
 import { getServerSession } from "next-auth/next";
+import { notFound } from "next/navigation";
 import { getAnonymousSessionId } from "./anonymousSession";
 import { authOptions } from "./authOptions";
 import { isCaseMember } from "./caseMembers";
@@ -155,4 +156,32 @@ export function withCaseAuthorization<
     }
     return handler(req, { ...ctx, session } as C);
   };
+}
+
+/**
+ * Authorization guard for App Router pages.
+ *
+ * `withAuthorization` is for route handlers and returns a 403 `Response` on
+ * denial — but a page component must resolve to `ReactNode`, never a
+ * `Response`. This guard loads the session, checks the `(obj, act)` pair via
+ * Casbin, and on denial calls `notFound()` (which throws `never`, rendering
+ * the 404 page). 404-on-denial also avoids leaking that the route exists.
+ *
+ * Returns the resolved `{ session, role, userId }` for the caller to use.
+ */
+export async function requirePageAuthorization(
+  opts: { obj: string; act?: string },
+  ctx: { session?: { user?: { id?: string; role?: string } } } = {},
+): Promise<{
+  session?: { user?: { id?: string; role?: string } };
+  role: string;
+  userId?: string;
+}> {
+  const { session, role, userId } = await loadAuthContext(ctx);
+  const act = opts.act ?? "read";
+  log("requirePageAuthorization", role, opts.obj, act);
+  if (!(await authorize(role, opts.obj, act))) {
+    notFound();
+  }
+  return { session, role, userId };
 }

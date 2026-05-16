@@ -5,7 +5,10 @@ import path from "node:path";
 import dotenv from "dotenv";
 import { JSDOM } from "jsdom";
 import OpenAI from "openai";
-import type { ImageGenerateParams } from "openai/resources/images";
+import type {
+  ImageGenerateParams,
+  ImagesResponse,
+} from "openai/resources/images";
 import sharp from "sharp";
 
 dotenv.config();
@@ -139,7 +142,9 @@ async function generate(websiteDir: string, spec: ImageSpec): Promise<void> {
     return;
   }
   try {
-    const res = await openai.images.generate(spec.args);
+    // openai v6: images.generate() returns ImagesResponse | Stream<...>.
+    // We never pass stream:true here, so narrow to the non-streaming response.
+    const res = (await openai.images.generate(spec.args)) as ImagesResponse;
     const url = res.data?.[0]?.url;
     if (!url) throw new Error("Image generation failed");
     const imgRes = await fetch(url);

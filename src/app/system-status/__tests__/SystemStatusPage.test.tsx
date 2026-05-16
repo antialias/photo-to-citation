@@ -1,47 +1,27 @@
 import SystemStatusPage from "@/app/system-status/page";
-import { getServerSession } from "next-auth/next";
+import { requirePageAuthorization } from "@/lib/authz";
 import { expect, it, vi } from "vitest";
 
-vi.mock("next-auth/next", () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock("@/lib/authOptions", () => ({
-  authOptions: {},
-}));
-
 vi.mock("@/lib/authz", () => ({
-  withAuthorization:
-    (
-      _opts: unknown,
-      handler: (
-        req: Request,
-        ctx: { session?: { user?: { role?: string } } },
-      ) => unknown,
-    ) =>
-    async (req: Request, ctx: { session?: { user?: { role?: string } } }) => {
-      return ctx.session?.user?.role === "superadmin"
-        ? handler(req, ctx)
-        : new Response(null, { status: 403 });
-    },
+  requirePageAuthorization: vi.fn(),
 }));
 
-it("returns 403 for non-superadmin", async () => {
+it("denies non-superadmin via notFound()", async () => {
+  // requirePageAuthorization calls Next's notFound() on denial, which throws.
   (
-    getServerSession as unknown as { mockResolvedValue: (v: unknown) => void }
-  ).mockResolvedValue({
-    user: { role: "admin" },
-  });
-  const res = (await SystemStatusPage()) as Response;
-  expect(res.status).toBe(403);
+    requirePageAuthorization as unknown as {
+      mockRejectedValue: (v: unknown) => void;
+    }
+  ).mockRejectedValue(new Error("NEXT_NOT_FOUND"));
+  await expect(SystemStatusPage()).rejects.toThrow("NEXT_NOT_FOUND");
 });
 
 it("renders for superadmin", async () => {
   (
-    getServerSession as unknown as { mockResolvedValue: (v: unknown) => void }
-  ).mockResolvedValue({
-    user: { role: "superadmin" },
-  });
+    requirePageAuthorization as unknown as {
+      mockResolvedValue: (v: unknown) => void;
+    }
+  ).mockResolvedValue({ role: "superadmin" });
   const res = await SystemStatusPage();
   expect(res).not.toBeInstanceOf(Response);
 });
