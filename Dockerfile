@@ -50,5 +50,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/forms ./forms
 COPY --from=builder /app/dist/jobs ./dist/jobs
 COPY --from=builder /app/src/lib ./src/lib
+# Run as the unprivileged built-in `node` user (uid 1000) instead of root, so an
+# app-level RCE cannot trivially escalate to root inside the container. Pre-create
+# the runtime-writable dirs (SQLite db + uploads) and hand /app to that user.
+RUN mkdir -p /app/uploads /app/data \
+    && chown -R node:node /app
+USER node
 EXPOSE 3000
 CMD ["pnpm", "start"]
